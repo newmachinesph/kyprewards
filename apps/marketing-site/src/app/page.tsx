@@ -34,8 +34,24 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <main>
-      <section className="site-grid overflow-hidden border-b border-[var(--line)]">
-        <div className="mx-auto grid min-h-[760px] max-w-[1400px] items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:py-24">
+      <section className="site-grid relative overflow-hidden border-b border-[var(--line)]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/hero-bg.webp"
+          alt=""
+          aria-hidden="true"
+          fetchPriority="high"
+          className="absolute inset-0 size-full object-cover object-[70%_center]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[linear-gradient(90deg,var(--paper)_8%,rgb(247_243_236/86%)_42%,rgb(247_243_236/34%)_100%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent,var(--paper))]"
+        />
+        <div className="relative mx-auto grid min-h-[760px] max-w-[1400px] items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:py-24">
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[rgb(255_253_248/72%)] px-3 py-2 text-[11px] font-bold text-[var(--muted-strong)] backdrop-blur">
               <span className="grid size-5 place-items-center rounded-full bg-[var(--accent)]">
