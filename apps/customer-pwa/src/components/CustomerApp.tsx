@@ -13,6 +13,7 @@ import {
   Check,
   ChevronRight,
   Coffee,
+  Clock,
   Coins,
   Compass,
   Croissant,
@@ -1040,6 +1041,38 @@ function BusinessSheet({
           </div>
         </section>
         <div className="px-5 pt-6">
+          <section className="mb-4 rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-4">
+            <div className="flex items-start gap-3">
+              <MapPin size={17} className="mt-0.5 shrink-0 text-[var(--muted)]" />
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+                  Address
+                </p>
+                <p className="mt-1 text-sm font-extrabold leading-snug">
+                  {business.address}
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 flex items-start gap-3 border-t border-[var(--line)] pt-4">
+              <Clock size={17} className="mt-0.5 shrink-0 text-[var(--muted)]" />
+              <div className="w-full">
+                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+                  Opening hours
+                </p>
+                <dl className="mt-1 space-y-1">
+                  {business.hours.map((slot) => (
+                    <div
+                      key={slot.days}
+                      className="flex items-baseline justify-between gap-4 text-sm"
+                    >
+                      <dt className="text-[var(--muted-strong)]">{slot.days}</dt>
+                      <dd className="font-extrabold">{slot.time}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </div>
+          </section>
           <div className="grid grid-cols-2 gap-3">
             {[
               ["One private QR", "Works across places you join"],

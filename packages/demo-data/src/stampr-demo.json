@@ -688,6 +688,11 @@
         "neighborhood": "Kapitolyo",
         "distance": "450 m",
         "reward": "8 visits → free pastry",
+        "address": "12 East Capitol Drive, Kapitolyo, Pasig",
+        "hours": [
+          { "days": "Mon – Fri", "time": "7:00 AM – 8:00 PM" },
+          { "days": "Sat – Sun", "time": "8:00 AM – 9:00 PM" }
+        ],
         "joined": true,
         "open": true
       },
@@ -698,6 +703,10 @@
         "neighborhood": "Brixton",
         "distance": "1.2 km",
         "reward": "₱1 → 1 point",
+        "address": "48 Brixton Street, Kapitolyo, Pasig",
+        "hours": [
+          { "days": "Mon – Sun", "time": "6:30 AM – 10:00 PM" }
+        ],
         "joined": true,
         "open": true
       },
@@ -708,6 +717,11 @@
         "neighborhood": "Capitol Commons",
         "distance": "1.7 km",
         "reward": "VIP monthly access",
+        "address": "5F Estancia Mall, Capitol Commons, Pasig",
+        "hours": [
+          { "days": "Tue – Sun", "time": "9:00 AM – 7:00 PM" },
+          { "days": "Mon", "time": "Closed" }
+        ],
         "joined": true,
         "open": false
       },
@@ -718,6 +732,11 @@
         "neighborhood": "Ortigas",
         "distance": "1.8 km",
         "reward": "5 cuts → signature treatment",
+        "address": "G/F Emerald Avenue, Ortigas Center, Pasig",
+        "hours": [
+          { "days": "Mon – Sat", "time": "10:00 AM – 9:00 PM" },
+          { "days": "Sun", "time": "11:00 AM – 6:00 PM" }
+        ],
         "joined": false,
         "open": true
       },
@@ -728,6 +747,10 @@
         "neighborhood": "Shaw",
         "distance": "2.1 km",
         "reward": "Member pricing + gift value",
+        "address": "2F Shaw Boulevard, Mandaluyong",
+        "hours": [
+          { "days": "Mon – Sun", "time": "10:00 AM – 9:00 PM" }
+        ],
         "joined": true,
         "open": true
       },
@@ -738,6 +761,11 @@
         "neighborhood": "Greenfield",
         "distance": "2.4 km",
         "reward": "10-class multipass",
+        "address": "Mayflower Street, Greenfield District, Mandaluyong",
+        "hours": [
+          { "days": "Mon – Fri", "time": "6:00 AM – 10:00 PM" },
+          { "days": "Sat – Sun", "time": "7:00 AM – 6:00 PM" }
+        ],
         "joined": false,
         "open": true
       }
