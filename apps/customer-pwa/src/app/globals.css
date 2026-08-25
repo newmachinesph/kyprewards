@@ -1,0 +1,114 @@
+@import "tailwindcss";
+@source "../../../../packages/ui/src";
+
+:root {
+  color-scheme: light;
+  --paper: #f7f3ec;
+  --surface: #fffdf9;
+  --surface-2: #eee8df;
+  --ink: #251d18;
+  --ink-soft: #3a2d26;
+  --muted: #75685f;
+  --muted-strong: #6d6057;
+  --line: #e4dbd0;
+  --line-strong: #d6cabd;
+  --accent: #f2a12d;
+  --accent-strong: #95530c;
+  --success: #0f7655;
+  --danger: #b23b2b;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  background: #ded8cf;
+}
+body {
+  margin: 0;
+  background:
+    radial-gradient(
+      circle at 20% 15%,
+      rgb(242 161 45 / 11%),
+      transparent 23rem
+    ),
+    #ded8cf;
+  color: var(--ink);
+  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+:is(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+
+.phone-shell {
+  box-shadow: 0 24px 80px rgb(37 29 24 / 16%);
+}
+.customer-scroll {
+  scrollbar-width: none;
+}
+.customer-scroll::-webkit-scrollbar {
+  display: none;
+}
+.loyalty-ticket {
+  background:
+    radial-gradient(circle at -2px 55%, var(--paper) 0 8px, transparent 9px),
+    radial-gradient(
+      circle at calc(100% + 2px) 55%,
+      var(--paper) 0 8px,
+      transparent 9px
+    ),
+    var(--ink);
+}
+
+@keyframes scan-pass {
+  0% {
+    transform: translateY(-130%);
+    opacity: 0;
+  }
+  20%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(430%);
+    opacity: 0;
+  }
+}
+.scan-pass {
+  animation: scan-pass 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@media (max-width: 520px) {
+  html,
+  body {
+    background: var(--paper);
+  }
+  .phone-shell {
+    box-shadow: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

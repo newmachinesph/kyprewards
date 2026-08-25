@@ -1,0 +1,35 @@
+"use client";
+
+import { useEffect } from "react";
+import { Button } from "@stampr/ui";
+import { CircleAlert, RotateCcw } from "lucide-react";
+
+export default function ErrorPage({
+  error,
+  retry,
+}: {
+  error: Error & { digest?: string };
+  retry: () => void;
+}) {
+  useEffect(() => console.error(error), [error]);
+
+  return (
+    <main className="grid min-h-[100dvh] place-items-center p-6">
+      <div className="max-w-md text-center">
+        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[rgb(216_83_62/12%)] text-[var(--danger)]">
+          <CircleAlert />
+        </span>
+        <h1 className="mt-5 text-2xl font-black tracking-[-0.04em]">
+          The dashboard did not load.
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
+          Your data is safe. Check the connection and try loading this view
+          again.
+        </p>
+        <Button className="mt-6" onClick={retry} icon={<RotateCcw size={16} />}>
+          Try again
+        </Button>
+      </div>
+    </main>
+  );
+}

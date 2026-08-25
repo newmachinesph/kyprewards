@@ -1,0 +1,536 @@
+"use client";
+
+import {
+  useEffect,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
+  Building2,
+  Check,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Mail,
+  ShieldCheck,
+  Store,
+  UserRoundPlus,
+} from "lucide-react";
+import { BrandMark } from "./index";
+
+export type DemoAuthRole = "business" | "admin" | "customer";
+export type DemoAuthMode =
+  | "login"
+  | "forgot"
+  | "verify"
+  | "create"
+  | "workspaces"
+  | "invite";
+
+const roleConfig = {
+  business: {
+    label: "Business workspace",
+    eyebrow: "Merchant access",
+    identifierLabel: "Work email",
+    identifierType: "email",
+    identifier: "mara@sweetcrumbs.ph",
+    signInTitle: "Welcome back to the counter.",
+    signInDescription:
+      "Sign in to manage customers, programs, campaigns, locations, and integrations.",
+    steps: [
+      ["Workspace", "Sweet Crumbs Bakery"],
+      ["Role", "Owner · all locations"],
+      ["Next", "Choose a workspace"],
+    ],
+  },
+  admin: {
+    label: "Platform control",
+    eyebrow: "Restricted access",
+    identifierLabel: "Administrator email",
+    identifierType: "email",
+    identifier: "admin@stampr.ph",
+    signInTitle: "Enter the control room.",
+    signInDescription:
+      "Privileged sessions require a password and a second verification step.",
+    steps: [
+      ["Scope", "Platform operations"],
+      ["Policy", "MFA required"],
+      ["Audit", "Privileged actions recorded"],
+    ],
+  },
+  customer: {
+    label: "Customer wallet",
+    eyebrow: "Passwordless access",
+    identifierLabel: "Mobile number",
+    identifierType: "tel",
+    identifier: "+63 917 555 0182",
+    signInTitle: "Your rewards are waiting.",
+    signInDescription:
+      "Use your mobile number or email to open the same private wallet on this device.",
+    steps: [
+      ["Member", "Jacqueline Daniel"],
+      ["Wallet", "4 local businesses"],
+      ["Privacy", "Permissions stay visible"],
+    ],
+  },
+} as const;
+
+function sessionKey(role: DemoAuthRole) {
+  return `stampr-${role}-demo-session`;
+}
+
+export function startDemoSession(role: DemoAuthRole) {
+  window.sessionStorage.setItem(sessionKey(role), "signed-in");
+}
+
+export function signOutDemo(role: DemoAuthRole) {
+  window.sessionStorage.setItem(sessionKey(role), "signed-out");
+  window.location.replace("/login?loggedOut=1");
+}
+
+export function DemoSessionGate({
+  role,
+  children,
+}: {
+  role: DemoAuthRole;
+  children: ReactNode;
+}) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const state = window.sessionStorage.getItem(sessionKey(role));
+    if (state === "signed-out") {
+      window.location.replace("/login");
+      return;
+    }
+    const readyTimer = window.setTimeout(() => setReady(true), 0);
+    return () => window.clearTimeout(readyTimer);
+  }, [role]);
+
+  if (!ready) {
+    return (
+      <main className="grid min-h-[100dvh] place-items-center bg-[var(--paper)] px-5">
+        <div className="w-full max-w-sm" aria-label="Checking demo session">
+          <div className="h-3 w-24 rounded-full bg-[var(--line-strong)] motion-safe:animate-pulse" />
+          <div className="mt-5 h-10 w-3/4 rounded-2xl bg-[var(--line)] motion-safe:animate-pulse" />
+          <div className="mt-3 h-4 w-full rounded-full bg-[var(--line)] motion-safe:animate-pulse" />
+          <div className="mt-10 h-48 rounded-[28px] bg-[var(--surface-2)] motion-safe:animate-pulse" />
+        </div>
+      </main>
+    );
+  }
+
+  return children;
+}
+
+function AuthShell({
+  role,
+  title,
+  description,
+  children,
+}: {
+  role: DemoAuthRole;
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  const config = roleConfig[role];
+  return (
+    <main className="min-h-[100dvh] bg-[var(--paper)] lg:grid lg:grid-cols-[minmax(340px,0.72fr)_minmax(0,1.28fr)]">
+      <aside className="relative hidden min-h-[100dvh] overflow-hidden bg-[var(--ink)] p-8 text-[var(--paper)] lg:flex lg:flex-col xl:p-12">
+        <div className="absolute -right-20 -top-20 size-64 rounded-full border-[52px] border-[var(--accent)] opacity-90" />
+        <div className="relative">
+          <BrandMark inverse label={config.label} />
+        </div>
+        <div className="relative my-auto max-w-md py-16">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--accent)]">
+            Demo access receipt
+          </p>
+          <h2 className="mt-5 text-4xl font-black leading-[0.98] tracking-[-0.06em] xl:text-5xl">
+            Every role enters through a clear, trusted door.
+          </h2>
+          <div className="mt-10 divide-y divide-white/12 border-y border-white/12">
+            {config.steps.map(([label, value]) => (
+              <div key={label} className="grid grid-cols-[88px_1fr] gap-4 py-4">
+                <span className="font-mono text-[9px] font-black uppercase tracking-[0.12em] text-white/55">
+                  {label}
+                </span>
+                <span className="text-sm font-bold text-white/85">{value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="relative flex items-start gap-3 border-t border-white/12 pt-5">
+          <ShieldCheck size={18} className="mt-0.5 shrink-0 text-[var(--accent)]" />
+          <p className="max-w-[42ch] text-xs leading-relaxed text-white/62">
+            Frontend demo only. Credentials stay in this browser session and no
+            identity provider or backend receives them.
+          </p>
+        </div>
+      </aside>
+
+      <section className="relative flex min-h-[100dvh] items-center px-4 py-8 sm:px-8 lg:px-12 xl:px-20">
+        <div className="mx-auto w-full max-w-[520px]">
+          <div className="mb-10 lg:hidden">
+            <BrandMark label={config.label} />
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-[10px] font-black uppercase tracking-[0.17em] text-[var(--accent-strong)]">
+              {config.eyebrow}
+            </span>
+            <span className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.11em] text-[var(--muted-strong)]">
+              Frontend demo
+            </span>
+          </div>
+          <h1 className="mt-5 max-w-[13ch] text-4xl font-black leading-[0.98] tracking-[-0.06em] sm:text-5xl">
+            {title}
+          </h1>
+          <p className="mt-4 max-w-[52ch] text-sm leading-relaxed text-[var(--muted-strong)]">
+            {description}
+          </p>
+          <div className="mt-9">{children}</div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function Field({
+  label,
+  type = "text",
+  value,
+  onChange,
+  autoComplete,
+  placeholder,
+  required = true,
+}: {
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (value: string) => void;
+  autoComplete?: string;
+  placeholder?: string;
+  required?: boolean;
+}) {
+  return (
+    <label className="grid gap-2 text-xs font-black text-[var(--ink)]">
+      {label}
+      <input
+        type={type}
+        value={value}
+        required={required}
+        autoComplete={autoComplete}
+        placeholder={placeholder}
+        onChange={(event) => onChange(event.target.value)}
+        className="min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-sm font-semibold outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
+      />
+    </label>
+  );
+}
+
+function PrimaryButton({ children, disabled = false }: { children: ReactNode; disabled?: boolean }) {
+  return (
+    <button
+      type="submit"
+      disabled={disabled}
+      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--ink)] px-5 text-sm font-black text-[var(--paper)] transition hover:bg-[var(--ink-soft)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45"
+    >
+      {children} <ArrowRight size={16} />
+    </button>
+  );
+}
+
+function DemoBoundary() {
+  return (
+    <div className="mt-6 flex items-start gap-3 rounded-2xl border border-[rgb(15_118_85/18%)] bg-[rgb(15_118_85/7%)] p-4">
+      <BadgeCheck size={17} className="mt-0.5 shrink-0 text-[var(--success)]" />
+      <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
+        Any correctly formatted demo input works. Nothing is sent, stored on a
+        server, or used to contact a real person.
+      </p>
+    </div>
+  );
+}
+
+export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAuthMode }) {
+  const config = roleConfig[role];
+  const [identifier, setIdentifier] = useState<string>(config.identifier);
+  const [password, setPassword] = useState("DemoPass123!");
+  const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(true);
+  const [code, setCode] = useState("424242");
+  const [name, setName] = useState("Jacqueline Daniel");
+  const [email, setEmail] = useState("jacqueline.daniel@example.com");
+  const [accepted, setAccepted] = useState(true);
+  const [notice, setNotice] = useState("");
+  const [sent, setSent] = useState(false);
+  const [channel, setChannel] = useState<"mobile" | "email">("mobile");
+  const [workspace, setWorkspace] = useState("sweet-crumbs");
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("loggedOut") === "1") {
+      const noticeTimer = window.setTimeout(
+        () => setNotice("You signed out of the demo session."),
+        0,
+      );
+      return () => window.clearTimeout(noticeTimer);
+    }
+  }, []);
+
+  function go(path: string) {
+    window.location.assign(path);
+  }
+
+  function completeSession(path = "/") {
+    startDemoSession(role);
+    window.location.replace(path);
+  }
+
+  function submitLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!identifier.trim()) {
+      setNotice(`Enter your ${config.identifierLabel.toLowerCase()}.`);
+      return;
+    }
+    if (role !== "customer" && password.length < 8) {
+      setNotice("Use at least 8 characters for this demo password.");
+      return;
+    }
+    if (role === "business") go("/workspaces");
+    else go("/verify");
+  }
+
+  if (mode === "login") {
+    return (
+      <AuthShell role={role} title={config.signInTitle} description={config.signInDescription}>
+        {notice && (
+          <p aria-live="polite" className="mb-5 rounded-2xl bg-[var(--surface-2)] px-4 py-3 text-xs font-bold text-[var(--muted-strong)]">
+            {notice}
+          </p>
+        )}
+        {role === "customer" && (
+          <div className="mb-5 grid grid-cols-2 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1">
+            {(["mobile", "email"] as const).map((item) => (
+              <button
+                key={item}
+                type="button"
+                aria-pressed={channel === item}
+                onClick={() => {
+                  setChannel(item);
+                  setIdentifier(item === "mobile" ? "+63 917 555 0182" : "jacqueline.daniel@example.com");
+                }}
+                className={`min-h-10 rounded-full text-xs font-black capitalize ${channel === item ? "bg-[var(--ink)] text-[var(--paper)]" : "text-[var(--muted-strong)]"}`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        )}
+        <form onSubmit={submitLogin} className="space-y-5" noValidate>
+          <Field
+            label={role === "customer" ? (channel === "mobile" ? "Mobile number" : "Email address") : config.identifierLabel}
+            type={role === "customer" && channel === "mobile" ? "tel" : "email"}
+            value={identifier}
+            onChange={setIdentifier}
+            autoComplete={role === "customer" && channel === "mobile" ? "tel" : "email"}
+          />
+          {role !== "customer" && (
+            <label className="grid gap-2 text-xs font-black text-[var(--ink)]">
+              Password
+              <span className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete="current-password"
+                  className="min-h-12 w-full rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 pr-12 text-sm font-semibold outline-none transition focus:border-[var(--accent-strong)]"
+                />
+                <button
+                  type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  className="absolute inset-y-0 right-1 grid w-11 place-items-center text-[var(--muted-strong)]"
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </span>
+            </label>
+          )}
+          <div className="flex items-center justify-between gap-4 text-xs">
+            <label className="inline-flex items-center gap-2 font-bold text-[var(--muted-strong)]">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(event) => setRemember(event.target.checked)}
+                className="size-4 accent-[var(--ink)]"
+              />
+              {role === "customer" ? "Trust this device" : "Remember this browser"}
+            </label>
+            {role !== "customer" && (
+              <a href="/forgot-password" className="font-black text-[var(--accent-strong)] hover:underline">
+                Forgot password?
+              </a>
+            )}
+          </div>
+          <PrimaryButton>
+            {role === "customer" ? "Send verification code" : "Continue securely"}
+          </PrimaryButton>
+        </form>
+
+        <div className="my-6 flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+          <span className="h-px flex-1 bg-[var(--line)]" /> Or use demo identity <span className="h-px flex-1 bg-[var(--line)]" />
+        </div>
+        <div className={`grid gap-2 ${role === "business" ? "sm:grid-cols-2" : ""}`}>
+          {role === "business" ? (
+            <>
+              <button type="button" onClick={() => go("/workspaces")} className="min-h-11 rounded-full border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-black transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
+                Continue with Google
+              </button>
+              <button type="button" onClick={() => go("/workspaces")} className="min-h-11 rounded-full border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-black transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
+                Continue with Microsoft
+              </button>
+            </>
+          ) : role === "admin" ? (
+            <button type="button" onClick={() => go("/verify")} className="min-h-11 rounded-full border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-black transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
+              Continue with platform SSO
+            </button>
+          ) : (
+            <button type="button" onClick={() => completeSession("/#home")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-black transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
+              <KeyRound size={15} /> Use a passkey on this device
+            </button>
+          )}
+        </div>
+        {role === "customer" && (
+          <p className="mt-6 text-center text-xs text-[var(--muted-strong)]">
+            New to Stampr? <a href="/create-account" className="font-black text-[var(--accent-strong)] hover:underline">Create your wallet</a>
+          </p>
+        )}
+        <DemoBoundary />
+      </AuthShell>
+    );
+  }
+
+  if (mode === "forgot") {
+    return (
+      <AuthShell role={role} title="Reset your access." description="Enter the work email attached to your demo account. The recovery state is simulated locally.">
+        {sent ? (
+          <div aria-live="polite" className="rounded-[28px] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-7">
+            <span className="grid size-12 place-items-center rounded-2xl bg-[rgb(15_118_85/10%)] text-[var(--success)]"><Mail size={20} /></span>
+            <h2 className="mt-6 text-xl font-black">Recovery instructions prepared.</h2>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">A demo recovery link for <strong>{identifier}</strong> is ready. No email was actually sent.</p>
+            <a href="/login" className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--ink)] px-5 text-sm font-black text-[var(--paper)]">Return to sign in <ArrowRight size={15} /></a>
+          </div>
+        ) : (
+          <form onSubmit={(event) => { event.preventDefault(); setSent(true); }} className="space-y-5">
+            <Field label="Work email" type="email" value={identifier} onChange={setIdentifier} autoComplete="email" />
+            <PrimaryButton>Prepare recovery link</PrimaryButton>
+            <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-black text-[var(--muted-strong)] hover:text-[var(--ink)]"><ArrowLeft size={14} /> Back to sign in</a>
+          </form>
+        )}
+        <DemoBoundary />
+      </AuthShell>
+    );
+  }
+
+  if (mode === "verify") {
+    const destination = role === "business" ? "/workspaces" : role === "customer" ? "/#home" : "/#overview";
+    return (
+      <AuthShell role={role} title="Confirm it is you." description={role === "admin" ? "Enter the six-digit code from your administrator authenticator." : "Enter the six-digit code prepared for your demo account."}>
+        <form onSubmit={(event) => { event.preventDefault(); if (code.length !== 6) { setNotice("Enter all six digits."); return; } completeSession(destination); }} className="space-y-5">
+          <label className="grid gap-2 text-xs font-black">
+            Six-digit verification code
+            <input
+              value={code}
+              onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              aria-describedby="code-help"
+              className="min-h-16 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-center font-mono text-2xl font-black tracking-[0.42em] outline-none focus:border-[var(--accent-strong)]"
+            />
+            <span id="code-help" className="text-[10px] font-semibold text-[var(--muted)]">Demo code: 424242</span>
+          </label>
+          {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
+          <PrimaryButton disabled={code.length !== 6}>Verify and continue</PrimaryButton>
+          <button type="button" onClick={() => setNotice("A new demo code is ready: 424242.")} className="min-h-11 w-full text-xs font-black text-[var(--accent-strong)] hover:underline">Resend demo code</button>
+          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-black text-[var(--muted-strong)]"><ArrowLeft size={14} /> Use another account</a>
+        </form>
+        <DemoBoundary />
+      </AuthShell>
+    );
+  }
+
+  if (mode === "create") {
+    return (
+      <AuthShell role="customer" title="Create one local wallet." description="Keep rewards from nearby businesses in one account with permissions you can change anytime.">
+        <form onSubmit={(event) => { event.preventDefault(); if (!accepted) { setNotice("Accept the terms to continue."); return; } window.sessionStorage.setItem("stampr-customer-signup-name", name); go("/verify"); }} className="space-y-5">
+          <Field label="Full name" value={name} onChange={setName} autoComplete="name" />
+          <Field label="Mobile number" type="tel" value={identifier} onChange={setIdentifier} autoComplete="tel" />
+          <Field label="Email, optional" type="email" value={email} onChange={setEmail} autoComplete="email" required={false} />
+          <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">
+            <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-0.5 size-4 accent-[var(--ink)]" />
+            <span>I agree to the demo terms and understand no real account is created.</span>
+          </label>
+          {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
+          <PrimaryButton>Create demo wallet</PrimaryButton>
+          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-black text-[var(--muted-strong)]"><ArrowLeft size={14} /> I already have a wallet</a>
+        </form>
+      </AuthShell>
+    );
+  }
+
+  if (mode === "workspaces") {
+    const options = [
+      { id: "sweet-crumbs", name: "Sweet Crumbs Bakery", detail: "Owner · 3 locations", badge: "Live", icon: Store },
+      { id: "sage-steam", name: "Sage & Steam", detail: "Analyst · 2 locations", badge: "Training", icon: Building2 },
+    ];
+    return (
+      <AuthShell role="business" title="Choose your workspace." description="Your demo role and location access change with the workspace you enter.">
+        <form onSubmit={(event) => { event.preventDefault(); completeSession("/#dashboard"); }} className="space-y-3">
+          {options.map((option) => {
+            const Icon = option.icon;
+            const selected = workspace === option.id;
+            return (
+              <label key={option.id} className={`flex cursor-pointer items-center gap-4 rounded-[22px] border p-4 transition ${selected ? "border-[var(--ink)] bg-[var(--surface)]" : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"}`}>
+                <input type="radio" name="workspace" value={option.id} checked={selected} onChange={() => setWorkspace(option.id)} className="sr-only" />
+                <span className={`grid size-11 place-items-center rounded-2xl ${selected ? "bg-[var(--accent)]" : "bg-[var(--surface-2)]"}`}><Icon size={18} /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-black">{option.name}</span>
+                  <span className="mt-1 block text-xs text-[var(--muted-strong)]">{option.detail}</span>
+                </span>
+                <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[var(--accent-strong)]">{option.badge}</span>
+                {selected && <Check size={17} className="text-[var(--success)]" />}
+              </label>
+            );
+          })}
+          <div className="pt-3"><PrimaryButton>Open selected workspace</PrimaryButton></div>
+          <button type="button" onClick={() => signOutDemo("business")} className="min-h-11 w-full text-xs font-black text-[var(--muted-strong)] hover:text-[var(--ink)]">Sign in with another account</button>
+        </form>
+      </AuthShell>
+    );
+  }
+
+  return (
+    <AuthShell role="business" title="You have been invited." description="Review the role and locations before joining the Sweet Crumbs demo workspace.">
+      <div className="overflow-hidden rounded-[28px] border border-[var(--line)] bg-[var(--surface)]">
+        <div className="bg-[var(--ink)] p-6 text-[var(--paper)]">
+          <span className="grid size-12 place-items-center rounded-2xl bg-[var(--accent)] text-[var(--ink)]"><UserRoundPlus size={20} /></span>
+          <h2 className="mt-6 text-xl font-black">Sweet Crumbs Bakery</h2>
+          <p className="mt-1 text-xs text-white/65">Invited by Mara Santos · Owner</p>
+        </div>
+        <div className="divide-y divide-[var(--line)]">
+          {[["Role", "Manager"], ["Locations", "Kapitolyo and BGC High Street"], ["Access", "Customers, campaigns, and reports"]].map(([label, value]) => (
+            <div key={label} className="grid grid-cols-[86px_1fr] gap-3 px-6 py-4"><span className="text-[9px] font-black uppercase tracking-[0.11em] text-[var(--muted)]">{label}</span><span className="text-xs font-bold">{value}</span></div>
+          ))}
+        </div>
+      </div>
+      <button type="button" onClick={() => go("/workspaces")} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--ink)] px-5 text-sm font-black text-[var(--paper)]">Accept demo invitation <ChevronRight size={16} /></button>
+      <a href="/login" className="mt-3 flex min-h-11 items-center justify-center text-xs font-black text-[var(--muted-strong)]">Decline and return to sign in</a>
+      <DemoBoundary />
+    </AuthShell>
+  );
+}

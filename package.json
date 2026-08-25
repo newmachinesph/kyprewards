@@ -1,0 +1,32 @@
+{
+  "name": "stampr-frontends",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:business": "npm run dev --workspace @stampr/business-web",
+    "dev:admin": "npm run dev --workspace @stampr/admin-web",
+    "dev:customer": "npm run dev --workspace @stampr/customer-pwa",
+    "dev:marketing": "npm run dev --workspace @stampr/marketing-site",
+    "build": "npm run build --workspaces --if-present",
+    "audit:controls": "node scripts/audit-controls.mjs",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint apps packages"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "latest",
+    "@types/node": "^26.3.0",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "eslint": "9.39.5",
+    "eslint-config-next": "latest",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}

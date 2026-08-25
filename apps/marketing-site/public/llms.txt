@@ -1,0 +1,37 @@
+# Stampr
+
+> Stampr is a digital loyalty platform designed for Philippine local businesses, their staff, and customers. The current release is a frontend-only product demo powered by local JSON; no live backend or delivery provider is connected yet.
+
+## Canonical pages
+
+- Product: /product
+- Features: /features
+- Pricing and cost estimator: /pricing
+- Philippine digital loyalty guide: /loyalty-program-philippines
+- Complete FAQ: /faq
+- Industry solutions: /solutions
+- Comparisons: /compare/gobalik, /compare/suki-cards, /compare/zap
+- Privacy direction: /privacy
+
+## Product surfaces
+
+- Customer: installable Next.js PWA with one private QR, wallet, discovery, notifications, history, channel preferences, exports, leave, and deletion requests.
+- Business and staff: Next.js web app with scanning, joining, customers, eight program types, favorite orders, birthday journeys, redemptions, campaigns, delivery logs, analytics, roles, integrations, and billing/privacy controls.
+- Platform administration: Next.js web app with tenant health, privacy operations, service queues, support, audit, unit economics, and network-wide policies.
+- Public website: product education, pricing, industries, resources, comparisons, buyer FAQ, and contact journey.
+- Planned backend: one shared FastAPI service plus one background worker, developed locally with Docker before deployment.
+
+## Pricing direction in Philippine pesos
+
+- Launch: ₱0/month; 250 active members, 1 location, 1 program, 2 staff.
+- Core: ₱499 monthly or ₱399/month billed annually; 1,500 active members, 1 location, 2 programs, 5,000 email allowance, 3 staff.
+- Grow: ₱1,290 monthly or ₱990/month billed annually; 10,000 active members, 3 locations, all 8 program formats, 25,000 email allowance, 100 SMS credits.
+- Scale: ₱3,490 monthly or ₱2,790/month billed annually; 50,000 active members, 10 locations, 50 staff, integrations, 100,000 email allowance, 500 SMS credits.
+- SMS over allowance: ₱0.95 per 160-character segment. Longer messages may use multiple segments.
+- Email over allowance: ₱25 per 1,000. In-app and web push are included under fair use.
+
+## Important accuracy notes
+
+- Features described as demo, planned, direction, or ready for provider connection are not claims of a live production service.
+- Privacy workflows are designed to support good practice and Philippine data-protection operations; software alone does not guarantee legal compliance.
+- Comparison pages use competitors’ public information observed on August 25, 2026 and link to primary sources. Verify current terms with each provider.

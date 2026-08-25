@@ -1,0 +1,146 @@
+@import "tailwindcss";
+@source "../../../../packages/ui/src";
+
+:root {
+  color-scheme: light;
+  --paper: #f6f2ea;
+  --surface: #fffdf8;
+  --surface-2: #ece5da;
+  --ink: #211b17;
+  --ink-soft: #382d27;
+  --muted: #6d6057;
+  --muted-strong: #5f534b;
+  --line: #ded5c9;
+  --line-strong: #bcae9f;
+  --accent: #e39a45;
+  --accent-strong: #95530c;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  background: var(--paper);
+}
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 15% 4%, rgb(227 154 69 / 11%), transparent 25rem),
+    var(--paper);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.site-grid {
+  background-image:
+    linear-gradient(rgb(33 27 23 / 3.5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(33 27 23 / 3.5%) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.receipt-paper {
+  background:
+    radial-gradient(circle at left top, var(--paper) 0 8px, transparent 8.5px)
+      left top / 18px 18px repeat-y,
+    radial-gradient(circle at right top, var(--paper) 0 8px, transparent 8.5px)
+      right top / 18px 18px repeat-y,
+    var(--surface);
+}
+
+.perforated {
+  background-image: linear-gradient(
+    to right,
+    var(--line-strong) 50%,
+    transparent 50%
+  );
+  background-position: top;
+  background-size: 10px 1px;
+  background-repeat: repeat-x;
+}
+
+.ink-stamp {
+  border: 2px solid currentColor;
+  box-shadow:
+    inset 0 0 0 3px var(--surface),
+    inset 0 0 0 5px currentColor;
+}
+
+.shadow-diffuse {
+  box-shadow: 0 32px 90px rgb(33 27 23 / 12%);
+}
+
+@keyframes receipt-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(1.25deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(-0.3deg);
+  }
+}
+
+@keyframes stamp-arrive {
+  0%,
+  18% {
+    transform: scale(1.35) rotate(-14deg);
+    opacity: 0;
+  }
+  30%,
+  100% {
+    transform: scale(1) rotate(-7deg);
+    opacity: 1;
+  }
+}
+
+.receipt-float {
+  animation: receipt-float 6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+.stamp-arrive {
+  animation: stamp-arrive 5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+
+.focus-ring:focus-visible {
+  outline: 3px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+
+:is(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

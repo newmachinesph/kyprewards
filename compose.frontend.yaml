@@ -1,0 +1,62 @@
+services:
+  business-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: development
+    command: npm run dev:business -- --hostname 0.0.0.0
+    environment:
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/workspace
+      - business_node_modules:/workspace/node_modules
+
+  admin-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: development
+    command: npm run dev:admin -- --hostname 0.0.0.0
+    environment:
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/workspace
+      - admin_node_modules:/workspace/node_modules
+
+  customer-pwa:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: development
+    command: npm run dev:customer -- --hostname 0.0.0.0
+    environment:
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3002:3002"
+    volumes:
+      - .:/workspace
+      - customer_node_modules:/workspace/node_modules
+
+  marketing-site:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: development
+    command: npm run dev:marketing -- --hostname 0.0.0.0
+    environment:
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3003:3003"
+    volumes:
+      - .:/workspace
+      - marketing_node_modules:/workspace/node_modules
+
+volumes:
+  business_node_modules:
+  admin_node_modules:
+  customer_node_modules:
+  marketing_node_modules:

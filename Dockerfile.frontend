@@ -1,0 +1,18 @@
+FROM node:24-alpine AS development
+
+WORKDIR /workspace
+ENV NEXT_TELEMETRY_DISABLED=1
+
+COPY package.json package-lock.json ./
+COPY apps/business-web/package.json ./apps/business-web/package.json
+COPY apps/admin-web/package.json ./apps/admin-web/package.json
+COPY apps/customer-pwa/package.json ./apps/customer-pwa/package.json
+COPY apps/marketing-site/package.json ./apps/marketing-site/package.json
+COPY packages/demo-data/package.json ./packages/demo-data/package.json
+COPY packages/ui/package.json ./packages/ui/package.json
+
+RUN npm ci
+
+COPY . .
+
+EXPOSE 3000 3001 3002 3003

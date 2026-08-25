@@ -1,0 +1,49 @@
+import type { MetadataRoute } from "next";
+import { industries, resources } from "@/lib/content";
+import { comparisons } from "@/lib/comparisons";
+import { siteUrl } from "@/lib/site";
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const core = [
+    "",
+    "/demo",
+    "/product",
+    "/features",
+    "/integrations",
+    "/solutions",
+    "/pricing",
+    "/loyalty-program-philippines",
+    "/faq",
+    "/resources",
+    "/about",
+    "/contact",
+    "/privacy",
+    "/terms",
+  ];
+  return [
+    ...core.map((path) => ({
+      url: `${siteUrl}${path}`,
+      lastModified: new Date("2026-08-25"),
+      changeFrequency: path === "" ? ("weekly" as const) : ("monthly" as const),
+      priority: path === "" ? 1 : path === "/contact" ? 0.9 : 0.8,
+    })),
+    ...industries.map((industry) => ({
+      url: `${siteUrl}/solutions/${industry.slug}`,
+      lastModified: new Date("2026-08-25"),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+    ...resources.map((resource) => ({
+      url: `${siteUrl}/resources/${resource.slug}`,
+      lastModified: new Date("2026-08-25"),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+    ...comparisons.map((comparison) => ({
+      url: `${siteUrl}/compare/${comparison.slug}`,
+      lastModified: new Date("2026-08-25"),
+      changeFrequency: "monthly" as const,
+      priority: 0.75,
+    })),
+  ];
+}

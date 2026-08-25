@@ -1,0 +1,77 @@
+@import "tailwindcss";
+@source "../../../../packages/ui/src";
+
+:root {
+  color-scheme: light;
+  --paper: #f3f0e9;
+  --surface: #fbfaf6;
+  --surface-2: #e9e4da;
+  --ink: #1f1b18;
+  --ink-soft: #332d28;
+  --muted: #75685f;
+  --muted-strong: #675e56;
+  --line: #ddd6cc;
+  --line-strong: #cfc5b8;
+  --accent: #ed982b;
+  --accent-strong: #95530c;
+  --success: #0f7655;
+  --danger: #b23b2b;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  background: var(--paper);
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+:is(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+
+.admin-grid {
+  background-image:
+    linear-gradient(rgb(31 27 24 / 3%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(31 27 24 / 3%) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.bar-grid {
+  background-image: linear-gradient(
+    to top,
+    rgb(31 27 24 / 6%) 1px,
+    transparent 1px
+  );
+  background-size: 100% 25%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

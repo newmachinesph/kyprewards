@@ -1,0 +1,20 @@
+{
+  "name": "@stampr/customer-pwa",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3002",
+    "build": "next build",
+    "start": "next start --port 3002",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@stampr/demo-data": "*",
+    "@stampr/ui": "*",
+    "geist": "latest",
+    "lucide-react": "latest",
+    "next": "16.3.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  }
+}

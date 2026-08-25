@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@source "../../../../packages/ui/src";
+
+:root {
+  color-scheme: light;
+  --paper: #fbf8f2;
+  --surface: #fffdf9;
+  --surface-2: #f2ede5;
+  --ink: #241d19;
+  --ink-soft: #3a2f29;
+  --muted: #75685f;
+  --muted-strong: #6e6259;
+  --line: #e7dfd5;
+  --line-strong: #d9cfc3;
+  --accent: #ee9b2b;
+  --accent-strong: #95530c;
+  --success: #0f7655;
+  --danger: #b23b2b;
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  background: var(--paper);
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 80% 5%, rgb(238 155 43 / 7%), transparent 26rem),
+    var(--paper);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+:is(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+
+.app-scrollbar {
+  scrollbar-color: var(--line-strong) transparent;
+  scrollbar-width: thin;
+}
+.metric-grid {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+.stamp-grid {
+  background-image: radial-gradient(
+    circle,
+    rgb(36 29 25 / 8%) 1px,
+    transparent 1px
+  );
+  background-size: 18px 18px;
+}
+.ticket-edge {
+  background:
+    radial-gradient(circle at left center, var(--paper) 0 5px, transparent 6px)
+      left center / 12px 24px repeat-y,
+    radial-gradient(circle at right center, var(--paper) 0 5px, transparent 6px)
+      right center / 12px 24px repeat-y,
+    var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

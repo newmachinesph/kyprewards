@@ -1,0 +1,1109 @@
+{
+  "sharedScenario": {
+    "label": "Sweet Crumbs return visit",
+    "customerId": "cus_1001",
+    "customer": "Jacqueline Daniel",
+    "businessId": "biz_sweet_crumbs",
+    "business": "Sweet Crumbs",
+    "branch": "Kapitolyo",
+    "staff": "Jan",
+    "purchase": {
+      "amount": 286,
+      "currency": "PHP",
+      "display": "₱286"
+    },
+    "loyaltyEvent": {
+      "id": "evt_SC_10482",
+      "type": "visit.recorded",
+      "effect": "+1 stamp",
+      "before": "4 of 8",
+      "after": "5 of 8",
+      "occurredAt": "Today, 9:42 AM",
+      "status": "Delivered"
+    },
+    "delivery": {
+      "requestId": "req_SC_10482",
+      "idempotencyKey": "visit_SC_10482"
+    }
+  },
+  "business": {
+    "profile": {
+      "id": "biz_sweet_crumbs",
+      "name": "Sweet Crumbs Bakery",
+      "shortName": "Sweet Crumbs",
+      "category": "Bakery",
+      "owner": "Mara Santos",
+      "plan": "Grow",
+      "billing": "Annual",
+      "renewal": "15 September 2026",
+      "timezone": "Asia/Manila",
+      "currency": "PHP"
+    },
+    "metrics": {
+      "visitsToday": 128,
+      "newRegulars": 24,
+      "stampsIssued": 216,
+      "redemptions": 18,
+      "repeatRate": 43.8,
+      "averageOrder": 286,
+      "memberRevenue": 482600,
+      "campaignRevenue": 76400
+    },
+    "locations": [
+      {
+        "id": "branch_pasig",
+        "name": "Kapitolyo",
+        "city": "Pasig",
+        "address": "12 East Capitol Drive, Kapitolyo",
+        "staff": 6,
+        "members": 2840,
+        "status": "Live"
+      },
+      {
+        "id": "branch_bgc",
+        "name": "BGC High Street",
+        "city": "Taguig",
+        "address": "High Street South, BGC",
+        "staff": 4,
+        "members": 1724,
+        "status": "Live"
+      },
+      {
+        "id": "branch_makati",
+        "name": "Legazpi Village",
+        "city": "Makati",
+        "address": "Rada Street, Legazpi Village",
+        "staff": 2,
+        "members": 638,
+        "status": "Setup"
+      }
+    ],
+    "customers": [
+      {
+        "id": "cus_1001",
+        "name": "Jacqueline Daniel",
+        "initials": "JD",
+        "segment": "Regular",
+        "visits": 14,
+        "lifetimeValue": 8120,
+        "lastVisit": "Today, 9:42 AM",
+        "progress": "5 / 8",
+        "favorite": "Spanish latte + kouign-amann",
+        "birthday": "8 September",
+        "emailConsent": true,
+        "smsConsent": true,
+        "pushConsent": true,
+        "risk": "Healthy"
+      },
+      {
+        "id": "cus_1002",
+        "name": "Bea Villanueva",
+        "initials": "BV",
+        "segment": "VIP",
+        "visits": 31,
+        "lifetimeValue": 18640,
+        "lastVisit": "Today, 8:17 AM",
+        "progress": "Reward ready",
+        "favorite": "Flat white + cinnamon roll",
+        "birthday": "22 November",
+        "emailConsent": true,
+        "smsConsent": false,
+        "pushConsent": true,
+        "risk": "Healthy"
+      },
+      {
+        "id": "cus_1003",
+        "name": "Paolo Reyes",
+        "initials": "PR",
+        "segment": "Almost regular",
+        "visits": 3,
+        "lifetimeValue": 1460,
+        "lastVisit": "Yesterday",
+        "progress": "3 / 8",
+        "favorite": "Cold brew",
+        "birthday": "3 February",
+        "emailConsent": true,
+        "smsConsent": true,
+        "pushConsent": false,
+        "risk": "Watch"
+      },
+      {
+        "id": "cus_1004",
+        "name": "Camille Lim",
+        "initials": "CL",
+        "segment": "New",
+        "visits": 1,
+        "lifetimeValue": 420,
+        "lastVisit": "Yesterday",
+        "progress": "1 / 8",
+        "favorite": "Chocolate croissant",
+        "birthday": "17 April",
+        "emailConsent": false,
+        "smsConsent": false,
+        "pushConsent": true,
+        "risk": "Healthy"
+      },
+      {
+        "id": "cus_1005",
+        "name": "Anton Garcia",
+        "initials": "AG",
+        "segment": "At risk",
+        "visits": 8,
+        "lifetimeValue": 5240,
+        "lastVisit": "24 days ago",
+        "progress": "6 / 8",
+        "favorite": "Long black + ensaymada",
+        "birthday": "29 August",
+        "emailConsent": true,
+        "smsConsent": true,
+        "pushConsent": true,
+        "risk": "High"
+      },
+      {
+        "id": "cus_1006",
+        "name": "Mika Tan",
+        "initials": "MT",
+        "segment": "Regular",
+        "visits": 17,
+        "lifetimeValue": 9680,
+        "lastVisit": "2 days ago",
+        "progress": "2 / 8",
+        "favorite": "Matcha latte",
+        "birthday": "12 January",
+        "emailConsent": true,
+        "smsConsent": false,
+        "pushConsent": true,
+        "risk": "Healthy"
+      },
+      {
+        "id": "cus_1007",
+        "name": "Rafael Cruz",
+        "initials": "RC",
+        "segment": "Lapsed",
+        "visits": 11,
+        "lifetimeValue": 6130,
+        "lastVisit": "61 days ago",
+        "progress": "7 / 8",
+        "favorite": "Americano + cheese roll",
+        "birthday": "5 June",
+        "emailConsent": false,
+        "smsConsent": true,
+        "pushConsent": false,
+        "risk": "High"
+      },
+      {
+        "id": "cus_1008",
+        "name": "Nina Flores",
+        "initials": "NF",
+        "segment": "Reward ready",
+        "visits": 9,
+        "lifetimeValue": 4720,
+        "lastVisit": "3 days ago",
+        "progress": "8 / 8",
+        "favorite": "Iced latte",
+        "birthday": "30 August",
+        "emailConsent": true,
+        "smsConsent": true,
+        "pushConsent": true,
+        "risk": "Healthy"
+      }
+    ],
+    "programs": [
+      {
+        "id": "prog_stamps",
+        "type": "Stamps",
+        "name": "Eight visits, pastry on us",
+        "status": "Live",
+        "members": 5128,
+        "completion": 63,
+        "redemption": 38,
+        "liability": 28400
+      },
+      {
+        "id": "prog_points",
+        "type": "Points",
+        "name": "Sweet Crumbs Points",
+        "status": "Draft",
+        "members": 0,
+        "completion": 0,
+        "redemption": 0,
+        "liability": 0
+      },
+      {
+        "id": "prog_discount",
+        "type": "Discount",
+        "name": "Regular and VIP pricing",
+        "status": "Ready",
+        "members": 860,
+        "completion": 72,
+        "redemption": 54,
+        "liability": 12100
+      },
+      {
+        "id": "prog_membership",
+        "type": "Membership",
+        "name": "Morning Table Club",
+        "status": "Draft",
+        "members": 0,
+        "completion": 0,
+        "redemption": 0,
+        "liability": 0
+      },
+      {
+        "id": "prog_coupon",
+        "type": "Coupon",
+        "name": "Tuesday double stamp",
+        "status": "Live",
+        "members": 1240,
+        "completion": 31,
+        "redemption": 18,
+        "liability": 6800
+      },
+      {
+        "id": "prog_rewards",
+        "type": "Rewards",
+        "name": "Choose your bakery perk",
+        "status": "Ready",
+        "members": 486,
+        "completion": 48,
+        "redemption": 22,
+        "liability": 9100
+      },
+      {
+        "id": "prog_multipass",
+        "type": "Multipass",
+        "name": "Ten morning coffees",
+        "status": "Draft",
+        "members": 0,
+        "completion": 0,
+        "redemption": 0,
+        "liability": 0
+      },
+      {
+        "id": "prog_gift",
+        "type": "Gift card",
+        "name": "Sweet Crumbs gift value",
+        "status": "Ready",
+        "members": 112,
+        "completion": 67,
+        "redemption": 41,
+        "liability": 53400
+      }
+    ],
+    "automations": [
+      {
+        "id": "auto_birthday",
+        "name": "Birthday week",
+        "trigger": "7 days before birthday",
+        "audience": 84,
+        "channel": "Push + Email",
+        "status": "Live",
+        "revenue": 18400
+      },
+      {
+        "id": "auto_reward",
+        "name": "Reward in reach",
+        "trigger": "One action before reward",
+        "audience": 328,
+        "channel": "In-app + Push",
+        "status": "Live",
+        "revenue": 32200
+      },
+      {
+        "id": "auto_winback",
+        "name": "Return window passed",
+        "trigger": "14 days beyond usual rhythm",
+        "audience": 214,
+        "channel": "Email + SMS fallback",
+        "status": "Live",
+        "revenue": 25800
+      },
+      {
+        "id": "auto_review",
+        "name": "Private feedback first",
+        "trigger": "1 hour after redemption",
+        "audience": 46,
+        "channel": "Push + Email",
+        "status": "Paused",
+        "revenue": 0
+      },
+      {
+        "id": "auto_geo",
+        "name": "Nearby on a quiet afternoon",
+        "trigger": "100 m, Tue–Thu, 1–4 PM",
+        "audience": 108,
+        "channel": "Push",
+        "status": "Draft",
+        "revenue": 0
+      },
+      {
+        "id": "auto_referral",
+        "name": "Bring a friend",
+        "trigger": "Friend completes first purchase",
+        "audience": 620,
+        "channel": "In-app",
+        "status": "Ready",
+        "revenue": 0
+      }
+    ],
+    "campaigns": [
+      {
+        "id": "cmp_201",
+        "name": "Tuesday treat",
+        "audience": "Almost regulars",
+        "channels": ["Push", "Email"],
+        "sent": 824,
+        "visited": 126,
+        "revenue": 38200,
+        "cost": 2100,
+        "status": "Completed"
+      },
+      {
+        "id": "cmp_202",
+        "name": "Birthday batch",
+        "audience": "August birthdays",
+        "channels": ["Email", "SMS"],
+        "sent": 94,
+        "visited": 22,
+        "revenue": 14800,
+        "cost": 412,
+        "status": "Running"
+      },
+      {
+        "id": "cmp_203",
+        "name": "BGC opening week",
+        "audience": "Pasig regulars near BGC",
+        "channels": ["Push", "Email", "SMS"],
+        "sent": 1460,
+        "visited": 188,
+        "revenue": 61200,
+        "cost": 1880,
+        "status": "Scheduled"
+      },
+      {
+        "id": "cmp_204",
+        "name": "Seven-stamp nudge",
+        "audience": "One stamp from reward",
+        "channels": ["In-app", "Push"],
+        "sent": 318,
+        "visited": 74,
+        "revenue": 22100,
+        "cost": 0,
+        "status": "Completed"
+      }
+    ],
+    "messages": [
+      {
+        "id": "msg_501",
+        "campaign": "Birthday batch",
+        "customer": "Anton Garcia",
+        "channel": "SMS",
+        "status": "Delivered",
+        "sentAt": "10:42 AM",
+        "cost": 0.95
+      },
+      {
+        "id": "msg_502",
+        "campaign": "Birthday batch",
+        "customer": "Nina Flores",
+        "channel": "Email",
+        "status": "Opened",
+        "sentAt": "10:41 AM",
+        "cost": 0.03
+      },
+      {
+        "id": "msg_503",
+        "campaign": "Reward in reach",
+        "customer": "Jacqueline Daniel",
+        "channel": "Push",
+        "status": "Tapped",
+        "sentAt": "9:10 AM",
+        "cost": 0
+      },
+      {
+        "id": "msg_504",
+        "campaign": "Return window passed",
+        "customer": "Rafael Cruz",
+        "channel": "SMS",
+        "status": "Opted out",
+        "sentAt": "Yesterday",
+        "cost": 0.95
+      },
+      {
+        "id": "msg_505",
+        "campaign": "Tuesday treat",
+        "customer": "Paolo Reyes",
+        "channel": "Email",
+        "status": "Visited",
+        "sentAt": "Yesterday",
+        "cost": 0.03
+      },
+      {
+        "id": "msg_506",
+        "campaign": "Seven-stamp nudge",
+        "customer": "Nina Flores",
+        "channel": "In-app",
+        "status": "Redeemed",
+        "sentAt": "Monday",
+        "cost": 0
+      }
+    ],
+    "redemptions": [
+      {
+        "id": "red_301",
+        "customer": "Bea Villanueva",
+        "reward": "Free pastry",
+        "branch": "Kapitolyo",
+        "staff": "Jan Mercado",
+        "value": 165,
+        "time": "Today, 9:18 AM",
+        "status": "Approved"
+      },
+      {
+        "id": "red_302",
+        "customer": "Nina Flores",
+        "reward": "Free pastry",
+        "branch": "BGC High Street",
+        "staff": "Ira Mendoza",
+        "value": 165,
+        "time": "Yesterday, 4:42 PM",
+        "status": "Approved"
+      },
+      {
+        "id": "red_303",
+        "customer": "Mika Tan",
+        "reward": "Drink upgrade",
+        "branch": "Kapitolyo",
+        "staff": "Jan Mercado",
+        "value": 70,
+        "time": "Yesterday, 10:08 AM",
+        "status": "Approved"
+      },
+      {
+        "id": "red_304",
+        "customer": "Anton Garcia",
+        "reward": "Double stamp coupon",
+        "branch": "Kapitolyo",
+        "staff": "Mara Santos",
+        "value": 0,
+        "time": "Monday, 2:31 PM",
+        "status": "Reversed"
+      },
+      {
+        "id": "red_305",
+        "customer": "Jacqueline Daniel",
+        "reward": "Birthday pastry",
+        "branch": "BGC High Street",
+        "staff": "Ira Mendoza",
+        "value": 185,
+        "time": "Sunday, 11:22 AM",
+        "status": "Approved"
+      }
+    ],
+    "staff": [
+      {
+        "id": "staff_1",
+        "name": "Mara Santos",
+        "initials": "MS",
+        "role": "Owner",
+        "location": "All locations",
+        "lastActive": "Now",
+        "status": "Active"
+      },
+      {
+        "id": "staff_2",
+        "name": "Jan Mercado",
+        "initials": "JM",
+        "role": "Manager",
+        "location": "Kapitolyo",
+        "lastActive": "4 min ago",
+        "status": "Active"
+      },
+      {
+        "id": "staff_3",
+        "name": "Ira Mendoza",
+        "initials": "IM",
+        "role": "Manager",
+        "location": "BGC High Street",
+        "lastActive": "12 min ago",
+        "status": "Active"
+      },
+      {
+        "id": "staff_4",
+        "name": "Leah Ramos",
+        "initials": "LR",
+        "role": "Cashier",
+        "location": "Kapitolyo",
+        "lastActive": "28 min ago",
+        "status": "Active"
+      },
+      {
+        "id": "staff_5",
+        "name": "Noel Chua",
+        "initials": "NC",
+        "role": "Analyst",
+        "location": "All locations",
+        "lastActive": "Yesterday",
+        "status": "Active"
+      },
+      {
+        "id": "staff_6",
+        "name": "Aya Soriano",
+        "initials": "AS",
+        "role": "Cashier",
+        "location": "Legazpi Village",
+        "lastActive": "Invited today",
+        "status": "Pending"
+      }
+    ],
+    "favoriteOrders": [
+      { "item": "Spanish latte", "orders": 682, "regulars": 248, "change": 18 },
+      { "item": "Kouign-amann", "orders": 534, "regulars": 182, "change": 24 },
+      { "item": "Cinnamon roll", "orders": 418, "regulars": 164, "change": 9 },
+      { "item": "Iced latte", "orders": 376, "regulars": 142, "change": 12 },
+      { "item": "Ensaymada", "orders": 312, "regulars": 118, "change": -4 }
+    ],
+    "integrations": [
+      {
+        "id": "int_semaphore",
+        "name": "Semaphore SMS",
+        "category": "Messaging",
+        "status": "Connected",
+        "detail": "₱0.95 customer price per SMS segment"
+      },
+      {
+        "id": "int_ses",
+        "name": "Amazon SES",
+        "category": "Email",
+        "status": "Connected",
+        "detail": "Domain verified · healthy reputation"
+      },
+      {
+        "id": "int_fcm",
+        "name": "Firebase Cloud Messaging",
+        "category": "Push",
+        "status": "Connected",
+        "detail": "Web push and installed PWA"
+      },
+      {
+        "id": "int_maya",
+        "name": "Maya payment reference",
+        "category": "Payments",
+        "status": "Available",
+        "detail": "Attach membership and gift-value payments"
+      },
+      {
+        "id": "int_pos",
+        "name": "POS webhooks",
+        "category": "Commerce",
+        "status": "Available",
+        "detail": "Earn from spend, visits, and SKU rules"
+      },
+      {
+        "id": "int_wallet",
+        "name": "Apple & Google Wallet",
+        "category": "Wallet",
+        "status": "Setup",
+        "detail": "Quick-access pass and live balance"
+      },
+      {
+        "id": "int_connected",
+        "name": "Viber, WhatsApp & Messenger",
+        "category": "Messaging",
+        "status": "Available",
+        "detail": "Provider pass-through cost plus orchestration fee"
+      }
+    ]
+  },
+  "customer": {
+    "profile": {
+      "id": "cus_1001",
+      "name": "Jacqueline Daniel",
+      "initials": "JD",
+      "city": "Pasig",
+      "memberSince": "August 2026",
+      "birthday": "8 September",
+      "email": "jacqueline.daniel@example.com",
+      "mobile": "+63 917 555 0182"
+    },
+    "wallet": [
+      {
+        "id": "wallet_1",
+        "business": "Sweet Crumbs",
+        "kind": "Stamps",
+        "category": "Bakery",
+        "progress": 5,
+        "target": 8,
+        "balance": "5 of 8",
+        "reward": "Free pastry",
+        "status": "Regular",
+        "color": "ink",
+        "distance": "450 m"
+      },
+      {
+        "id": "wallet_2",
+        "business": "Sage & Steam",
+        "kind": "Points",
+        "category": "Café",
+        "progress": 640,
+        "target": 1000,
+        "balance": "640 points",
+        "reward": "Signature drink",
+        "status": "Member",
+        "color": "green",
+        "distance": "1.2 km"
+      },
+      {
+        "id": "wallet_3",
+        "business": "Rooted Studio",
+        "kind": "Membership",
+        "category": "Wellness",
+        "progress": 3,
+        "target": 5,
+        "balance": "3 visits left",
+        "reward": "Monthly class access",
+        "status": "VIP",
+        "color": "accent",
+        "distance": "1.7 km"
+      },
+      {
+        "id": "wallet_4",
+        "business": "Corner Thread",
+        "kind": "Gift card",
+        "category": "Retail",
+        "progress": 740,
+        "target": 1000,
+        "balance": "₱740 balance",
+        "reward": "Stored gift value",
+        "status": "Gift",
+        "color": "paper",
+        "distance": "2.1 km"
+      }
+    ],
+    "discover": [
+      {
+        "id": "discover_1",
+        "name": "Sweet Crumbs",
+        "category": "Bakery",
+        "neighborhood": "Kapitolyo",
+        "distance": "450 m",
+        "reward": "8 visits → free pastry",
+        "joined": true,
+        "open": true
+      },
+      {
+        "id": "discover_2",
+        "name": "Sage & Steam",
+        "category": "Café",
+        "neighborhood": "Brixton",
+        "distance": "1.2 km",
+        "reward": "₱1 → 1 point",
+        "joined": true,
+        "open": true
+      },
+      {
+        "id": "discover_3",
+        "name": "Rooted Studio",
+        "category": "Wellness",
+        "neighborhood": "Capitol Commons",
+        "distance": "1.7 km",
+        "reward": "VIP monthly access",
+        "joined": true,
+        "open": false
+      },
+      {
+        "id": "discover_4",
+        "name": "Common Ground Barbers",
+        "category": "Grooming",
+        "neighborhood": "Ortigas",
+        "distance": "1.8 km",
+        "reward": "5 cuts → signature treatment",
+        "joined": false,
+        "open": true
+      },
+      {
+        "id": "discover_5",
+        "name": "Corner Thread",
+        "category": "Retail",
+        "neighborhood": "Shaw",
+        "distance": "2.1 km",
+        "reward": "Member pricing + gift value",
+        "joined": true,
+        "open": true
+      },
+      {
+        "id": "discover_6",
+        "name": "Pace House",
+        "category": "Fitness",
+        "neighborhood": "Greenfield",
+        "distance": "2.4 km",
+        "reward": "10-class multipass",
+        "joined": false,
+        "open": true
+      }
+    ],
+    "notifications": [
+      {
+        "id": "note_1",
+        "business": "Sweet Crumbs",
+        "title": "One warm visit closer",
+        "body": "Your latest stamp is in. Three visits until a pastry is on us.",
+        "time": "18 min ago",
+        "kind": "Reward",
+        "read": false
+      },
+      {
+        "id": "note_2",
+        "business": "Rooted Studio",
+        "title": "Your Thursday class is covered",
+        "body": "You have three member visits remaining this month.",
+        "time": "Yesterday",
+        "kind": "Service",
+        "read": true
+      },
+      {
+        "id": "note_3",
+        "business": "Sage & Steam",
+        "title": "You are 360 points away",
+        "body": "Your signature drink reward is getting close.",
+        "time": "Monday",
+        "kind": "Reward",
+        "read": true
+      }
+    ],
+    "activity": [
+      {
+        "id": "act_1",
+        "business": "Sweet Crumbs",
+        "action": "+1 stamp",
+        "detail": "Kapitolyo · approved by Jan",
+        "date": "Today",
+        "value": "+1",
+        "reference": "evt_SC_10482"
+      },
+      {
+        "id": "act_2",
+        "business": "Sage & Steam",
+        "action": "+286 points",
+        "detail": "Brixton · ₱286 purchase",
+        "date": "Yesterday",
+        "value": "+286",
+        "reference": "evt_SS_8431"
+      },
+      {
+        "id": "act_3",
+        "business": "Rooted Studio",
+        "action": "Member visit used",
+        "detail": "Capitol Commons · yoga flow",
+        "date": "Sunday",
+        "value": "−1",
+        "reference": "evt_RS_2287"
+      },
+      {
+        "id": "act_4",
+        "business": "Sweet Crumbs",
+        "action": "Birthday pastry redeemed",
+        "detail": "BGC High Street",
+        "date": "22 August",
+        "value": "₱185",
+        "reference": "evt_SC_9821"
+      }
+    ]
+  },
+  "admin": {
+    "metrics": {
+      "liveBusinesses": 284,
+      "customerAccounts": 18492,
+      "monthlyRecurringRevenue": 412680,
+      "grossMargin": 78.4,
+      "netRevenueRetention": 112.6,
+      "smsLiability": 28640,
+      "supportSla": 96.8
+    },
+    "businesses": [
+      {
+        "id": "biz_1",
+        "name": "Sweet Crumbs Bakery",
+        "owner": "Mara Santos",
+        "city": "Pasig",
+        "plan": "Grow",
+        "members": 5202,
+        "mrr": 1290,
+        "health": 94,
+        "risk": "Healthy",
+        "joined": "12 Feb 2026"
+      },
+      {
+        "id": "biz_2",
+        "name": "Northline Coffee",
+        "owner": "Enzo Uy",
+        "city": "Cebu",
+        "plan": "Scale",
+        "members": 14820,
+        "mrr": 3490,
+        "health": 88,
+        "risk": "Healthy",
+        "joined": "9 Nov 2025"
+      },
+      {
+        "id": "biz_3",
+        "name": "Aster Wellness",
+        "owner": "Rina Co",
+        "city": "Makati",
+        "plan": "Grow",
+        "members": 3860,
+        "mrr": 1290,
+        "health": 72,
+        "risk": "Watch",
+        "joined": "18 Mar 2026"
+      },
+      {
+        "id": "biz_4",
+        "name": "Corner Thread",
+        "owner": "Gia Ramos",
+        "city": "Quezon City",
+        "plan": "Core",
+        "members": 1240,
+        "mrr": 499,
+        "health": 91,
+        "risk": "Healthy",
+        "joined": "4 Apr 2026"
+      },
+      {
+        "id": "biz_5",
+        "name": "Field Notes Café",
+        "owner": "Luis Tan",
+        "city": "Davao",
+        "plan": "Core",
+        "members": 870,
+        "mrr": 499,
+        "health": 58,
+        "risk": "At risk",
+        "joined": "22 May 2026"
+      },
+      {
+        "id": "biz_6",
+        "name": "Pace House",
+        "owner": "Mon Cruz",
+        "city": "Mandaluyong",
+        "plan": "Launch",
+        "members": 214,
+        "mrr": 0,
+        "health": 64,
+        "risk": "Watch",
+        "joined": "11 Aug 2026"
+      }
+    ],
+    "support": [
+      {
+        "id": "sup_1",
+        "title": "Duplicate business report",
+        "business": "Sweet Crumbs Bakery",
+        "category": "Trust",
+        "priority": "High",
+        "age": "18 min",
+        "owner": "Unassigned",
+        "status": "Open"
+      },
+      {
+        "id": "sup_2",
+        "title": "Owner access recovery",
+        "business": "Aster Wellness",
+        "category": "Access",
+        "priority": "Normal",
+        "age": "43 min",
+        "owner": "Nica",
+        "status": "Investigating"
+      },
+      {
+        "id": "sup_3",
+        "title": "Campaign delivery question",
+        "business": "Northline Coffee",
+        "category": "Messaging",
+        "priority": "Normal",
+        "age": "1 hr",
+        "owner": "Paolo",
+        "status": "Waiting"
+      },
+      {
+        "id": "sup_4",
+        "title": "Suspicious redemption cluster",
+        "business": "Field Notes Café",
+        "category": "Fraud",
+        "priority": "High",
+        "age": "2 hr",
+        "owner": "Mika",
+        "status": "Investigating"
+      },
+      {
+        "id": "sup_5",
+        "title": "Data export request",
+        "business": "Corner Thread",
+        "category": "Privacy",
+        "priority": "Normal",
+        "age": "3 hr",
+        "owner": "Nica",
+        "status": "Open"
+      }
+    ],
+    "audit": [
+      {
+        "id": "aud_1",
+        "actor": "Mika Lim",
+        "role": "Trust admin",
+        "action": "Reversed 12 suspicious redemptions",
+        "target": "Field Notes Café",
+        "time": "10:42 AM",
+        "ip": "10.24.x.x",
+        "severity": "Elevated"
+      },
+      {
+        "id": "aud_2",
+        "actor": "Nica Yu",
+        "role": "Support admin",
+        "action": "Opened owner recovery workflow",
+        "target": "Aster Wellness",
+        "time": "10:18 AM",
+        "ip": "10.24.x.x",
+        "severity": "Normal"
+      },
+      {
+        "id": "aud_3",
+        "actor": "System",
+        "role": "Automation",
+        "action": "Paused campaign after complaint threshold",
+        "target": "Campaign cmp_882",
+        "time": "9:56 AM",
+        "ip": "Internal",
+        "severity": "Elevated"
+      },
+      {
+        "id": "aud_4",
+        "actor": "Paolo Reyes",
+        "role": "Platform ops",
+        "action": "Replayed failed webhook batch",
+        "target": "Northline Coffee",
+        "time": "9:31 AM",
+        "ip": "10.20.x.x",
+        "severity": "Normal"
+      },
+      {
+        "id": "aud_5",
+        "actor": "System",
+        "role": "Privacy jobs",
+        "action": "Completed customer export",
+        "target": "Request dsr_1092",
+        "time": "9:02 AM",
+        "ip": "Internal",
+        "severity": "Normal"
+      }
+    ],
+    "services": [
+      {
+        "name": "API gateway",
+        "status": "Operational",
+        "latency": "84 ms",
+        "uptime": "99.99%"
+      },
+      {
+        "name": "Campaign workers",
+        "status": "Operational",
+        "latency": "1.2 s",
+        "uptime": "99.97%"
+      },
+      {
+        "name": "SMS adapter",
+        "status": "Degraded",
+        "latency": "4.8 s",
+        "uptime": "99.72%"
+      },
+      {
+        "name": "Email adapter",
+        "status": "Operational",
+        "latency": "680 ms",
+        "uptime": "99.98%"
+      },
+      {
+        "name": "Wallet pass service",
+        "status": "Operational",
+        "latency": "920 ms",
+        "uptime": "99.95%"
+      },
+      {
+        "name": "Offline reconciliation",
+        "status": "Operational",
+        "latency": "2.1 s",
+        "uptime": "99.94%"
+      }
+    ],
+    "economics": {
+      "plans": [
+        {
+          "name": "Launch",
+          "accounts": 118,
+          "mrr": 0,
+          "monthlyCost": 3420,
+          "margin": 0
+        },
+        {
+          "name": "Core",
+          "accounts": 92,
+          "mrr": 45908,
+          "monthlyCost": 8120,
+          "margin": 82.3
+        },
+        {
+          "name": "Grow",
+          "accounts": 58,
+          "mrr": 74820,
+          "monthlyCost": 16440,
+          "margin": 78.0
+        },
+        {
+          "name": "Scale",
+          "accounts": 16,
+          "mrr": 55840,
+          "monthlyCost": 19200,
+          "margin": 65.6
+        }
+      ],
+      "channels": [
+        {
+          "name": "In-app",
+          "volume": 842000,
+          "revenue": 0,
+          "cost": 1260,
+          "model": "Included"
+        },
+        {
+          "name": "Push",
+          "volume": 418000,
+          "revenue": 0,
+          "cost": 840,
+          "model": "Included"
+        },
+        {
+          "name": "Email",
+          "volume": 286000,
+          "revenue": 7150,
+          "cost": 2480,
+          "model": "Allowance + overage"
+        },
+        {
+          "name": "SMS",
+          "volume": 68400,
+          "revenue": 64980,
+          "cost": 42900,
+          "model": "Prepaid credits"
+        },
+        {
+          "name": "Connected messaging",
+          "volume": 12200,
+          "revenue": 7320,
+          "cost": 5180,
+          "model": "Provider pass-through + fee"
+        }
+      ]
+    }
+  }
+}
