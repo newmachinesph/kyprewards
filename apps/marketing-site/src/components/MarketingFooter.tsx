@@ -58,7 +58,7 @@ export function MarketingFooter() {
             href="/contact"
             className="focus-ring mt-6 inline-flex items-center gap-2 rounded-full text-sm font-bold text-[var(--accent-strong)]"
           >
-            Talk to Stampr <ArrowUpRight size={15} />
+            Talk to KYPStamping <ArrowUpRight size={15} />
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
@@ -84,7 +84,7 @@ export function MarketingFooter() {
       </div>
       <div className="border-t border-[var(--line)]">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-2 px-4 py-5 text-[11px] font-semibold text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <span>© 2026 Stampr. Loyalty, made local.</span>
+          <span>© 2026 KYPStamping. Loyalty, made local.</span>
           <span>Built for neighborhood businesses everywhere.</span>
         </div>
       </div>

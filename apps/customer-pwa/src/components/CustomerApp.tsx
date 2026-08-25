@@ -293,7 +293,7 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
           </span>
           <span className="mt-0.5 block text-[11px] text-[var(--muted)]">
             {quickPassAdded
-              ? "Your Stampr QR is ready from your phone wallet."
+              ? "Your KYPStamping QR is ready from your phone wallet."
               : "Use Apple Wallet or Google Wallet without losing the full PWA."}
           </span>
         </span>
@@ -664,7 +664,7 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
           <div>
             <p className="text-sm font-extrabold">Your data stays yours.</p>
             <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-              Stampr never sells customer data. Businesses only see the details
+              KYPStamping never sells customer data. Businesses only see the details
               you choose to share.
             </p>
           </div>
@@ -794,7 +794,7 @@ function QrModal({ close }: { close: () => void }) {
           <span className="scan-pass absolute inset-x-4 top-8 h-px bg-[var(--accent)] shadow-[0_0_10px_var(--accent)]" />
         </div>
         <span className="mt-5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 font-mono text-xs font-bold tracking-[0.08em]">
-          {`STAMPR-${customerDemo.profile.id.toUpperCase()}`}
+          {`KYP-${customerDemo.profile.id.toUpperCase()}`}
         </span>
         <div className="mt-7 flex max-w-[34ch] items-start gap-2 rounded-2xl bg-[rgb(32_169_120/10%)] p-3 text-left text-xs leading-relaxed text-[var(--muted-strong)]">
           <ShieldCheck
@@ -1216,7 +1216,7 @@ function JoinConsentDialog({
           <ShieldCheck size={16} className="mt-0.5 shrink-0 text-[var(--success)]" />
           <p className="text-[11px] leading-relaxed text-[var(--muted-strong)]">
             You can leave the program and revoke access anytime from your
-            profile. Stampr never sells your data.
+            profile. KYPStamping never sells your data.
           </p>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-2">

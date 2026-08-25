@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     "A practical guide to choosing and pricing a digital loyalty program for cafés, salons, restaurants, and independent retailers in the Philippines.",
   alternates: { canonical: "/loyalty-program-philippines" },
   openGraph: {
-    title: "Digital Loyalty Program Philippines | Stampr",
+    title: "Digital Loyalty Program Philippines | KYPStamping",
     description:
       "Choose a loyalty model, channel mix, and sustainable budget for a Philippine local business.",
     locale: "en_PH",
@@ -59,7 +59,7 @@ export default function LoyaltyPhilippinesPage() {
           {
             "@context": "https://schema.org",
             "@type": "Service",
-            name: "Stampr digital loyalty platform",
+            name: "KYPStamping digital loyalty platform",
             areaServed: { "@type": "Country", name: "Philippines" },
             serviceType: "Customer loyalty program software",
             offers: {
@@ -69,7 +69,7 @@ export default function LoyaltyPhilippinesPage() {
               priceCurrency: "PHP",
               offerCount: 4,
             },
-            provider: { "@type": "Organization", name: "Stampr" },
+            provider: { "@type": "Organization", name: "KYPStamping" },
           },
           {
             "@context": "https://schema.org",
@@ -104,7 +104,7 @@ export default function LoyaltyPhilippinesPage() {
               The best digital loyalty program is easy to explain in one
               sentence, takes seconds at checkout, gives customers control of
               their contact choices, and costs less than the gross profit
-              created by the return visits it influences. Stampr’s recommended
+              created by the return visits it influences. KYPStamping’s recommended
               starting price is ₱499/month for one established location, with a
               free validation tier and separately metered SMS.
             </p>

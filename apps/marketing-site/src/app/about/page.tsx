@@ -17,7 +17,7 @@ import {
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Stampr exists to help independent businesses build the kind of customer relationships large brands try to manufacture.",
+    "KYPStamping exists to help independent businesses build the kind of customer relationships large brands try to manufacture.",
   alternates: { canonical: "/about" },
 };
 
@@ -25,9 +25,9 @@ export default function AboutPage() {
   return (
     <main>
       <PageHero
-        eyebrow="Why Stampr exists"
+        eyebrow="Why KYPStamping exists"
         title="Local loyalty deserves better than another discount engine."
-        description="Independent businesses already create real relationships. Stampr gives those relationships a simple digital memory without making them feel transactional."
+        description="Independent businesses already create real relationships. KYPStamping gives those relationships a simple digital memory without making them feel transactional."
       >
         <SiteButton href="/contact">Build with us</SiteButton>
       </PageHero>
@@ -48,7 +48,7 @@ export default function AboutPage() {
             </p>
             <p>
               Technology should protect that feeling, not crowd it out. That is
-              why Stampr begins with one fast QR moment and keeps the rest
+              why KYPStamping begins with one fast QR moment and keeps the rest
               quiet: visible progress for the customer, useful context for
               staff, and clear decisions for the owner.
             </p>

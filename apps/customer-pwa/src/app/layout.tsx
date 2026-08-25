@@ -6,11 +6,11 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Stampr",
+  title: "KYPStamping",
   description: "Keep every local reward in one pocket.",
-  applicationName: "Stampr",
+  applicationName: "KYPStamping",
   icons: { icon: "/icon.svg", shortcut: "/icon.svg", apple: "/apple-touch-icon.png" },
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "Stampr" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "KYPStamping" },
   robots: { index: false, follow: false },
 };
 

@@ -132,7 +132,7 @@ export function AdminShell({
       <aside className="sticky top-0 hidden h-[100dvh] overflow-hidden bg-[var(--ink)] px-4 py-5 text-[var(--paper)] lg:flex lg:flex-col">
         <div className="absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_left,rgb(242_161_45/20%),transparent_64%)]" />
         <div className="relative px-2">
-          <BrandMark inverse label="Stampr Platform" />
+          <BrandMark inverse label="KYPStamping Platform" />
         </div>
 
         <nav
@@ -263,7 +263,7 @@ export function AdminShell({
                 <div id="admin-account-menu" role="menu" className="absolute right-0 top-[calc(100%+8px)] z-50 w-64 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-2xl">
                   <div className="border-b border-[var(--line)] px-3 pb-3 pt-2">
                     <p className="text-xs font-extrabold">Platform Administrator</p>
-                    <p className="mt-1 text-[10px] text-[var(--muted)]">admin@stampr.ph</p>
+                    <p className="mt-1 text-[10px] text-[var(--muted)]">admin@kypstamping.ph</p>
                   </div>
                   <button type="button" role="menuitem" onClick={() => navigate("settings")} className="mt-1 flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><Settings2 size={15} /> Administrator settings</button>
                   <button type="button" role="menuitem" onClick={() => navigate("audit")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><FileClock size={15} /> My audit activity</button>
@@ -276,7 +276,7 @@ export function AdminShell({
         {mobileOpen && (
           <div className="fixed inset-0 top-17 z-40 overflow-y-auto bg-[var(--ink)] p-4 lg:hidden">
             <div className="mb-6">
-              <BrandMark inverse label="Stampr Platform" />
+              <BrandMark inverse label="KYPStamping Platform" />
             </div>
             <nav className="space-y-1" aria-label="Mobile platform navigation">
               {navContent}

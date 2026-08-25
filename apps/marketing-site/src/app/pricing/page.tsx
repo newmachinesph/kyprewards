@@ -25,10 +25,10 @@ export default function PricingPage() {
         data={{
           "@context": "https://schema.org",
           "@type": "Product",
-          name: "Stampr loyalty platform",
+          name: "KYPStamping loyalty platform",
           description:
             "Digital loyalty software for local businesses, staff, and customers.",
-          brand: { "@type": "Brand", name: "Stampr" },
+          brand: { "@type": "Brand", name: "KYPStamping" },
           offers: [
             {
               "@type": "Offer",
@@ -131,7 +131,7 @@ export default function PricingPage() {
                   icon: MessagesSquare,
                   title: "In-app communication",
                   detail:
-                    "Reach customers in their Stampr inbox without an external provider.",
+                    "Reach customers in their KYPStamping inbox without an external provider.",
                 },
                 {
                   icon: Building2,

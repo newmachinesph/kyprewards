@@ -6,7 +6,7 @@ import { PageHero, SiteEyebrow } from "@/components/MarketingUi";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Talk to Stampr about launching or improving a loyalty program for your local business.",
+    "Talk to KYPStamping about launching or improving a loyalty program for your local business.",
   alternates: { canonical: "/contact" },
 };
 
@@ -42,7 +42,7 @@ export default function ContactPage() {
                 {
                   icon: Mail,
                   title: "Prefer email?",
-                  text: "hello@stampr.com",
+                  text: "hello@kypstamping.com",
                 },
               ].map((item) => {
                 const Icon = item.icon;

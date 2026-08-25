@@ -63,7 +63,7 @@ const scopeOptions = [
 const connectionOptions = [
   {
     id: "sidecar",
-    name: "Stampr terminal",
+    name: "KYPStamping terminal",
     icon: SquareTerminal,
     eyebrow: "No POS changes",
     description: "Scan, earn, and redeem beside any register, with an offline-safe queue.",
@@ -74,7 +74,7 @@ const connectionOptions = [
     name: "Custom API",
     icon: Code2,
     eyebrow: "For developers",
-    description: "Send normalized sales, refunds, and redemption events directly to Stampr.",
+    description: "Send normalized sales, refunds, and redemption events directly to KYPStamping.",
     availability: "Sandbox ready",
   },
   {
@@ -205,9 +205,9 @@ export function IntegrationsView({
   const keyPrefix = environment === "sandbox" ? "st_test" : "st_live_demo";
   const secretPrefix = environment === "sandbox" ? "sk_test" : "sk_live_demo";
   const providerSlug = connection === "sidecar" ? "terminal" : connection;
-  const inboundUrl = `https://api.stampr.ph/api/v1/integrations/${providerSlug}/webhook`;
+  const inboundUrl = `https://api.kypstamping.ph/api/v1/integrations/${providerSlug}/webhook`;
   const quickstart = `curl --request POST \\
-  --url https://api.stampr.ph/api/v1/transactions \\
+  --url https://api.kypstamping.ph/api/v1/transactions \\
   --header 'Authorization: Bearer ${secretPrefix}_••••••••' \\
   --header 'Idempotency-Key: sale_sc_10482' \\
   --header 'X-Merchant-ID: mrc_sweet_crumbs' \\
@@ -348,7 +348,7 @@ export function IntegrationsView({
             POS & API integrations
           </h1>
           <p className="mt-2 max-w-[68ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-            Choose how sales reach Stampr, issue least-privilege keys, sign webhooks,
+            Choose how sales reach KYPStamping, issue least-privilege keys, sign webhooks,
             and trace every event without tying loyalty to one POS vendor.
           </p>
         </div>
@@ -576,7 +576,7 @@ export function IntegrationsView({
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-extrabold">Copy this sample secret now</p>
                   <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                    A real secret is shown once. Stampr stores only a secure hash after you leave.
+                    A real secret is shown once. KYPStamping stores only a secure hash after you leave.
                   </p>
                   <div className="mt-3 flex items-center gap-2 rounded-xl border border-[rgb(149_83_12/25%)] bg-[var(--surface)] p-2 pl-3">
                     <code className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-bold">
@@ -728,7 +728,7 @@ export function IntegrationsView({
           <div className="border-b border-[var(--line)] p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <Eyebrow>03 · POS → Stampr</Eyebrow>
+                <Eyebrow>03 · POS → KYPStamping</Eyebrow>
                 <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
                   Inbound webhook
                 </h2>
@@ -812,7 +812,7 @@ export function IntegrationsView({
           <div className="border-b border-[var(--line)] p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <Eyebrow>04 · Stampr → your system</Eyebrow>
+                <Eyebrow>04 · KYPStamping → your system</Eyebrow>
                 <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
                   Outbound webhook
                 </h2>
@@ -970,7 +970,7 @@ export function IntegrationsView({
             title: "Sandbox contract",
             detail: "Customer lookup, sale, refund, void, balance, reward, and redemption flows share /api/v1.",
             action: "Copy API base",
-            onClick: () => copyValue("https://api.stampr.ph/api/v1", "Planned API base"),
+            onClick: () => copyValue("https://api.kypstamping.ph/api/v1", "Planned API base"),
           },
           {
             icon: TriangleAlert,

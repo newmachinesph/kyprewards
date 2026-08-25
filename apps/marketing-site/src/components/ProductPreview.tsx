@@ -17,7 +17,7 @@ export function ProductPreview() {
         <span className="size-2.5 rounded-full bg-[var(--line-strong)]" />
         <span className="size-2.5 rounded-full bg-[var(--accent)]" />
         <span className="ml-2 rounded-full bg-[var(--surface-2)] px-3 py-1 font-mono text-[9px] text-[var(--muted)]">
-          business.stampr.com
+          business.kypstamping.com
         </span>
       </div>
       <div className="grid min-h-[430px] grid-cols-[76px_1fr] sm:grid-cols-[150px_1fr]">

@@ -29,7 +29,7 @@ import { businessAppUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Product",
   description:
-    "Explore Stampr’s customer wallet, business workspace, QR stamping, campaigns, rewards, analytics, and privacy controls.",
+    "Explore KYPStamping’s customer wallet, business workspace, QR stamping, campaigns, rewards, analytics, and privacy controls.",
   alternates: { canonical: "/product" },
 };
 
@@ -104,7 +104,7 @@ export default function ProductPage() {
       <PageHero
         eyebrow="The complete loyalty loop"
         title="One small scan. A much better return visit."
-        description="Stampr connects the moment at the counter with the customer wallet, business workspace, and thoughtful follow-up that happen afterward."
+        description="KYPStamping connects the moment at the counter with the customer wallet, business workspace, and thoughtful follow-up that happen afterward."
       >
         <SiteButton href="/contact">Start your program</SiteButton>
         <SiteButton href={businessAppUrl} tone="outline">

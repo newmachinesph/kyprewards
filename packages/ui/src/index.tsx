@@ -22,7 +22,7 @@ type BrandMarkProps = {
 export function BrandMark({
   compact = false,
   inverse = false,
-  label = "Stampr",
+  label = "KYPStamping",
 }: BrandMarkProps) {
   return (
     <div className="flex items-center gap-3" aria-label={label}>
@@ -43,7 +43,22 @@ export function BrandMark({
       {!compact && (
         <span className="leading-none">
           <span className="block text-[16px] font-bold tracking-[-0.03em]">
-            {label}
+            {label.startsWith("KYP") ? (
+              <>
+                <span
+                  className={
+                    inverse
+                      ? "text-[var(--accent)]"
+                      : "text-[var(--accent-strong)]"
+                  }
+                >
+                  KYP
+                </span>
+                {label.slice(3)}
+              </>
+            ) : (
+              label
+            )}
           </span>
           <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
             Loyalty, made local

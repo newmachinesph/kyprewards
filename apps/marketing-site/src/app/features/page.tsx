@@ -36,7 +36,7 @@ import { businessAppUrl, customerAppUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Features",
   description:
-    "Explore Stampr loyalty programs, QR and NFC visits, customer wallet, automations, analytics, integrations, offline tools, and privacy controls.",
+    "Explore KYPStamping loyalty programs, QR and NFC visits, customer wallet, automations, analytics, integrations, offline tools, and privacy controls.",
   alternates: { canonical: "/features" },
 };
 
@@ -194,7 +194,7 @@ export default function FeaturesPage() {
                 Eight proven program shapes.
               </h2>
               <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                Choose the behavior you want to encourage. Stampr keeps the
+                Choose the behavior you want to encourage. KYPStamping keeps the
                 experience consistent for staff and customers across every
                 program type.
               </p>
@@ -397,7 +397,7 @@ export default function FeaturesPage() {
                   Know what to do next—and why.
                 </h2>
                 <p className="mt-5 max-w-[44ch] text-sm leading-relaxed text-[var(--ink)]/75">
-                  Stampr turns patterns into small, reviewable recommendations.
+                  KYPStamping turns patterns into small, reviewable recommendations.
                   Every suggested audience shows its reason, estimated reach,
                   reward cost, and opt-in status before launch.
                 </p>

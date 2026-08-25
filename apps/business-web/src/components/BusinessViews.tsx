@@ -313,7 +313,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
             Join Sweet Crumbs · {branch}
           </p>
           <p className="mt-1 text-center text-xs text-[var(--muted)]">
-            stampr.ph/join/sweet-crumbs-
+            kypstamping.ph/join/sweet-crumbs-
             {branch.toLowerCase().replaceAll(" ", "-")}
           </p>
           <div className="mt-6 grid grid-cols-2 gap-2">
@@ -321,7 +321,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
               tone="quiet"
               icon={<Copy size={15} />}
               onClick={() => {
-                const link = `https://stampr.ph/join/sweet-crumbs-${branch.toLowerCase().replaceAll(" ", "-")}`;
+                const link = `https://kypstamping.ph/join/sweet-crumbs-${branch.toLowerCase().replaceAll(" ", "-")}`;
                 navigator.clipboard?.writeText(link).catch(() => {});
                 notify("Join link copied.");
               }}

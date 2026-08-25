@@ -33,7 +33,7 @@ const sharedScenario = demoData.sharedScenario;
 const adapters = [
   {
     id: "sidecar",
-    name: "Stampr terminal",
+    name: "KYPStamping terminal",
     category: "POS-independent",
     status: "Available" as AdapterStatus,
     icon: SquareTerminal,
@@ -97,7 +97,7 @@ const tenantConnections = [
   },
   {
     business: "Aster Wellness",
-    adapter: "Stampr terminal",
+    adapter: "KYPStamping terminal",
     branches: "4 / 4",
     credential: "Device keys managed",
     events: "6,392",

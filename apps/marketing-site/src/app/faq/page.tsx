@@ -12,8 +12,8 @@ const groups = [
     title: "Getting started",
     questions: [
       [
-        "What is Stampr?",
-        "Stampr is a loyalty platform concept for Philippine local businesses. It combines a customer PWA, business and staff workspace, public business website, and platform administration experience.",
+        "What is KYPStamping?",
+        "KYPStamping is a loyalty platform concept for Philippine local businesses. It combines a customer PWA, business and staff workspace, public business website, and platform administration experience.",
       ],
       [
         "Is the product live today?",
@@ -59,11 +59,11 @@ const groups = [
       ],
       [
         "Why is SMS not unlimited?",
-        "Every SMS segment has a real delivery cost. Stampr models credits and ₱0.95 overage per 160-character segment so a campaign cannot quietly destroy product margin.",
+        "Every SMS segment has a real delivery cost. KYPStamping models credits and ₱0.95 overage per 160-character segment so a campaign cannot quietly destroy product margin.",
       ],
       [
         "Are push notifications free?",
-        "The provider delivery layer can be free, but consent, orchestration, support, and abuse prevention still have operating cost. Stampr includes push under a fair-use policy.",
+        "The provider delivery layer can be free, but consent, orchestration, support, and abuse prevention still have operating cost. KYPStamping includes push under a fair-use policy.",
       ],
       [
         "How do I know whether a campaign will pay back?",
@@ -79,7 +79,7 @@ const groups = [
         "Customers can review joined businesses, shared fields, communication choices, loyalty history, exports, and deletion or leave requests in the PWA demo.",
       ],
       [
-        "Does Stampr guarantee legal compliance?",
+        "Does KYPStamping guarantee legal compliance?",
         "No software alone can guarantee compliance. The product is designed to support consent records, purpose limitation, objections, access control, audit history, exports, and deletion workflows; each operator still needs appropriate legal and operational review.",
       ],
       [
@@ -99,7 +99,7 @@ const allQuestions = groups.flatMap((group) => group.questions);
 export const metadata: Metadata = {
   title: "Loyalty Platform FAQ",
   description:
-    "Answers about Stampr setup, digital loyalty programs, customer PWA access, staff operations, SMS and email pricing, privacy, and the frontend demo.",
+    "Answers about KYPStamping setup, digital loyalty programs, customer PWA access, staff operations, SMS and email pricing, privacy, and the frontend demo.",
   alternates: { canonical: "/faq" },
 };
 
@@ -132,7 +132,7 @@ export default function FaqPage() {
           <aside>
             <SiteEyebrow>Quick answer</SiteEyebrow>
             <p className="mt-4 text-sm leading-relaxed text-[var(--muted-strong)]">
-              Stampr is designed to make loyalty clear at the counter, useful
+              KYPStamping is designed to make loyalty clear at the counter, useful
               between visits, controllable by customers, and economically
               sustainable for the platform.
             </p>

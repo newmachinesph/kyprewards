@@ -4,15 +4,15 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "How Stampr handles customer, business, staff, and website visitor information.",
+    "How KYPStamping handles customer, business, staff, and website visitor information.",
   alternates: { canonical: "/privacy" },
 };
 
 const sections = [
   {
-    title: "Information Stampr receives",
+    title: "Information KYPStamping receives",
     paragraphs: [
-      "Stampr receives information people provide when creating an account, joining a business program, operating a business workspace, contacting support, or using the public website.",
+      "KYPStamping receives information people provide when creating an account, joining a business program, operating a business workspace, contacting support, or using the public website.",
     ],
     bullets: [
       "Account details such as name, email address, mobile number, and birthday when provided.",
@@ -35,10 +35,10 @@ const sections = [
   {
     title: "Sharing and service providers",
     paragraphs: [
-      "Stampr does not sell personal information. We may use contracted service providers for hosting, storage, authentication, communications, security, analytics, and payment processing. They may process information only to provide their contracted service.",
+      "KYPStamping does not sell personal information. We may use contracted service providers for hosting, storage, authentication, communications, security, analytics, and payment processing. They may process information only to provide their contracted service.",
     ],
     bullets: [
-      "We may disclose information when legally required or necessary to protect customers, businesses, Stampr, or the public.",
+      "We may disclose information when legally required or necessary to protect customers, businesses, KYPStamping, or the public.",
       "A business may receive information a customer intentionally shares after joining its program.",
     ],
   },
@@ -56,14 +56,14 @@ const sections = [
     ],
     bullets: [
       "Depending on where you live, you may have rights to access, correct, delete, restrict, or receive a copy of personal information.",
-      "Requests can be sent to privacy@stampr.com. We may verify identity before completing a request.",
+      "Requests can be sent to privacy@kypstamping.com. We may verify identity before completing a request.",
     ],
   },
   {
     title: "Changes and contact",
     paragraphs: [
       "We will update this notice when our practices or legal obligations change. Material changes will be communicated through the service or by another appropriate method.",
-      "Questions about this notice can be sent to privacy@stampr.com.",
+      "Questions about this notice can be sent to privacy@kypstamping.com.",
     ],
   },
 ];
@@ -73,7 +73,7 @@ export default function PrivacyPage() {
     <LegalPage
       eyebrow="Your information"
       title="Privacy notice"
-      summary="Stampr is designed so customers control their personal profile and businesses receive only the information needed to operate a joined loyalty program."
+      summary="KYPStamping is designed so customers control their personal profile and businesses receive only the information needed to operate a joined loyalty program."
       effective="25 August 2026"
       sections={sections}
     />

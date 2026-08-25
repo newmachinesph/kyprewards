@@ -12,8 +12,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  applicationName: "Stampr",
-  title: { default: "Stampr — Loyalty, made local", template: "%s | Stampr" },
+  applicationName: "KYPStamping",
+  title: { default: "KYPStamping — Loyalty, made local", template: "%s | KYPStamping" },
   description:
     "A digital loyalty platform for Philippine local businesses, their staff, and the customers who keep coming back.",
   keywords: [
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
     "email loyalty marketing",
     "local business Philippines",
   ],
-  authors: [{ name: "Stampr", url: siteUrl }],
-  creator: "Stampr",
-  publisher: "Stampr",
+  authors: [{ name: "KYPStamping", url: siteUrl }],
+  creator: "KYPStamping",
+  publisher: "KYPStamping",
   category: "business software",
   icons: { icon: "/icon.svg", shortcut: "/icon.svg" },
   robots: {
@@ -43,10 +43,10 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Stampr — Loyalty, made local",
+    title: "KYPStamping — Loyalty, made local",
     description: "Turn everyday visits into lasting customer relationships.",
     url: siteUrl,
-    siteName: "Stampr",
+    siteName: "KYPStamping",
     type: "website",
     locale: "en_PH",
     images: [
@@ -54,13 +54,13 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Stampr loyalty program receipt and return-visit ledger",
+        alt: "KYPStamping loyalty program receipt and return-visit ledger",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Stampr — Loyalty, made local",
+    title: "KYPStamping — Loyalty, made local",
     description: "Turn everyday visits into lasting customer relationships.",
     images: ["/opengraph-image"],
   },
@@ -84,7 +84,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "@id": `${siteUrl}/#organization`,
-              name: "Stampr",
+              name: "KYPStamping",
               url: siteUrl,
               description:
                 "A digital loyalty platform designed for Philippine local businesses.",
@@ -94,7 +94,7 @@ export default function RootLayout({
               "@type": "WebSite",
               "@id": `${siteUrl}/#website`,
               url: siteUrl,
-              name: "Stampr",
+              name: "KYPStamping",
               publisher: { "@id": `${siteUrl}/#organization` },
               inLanguage: "en-PH",
             },
@@ -102,7 +102,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "SoftwareApplication",
               "@id": `${siteUrl}/#software`,
-              name: "Stampr",
+              name: "KYPStamping",
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
               description:

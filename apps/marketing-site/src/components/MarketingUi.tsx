@@ -102,7 +102,7 @@ export function MarketingCta({
       <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[18px] bg-[var(--ink)] px-6 py-12 text-[var(--paper)] sm:px-10 lg:grid lg:grid-cols-[1fr_auto] lg:items-end lg:px-14 lg:py-16">
         <div className="absolute right-10 top-1/2 hidden size-48 -translate-y-1/2 rounded-full border-[38px] border-[var(--accent)] opacity-80 lg:block" />
         <div className="relative">
-          <SiteEyebrow inverse>Start with Stampr</SiteEyebrow>
+          <SiteEyebrow inverse>Start with KYPStamping</SiteEyebrow>
           <h2 className="mt-4 max-w-[16ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
             {title}
           </h2>

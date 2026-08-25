@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Stampr loyalty program receipt and return-visit ledger";
+export const alt = "KYPStamping loyalty program receipt and return-visit ledger";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -60,9 +60,9 @@ export default function OpenGraphImage() {
               justifyContent: "center",
             }}
           >
-            S
+            K
           </div>
-          Stampr
+          <span style={{ color: "#95530c" }}>KYP</span>Stamping
         </div>
         <div
           style={{

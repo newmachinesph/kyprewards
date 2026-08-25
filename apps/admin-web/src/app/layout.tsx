@@ -6,8 +6,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Stampr Platform",
-  description: "Platform operations for the Stampr network.",
+  title: "KYPStamping Platform",
+  description: "Platform operations for the KYPStamping network.",
   icons: { icon: "/icon.svg", shortcut: "/icon.svg" },
   robots: { index: false, follow: false },
 };

@@ -386,7 +386,7 @@ export function AdminDashboard({
               <div>
                 <Eyebrow>Event stream</Eyebrow>
                 <h2 className="mt-1 text-lg font-extrabold tracking-[-0.03em]">
-                  Happening across Stampr
+                  Happening across KYPStamping
                 </h2>
               </div>
               <span className="flex items-center gap-2 text-[11px] font-bold text-[var(--success)]">

@@ -26,7 +26,7 @@ import { businessAppUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "POS, API and Webhook Integrations",
   description:
-    "Start Stampr beside any POS, then connect sales through a versioned API, signed webhooks, file imports, or isolated provider adapters.",
+    "Start KYPStamping beside any POS, then connect sales through a versioned API, signed webhooks, file imports, or isolated provider adapters.",
   alternates: { canonical: "/integrations" },
 };
 
@@ -34,7 +34,7 @@ const questions = [
   {
     question: "Do we need to replace our POS?",
     answer:
-      "No. Businesses can begin with the Stampr sidecar counter flow, then add a direct API or supported provider adapter when it creates enough operational value.",
+      "No. Businesses can begin with the KYPStamping sidecar counter flow, then add a direct API or supported provider adapter when it creates enough operational value.",
   },
   {
     question: "Are Mosaic and StoreHub already connected?",
@@ -95,7 +95,7 @@ export default function IntegrationsPage() {
               {
                 icon: SquareTerminal,
                 eyebrow: "Ready first",
-                title: "Stampr sidecar terminal",
+                title: "KYPStamping sidecar terminal",
                 detail: "Run QR earning and redemption beside any checkout from a phone, tablet, or browser.",
                 status: "No POS change",
               },

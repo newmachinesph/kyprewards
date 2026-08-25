@@ -6,7 +6,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Stampr Business",
+  title: "KYPStamping Business",
   description: "Run your loyalty program from one calm workspace.",
   icons: { icon: "/icon.svg", shortcut: "/icon.svg" },
   robots: { index: false, follow: false },

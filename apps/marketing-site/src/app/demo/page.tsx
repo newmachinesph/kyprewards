@@ -29,7 +29,7 @@ import {
 export const metadata: Metadata = {
   title: "Interactive Loyalty Platform Demo",
   description:
-    "Tour Stampr across its customer PWA, business workspace, integration setup, and platform administration using connected frontend demo data.",
+    "Tour KYPStamping across its customer PWA, business workspace, integration setup, and platform administration using connected frontend demo data.",
   alternates: { canonical: "/demo" },
 };
 
@@ -88,7 +88,7 @@ export default function DemoPage() {
       <PageHero
         eyebrow="Connected frontend demo"
         title="See one visit from every side."
-        description="Stampr is four coordinated experiences, not a dashboard mockup. Follow a customer from discovery to the counter, then see how the business grows the relationship and the platform keeps it trustworthy."
+        description="KYPStamping is four coordinated experiences, not a dashboard mockup. Follow a customer from discovery to the counter, then see how the business grows the relationship and the platform keeps it trustworthy."
       >
         <SiteButton href={`${customerAppUrl}/#discover`}>
           Start the guided tour

@@ -689,7 +689,7 @@ export function BusinessDashboard({
               <WifiOff size={13} /> Offline queue ready
             </div>
             <p className="mx-auto mt-3 max-w-[34ch] text-center text-sm leading-relaxed text-[var(--muted-strong)]">
-              Hold the customer&apos;s Stampr QR inside the frame. Nothing is
+              Hold the customer&apos;s KYPStamping QR inside the frame. Nothing is
               saved until you confirm.
             </p>
             <Button

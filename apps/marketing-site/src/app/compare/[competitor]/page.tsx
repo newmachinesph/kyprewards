@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const comparison = getComparison(competitor);
   if (!comparison) return {};
   return {
-    title: `Stampr vs ${comparison.competitor}`,
-    description: `Compare Stampr with ${comparison.competitor}: public pricing, customer experience, program formats, campaigns, analytics, and operational fit.`,
+    title: `KYPStamping vs ${comparison.competitor}`,
+    description: `Compare KYPStamping with ${comparison.competitor}: public pricing, customer experience, program formats, campaigns, analytics, and operational fit.`,
     alternates: { canonical: `/compare/${comparison.slug}` },
   };
 }
@@ -37,22 +37,22 @@ export default async function ComparisonPage({ params }: Props) {
         data={{
           "@context": "https://schema.org",
           "@type": "Article",
-          headline: `Stampr vs ${comparison.competitor}`,
+          headline: `KYPStamping vs ${comparison.competitor}`,
           description: comparison.summary,
           dateModified: "2026-08-25",
-          author: { "@type": "Organization", name: "Stampr" },
+          author: { "@type": "Organization", name: "KYPStamping" },
           about: [
-            { "@type": "SoftwareApplication", name: "Stampr" },
+            { "@type": "SoftwareApplication", name: "KYPStamping" },
             { "@type": "SoftwareApplication", name: comparison.competitor },
           ],
         }}
       />
       <PageHero
         eyebrow="Fair product comparison"
-        title={`Stampr vs ${comparison.competitor}`}
+        title={`KYPStamping vs ${comparison.competitor}`}
         description={comparison.summary}
       >
-        <SiteButton href="/pricing">Model Stampr pricing</SiteButton>
+        <SiteButton href="/pricing">Model KYPStamping pricing</SiteButton>
         <SiteButton href="/contact" tone="outline">
           Discuss your requirements
         </SiteButton>
@@ -85,7 +85,7 @@ export default async function ComparisonPage({ params }: Props) {
             <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
               Comparison facts use publicly documented pages available on August
               25, 2026. Product offers can change; verify current terms with
-              each provider. Stampr descriptions refer to this frontend demo and
+              each provider. KYPStamping descriptions refer to this frontend demo and
               stated product direction.
             </p>
           </div>
@@ -100,7 +100,7 @@ export default async function ComparisonPage({ params }: Props) {
                     {comparison.competitor}
                   </th>
                   <th className="px-6 py-5 text-xs uppercase tracking-[0.12em]">
-                    Stampr direction
+                    KYPStamping direction
                   </th>
                 </tr>
               </thead>

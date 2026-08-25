@@ -15,7 +15,7 @@ export const comparisons: Comparison[] = [
     competitor: "GoBalik",
     descriptor: "A focused digital stamp-card option for Philippine businesses",
     summary:
-      "GoBalik offers a low-cost QR loyalty starting point. Stampr is designed for teams that also want multiple program models, customer-controlled messaging, richer retention workflows, and transparent channel economics.",
+      "GoBalik offers a low-cost QR loyalty starting point. KYPStamping is designed for teams that also want multiple program models, customer-controlled messaging, richer retention workflows, and transparent channel economics.",
     publicPricing:
       "Starter ₱399/month; Growth ₱499/month on its public pricing page",
     bestFor:
@@ -60,7 +60,7 @@ export const comparisons: Comparison[] = [
     competitor: "Suki Cards",
     descriptor: "A wallet-pass loyalty platform with broad program types",
     summary:
-      "Suki Cards has strong Apple and Google Wallet support and eight loyalty card types. Stampr adds a dedicated customer PWA, operational staff workflows, campaign unit economics, and an administrator control plane in one product direction.",
+      "Suki Cards has strong Apple and Google Wallet support and eight loyalty card types. KYPStamping adds a dedicated customer PWA, operational staff workflows, campaign unit economics, and an administrator control plane in one product direction.",
     publicPricing:
       "₱5,399, ₱7,999, or ₱10,999 per year on its Philippine pricing page",
     bestFor:
@@ -111,7 +111,7 @@ export const comparisons: Comparison[] = [
     competitor: "ZAP",
     descriptor: "A mature Philippine loyalty and customer engagement platform",
     summary:
-      "ZAP publicly combines loyalty, POS connectivity, customer analytics, and outbound messaging. Stampr is positioned as a lighter, transparent option for local teams that want to begin without a large monthly commitment and grow into automation.",
+      "ZAP publicly combines loyalty, POS connectivity, customer analytics, and outbound messaging. KYPStamping is positioned as a lighter, transparent option for local teams that want to begin without a large monthly commitment and grow into automation.",
     publicPricing:
       "Express is free; Premium is ₱4,800/month on its public pricing page",
     bestFor:

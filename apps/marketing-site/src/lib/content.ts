@@ -20,12 +20,12 @@ export const industries: Industry[] = [
     eyebrow: "Built for the morning rush",
     headline: "Turn a familiar order into a reason to return.",
     description:
-      "Keep the warmth of a neighborhood café while Stampr quietly remembers visits, favorite orders, and the moment a reward is ready.",
+      "Keep the warmth of a neighborhood café while KYPStamping quietly remembers visits, favorite orders, and the moment a reward is ready.",
     reward: "8 visits → a pastry on us",
     metric: "22%",
     metricLabel: "stronger four-week retention",
     challenge:
-      "Paper cards disappear. Names get forgotten during the rush. Stampr keeps the relationship without slowing the counter.",
+      "Paper cards disappear. Names get forgotten during the rush. KYPStamping keeps the relationship without slowing the counter.",
     features: [
       {
         title: "Fast counter scanning",
@@ -56,7 +56,7 @@ export const industries: Industry[] = [
     metric: "31%",
     metricLabel: "more repeat bookings",
     challenge:
-      "Great service creates loyalty, but busy clients still forget to rebook. Stampr makes the next visit visible before they leave.",
+      "Great service creates loyalty, but busy clients still forget to rebook. KYPStamping makes the next visit visible before they leave.",
     features: [
       {
         title: "Visit-based rewards",
@@ -87,7 +87,7 @@ export const industries: Industry[] = [
     metric: "18%",
     metricLabel: "more returning guests",
     challenge:
-      "Guests have endless choices. Stampr makes progress tangible and keeps your restaurant present between meals.",
+      "Guests have endless choices. KYPStamping makes progress tangible and keeps your restaurant present between meals.",
     features: [
       {
         title: "One QR identity",
@@ -118,7 +118,7 @@ export const industries: Industry[] = [
     metric: "2.4×",
     metricLabel: "more identifiable repeat visits",
     challenge:
-      "Transactions are easy to count; relationships are harder. Stampr connects the two without replacing the tools you already use.",
+      "Transactions are easy to count; relationships are harder. KYPStamping connects the two without replacing the tools you already use.",
     features: [
       {
         title: "No POS replacement",
@@ -228,7 +228,7 @@ export const faqs = [
   {
     question: "Do customers need to download an app?",
     answer:
-      "No. Stampr runs as a fast mobile web app and can be saved to the home screen like an installed app.",
+      "No. KYPStamping runs as a fast mobile web app and can be saved to the home screen like an installed app.",
   },
   {
     question: "Do we need to replace our POS?",

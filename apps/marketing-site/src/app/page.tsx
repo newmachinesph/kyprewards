@@ -63,7 +63,7 @@ export default function HomePage() {
               Turn one visit into the next.
             </h1>
             <p className="mt-7 max-w-[56ch] text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
-              Stampr gives local businesses a loyalty program customers
+              KYPStamping gives local businesses a loyalty program customers
               understand, staff can run in seconds, and owners can actually
               learn from.
             </p>
@@ -117,7 +117,7 @@ export default function HomePage() {
               </h2>
             </div>
             <p className="max-w-[56ch] self-end text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
-              The customer shows one secure QR. Staff record the visit. Stampr
+              The customer shows one secure QR. Staff record the visit. KYPStamping
               turns that tiny moment into progress, recognition, and a timely
               reason to return.
             </p>

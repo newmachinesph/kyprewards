@@ -58,7 +58,7 @@ const roleConfig = {
     eyebrow: "Restricted access",
     identifierLabel: "Administrator email",
     identifierType: "email",
-    identifier: "admin@stampr.ph",
+    identifier: "admin@kypstamping.ph",
     signInTitle: "Enter the control room.",
     signInDescription:
       "Privileged sessions require a password and a second verification step.",
@@ -170,7 +170,7 @@ function CustomerAuthShell({
   description: string;
   children: ReactNode;
 }) {
-  const stageLabel = mode === "verify" ? "Verify" : mode === "create" ? "Join Stampr" : "Welcome back";
+  const stageLabel = mode === "verify" ? "Verify" : mode === "create" ? "Join KYPStamping" : "Welcome back";
 
   return (
     <main className="customer-auth min-h-[100dvh] bg-[#d9d5ce] sm:px-5 sm:py-6">
@@ -565,7 +565,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
         </div>
         {role === "customer" && (
           <p className="mt-6 text-center text-xs text-[var(--muted-strong)]">
-            New to Stampr? <a href="/create-account" className="font-extrabold text-[var(--accent-strong)] hover:underline">Create your wallet</a>
+            New to KYPStamping? <a href="/create-account" className="font-extrabold text-[var(--accent-strong)] hover:underline">Create your wallet</a>
           </p>
         )}
         <DemoBoundary compact={role === "customer"} />
