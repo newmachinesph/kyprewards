@@ -229,7 +229,7 @@ export function AdminShell({
           <div className="ml-auto flex items-center gap-2">
             <button
               type="button"
-              aria-label="Open playbook"
+              aria-label="Open support queue"
               onClick={() => navigate("support")}
               className="hidden size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] transition hover:bg-[var(--surface-2)] sm:grid"
             >

@@ -658,7 +658,7 @@
         "business": "Rooted Studio",
         "kind": "Membership",
         "category": "Wellness",
-        "progress": 3,
+        "progress": 2,
         "target": 5,
         "balance": "3 visits left",
         "reward": "Monthly class access",
@@ -977,6 +977,26 @@
         "priority": "Normal",
         "age": "3 hr",
         "owner": "Nica",
+        "status": "Open"
+      },
+      {
+        "id": "sup_6",
+        "title": "SMS delivery delays in Cebu",
+        "business": "Harbor Grind Coffee",
+        "category": "Delivery",
+        "priority": "High",
+        "age": "2 h",
+        "owner": "Nica",
+        "status": "Investigating"
+      },
+      {
+        "id": "sup_7",
+        "title": "Export request for closed account",
+        "business": "Platform (customer)",
+        "category": "Privacy",
+        "priority": "Medium",
+        "age": "5 h",
+        "owner": "Unassigned",
         "status": "Open"
       }
     ],

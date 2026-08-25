@@ -229,7 +229,7 @@ export function PricingEstimator() {
               "Connected provider budget",
               `₱${estimate.connectedBudget.toLocaleString()}`,
             ],
-            ["Break-even returning visits", `${estimate.breakEven} / month`],
+            ["Break-even returning visits", estimate.breakEven > 0 ? `${estimate.breakEven} / month` : "—"],
           ].map(([label, value]) => (
             <div
               key={label}

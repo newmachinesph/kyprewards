@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { BrandMark } from "@stampr/ui";
 import { signOutDemo } from "@stampr/ui/auth";
 import {
@@ -117,6 +117,14 @@ export function BusinessShell({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  useEffect(() => {
+    if (!accountOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setAccountOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [accountOpen]);
 
   function navigate(view: BusinessView) {
     onNavigate(view);
@@ -258,9 +266,13 @@ export function BusinessShell({
             >
               <Bell size={18} />
             </button>
-            <span className="grid size-10 place-items-center rounded-full bg-[var(--accent)] text-xs font-extrabold">
+            <a
+              href="/workspaces"
+              aria-label="Switch workspace"
+              className="grid size-10 place-items-center rounded-full bg-[var(--accent)] text-xs font-extrabold"
+            >
               SC
-            </span>
+            </a>
           </div>
         </header>
         {mobileOpen && (

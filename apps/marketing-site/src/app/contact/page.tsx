@@ -54,7 +54,13 @@ export default function ContactPage() {
                     <div>
                       <p className="text-sm font-extrabold">{item.title}</p>
                       <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                        {item.text}
+                        {item.text.includes("@") ? (
+                          <a href={`mailto:${item.text}`} className="font-bold underline underline-offset-2">
+                            {item.text}
+                          </a>
+                        ) : (
+                          item.text
+                        )}
                       </p>
                     </div>
                   </div>

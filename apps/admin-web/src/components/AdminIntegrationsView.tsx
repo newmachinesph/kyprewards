@@ -88,7 +88,7 @@ const tenantConnections = [
     health: "Healthy" as ConnectionHealth,
   },
   {
-    business: "Sage & Steam",
+    business: "Northline Coffee",
     adapter: "Mosaic POS",
     branches: "2 / 2",
     credential: "Rotated 31 days ago",
@@ -96,7 +96,7 @@ const tenantConnections = [
     health: "Sandbox" as ConnectionHealth,
   },
   {
-    business: "Rooted Studio",
+    business: "Aster Wellness",
     adapter: "Stampr terminal",
     branches: "4 / 4",
     credential: "Device keys managed",

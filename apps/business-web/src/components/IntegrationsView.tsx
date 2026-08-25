@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { demoData } from "@stampr/demo-data";
 import { Button, DemoBadge, Eyebrow, FieldLabel, Panel } from "@stampr/ui";
 import {
   ArrowRight,
@@ -309,7 +310,7 @@ export function IntegrationsView({
     window.setTimeout(() => {
       setDeliveries((current) => [
         {
-          id: "evt_demo_test_10502",
+          id: `evt_demo_test_${Date.now().toString().slice(-6)}`,
           event: "endpoint.test",
           source: "Sweet Crumbs endpoint",
           status: "Delivered",
@@ -436,7 +437,7 @@ export function IntegrationsView({
                 aria-pressed={active}
                 onClick={() => {
                   setConnection(option.id);
-                  notify(`${option.name} selected for this demo setup.`);
+                  notify(`${option.name} is now the active connection in this demo.`);
                 }}
                 className={`min-h-64 p-5 text-left transition focus-visible:z-10 ${
                   index > 0 ? "border-t border-[var(--line)] sm:border-t-0 sm:border-l" : ""
@@ -512,9 +513,9 @@ export function IntegrationsView({
                 onChange={(event) => setBranchScope(event.target.value)}
                 className="min-h-11 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-semibold"
               >
-                <option>Legazpi Village</option>
-                <option>Salcedo Village</option>
-                <option>BGC High Street</option>
+                {demoData.business.locations.map((location) => (
+                  <option key={location.id}>{location.name}</option>
+                ))}
                 <option>All sandbox branches</option>
               </select>
             </label>

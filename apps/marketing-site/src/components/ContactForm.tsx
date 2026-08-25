@@ -13,7 +13,9 @@ export function ContactForm() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = String(data.get("email") ?? "").trim();
-    if (!data.get("name") || !data.get("email") || !data.get("business")) {
+    const name = String(data.get("name") ?? "").trim();
+    const businessName = String(data.get("business") ?? "").trim();
+    if (!name || !email || !businessName) {
       setError(
         "Add your name, work email, and business name so we know how to reach you.",
       );

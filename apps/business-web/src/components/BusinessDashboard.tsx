@@ -35,10 +35,15 @@ import {
   WifiOff,
   X,
 } from "lucide-react";
+import { demoData } from "@stampr/demo-data";
 import type { BusinessView } from "@/components/BusinessShell";
 
 const periods = ["Today", "7 days", "30 days"];
-const bars = [28, 42, 34, 58, 48, 68, 78, 55, 82, 72, 88, 76];
+const chartByPeriod: Record<string, { bars: number[]; total: number; peakIndex: number }> = {
+  Today: { bars: [12, 22, 18, 34, 52, 46, 30, 24, 38, 62, 88, 54], total: 128, peakIndex: 10 },
+  "7 days": { bars: [28, 42, 34, 58, 48, 68, 78, 55, 82, 72, 88, 76], total: 642, peakIndex: 10 },
+  "30 days": { bars: [44, 52, 38, 60, 56, 72, 64, 80, 70, 86, 92, 78], total: 2716, peakIndex: 10 },
+};
 
 const programTypes = [
   { name: "Stamp card", detail: "8 visits → free pastry", icon: Stamp },
@@ -97,44 +102,21 @@ const programPreviews: Record<
   },
 };
 
-const automationDefaults = [
-  {
-    name: "Birthday welcome",
-    detail: "7 days before · opted-in customers",
-    icon: CakeSlice,
-    enabled: true,
-  },
-  {
-    name: "Almost at reward",
-    detail: "One action away · max once weekly",
-    icon: Gift,
-    enabled: true,
-  },
-  {
-    name: "Win back a regular",
-    detail: "14 days beyond usual return window",
-    icon: Repeat2,
-    enabled: true,
-  },
-  {
-    name: "Ask for a review",
-    detail: "One hour after a confirmed visit",
-    icon: MessageSquareText,
-    enabled: false,
-  },
-  {
-    name: "Nearby reminder",
-    detail: "Opt-in only · 100 m · quiet hours",
-    icon: MapPin,
-    enabled: false,
-  },
-  {
-    name: "Referral reward",
-    detail: "Unlock after the friend's first visit",
-    icon: UserPlus,
-    enabled: false,
-  },
-];
+const automationIcons: Record<string, typeof Gift> = {
+  auto_birthday: CakeSlice,
+  auto_reward: Gift,
+  auto_winback: Repeat2,
+  auto_review: MessageSquareText,
+  auto_geo: MapPin,
+  auto_referral: UserPlus,
+};
+
+const automationDefaults = demoData.business.automations.map((automation) => ({
+  name: automation.name,
+  detail: `${automation.trigger} · ${automation.audience} customers`,
+  icon: automationIcons[automation.id] ?? Gift,
+  enabled: automation.status === "Live",
+}));
 
 
 export function BusinessDashboard({
@@ -195,16 +177,16 @@ export function BusinessDashboard({
         className="metric-grid mt-8 grid gap-3"
         aria-label="Business overview"
       >
-        <StatCard className="col-span-6 lg:col-span-3" label="Visits" value="128" detail="18%" icon={Repeat2} accent />
+        <StatCard className="col-span-6 lg:col-span-3" label="Visits" value={String(demoData.business.metrics.visitsToday)} detail="18%" icon={Repeat2} accent />
         <StatCard
           className="col-span-6 lg:col-span-3"
           label="New regulars"
-          value="24"
+          value={String(demoData.business.metrics.newRegulars)}
           detail="6 this week"
           icon={UserPlus}
         />
-        <StatCard className="col-span-6 lg:col-span-3" label="Stamps issued" value="216" detail="31%" icon={Stamp} />
-        <StatCard className="col-span-6 lg:col-span-3" label="Redemptions" value="18" detail="On pace" icon={Gift} trend="flat" />
+        <StatCard className="col-span-6 lg:col-span-3" label="Stamps issued" value={String(demoData.business.metrics.stampsIssued)} detail="31%" icon={Stamp} />
+        <StatCard className="col-span-6 lg:col-span-3" label="Redemptions" value={String(demoData.business.metrics.redemptions)} detail="On pace" icon={Gift} trend="flat" />
       </section>
 
       <section
@@ -236,17 +218,19 @@ export function BusinessDashboard({
           </header>
           <div className="stamp-grid relative min-h-72 p-5 sm:p-7">
             <div className="absolute left-7 top-7">
-              <p className="text-4xl font-extrabold tracking-[-0.03em]">642</p>
+              <p className="text-4xl font-extrabold tracking-[-0.03em]">
+                {chartByPeriod[period].total.toLocaleString("en-PH")}
+              </p>
               <p className="mt-1 text-xs font-semibold text-[var(--muted)]">
-                visits in the last {period.toLowerCase()}
+                visits {period === "Today" ? "so far today" : `in the last ${period.toLowerCase()}`}
               </p>
             </div>
             <div
               className="absolute inset-x-5 bottom-7 top-24 flex items-end gap-2 sm:inset-x-7 sm:gap-3"
               role="img"
-              aria-label={`Visits bar chart for ${period.toLowerCase()}: 642 visits`}
+              aria-label={`Visits bar chart for ${period.toLowerCase()}: ${chartByPeriod[period].total} visits`}
             >
-              {bars.map((height, index) => (
+              {chartByPeriod[period].bars.map((height, index) => (
                 <div
                   key={index}
                   className="group relative flex h-full flex-1 items-end"
@@ -485,7 +469,7 @@ export function BusinessDashboard({
               </h2>
             </div>
             <span className="hidden rounded-full bg-[rgb(31_168_121/12%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--success)] sm:inline-flex">
-              3 live
+              {Object.values(automations).filter(Boolean).length} live
             </span>
           </header>
           <div className="grid sm:grid-cols-2">
@@ -641,8 +625,8 @@ export function BusinessDashboard({
           },
           {
             icon: Users,
-            title: "12 staff",
-            detail: "Owner, manager, cashier, analyst, and campaign roles.",
+            title: "6 staff accounts",
+            detail: "Owner, manager, cashier, analyst, and campaign roles across 12 branch seats.",
           },
           {
             icon: ShieldCheck,
@@ -710,7 +694,10 @@ export function BusinessDashboard({
             </p>
             <Button
               className="mt-6 w-full"
-              onClick={() => setScanOpen(false)}
+              onClick={() => {
+                setScanOpen(false);
+                onNavigate("scan");
+              }}
               icon={<CircleDollarSign size={17} />}
             >
               Use demo customer

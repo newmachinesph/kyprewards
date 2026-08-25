@@ -181,7 +181,15 @@ function BusinessesView({ notify }: { notify: Notify }) {
                 .map((word) => word[0])
                 .join("")}
             </span>
-            <Pill tone={selected.risk === "Healthy" ? "success" : "warning"}>
+            <Pill
+              tone={
+                selected.risk === "Healthy"
+                  ? "success"
+                  : selected.risk === "Watch"
+                    ? "warning"
+                    : "danger"
+              }
+            >
               {selected.risk}
             </Pill>
           </div>
@@ -540,11 +548,14 @@ function SupportView({ notify }: { notify: Notify }) {
           </div>
           <label className="mt-5 grid gap-2 text-xs font-bold">
             Assign to
-            <select className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3">
-              <option>{selected.owner}</option>
-              <option>Nica</option>
-              <option>Mika</option>
-              <option>Paolo</option>
+            <select
+              className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3"
+              defaultValue={selected.owner}
+              onChange={(event) => notify(`Ticket assigned to ${event.target.value}.`)}
+            >
+              {[...new Set([selected.owner, "Nica", "Mika", "Paolo"])].map((owner) => (
+                <option key={owner}>{owner}</option>
+              ))}
             </select>
           </label>
           <label className="mt-4 grid gap-2 text-xs font-bold">
@@ -558,7 +569,7 @@ function SupportView({ notify }: { notify: Notify }) {
           <Button
             tone="accent"
             className="mt-5 w-full"
-            onClick={() => notify(`${selected.id} moved to investigating.`)}
+            onClick={() => notify(`${selected.id} moved to investigating. Internal note saved locally.`)}
           >
             Start investigation
           </Button>
@@ -910,6 +921,7 @@ function SettingsView({ notify }: { notify: Notify }) {
                 <button
                   type="button"
                   role="switch"
+                  aria-label={`Toggle ${title}`}
                   aria-checked={enabled}
                   onClick={() =>
                     setFlags((current) => ({ ...current, [key]: !enabled }))

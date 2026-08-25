@@ -320,7 +320,11 @@ function JoinCodeView({ notify }: { notify: Notify }) {
             <Button
               tone="quiet"
               icon={<Copy size={15} />}
-              onClick={() => notify("Join link copied.")}
+              onClick={() => {
+                const link = `https://stampr.ph/join/sweet-crumbs-${branch.toLowerCase().replaceAll(" ", "-")}`;
+                navigator.clipboard?.writeText(link).catch(() => {});
+                notify("Join link copied.");
+              }}
             >
               Copy link
             </Button>
@@ -679,6 +683,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
               </div>
               <button
                 type="button"
+                aria-label={`Open ${location.name} settings`}
                 onClick={() => notify(`${location.name} settings opened.`)}
                 className="grid size-10 place-items-center rounded-full border border-[var(--line)] hover:bg-[var(--surface-2)]"
               >
@@ -1369,7 +1374,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
           </div>
           <button
             type="button"
-            onClick={() => notify("Complete campaign history loaded.")}
+            onClick={() => notify("Campaign history is complete — all campaigns are shown here.")}
             className="text-xs font-bold text-[var(--accent-strong)]"
           >
             View all
@@ -1716,6 +1721,7 @@ function StaffView({ notify }: { notify: Notify }) {
                   <td className="px-4 py-4">
                     <button
                       type="button"
+                      aria-label={`Edit ${person.name} access`}
                       onClick={() =>
                         notify(`${person.name} access editor opened.`)
                       }
@@ -1792,6 +1798,7 @@ function SettingsView({ notify }: { notify: Notify }) {
                     <button
                       type="button"
                       role="switch"
+                      aria-label={`Toggle ${integration.name}`}
                       aria-checked={isConnected}
                       onClick={() => {
                         setConnected((current) => ({

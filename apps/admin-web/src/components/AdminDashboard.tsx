@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { demoData } from "@stampr/demo-data";
 import { Button, Eyebrow, TrendBadge } from "@stampr/ui";
 import {
   ArrowRight,
@@ -82,6 +83,10 @@ export function AdminDashboard({
   const [scope, setScope] = useState("Network");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [chartMode, setChartMode] = useState<"volume" | "growth">("volume");
+  const chartBars =
+    chartMode === "volume"
+      ? [36, 44, 39, 54, 48, 61, 57, 70, 66, 78, 72, 88, 82, 92]
+      : [22, 28, 24, 40, 33, 47, 41, 58, 52, 66, 61, 79, 73, 86];
 
   return (
     <main className="admin-grid min-h-[calc(100dvh-68px)] px-4 py-6 sm:px-7 lg:px-10 lg:py-8">
@@ -154,7 +159,9 @@ export function AdminDashboard({
               <p className="text-[11px] font-extrabold uppercase tracking-[0.15em] text-white/50">
                 Live businesses
               </p>
-              <p className="mt-5 text-5xl font-extrabold tracking-[-0.03em]">284</p>
+              <p className="mt-5 text-5xl font-extrabold tracking-[-0.03em]">
+                {demoData.admin.metrics.liveBusinesses}
+              </p>
               <div className="mt-7 flex items-center justify-between border-t border-white/12 pt-4">
                 <span className="text-xs text-white/55">
                   18 joined this month
@@ -163,26 +170,48 @@ export function AdminDashboard({
               </div>
             </div>
           </article>
-          {[
-            {
-              label: "Customer accounts",
-              value: "18,492",
-              detail: "+824",
-              icon: Users,
-            },
-            {
-              label: "Stamps this week",
-              value: "42.8k",
-              detail: "+12%",
-              icon: Stamp,
-            },
-            {
-              label: "Rewards funded",
-              value: "₱318k",
-              detail: "On pace",
-              icon: Coins,
-            },
-          ].map((item) => {
+          {(scope === "Network"
+            ? [
+                {
+                  label: "Customer accounts",
+                  value: demoData.admin.metrics.customerAccounts.toLocaleString("en-PH"),
+                  detail: "+824",
+                  icon: Users,
+                },
+                {
+                  label: "Stamps this week",
+                  value: "42.8k",
+                  detail: "+12%",
+                  icon: Stamp,
+                },
+                {
+                  label: "Rewards funded",
+                  value: "₱318k",
+                  detail: "On pace",
+                  icon: Coins,
+                },
+              ]
+            : [
+                {
+                  label: "New accounts today",
+                  value: "214",
+                  detail: "+31",
+                  icon: Users,
+                },
+                {
+                  label: "Stamps today",
+                  value: "6.4k",
+                  detail: "+9%",
+                  icon: Stamp,
+                },
+                {
+                  label: "Rewards funded today",
+                  value: "₱46k",
+                  detail: "On pace",
+                  icon: Coins,
+                },
+              ]
+          ).map((item) => {
             const Icon = item.icon;
             return (
               <article
@@ -220,7 +249,7 @@ export function AdminDashboard({
               </div>
               <button
                 type="button"
-                aria-label="More chart options"
+                aria-label="Toggle between volume and growth view"
                 aria-pressed={chartMode === "growth"}
                 onClick={() => {
                   const next = chartMode === "volume" ? "growth" : "volume";
@@ -234,7 +263,7 @@ export function AdminDashboard({
             </header>
             <div className="bar-grid relative h-72 px-5 pb-6 pt-8 sm:px-7">
               <div className="flex h-full items-end gap-2 sm:gap-3">
-                {[36, 44, 39, 54, 48, 61, 57, 70, 66, 78, 72, 88, 82, 92].map(
+                {chartBars.map(
                   (height, index) => (
                     <div
                       key={index}
@@ -256,10 +285,17 @@ export function AdminDashboard({
               <div>
                 <Eyebrow>System posture</Eyebrow>
                 <h2 className="mt-1 text-lg font-extrabold tracking-[-0.03em]">
-                  All core services normal
+                  {(() => {
+                    const degraded = demoData.admin.services.filter(
+                      (service) => service.status !== "Operational",
+                    ).length;
+                    return degraded === 0
+                      ? "All core services normal"
+                      : `${demoData.admin.services.length - degraded} of ${demoData.admin.services.length} services normal`;
+                  })()}
                 </h2>
               </div>
-              <span className="grid size-10 place-items-center rounded-full bg-[rgb(27_155_109/12%)] text-[var(--success)]">
+              <span className="grid size-10 place-items-center rounded-full bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
                 <CheckCircle2 size={19} />
               </span>
             </div>

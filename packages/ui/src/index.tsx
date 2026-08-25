@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import type React from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import {
@@ -151,6 +154,13 @@ export function DemoActionDialog({
   onClose: () => void;
   onConfirm: () => void;
 }) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
   return (
     <div className="fixed inset-0 z-[90] grid place-items-center p-4" role="dialog" aria-modal="true" aria-labelledby="demo-action-title">
       <button type="button" aria-label="Close demo action" onClick={onClose} className="absolute inset-0 cursor-default bg-[rgb(20_16_13/62%)] backdrop-blur-sm" />

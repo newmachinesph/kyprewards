@@ -144,7 +144,9 @@ function HomeView({
 }) {
   return (
     <div className="px-5 pb-32 pt-5">
-      <Eyebrow>Tuesday, 25 August</Eyebrow>
+      <Eyebrow>
+            {new Date().toLocaleDateString("en-PH", { weekday: "long", day: "numeric", month: "long" })}
+          </Eyebrow>
       <div className="mt-2 flex items-end justify-between gap-3">
         <div>
           <p className="text-sm text-[var(--muted-strong)]">Good morning,</p>
@@ -519,7 +521,7 @@ function DiscoverView({
           Near you · {visibleBusinesses.length}
         </h2>
         <span className="flex items-center gap-1 text-[11px] font-bold text-[var(--muted)]">
-          <MapPin size={12} /> Pasig
+          <MapPin size={12} /> {customerDemo.profile.city}
         </span>
       </div>
       <div className="mt-3 space-y-3">
@@ -676,7 +678,7 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
         {[
           {
             label: "Joined businesses",
-            detail: "3 businesses can see your shared profile",
+            detail: `${customerDemo.wallet.length} businesses can see your shared profile`,
             icon: Building2,
           },
           {
@@ -792,7 +794,7 @@ function QrModal({ close }: { close: () => void }) {
           <span className="scan-pass absolute inset-x-4 top-8 h-px bg-[var(--accent)] shadow-[0_0_10px_var(--accent)]" />
         </div>
         <span className="mt-5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 font-mono text-xs font-bold tracking-[0.08em]">
-          STAMPR-6A8C38
+          {`STAMPR-${customerDemo.profile.id.toUpperCase()}`}
         </span>
         <div className="mt-7 flex max-w-[34ch] items-start gap-2 rounded-2xl bg-[rgb(32_169_120/10%)] p-3 text-left text-xs leading-relaxed text-[var(--muted-strong)]">
           <ShieldCheck
@@ -811,6 +813,13 @@ function QrModal({ close }: { close: () => void }) {
 }
 
 function SheetHeader({ title, close }: { title: string; close: () => void }) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [close]);
   return (
     <header className="sticky top-0 z-10 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(247_243_236/94%)] px-5 backdrop-blur-xl">
       <button
@@ -834,8 +843,15 @@ function SheetHeader({ title, close }: { title: string; close: () => void }) {
   );
 }
 
-function NotificationSheet({ close }: { close: () => void }) {
-  const [allRead, setAllRead] = useState(false);
+function NotificationSheet({
+  close,
+  allRead,
+  onMarkRead,
+}: {
+  close: () => void;
+  allRead: boolean;
+  onMarkRead: () => void;
+}) {
 
   return (
     <div
@@ -895,7 +911,7 @@ function NotificationSheet({ close }: { close: () => void }) {
         <button
           type="button"
           disabled={allRead}
-          onClick={() => setAllRead(true)}
+          onClick={onMarkRead}
           className="mt-6 w-full rounded-2xl border border-[var(--line)] bg-[var(--surface)] py-3 text-sm font-bold"
         >
           {allRead ? "Everything is read" : "Mark everything read"}
@@ -1277,6 +1293,13 @@ function WalletSheet({
           </div>
         </section>
         <section className="mt-4 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+          {customerDemo.activity.filter(
+            (activity) => activity.business === card.business,
+          ).length === 0 && (
+            <p className="p-4 text-xs text-[var(--muted)]">
+              No activity recorded yet. Your first visit will appear here.
+            </p>
+          )}
           {customerDemo.activity
             .filter((activity) => activity.business === card.business)
             .map((activity) => (
@@ -1530,7 +1553,9 @@ function ProfileSheet({
                       Loyalty ID + name · promotions optional
                     </p>
                   </div>
-                  <ChevronRight size={15} />
+                  <span className="rounded-full bg-[rgb(15_118_85/12%)] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--success)]">
+                    Active
+                  </span>
                 </div>
               ))}
             </div>
@@ -1559,6 +1584,7 @@ export function CustomerApp() {
   const [qrOpen, setQrOpen] = useState(false);
   const [sheet, setSheet] = useState<Sheet>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [notificationsRead, setNotificationsRead] = useState(false);
   const [joinedIds, setJoinedIds] = useState(() =>
     customerDemo.discover
       .filter((business) => business.joined)
@@ -1636,7 +1662,7 @@ export function CustomerApp() {
         href="#main-content"
         className="fixed left-4 top-3 z-[100] -translate-y-20 rounded-full bg-[var(--ink)] px-4 py-2 text-sm font-bold text-[var(--paper)] shadow-xl transition focus:translate-y-0"
       >
-        Skip to wallet
+        Skip to content
       </a>
       <main
         id="main-content"
@@ -1653,7 +1679,9 @@ export function CustomerApp() {
           className="relative grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
         >
           <Bell size={18} />
-          <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--accent)]" />
+          {!notificationsRead && (
+            <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--accent)]" />
+          )}
         </button>
       </header>
 
@@ -1701,7 +1729,11 @@ export function CustomerApp() {
 
       {qrOpen && <QrModal close={() => setQrOpen(false)} />}
       {sheet?.kind === "notifications" && (
-        <NotificationSheet close={() => setSheet(null)} />
+        <NotificationSheet
+          close={() => setSheet(null)}
+          allRead={notificationsRead}
+          onMarkRead={() => setNotificationsRead(true)}
+        />
       )}
       {sheet?.kind === "activity" && (
         <ActivitySheet close={() => setSheet(null)} />
