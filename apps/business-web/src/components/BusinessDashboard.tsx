@@ -162,7 +162,7 @@ export function BusinessDashboard({
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <Eyebrow>Tuesday, 25 August</Eyebrow>
-          <h1 className="mt-2 text-3xl font-black tracking-[-0.055em] sm:text-4xl">
+          <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
             Good morning, Sweet Crumbs.
           </h1>
           <p className="mt-2 max-w-[58ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -236,7 +236,7 @@ export function BusinessDashboard({
           </header>
           <div className="stamp-grid relative min-h-72 p-5 sm:p-7">
             <div className="absolute left-7 top-7">
-              <p className="text-4xl font-black tracking-[-0.06em]">642</p>
+              <p className="text-4xl font-extrabold tracking-[-0.03em]">642</p>
               <p className="mt-1 text-xs font-semibold text-[var(--muted)]">
                 visits in the last {period.toLowerCase()}
               </p>
@@ -269,7 +269,7 @@ export function BusinessDashboard({
                 Active
               </span>
             </div>
-            <h2 className="mt-8 max-w-[10ch] text-3xl font-black leading-[1.02] tracking-[-0.055em]">
+            <h2 className="mt-8 max-w-[10ch] text-3xl font-extrabold leading-[1.02] tracking-[-0.03em]">
               Eight visits. One pastry on us.
             </h2>
             <p className="mt-3 max-w-[34ch] text-sm leading-relaxed text-white/60">
@@ -280,7 +280,7 @@ export function BusinessDashboard({
             </div>
             <div className="mt-8 flex items-end justify-between border-t border-dashed border-white/20 pt-5">
               <div>
-                <p className="text-2xl font-black">63%</p>
+                <p className="text-2xl font-extrabold">63%</p>
                 <p className="text-[11px] text-white/50">average completion</p>
               </div>
               <button
@@ -308,7 +308,7 @@ export function BusinessDashboard({
                 Ready for the first rush
               </h2>
             </div>
-            <span className="text-sm font-black">4/5</span>
+            <span className="text-sm font-extrabold">4/5</span>
           </div>
           <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-[var(--surface-2)]">
             <div className="h-full w-4/5 rounded-full bg-[var(--accent)]" />
@@ -389,7 +389,7 @@ export function BusinessDashboard({
         <header className="flex flex-col gap-4 border-b border-[var(--line)] p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
           <div>
             <Eyebrow>Program studio</Eyebrow>
-            <h2 className="mt-1 text-xl font-extrabold tracking-[-0.035em]">
+            <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
               Choose how loyalty creates value
             </h2>
             <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -421,7 +421,7 @@ export function BusinessDashboard({
                   <span className="grid size-10 place-items-center rounded-xl bg-[var(--paper)]">
                     <Icon size={18} />
                   </span>
-                  <span className="mt-7 block text-sm font-black">
+                  <span className="mt-7 block text-sm font-extrabold">
                     {program.name}
                   </span>
                   <span
@@ -437,14 +437,14 @@ export function BusinessDashboard({
             <div>
               <div className="flex items-center justify-between">
                 <Eyebrow>Rule preview</Eyebrow>
-                <span className="rounded-full border border-white/15 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-white/60">
+                <span className="rounded-full border border-white/15 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/60">
                   Draft
                 </span>
               </div>
               <p className="mt-9 text-xs font-bold uppercase tracking-[0.12em] text-white/50">
                 {preview.label}
               </p>
-              <p className="mt-2 text-4xl font-black tracking-[-0.06em]">
+              <p className="mt-2 text-4xl font-extrabold tracking-[-0.03em]">
                 {preview.value}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-white/65">
@@ -462,7 +462,7 @@ export function BusinessDashboard({
                   notify(`${selectedProgram} draft opened in Program studio.`);
                   onNavigate("programs");
                 }}
-                className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-[var(--accent)] px-4 text-xs font-black text-[var(--ink)]"
+                className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-[var(--accent)] px-4 text-xs font-extrabold text-[var(--ink)]"
               >
                 Configure {selectedProgram.toLowerCase()}{" "}
                 <ArrowRight size={14} />
@@ -480,11 +480,11 @@ export function BusinessDashboard({
           <header className="flex items-center justify-between gap-4 border-b border-[var(--line)] p-5 sm:p-6">
             <div>
               <Eyebrow>Lifecycle automation</Eyebrow>
-              <h2 className="mt-1 text-xl font-extrabold tracking-[-0.035em]">
+              <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
                 Helpful moments, already watched
               </h2>
             </div>
-            <span className="hidden rounded-full bg-[rgb(31_168_121/12%)] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-[var(--success)] sm:inline-flex">
+            <span className="hidden rounded-full bg-[rgb(31_168_121/12%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--success)] sm:inline-flex">
               3 live
             </span>
           </header>
@@ -501,7 +501,7 @@ export function BusinessDashboard({
                     <Icon size={17} />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-black">{automation.name}</p>
+                    <p className="text-sm font-extrabold">{automation.name}</p>
                     <p className="mt-1 text-xs leading-relaxed text-[var(--muted)]">
                       {automation.detail}
                     </p>
@@ -534,7 +534,7 @@ export function BusinessDashboard({
             <Eyebrow>Message guardrails</Eyebrow>
             <Send size={18} />
           </div>
-          <p className="mt-8 max-w-[12ch] text-3xl font-black leading-[1.02] tracking-[-0.055em]">
+          <p className="mt-8 max-w-[12ch] text-3xl font-extrabold leading-[1.02] tracking-[-0.03em]">
             Reach people without wearing out the welcome.
           </p>
           <div className="mt-8 divide-y divide-[rgb(36_29_25/14%)] border-y border-[rgb(36_29_25/14%)]">
@@ -555,7 +555,7 @@ export function BusinessDashboard({
           <button
             type="button"
             onClick={() => onNavigate("campaigns")}
-            className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-full bg-[var(--ink)] px-4 text-xs font-black text-[var(--paper)]"
+            className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-full bg-[var(--ink)] px-4 text-xs font-extrabold text-[var(--paper)]"
           >
             Open campaign studio <ArrowRight size={14} />
           </button>
@@ -569,7 +569,7 @@ export function BusinessDashboard({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Eyebrow>Counter & connections</Eyebrow>
-            <h2 className="mt-1 text-xl font-extrabold tracking-[-0.035em]">
+            <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
               One flow, even when the tools change
             </h2>
           </div>
@@ -614,11 +614,11 @@ export function BusinessDashboard({
                   <span className="grid size-10 place-items-center rounded-xl bg-[var(--surface)]">
                     <Icon size={17} />
                   </span>
-                  <span className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-[var(--muted-strong)]">
+                  <span className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted-strong)]">
                     {item.status}
                   </span>
                 </div>
-                <h3 className="mt-7 text-sm font-black">{item.title}</h3>
+                <h3 className="mt-7 text-sm font-extrabold">{item.title}</h3>
                 <p className="mt-1 text-xs leading-relaxed text-[var(--muted)]">
                   {item.detail}
                 </p>
@@ -657,7 +657,7 @@ export function BusinessDashboard({
               className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
             >
               <Icon size={19} className="text-[var(--accent-strong)]" />
-              <h2 className="mt-7 text-lg font-black tracking-[-0.03em]">
+              <h2 className="mt-7 text-lg font-extrabold tracking-[-0.03em]">
                 {item.title}
               </h2>
               <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
@@ -681,7 +681,7 @@ export function BusinessDashboard({
                 <Eyebrow>Counter scanner</Eyebrow>
                 <h2
                   id="scan-title"
-                  className="mt-1 text-xl font-black tracking-[-0.04em]"
+                  className="mt-1 text-xl font-extrabold tracking-[-0.02em]"
                 >
                   Scan a customer code
                 </h2>
@@ -701,7 +701,7 @@ export function BusinessDashboard({
               <div className="absolute bottom-5 right-5 size-12 border-b-2 border-r-2 border-[var(--accent)]" />
               <QrCode className="size-full text-white/70" strokeWidth={1.1} />
             </div>
-            <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full bg-[rgb(31_168_121/12%)] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-[var(--success)]">
+            <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full bg-[rgb(31_168_121/12%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--success)]">
               <WifiOff size={13} /> Offline queue ready
             </div>
             <p className="mx-auto mt-3 max-w-[34ch] text-center text-sm leading-relaxed text-[var(--muted-strong)]">

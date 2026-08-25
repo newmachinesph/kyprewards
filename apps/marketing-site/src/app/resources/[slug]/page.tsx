@@ -48,7 +48,7 @@ export default async function ResourcePage({ params }: Props) {
                 </div>
               </div>
               <div>
-                <h1 className="max-w-[15ch] text-5xl font-black leading-[0.97] tracking-[-0.065em] sm:text-6xl">
+                <h1 className="max-w-[15ch] text-5xl font-extrabold leading-[0.97] tracking-[-0.03em] sm:text-6xl">
                   {resource.title}
                 </h1>
                 <p className="mt-6 max-w-[58ch] text-lg leading-relaxed text-[var(--muted-strong)]">
@@ -82,7 +82,7 @@ export default async function ResourcePage({ params }: Props) {
                   <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--accent-strong)]">
                     0{index + 1}
                   </p>
-                  <h2 className="mt-3 text-3xl font-black tracking-[-0.045em]">
+                  <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.02em]">
                     {section.heading}
                   </h2>
                   <p className="mt-5 text-base leading-8 text-[var(--muted-strong)]">
@@ -99,7 +99,7 @@ export default async function ResourcePage({ params }: Props) {
                 href={`/resources/${next.slug}`}
                 className="group mt-5 flex items-end justify-between gap-6"
               >
-                <span className="max-w-[18ch] text-2xl font-black leading-tight tracking-[-0.04em]">
+                <span className="max-w-[18ch] text-2xl font-extrabold leading-tight tracking-[-0.02em]">
                   {next.title}
                 </span>
                 <span className="grid size-11 shrink-0 place-items-center rounded-full bg-[var(--ink)] text-[var(--surface)] transition group-hover:translate-x-1">

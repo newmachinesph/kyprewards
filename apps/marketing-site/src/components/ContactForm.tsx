@@ -38,7 +38,7 @@ export function ContactForm() {
           <span className="mx-auto grid size-14 place-items-center rounded-full bg-[var(--accent)]">
             <Check size={24} strokeWidth={3} />
           </span>
-          <h2 className="mt-6 text-3xl font-black tracking-[-0.05em]">
+          <h2 className="mt-6 text-3xl font-extrabold tracking-[-0.02em]">
             Demo inquiry prepared.
           </h2>
           <p className="mx-auto mt-3 max-w-[36ch] text-sm leading-relaxed text-[var(--muted-strong)]">

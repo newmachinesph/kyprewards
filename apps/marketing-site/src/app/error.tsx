@@ -21,7 +21,7 @@ export default function ErrorPage({
         <p className="mt-7 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
           The page lost its place
         </p>
-        <h1 className="mt-3 text-4xl font-black tracking-[-0.055em]">
+        <h1 className="mt-3 text-4xl font-extrabold tracking-[-0.03em]">
           This view did not load.
         </h1>
         <p className="mx-auto mt-4 max-w-[42ch] text-sm leading-relaxed text-[var(--muted-strong)]">

@@ -12,7 +12,7 @@ export default function OfflinePage() {
         <span className="mx-auto mt-12 grid size-14 place-items-center rounded-2xl bg-[var(--surface-2)] text-[var(--muted-strong)]">
           <WifiOff />
         </span>
-        <h1 className="mt-5 text-2xl font-black tracking-[-0.04em]">
+        <h1 className="mt-5 text-2xl font-extrabold tracking-[-0.02em]">
           You are offline.
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">

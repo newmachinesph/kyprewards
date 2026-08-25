@@ -6,7 +6,6 @@ import { BrandMark } from "@stampr/ui";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 
 const links = [
-  { href: "/demo", label: "Demo" },
   { href: "/product", label: "Product" },
   { href: "/features", label: "Features" },
   { href: "/integrations", label: "Integrations" },

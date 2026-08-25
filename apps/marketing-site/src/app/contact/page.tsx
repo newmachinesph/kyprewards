@@ -52,7 +52,7 @@ export default function ContactPage() {
                       <Icon size={17} />
                     </span>
                     <div>
-                      <p className="text-sm font-black">{item.title}</p>
+                      <p className="text-sm font-extrabold">{item.title}</p>
                       <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                         {item.text}
                       </p>

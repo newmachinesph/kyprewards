@@ -117,7 +117,7 @@ export default function ProductPage() {
           <div className="grid gap-12 lg:grid-cols-[0.75fr_1.25fr]">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SiteEyebrow>How every visit moves</SiteEyebrow>
-              <h2 className="mt-4 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+              <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 A loop people understand immediately.
               </h2>
               <p className="mt-5 max-w-[44ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -142,7 +142,7 @@ export default function ProductPage() {
                       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--muted)]">
                         Step 0{index + 1}
                       </p>
-                      <h3 className="mt-2 text-2xl font-black tracking-[-0.04em]">
+                      <h3 className="mt-2 text-2xl font-extrabold tracking-[-0.02em]">
                         {step.title}
                       </h3>
                       <p className="mt-3 max-w-[58ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -165,7 +165,7 @@ export default function ProductPage() {
             </div>
             <div>
               <SiteEyebrow inverse>For owners and staff</SiteEyebrow>
-              <h2 className="mt-5 max-w-[12ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+              <h2 className="mt-5 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 A business workspace that stays calm as you grow.
               </h2>
               <p className="mt-5 max-w-[50ch] text-base leading-relaxed text-white/70">
@@ -194,7 +194,7 @@ export default function ProductPage() {
           <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
             <div>
               <SiteEyebrow>For customers</SiteEyebrow>
-              <h2 className="mt-4 max-w-[12ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+              <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 Every local reward in one pocket.
               </h2>
               <p className="mt-5 max-w-[48ch] text-base leading-relaxed text-[var(--muted-strong)]">
@@ -227,7 +227,7 @@ export default function ProductPage() {
           <div className="grid gap-8 lg:grid-cols-[0.62fr_1.38fr]">
             <div>
               <SiteEyebrow>Everything connected</SiteEyebrow>
-              <h2 className="mt-4 text-4xl font-black leading-[1] tracking-[-0.055em]">
+              <h2 className="mt-4 text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
                 The practical tools behind every return.
               </h2>
             </div>
@@ -242,7 +242,7 @@ export default function ProductPage() {
                     <span className="grid size-11 place-items-center rounded-2xl bg-[var(--paper)]">
                       <Icon size={19} />
                     </span>
-                    <h3 className="mt-10 text-xl font-black tracking-[-0.035em]">
+                    <h3 className="mt-10 text-xl font-extrabold tracking-[-0.02em]">
                       {module.title}
                     </h3>
                     <p
@@ -264,7 +264,7 @@ export default function ProductPage() {
             <span className="grid size-13 place-items-center rounded-xl bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
               <LockKeyhole />
             </span>
-            <h2 className="mt-8 text-3xl font-black tracking-[-0.05em]">
+            <h2 className="mt-8 text-3xl font-extrabold tracking-[-0.02em]">
               Privacy is part of the product.
             </h2>
           </div>
@@ -295,7 +295,7 @@ export default function ProductPage() {
               return (
                 <div key={item.title}>
                   <Icon size={18} className="text-[var(--accent-strong)]" />
-                  <h3 className="mt-4 text-base font-black">{item.title}</h3>
+                  <h3 className="mt-4 text-base font-extrabold">{item.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
                     {item.text}
                   </p>

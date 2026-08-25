@@ -8,7 +8,7 @@ export default function NotFound() {
         <span className="ink-stamp mx-auto grid size-24 -rotate-6 place-items-center rounded-full bg-[var(--surface)] text-[var(--accent-strong)]">
           <span>
             <Stamp className="mx-auto" size={22} />
-            <span className="mt-1 block font-mono text-[10px] font-black">
+            <span className="mt-1 block font-mono text-[10px] font-extrabold">
               404
             </span>
           </span>
@@ -16,7 +16,7 @@ export default function NotFound() {
         <p className="mt-8 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
           No stamp at this address
         </p>
-        <h1 className="mt-3 text-4xl font-black tracking-[-0.055em]">
+        <h1 className="mt-3 text-4xl font-extrabold tracking-[-0.03em]">
           This page is not part of the route.
         </h1>
         <p className="mx-auto mt-4 max-w-[42ch] text-sm leading-relaxed text-[var(--muted-strong)]">

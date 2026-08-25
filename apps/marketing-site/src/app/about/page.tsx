@@ -36,7 +36,7 @@ export default function AboutPage() {
         <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[0.75fr_1.25fr]">
           <div>
             <SiteEyebrow>Our point of view</SiteEyebrow>
-            <h2 className="mt-4 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+            <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
               The best loyalty already feels personal.
             </h2>
           </div>
@@ -97,7 +97,7 @@ export default function AboutPage() {
                     size={23}
                     className={index === 1 ? "" : "text-[var(--accent)]"}
                   />
-                  <h3 className="mt-16 text-2xl font-black tracking-[-0.04em]">
+                  <h3 className="mt-16 text-2xl font-extrabold tracking-[-0.02em]">
                     {item.title}
                   </h3>
                   <p
@@ -116,7 +116,7 @@ export default function AboutPage() {
         <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[0.62fr_1.38fr]">
           <div>
             <SiteEyebrow>Starting from Southeast Asia</SiteEyebrow>
-            <h2 className="mt-4 text-4xl font-black leading-[1] tracking-[-0.055em]">
+            <h2 className="mt-4 text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
               Designed near the counter.
             </h2>
           </div>
@@ -126,7 +126,7 @@ export default function AboutPage() {
                 <span className="grid size-12 place-items-center rounded-2xl bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
                   <MapPin />
                 </span>
-                <h3 className="mt-8 max-w-[18ch] text-3xl font-black tracking-[-0.05em]">
+                <h3 className="mt-8 max-w-[18ch] text-3xl font-extrabold tracking-[-0.02em]">
                   Built in Singapore, shaped by neighborhood businesses across
                   the region.
                 </h3>

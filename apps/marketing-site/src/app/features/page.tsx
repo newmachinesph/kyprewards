@@ -190,7 +190,7 @@ export default function FeaturesPage() {
           <div className="grid gap-10 lg:grid-cols-[0.65fr_1.35fr]">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SiteEyebrow>Program studio</SiteEyebrow>
-              <h2 className="mt-4 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+              <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 Eight proven program shapes.
               </h2>
               <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -210,7 +210,7 @@ export default function FeaturesPage() {
                     <span className="grid size-12 place-items-center rounded-2xl bg-[var(--paper)]">
                       <Icon size={20} />
                     </span>
-                    <h3 className="text-lg font-black tracking-[-0.035em]">
+                    <h3 className="text-lg font-extrabold tracking-[-0.02em]">
                       {program.name}
                     </h3>
                     <p
@@ -230,7 +230,7 @@ export default function FeaturesPage() {
         <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[0.84fr_1.16fr] lg:items-center">
           <div>
             <SiteEyebrow inverse>The counter flow</SiteEyebrow>
-            <h2 className="mt-5 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+            <h2 className="mt-5 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
               Fast when online. Safe when it is not.
             </h2>
             <p className="mt-5 max-w-[50ch] text-base leading-relaxed text-white/70">
@@ -258,12 +258,12 @@ export default function FeaturesPage() {
           <div className="rounded-[18px] border border-white/12 bg-white/[0.055] p-5 sm:p-7">
             <div className="flex items-center justify-between border-b border-white/10 pb-5">
               <div>
-                <p className="text-sm font-black">Visit capture</p>
+                <p className="text-sm font-extrabold">Visit capture</p>
                 <p className="mt-1 text-xs text-white/55">
                   Choose the fastest method at each location
                 </p>
               </div>
-              <span className="inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--ink)]">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--ink)]">
                 <WifiOff size={13} /> Offline ready
               </span>
             </div>
@@ -297,7 +297,7 @@ export default function FeaturesPage() {
                     className="rounded-2xl border border-white/10 bg-[var(--ink-soft)] p-5"
                   >
                     <Icon size={20} className="text-[var(--accent)]" />
-                    <h3 className="mt-7 text-base font-black">{item.title}</h3>
+                    <h3 className="mt-7 text-base font-extrabold">{item.title}</h3>
                     <p className="mt-2 text-xs leading-relaxed text-white/60">
                       {item.text}
                     </p>
@@ -324,7 +324,7 @@ export default function FeaturesPage() {
           <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr]">
             <div>
               <SiteEyebrow>Lifecycle automation</SiteEyebrow>
-              <h2 className="mt-4 max-w-[12ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+              <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 Useful timing, not noisy marketing.
               </h2>
               <p className="mt-5 max-w-[45ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -354,7 +354,7 @@ export default function FeaturesPage() {
                   <span className="font-mono text-[10px] font-bold text-[var(--accent-strong)]">
                     0{index + 1}
                   </span>
-                  <h3 className="text-base font-black">{title}</h3>
+                  <h3 className="text-base font-extrabold">{title}</h3>
                   <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
                     {detail}
                   </p>
@@ -372,7 +372,7 @@ export default function FeaturesPage() {
               <div className="flex items-center justify-between border-b border-[var(--line)] p-6">
                 <div>
                   <SiteEyebrow>Analytics model</SiteEyebrow>
-                  <h2 className="mt-2 text-2xl font-black tracking-[-0.04em]">
+                  <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.02em]">
                     From visits to business value
                   </h2>
                 </div>
@@ -383,7 +383,7 @@ export default function FeaturesPage() {
                   key={label}
                   className={`grid gap-2 p-5 sm:grid-cols-[0.55fr_1.45fr] sm:p-6 ${index > 0 ? "border-t border-[var(--line)]" : ""}`}
                 >
-                  <p className="text-sm font-black">{label}</p>
+                  <p className="text-sm font-extrabold">{label}</p>
                   <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
                     {value}
                   </p>
@@ -393,7 +393,7 @@ export default function FeaturesPage() {
             <div className="flex flex-col justify-between rounded-[18px] bg-[var(--accent)] p-7 sm:p-9">
               <div>
                 <SiteEyebrow>Explainable actions</SiteEyebrow>
-                <h2 className="mt-4 max-w-[10ch] text-4xl font-black leading-[1] tracking-[-0.055em]">
+                <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
                   Know what to do next—and why.
                 </h2>
                 <p className="mt-5 max-w-[44ch] text-sm leading-relaxed text-[var(--ink)]/75">
@@ -403,10 +403,10 @@ export default function FeaturesPage() {
                 </p>
               </div>
               <div className="mt-12 rounded-2xl bg-[var(--surface)] p-5">
-                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+                <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
                   <MessageSquareText size={14} /> Next best action
                 </div>
-                <p className="mt-4 text-lg font-black">
+                <p className="mt-4 text-lg font-extrabold">
                   Bring back 32 almost-regulars
                 </p>
                 <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
@@ -423,7 +423,7 @@ export default function FeaturesPage() {
         <div className="mx-auto max-w-[1400px]">
           <div className="max-w-3xl">
             <SiteEyebrow>Philippines-ready operations</SiteEyebrow>
-            <h2 className="mt-4 max-w-[14ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+            <h2 className="mt-4 max-w-[14ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
               Built for the whole business, not one QR poster.
             </h2>
           </div>
@@ -438,7 +438,7 @@ export default function FeaturesPage() {
                   <span className="grid size-12 place-items-center rounded-2xl bg-[var(--paper)]">
                     <Icon size={20} />
                   </span>
-                  <h3 className="mt-10 text-xl font-black tracking-[-0.035em]">
+                  <h3 className="mt-10 text-xl font-extrabold tracking-[-0.02em]">
                     {item.title}
                   </h3>
                   <p
@@ -456,7 +456,7 @@ export default function FeaturesPage() {
               <Fingerprint />
             </span>
             <div>
-              <h3 className="text-2xl font-black tracking-[-0.04em]">
+              <h3 className="text-2xl font-extrabold tracking-[-0.02em]">
                 Customer rights are product controls.
               </h3>
               <p className="mt-3 max-w-[78ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -490,7 +490,7 @@ export default function FeaturesPage() {
           <div className="mt-12 flex flex-col gap-5 border-t border-[var(--line)] pt-8 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <Globe2 size={20} className="text-[var(--accent-strong)]" />
-              <p className="text-sm font-black">
+              <p className="text-sm font-extrabold">
                 API · webhooks · POS adapters · CSV import/export · Apple Wallet
                 · Google Wallet
               </p>

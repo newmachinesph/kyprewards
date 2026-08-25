@@ -100,7 +100,7 @@ export default function DemoPage() {
 
       <section className="border-b border-[var(--line)] bg-[var(--surface)] px-4 py-5 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-3 text-xs sm:flex-row sm:items-center sm:justify-between">
-          <span className="inline-flex items-center gap-2 font-black text-[var(--success)]">
+          <span className="inline-flex items-center gap-2 font-extrabold text-[var(--success)]">
             <Check size={15} strokeWidth={3} /> Fully navigable frontend
           </span>
           <span className="text-[var(--muted-strong)]">
@@ -114,12 +114,12 @@ export default function DemoPage() {
           <div className="grid gap-6 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
             <div>
               <SiteEyebrow>One source of truth</SiteEyebrow>
-              <h2 className="mt-4 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+              <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 One visit. Four coordinated views.
               </h2>
             </div>
             <div className="lg:justify-self-end">
-              <code className="rounded-full bg-[var(--ink)] px-3 py-1.5 text-[10px] font-black text-[var(--paper)]">
+              <code className="rounded-full bg-[var(--ink)] px-3 py-1.5 text-[10px] font-extrabold text-[var(--paper)]">
                 {sharedScenario.loyaltyEvent.id}
               </code>
               <p className="mt-4 max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -162,11 +162,11 @@ export default function DemoPage() {
                     <span className="grid size-10 place-items-center rounded-2xl bg-[var(--surface-2)]">
                       <Icon size={18} />
                     </span>
-                    <span className="text-[9px] font-black uppercase tracking-[0.11em] text-[var(--accent-strong)]">
+                    <span className="text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--accent-strong)]">
                       {view.label}
                     </span>
                   </div>
-                  <h3 className="mt-7 text-sm font-black">{view.title}</h3>
+                  <h3 className="mt-7 text-sm font-extrabold">{view.title}</h3>
                   <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
                     {view.value}
                   </p>
@@ -185,7 +185,7 @@ export default function DemoPage() {
           <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
             <div>
               <SiteEyebrow>The pitch path</SiteEyebrow>
-              <h2 className="mt-4 max-w-[10ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+              <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 A complete loyalty loop in four stops.
               </h2>
             </div>
@@ -206,7 +206,7 @@ export default function DemoPage() {
                     index > 0 ? "border-t border-[var(--line)]" : ""
                   }`}
                 >
-                  <span className="font-mono text-xs font-black text-[var(--accent-strong)]">
+                  <span className="font-mono text-xs font-extrabold text-[var(--accent-strong)]">
                     {step.number}
                   </span>
                   <div className="flex items-start gap-4">
@@ -214,10 +214,10 @@ export default function DemoPage() {
                       <Icon size={19} />
                     </span>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+                      <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
                         {step.role}
                       </p>
-                      <h3 className="mt-1 text-xl font-black tracking-[-0.035em]">
+                      <h3 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
                         {step.title}
                       </h3>
                     </div>
@@ -254,7 +254,7 @@ export default function DemoPage() {
         <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
             <SiteEyebrow inverse>Seven-minute walkthrough</SiteEyebrow>
-            <h2 className="mt-4 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+            <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
               Show the value before the feature list.
             </h2>
             <p className="mt-5 max-w-[48ch] text-sm leading-relaxed text-white/65">
@@ -298,7 +298,7 @@ export default function DemoPage() {
                       {item.time}
                     </span>
                   </div>
-                  <h3 className="mt-8 text-lg font-black">{item.title}</h3>
+                  <h3 className="mt-8 text-lg font-extrabold">{item.title}</h3>
                   <p className="mt-2 text-xs leading-relaxed text-white/58">
                     {item.detail}
                   </p>
@@ -313,7 +313,7 @@ export default function DemoPage() {
         <div className="mx-auto grid max-w-[1400px] gap-10 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-9">
             <SiteEyebrow>What is real today</SiteEyebrow>
-            <h2 className="mt-4 text-3xl font-black tracking-[-0.05em]">
+            <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.02em]">
               Product decisions are already testable.
             </h2>
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -325,7 +325,7 @@ export default function DemoPage() {
                 ["Commercial model", "Plans, channel costs, limits, and margin assumptions are visible."],
               ].map(([title, detail]) => (
                 <div key={title} className="border-t border-[var(--line)] pt-4">
-                  <p className="text-sm font-black">{title}</p>
+                  <p className="text-sm font-extrabold">{title}</p>
                   <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
                     {detail}
                   </p>
@@ -337,7 +337,7 @@ export default function DemoPage() {
             <span className="text-[11px] font-extrabold uppercase tracking-[0.17em] text-[var(--ink)]">
               What comes next
             </span>
-            <h2 className="mt-4 text-3xl font-black tracking-[-0.05em]">
+            <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.02em]">
               The backend makes the same flows operational.
             </h2>
             <div className="mt-8 space-y-4">
@@ -351,7 +351,7 @@ export default function DemoPage() {
                   <div key={String(title)} className="flex gap-3 border-t border-[rgb(33_27_23/16%)] pt-4">
                     <Icon size={18} className="mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-sm font-black">{String(title)}</p>
+                      <p className="text-sm font-extrabold">{String(title)}</p>
                       <p className="mt-1 text-xs leading-relaxed text-[var(--ink)]/85">
                         {String(detail)}
                       </p>

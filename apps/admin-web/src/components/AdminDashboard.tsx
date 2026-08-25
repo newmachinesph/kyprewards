@@ -89,7 +89,7 @@ export function AdminDashboard({
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Eyebrow>Platform control room</Eyebrow>
-            <h1 className="mt-2 text-3xl font-black tracking-[-0.055em] sm:text-4xl">
+            <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
               Network pulse
             </h1>
             <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -154,7 +154,7 @@ export function AdminDashboard({
               <p className="text-[11px] font-extrabold uppercase tracking-[0.15em] text-white/50">
                 Live businesses
               </p>
-              <p className="mt-5 text-5xl font-black tracking-[-0.07em]">284</p>
+              <p className="mt-5 text-5xl font-extrabold tracking-[-0.03em]">284</p>
               <div className="mt-7 flex items-center justify-between border-t border-white/12 pt-4">
                 <span className="text-xs text-white/55">
                   18 joined this month
@@ -201,7 +201,7 @@ export function AdminDashboard({
                 <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
                   {item.label}
                 </p>
-                <p className="mt-1 text-2xl font-black tracking-[-0.05em]">
+                <p className="mt-1 text-2xl font-extrabold tracking-[-0.02em]">
                   {item.value}
                 </p>
               </article>
@@ -298,7 +298,7 @@ export function AdminDashboard({
                   Needs a decision
                 </h2>
               </div>
-              <span className="rounded-full bg-[rgb(216_86_65/12%)] px-3 py-1 text-xs font-black text-[var(--danger)]">
+              <span className="rounded-full bg-[rgb(216_86_65/12%)] px-3 py-1 text-xs font-extrabold text-[var(--danger)]">
                 7 open
               </span>
             </div>
@@ -393,7 +393,7 @@ export function AdminDashboard({
               <div className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.14em]">
                 <Sparkles size={15} /> Weekly signal
               </div>
-              <h2 className="mt-4 max-w-[18ch] text-2xl font-black leading-tight tracking-[-0.045em]">
+              <h2 className="mt-4 max-w-[18ch] text-2xl font-extrabold leading-tight tracking-[-0.02em]">
                 Bakery programs retain customers 22% better after week four.
               </h2>
             </div>

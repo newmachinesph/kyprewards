@@ -114,11 +114,11 @@ function ScanView({ notify }: { notify: Notify }) {
             <div className="mt-8">
               <div className="rounded-2xl bg-[var(--surface)] p-5 text-[var(--ink)]">
                 <div className="flex items-center gap-4">
-                  <span className="grid size-14 place-items-center rounded-xl bg-[var(--accent)] text-lg font-black">
+                  <span className="grid size-14 place-items-center rounded-xl bg-[var(--accent)] text-lg font-extrabold">
                     {business.customers[0].initials}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="font-black">{sharedScenario.customer}</p>
+                    <p className="font-extrabold">{sharedScenario.customer}</p>
                     <p className="mt-1 text-xs text-[var(--muted)]">
                       Regular · 14 visits · healthy
                     </p>
@@ -129,7 +129,7 @@ function ScanView({ notify }: { notify: Notify }) {
                   <p className="text-xs font-bold text-[var(--muted)]">
                     Eligible program
                   </p>
-                  <p className="mt-1 font-black">Eight visits, pastry on us</p>
+                  <p className="mt-1 font-extrabold">Eight visits, pastry on us</p>
                   <div className="mt-4 overflow-x-auto">
                     <StampDots filled={5} total={8} />
                   </div>
@@ -166,7 +166,7 @@ function ScanView({ notify }: { notify: Notify }) {
                 <span className="mx-auto grid size-20 place-items-center rounded-full bg-[var(--success)]">
                   <Check size={36} strokeWidth={3} />
                 </span>
-                <h2 className="mt-6 text-3xl font-black tracking-[-0.05em]">
+                <h2 className="mt-6 text-3xl font-extrabold tracking-[-0.02em]">
                   Stamp added.
                 </h2>
                 <p className="mx-auto mt-3 max-w-[34ch] text-sm leading-relaxed text-white/65">
@@ -189,7 +189,7 @@ function ScanView({ notify }: { notify: Notify }) {
           <div className="flex items-center justify-between">
             <div>
               <Eyebrow>Recent counter activity</Eyebrow>
-              <h2 className="mt-1 text-lg font-black">
+              <h2 className="mt-1 text-lg font-extrabold">
                 Today at {sharedScenario.branch}
               </h2>
             </div>
@@ -204,17 +204,17 @@ function ScanView({ notify }: { notify: Notify }) {
           <article className="mt-5 rounded-2xl border border-[rgb(15_118_85/24%)] bg-[rgb(15_118_85/7%)] p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.11em] text-[var(--success)]">
+                <p className="text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--success)]">
                   Shared demo event · recorded
                 </p>
-                <p className="mt-1 text-sm font-black">
+                <p className="mt-1 text-sm font-extrabold">
                   {sharedScenario.customer} · {sharedScenario.purchase.display}
                 </p>
                 <p className="mt-1 text-xs text-[var(--muted-strong)]">
                   {sharedScenario.loyaltyEvent.effect} · {sharedScenario.loyaltyEvent.after} · approved by {sharedScenario.staff}
                 </p>
               </div>
-              <code className="rounded-lg bg-[var(--surface)] px-2.5 py-1.5 text-[10px] font-black text-[var(--muted-strong)]">
+              <code className="rounded-lg bg-[var(--surface)] px-2.5 py-1.5 text-[10px] font-extrabold text-[var(--muted-strong)]">
                 {sharedScenario.loyaltyEvent.id}
               </code>
             </div>
@@ -229,7 +229,7 @@ function ScanView({ notify }: { notify: Notify }) {
                   <TicketCheck size={17} />
                 </span>
                 <div>
-                  <p className="text-sm font-black">{item.customer}</p>
+                  <p className="text-sm font-extrabold">{item.customer}</p>
                   <p className="mt-0.5 text-xs text-[var(--muted)]">
                     {item.reward} · {item.staff}
                   </p>
@@ -251,7 +251,7 @@ function ScanView({ notify }: { notify: Notify }) {
             <div className="flex items-start gap-3">
               <Nfc size={18} className="mt-0.5 text-[var(--accent-strong)]" />
               <div>
-                <p className="text-sm font-black">NFC counter mode</p>
+                <p className="text-sm font-extrabold">NFC counter mode</p>
                 <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                   Customers can tap a supported tag to open the same
                   confirmation flow. Staff still approves the value event.
@@ -309,7 +309,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
               )}
             </div>
           </div>
-          <p className="mt-5 text-center text-lg font-black">
+          <p className="mt-5 text-center text-lg font-extrabold">
             Join Sweet Crumbs · {branch}
           </p>
           <p className="mt-1 text-center text-xs text-[var(--muted)]">
@@ -335,7 +335,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
         </section>
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
           <Eyebrow>What customers see</Eyebrow>
-          <h2 className="mt-5 max-w-[13ch] text-3xl font-black tracking-[-0.05em]">
+          <h2 className="mt-5 max-w-[13ch] text-3xl font-extrabold tracking-[-0.02em]">
             Join in under thirty seconds.
           </h2>
           <div className="mt-8 divide-y divide-white/12 border-y border-white/12">
@@ -368,7 +368,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
                     <Icon size={17} />
                   </span>
                   <div>
-                    <p className="text-sm font-black">{item.title}</p>
+                    <p className="text-sm font-extrabold">{item.title}</p>
                     <p className="mt-1 text-xs leading-relaxed text-white/65">
                       {item.text}
                     </p>
@@ -473,11 +473,11 @@ function CustomersView({ notify }: { notify: Notify }) {
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <span className="grid size-9 place-items-center rounded-xl bg-[var(--surface-2)] text-[11px] font-black">
+                        <span className="grid size-9 place-items-center rounded-xl bg-[var(--surface-2)] text-[11px] font-extrabold">
                           {customer.initials}
                         </span>
                         <div>
-                          <p className="text-sm font-black">{customer.name}</p>
+                          <p className="text-sm font-extrabold">{customer.name}</p>
                           <p className="mt-0.5 text-[10px] text-[var(--muted)]">
                             {customer.favorite}
                           </p>
@@ -516,7 +516,7 @@ function CustomersView({ notify }: { notify: Notify }) {
             {filtered.length === 0 && (
               <div className="p-12 text-center">
                 <Users className="mx-auto text-[var(--muted)]" />
-                <p className="mt-4 text-sm font-black">
+                <p className="mt-4 text-sm font-extrabold">
                   No customers match this view.
                 </p>
                 <p className="mt-1 text-xs text-[var(--muted)]">
@@ -528,11 +528,11 @@ function CustomersView({ notify }: { notify: Notify }) {
         </section>
         <aside className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <div className="flex items-center gap-4">
-            <span className="grid size-14 place-items-center rounded-xl bg-[var(--accent)] text-lg font-black text-[var(--ink)]">
+            <span className="grid size-14 place-items-center rounded-xl bg-[var(--accent)] text-lg font-extrabold text-[var(--ink)]">
               {selected.initials}
             </span>
             <div>
-              <p className="text-lg font-black">{selected.name}</p>
+              <p className="text-lg font-extrabold">{selected.name}</p>
               <p className="mt-1 text-xs text-white/60">
                 {selected.segment} · {selected.risk}
               </p>
@@ -549,18 +549,18 @@ function CustomersView({ notify }: { notify: Notify }) {
                 <p className="text-[10px] uppercase tracking-[0.1em] text-white/50">
                   {label}
                 </p>
-                <p className="mt-1 text-sm font-black">{value}</p>
+                <p className="mt-1 text-sm font-extrabold">{value}</p>
               </div>
             ))}
           </div>
           <div className="mt-7">
-            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-white/50">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-white/50">
               Favorite order
             </p>
             <p className="mt-2 text-sm font-bold">{selected.favorite}</p>
           </div>
           <div className="mt-7">
-            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-white/50">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-white/50">
               Reachable by consent
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -571,7 +571,7 @@ function CustomersView({ notify }: { notify: Notify }) {
               ].map(([label, allowed]) => (
                 <span
                   key={String(label)}
-                  className={`rounded-full px-2.5 py-1 text-[10px] font-black ${allowed ? "bg-[rgb(15_118_85/28%)] text-[#8ee0c2]" : "bg-white/7 text-white/50"}`}
+                  className={`rounded-full px-2.5 py-1 text-[10px] font-extrabold ${allowed ? "bg-[rgb(15_118_85/28%)] text-[#8ee0c2]" : "bg-white/7 text-white/50"}`}
                 >
                   {label} · {allowed ? "Allowed" : "Off"}
                 </span>
@@ -619,7 +619,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
             />
           </div>
           <div className="p-6">
-          <h2 className="mt-2 text-2xl font-black">{business.profile.name}</h2>
+          <h2 className="mt-2 text-2xl font-extrabold">{business.profile.name}</h2>
           <p className="mt-2 text-sm text-white/60">
             {business.profile.category} · owned by {business.profile.owner}
           </p>
@@ -662,7 +662,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
               </span>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-black">{location.name}</h3>
+                  <h3 className="text-base font-extrabold">{location.name}</h3>
                   <Pill
                     tone={location.status === "Live" ? "success" : "warning"}
                   >
@@ -751,10 +751,10 @@ function ProgramsView({ notify }: { notify: Notify }) {
                       {program.status}
                     </Pill>
                   </div>
-                  <p className="mt-7 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-strong)]">
+                  <p className="mt-7 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted-strong)]">
                     {program.type}
                   </p>
-                  <h3 className="mt-1 text-base font-black">{program.name}</h3>
+                  <h3 className="mt-1 text-base font-extrabold">{program.name}</h3>
                 </button>
               );
             })}
@@ -762,10 +762,10 @@ function ProgramsView({ notify }: { notify: Notify }) {
         </section>
         <aside className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <Eyebrow>Program record</Eyebrow>
-          <p className="mt-6 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent)]">
+          <p className="mt-6 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent)]">
             {selected.type}
           </p>
-          <h2 className="mt-2 text-2xl font-black tracking-[-0.04em]">
+          <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.02em]">
             {selected.name}
           </h2>
           <div className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10">
@@ -777,7 +777,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
             ].map(([label, value]) => (
               <div key={label} className="bg-[var(--ink-soft)] p-4">
                 <p className="text-[10px] text-white/50">{label}</p>
-                <p className="mt-1 text-lg font-black">{value}</p>
+                <p className="mt-1 text-lg font-extrabold">{value}</p>
               </div>
             ))}
           </div>
@@ -839,7 +839,7 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
               <div key={item.item}>
                 <div className="flex items-end justify-between gap-4">
                   <div>
-                    <p className="text-sm font-black">
+                    <p className="text-sm font-extrabold">
                       {index + 1}. {item.item}
                     </p>
                     <p className="mt-1 text-[10px] text-[var(--muted)]">
@@ -847,7 +847,7 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black">{item.orders}</p>
+                    <p className="text-sm font-extrabold">{item.orders}</p>
                     <p
                       className={`text-[10px] font-bold ${item.change >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
                     >
@@ -871,7 +871,7 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
             <Eyebrow>Useful segment</Eyebrow>
             <Heart size={19} />
           </div>
-          <h2 className="mt-8 max-w-[13ch] text-3xl font-black leading-[1.02] tracking-[-0.05em]">
+          <h2 className="mt-8 max-w-[13ch] text-3xl font-extrabold leading-[1.02] tracking-[-0.02em]">
             Spanish latte regulars are moving earlier.
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-[var(--ink)]/80">
@@ -880,7 +880,7 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
             more.
           </p>
           <div className="mt-8 rounded-2xl bg-[var(--surface)] p-4">
-            <p className="text-xs font-black">
+            <p className="text-xs font-extrabold">
               Suggested audience · 248 customers
             </p>
             <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
@@ -923,7 +923,7 @@ function BirthdayView({ notify }: { notify: Notify }) {
           <div className="flex items-center justify-between">
             <div>
               <Eyebrow>Next 30 days</Eyebrow>
-              <h2 className="mt-1 text-lg font-black">
+              <h2 className="mt-1 text-lg font-extrabold">
                 {upcoming.length} known birthdays
               </h2>
             </div>
@@ -932,11 +932,11 @@ function BirthdayView({ notify }: { notify: Notify }) {
           <div className="mt-5 divide-y divide-[var(--line)]">
             {upcoming.map((customer) => (
               <div key={customer.id} className="flex items-center gap-3 py-4">
-                <span className="grid size-10 place-items-center rounded-xl bg-[var(--surface-2)] text-xs font-black">
+                <span className="grid size-10 place-items-center rounded-xl bg-[var(--surface-2)] text-xs font-extrabold">
                   {customer.initials}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-black">{customer.name}</p>
+                  <p className="text-sm font-extrabold">{customer.name}</p>
                   <p className="mt-0.5 text-xs text-[var(--muted)]">
                     {customer.birthday} · {customer.favorite}
                   </p>
@@ -1058,7 +1058,7 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                   key={item.id}
                   className="border-b border-[var(--line)] last:border-0"
                 >
-                  <td className="px-5 py-4 text-sm font-black">
+                  <td className="px-5 py-4 text-sm font-extrabold">
                     {item.customer}
                   </td>
                   <td className="px-4 py-4 text-sm">{item.reward}</td>
@@ -1097,10 +1097,10 @@ function RedemptionsView({ notify }: { notify: Notify }) {
             key={label}
             className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
           >
-            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
               {label}
             </p>
-            <p className="mt-4 text-2xl font-black tracking-[-0.05em]">
+            <p className="mt-4 text-2xl font-extrabold tracking-[-0.02em]">
               {value}
             </p>
             <p className="mt-1 text-xs text-[var(--muted-strong)]">{detail}</p>
@@ -1209,7 +1209,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
               <label htmlFor="audience-size" className="text-xs font-bold">
                 Audience size
               </label>
-              <span className="text-sm font-black">
+              <span className="text-sm font-extrabold">
                 {audience.toLocaleString()}
               </span>
             </div>
@@ -1249,7 +1249,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
                       <Icon size={16} />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-black">
+                      <span className="block text-sm font-extrabold">
                         {channel.name}
                       </span>
                       <span
@@ -1321,7 +1321,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
                 className="flex items-center justify-between gap-4 py-3 text-sm"
               >
                 <span className="text-[var(--ink)]/75">{label}</span>
-                <span className="font-black">{value}</span>
+                <span className="font-extrabold">{value}</span>
               </div>
             ))}
           </div>
@@ -1332,7 +1332,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
                 className="mt-0.5 shrink-0 text-[var(--success)]"
               />
               <div>
-                <p className="text-xs font-black">Preflight guardrails</p>
+                <p className="text-xs font-extrabold">Preflight guardrails</p>
                 <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
                   Purpose and consent checked per channel. Quiet hours,
                   complaint threshold, duplicate suppression, and a ₱1,000 SMS
@@ -1365,7 +1365,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
         <div className="flex items-center justify-between border-b border-[var(--line)] p-5">
           <div>
             <Eyebrow>Campaign history</Eyebrow>
-            <h2 className="mt-1 text-lg font-black">Revenue after delivery</h2>
+            <h2 className="mt-1 text-lg font-extrabold">Revenue after delivery</h2>
           </div>
           <button
             type="button"
@@ -1384,7 +1384,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
                   className="border-b border-[var(--line)] last:border-0"
                 >
                   <td className="px-5 py-4">
-                    <p className="text-sm font-black">{campaign.name}</p>
+                    <p className="text-sm font-extrabold">{campaign.name}</p>
                     <p className="mt-0.5 text-[10px] text-[var(--muted)]">
                       {campaign.audience}
                     </p>
@@ -1398,7 +1398,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
                   <td className="px-4 py-4 text-xs">
                     {campaign.visited} visits
                   </td>
-                  <td className="px-4 py-4 text-sm font-black">
+                  <td className="px-4 py-4 text-sm font-extrabold">
                     ₱{campaign.revenue.toLocaleString()}
                   </td>
                   <td className="px-4 py-4">
@@ -1488,7 +1488,7 @@ function MessageLogView({ notify }: { notify: Notify }) {
                   key={message.id}
                   className="border-b border-[var(--line)] last:border-0"
                 >
-                  <td className="px-5 py-4 text-sm font-black">
+                  <td className="px-5 py-4 text-sm font-extrabold">
                     {message.campaign}
                   </td>
                   <td className="px-4 py-4 text-sm">{message.customer}</td>
@@ -1549,7 +1549,7 @@ function AnalyticsView() {
           <div className="flex items-center justify-between">
             <div>
               <Eyebrow>Six-week retention</Eyebrow>
-              <h2 className="mt-1 text-lg font-black">Customers who return</h2>
+              <h2 className="mt-1 text-lg font-extrabold">Customers who return</h2>
             </div>
             <Pill tone="success">+7.4% vs prior</Pill>
           </div>
@@ -1559,7 +1559,7 @@ function AnalyticsView() {
                 key={index}
                 className="flex h-full flex-1 flex-col justify-end"
               >
-                <span className="mb-2 text-center text-xs font-black">
+                <span className="mb-2 text-center text-xs font-extrabold">
                   {value}%
                 </span>
                 <div
@@ -1575,7 +1575,7 @@ function AnalyticsView() {
         </section>
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <Eyebrow>Member economics</Eyebrow>
-          <p className="mt-7 text-4xl font-black tracking-[-0.06em]">₱482.6k</p>
+          <p className="mt-7 text-4xl font-extrabold tracking-[-0.03em]">₱482.6k</p>
           <p className="mt-1 text-xs text-white/55">
             member-attributed revenue this month
           </p>
@@ -1601,7 +1601,7 @@ function AnalyticsView() {
         <div className="flex items-end justify-between">
           <div>
             <Eyebrow>Cohort return matrix</Eyebrow>
-            <h2 className="mt-1 text-lg font-black">
+            <h2 className="mt-1 text-lg font-extrabold">
               First visit month → weeks retained
             </h2>
           </div>
@@ -1631,7 +1631,7 @@ function AnalyticsView() {
                 {row.map((value, colIndex) => (
                   <span
                     key={colIndex}
-                    className="grid min-h-12 place-items-center rounded-lg text-xs font-black"
+                    className="grid min-h-12 place-items-center rounded-lg text-xs font-extrabold"
                     style={{
                       backgroundColor: value
                         ? `rgb(242 161 45 / ${0.12 + value / 130})`
@@ -1689,10 +1689,10 @@ function StaffView({ notify }: { notify: Notify }) {
                 >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <span className="grid size-9 place-items-center rounded-xl bg-[var(--surface-2)] text-[11px] font-black">
+                      <span className="grid size-9 place-items-center rounded-xl bg-[var(--surface-2)] text-[11px] font-extrabold">
                         {person.initials}
                       </span>
-                      <span className="text-sm font-black">{person.name}</span>
+                      <span className="text-sm font-extrabold">{person.name}</span>
                     </div>
                   </td>
                   <td className="px-4 py-4">
@@ -1741,7 +1741,7 @@ function StaffView({ notify }: { notify: Notify }) {
             key={role}
             className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
           >
-            <p className="text-sm font-black">{role}</p>
+            <p className="text-sm font-extrabold">{role}</p>
             <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
               {detail}
             </p>
@@ -1771,7 +1771,7 @@ function SettingsView({ notify }: { notify: Notify }) {
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="border-b border-[var(--line)] p-5">
             <Eyebrow>Channels & services</Eyebrow>
-            <h2 className="mt-1 text-lg font-black">
+            <h2 className="mt-1 text-lg font-extrabold">
               Connect the tools you already use
             </h2>
           </div>
@@ -1809,7 +1809,7 @@ function SettingsView({ notify }: { notify: Notify }) {
                       />
                     </button>
                   </div>
-                  <p className="mt-6 text-sm font-black">{integration.name}</p>
+                  <p className="mt-6 text-sm font-extrabold">{integration.name}</p>
                   <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
                     {integration.category}
                   </p>
@@ -1827,7 +1827,7 @@ function SettingsView({ notify }: { notify: Notify }) {
               <Eyebrow>Current plan</Eyebrow>
               <Pill tone="success">Active</Pill>
             </div>
-            <p className="mt-7 text-3xl font-black">Grow · ₱1,290</p>
+            <p className="mt-7 text-3xl font-extrabold">Grow · ₱1,290</p>
             <p className="mt-1 text-xs text-white/55">
               Annual billing · renews {business.profile.renewal}
             </p>
@@ -1859,7 +1859,7 @@ function SettingsView({ notify }: { notify: Notify }) {
                 className="mt-0.5 text-[var(--accent-strong)]"
               />
               <div>
-                <p className="text-sm font-black">Privacy defaults</p>
+                <p className="text-sm font-extrabold">Privacy defaults</p>
                 <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                   Purpose labels, consent evidence, retention, data export,
                   correction, and deletion workflows are enabled.
@@ -1869,7 +1869,7 @@ function SettingsView({ notify }: { notify: Notify }) {
             <button
               type="button"
               onClick={() => notify("Privacy and retention settings opened.")}
-              className="mt-5 inline-flex items-center gap-2 text-xs font-black text-[var(--accent-strong)]"
+              className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-[var(--accent-strong)]"
             >
               Review controls <ArrowRight size={14} />
             </button>

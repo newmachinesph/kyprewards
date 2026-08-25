@@ -99,7 +99,7 @@ export default function LoyaltyPhilippinesPage() {
             <Check size={20} />
           </span>
           <div>
-            <h2 className="text-xl font-black">The short answer</h2>
+            <h2 className="text-xl font-extrabold">The short answer</h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
               The best digital loyalty program is easy to explain in one
               sentence, takes seconds at checkout, gives customers control of
@@ -117,7 +117,7 @@ export default function LoyaltyPhilippinesPage() {
           <div className="grid gap-8 lg:grid-cols-[0.65fr_1.35fr]">
             <div>
               <SiteEyebrow>Choose the mechanic</SiteEyebrow>
-              <h2 className="mt-4 max-w-[10ch] text-4xl font-black leading-none tracking-[-0.055em]">
+              <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-none tracking-[-0.03em]">
                 Match the reward to the natural buying rhythm.
               </h2>
             </div>
@@ -158,7 +158,7 @@ export default function LoyaltyPhilippinesPage() {
                     size={18}
                     className="text-[var(--accent-strong)]"
                   />
-                  <h3 className="mt-8 font-black">{title}</h3>
+                  <h3 className="mt-8 font-extrabold">{title}</h3>
                   <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
                     {detail}
                   </p>
@@ -173,7 +173,7 @@ export default function LoyaltyPhilippinesPage() {
         <div className="mx-auto max-w-[1400px]">
           <SiteEyebrow inverse>Channel strategy</SiteEyebrow>
           <div className="mt-5 grid gap-12 lg:grid-cols-[0.7fr_1.3fr]">
-            <h2 className="max-w-[12ch] text-4xl font-black leading-none tracking-[-0.055em] sm:text-5xl">
+            <h2 className="max-w-[12ch] text-4xl font-extrabold leading-none tracking-[-0.03em] sm:text-5xl">
               Use the least expensive channel that still serves the moment.
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -216,7 +216,7 @@ export default function LoyaltyPhilippinesPage() {
                     className="rounded-2xl border border-white/12 bg-white/5 p-5"
                   >
                     <Icon size={19} className="text-[var(--accent)]" />
-                    <h3 className="mt-7 font-black">{item.title}</h3>
+                    <h3 className="mt-7 font-extrabold">{item.title}</h3>
                     <p className="mt-2 text-xs leading-relaxed text-white/65">
                       {item.detail}
                     </p>
@@ -232,7 +232,7 @@ export default function LoyaltyPhilippinesPage() {
         <div className="mx-auto grid max-w-[1200px] gap-12 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
             <SiteEyebrow>Selection checklist</SiteEyebrow>
-            <h2 className="mt-4 text-4xl font-black tracking-[-0.055em]">
+            <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.03em]">
               Evaluate the whole operating system.
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -278,7 +278,7 @@ export default function LoyaltyPhilippinesPage() {
                     <Icon size={18} />
                   </span>
                   <div>
-                    <h3 className="font-black">{item.title}</h3>
+                    <h3 className="font-extrabold">{item.title}</h3>
                     <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                       {item.detail}
                     </p>
@@ -295,7 +295,7 @@ export default function LoyaltyPhilippinesPage() {
           <div className="grid gap-10 lg:grid-cols-[0.6fr_1.4fr]">
             <div>
               <SiteEyebrow>Common questions</SiteEyebrow>
-              <h2 className="mt-4 text-4xl font-black tracking-[-0.055em]">
+              <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.03em]">
                 Direct answers.
               </h2>
               <div className="mt-6">
@@ -305,7 +305,7 @@ export default function LoyaltyPhilippinesPage() {
             <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
               {questions.map(([question, answer]) => (
                 <details key={question} className="group py-5">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-5 font-black">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-5 font-extrabold">
                     <span>{question}</span>
                     <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[var(--line-strong)] transition group-open:rotate-45">
                       +

@@ -61,7 +61,7 @@ export default async function ComparisonPage({ params }: Props) {
         <div className="mx-auto grid max-w-[1200px] gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] md:grid-cols-2">
           <article className="bg-[var(--surface)] p-6">
             <SiteEyebrow>{comparison.competitor} public pricing</SiteEyebrow>
-            <p className="mt-4 text-xl font-black">
+            <p className="mt-4 text-xl font-extrabold">
               {comparison.publicPricing}
             </p>
           </article>
@@ -78,7 +78,7 @@ export default async function ComparisonPage({ params }: Props) {
           <div className="grid gap-6 sm:grid-cols-2 sm:items-end">
             <div>
               <SiteEyebrow>Requirement by requirement</SiteEyebrow>
-              <h2 className="mt-4 text-4xl font-black tracking-[-0.055em]">
+              <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.03em]">
                 Choose for the workflow you need.
               </h2>
             </div>
@@ -110,7 +110,7 @@ export default async function ComparisonPage({ params }: Props) {
                     key={fact.label}
                     className={index > 0 ? "border-t border-[var(--line)]" : ""}
                   >
-                    <th className="bg-[var(--paper)] px-6 py-5 text-sm font-black">
+                    <th className="bg-[var(--paper)] px-6 py-5 text-sm font-extrabold">
                       {fact.label}
                     </th>
                     <td className="bg-[var(--surface)] px-6 py-5 text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -138,7 +138,7 @@ export default async function ComparisonPage({ params }: Props) {
       <section className="border-y border-[var(--line)] bg-[var(--surface)] px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[1000px]">
           <SiteEyebrow>Primary sources</SiteEyebrow>
-          <h2 className="mt-4 text-2xl font-black">Verify the public offer.</h2>
+          <h2 className="mt-4 text-2xl font-extrabold">Verify the public offer.</h2>
           <div className="mt-6 flex flex-wrap gap-3">
             {comparison.sources.map((source) => (
               <a

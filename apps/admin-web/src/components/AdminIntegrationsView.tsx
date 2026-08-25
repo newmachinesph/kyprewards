@@ -126,7 +126,7 @@ function Status({ value }: { value: AdapterStatus | ConnectionHealth }) {
   };
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.1em] ${classes[value]}`}
+      className={`inline-flex rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.1em] ${classes[value]}`}
     >
       {value}
     </span>
@@ -153,7 +153,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
         <header className="flex flex-col gap-5 border-b border-[var(--line)] pb-7 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Eyebrow>Connection control</Eyebrow>
-            <h1 className="mt-2 text-3xl font-black tracking-[-0.055em] sm:text-4xl">
+            <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
               Integrations
             </h1>
             <p className="mt-2 max-w-[70ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -161,7 +161,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
               readiness without exposing customer payloads or plaintext secrets.
             </p>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(149_83_12/28%)] bg-[rgb(242_161_45/13%)] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.11em] text-[var(--accent-strong)]">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(149_83_12/28%)] bg-[rgb(242_161_45/13%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--accent-strong)]">
             <TestTube2 size={13} /> Demo control data
           </span>
         </header>
@@ -170,12 +170,12 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
           <div className="grid gap-6 xl:grid-cols-[1fr_auto] xl:items-start">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.12em]">
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.12em]">
                   <Activity size={12} className="text-[var(--accent)]" /> Event fabric
                 </span>
                 <span className="text-xs font-semibold text-white/50">/api/v1 · worker online</span>
               </div>
-              <h2 className="mt-6 max-w-2xl text-2xl font-black tracking-[-0.04em] sm:text-3xl">
+              <h2 className="mt-6 max-w-2xl text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">
                 One contract. Isolated adapters. Recoverable delivery.
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/62">
@@ -196,7 +196,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                     setEnvironment(item);
                     notify(`${item === "sandbox" ? "Sandbox" : "Production preview"} integration data selected.`);
                   }}
-                  className={`min-h-10 rounded-full px-4 text-xs font-black capitalize ${
+                  className={`min-h-10 rounded-full px-4 text-xs font-extrabold capitalize ${
                     environment === item
                       ? "bg-[var(--accent)] text-[var(--ink)]"
                       : "text-white/65 hover:bg-white/10 hover:text-white"
@@ -215,10 +215,10 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
               ["Delivery p95", "284 ms"],
             ].map(([label, value]) => (
               <div key={label} className="bg-[var(--ink)] p-4">
-                <p className="text-[9px] font-black uppercase tracking-[0.12em] text-white/55">
+                <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/55">
                   {label}
                 </p>
-                <p className="mt-2 text-xl font-black">{value}</p>
+                <p className="mt-2 text-xl font-extrabold">{value}</p>
               </div>
             ))}
           </div>
@@ -233,7 +233,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                 </span>
                 <div>
                   <Eyebrow>Observed shared event</Eyebrow>
-                  <code className="mt-1 block text-xs font-black">
+                  <code className="mt-1 block text-xs font-extrabold">
                     {sharedScenario.loyaltyEvent.id}
                   </code>
                 </div>
@@ -252,10 +252,10 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                 ["Delivery", sharedScenario.loyaltyEvent.status],
               ].map(([term, description]) => (
                 <div key={term} className="bg-[var(--surface-2)] p-4">
-                  <dt className="text-[9px] font-black uppercase tracking-[0.11em] text-[var(--muted-strong)]">
+                  <dt className="text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted-strong)]">
                     {term}
                   </dt>
-                  <dd className="mt-2 break-words text-xs font-black">
+                  <dd className="mt-2 break-words text-xs font-extrabold">
                     {description}
                   </dd>
                 </div>
@@ -273,7 +273,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
           <div className="flex flex-col gap-4 border-b border-[var(--line)] p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
             <div>
               <Eyebrow>Adapter registry</Eyebrow>
-              <h2 className="mt-1 text-xl font-black tracking-[-0.035em]">
+              <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
                 Supported connection paths
               </h2>
               <p className="mt-2 text-xs text-[var(--muted-strong)]">
@@ -288,7 +288,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                     type="button"
                     aria-pressed={statusFilter === status}
                     onClick={() => setStatusFilter(status)}
-                    className={`min-h-9 rounded-full px-3 text-[10px] font-black ${
+                    className={`min-h-9 rounded-full px-3 text-[10px] font-extrabold ${
                       statusFilter === status
                         ? "bg-[var(--ink)] text-[var(--paper)]"
                         : "border border-[var(--line)] bg-[var(--surface)] text-[var(--muted-strong)]"
@@ -318,14 +318,14 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                     </span>
                     <Status value={adapter.status} />
                   </div>
-                  <p className="mt-7 text-[9px] font-black uppercase tracking-[0.11em] text-[var(--accent-strong)]">
+                  <p className="mt-7 text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--accent-strong)]">
                     {adapter.category}
                   </p>
-                  <h3 className="mt-1 text-sm font-black">{adapter.name}</h3>
+                  <h3 className="mt-1 text-sm font-extrabold">{adapter.name}</h3>
                   <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
                     {adapter.detail}
                   </p>
-                  <span className="mt-5 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.09em]">
+                  <span className="mt-5 inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.09em]">
                     {adapter.connected} connections <ChevronRight size={13} />
                   </span>
                 </button>
@@ -335,7 +335,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
           {visibleAdapters.length === 0 && (
             <div className="p-10 text-center">
               <Filter className="mx-auto text-[var(--muted)]" />
-              <p className="mt-3 text-sm font-black">No adapters match this status.</p>
+              <p className="mt-3 text-sm font-extrabold">No adapters match this status.</p>
             </div>
           )}
         </Panel>
@@ -345,14 +345,14 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
             <div className="flex items-center justify-between gap-3 border-b border-[var(--line)] p-5 sm:p-6">
               <div>
                 <Eyebrow>Tenant connections</Eyebrow>
-                <h2 className="mt-1 text-lg font-black">Health without secret access</h2>
+                <h2 className="mt-1 text-lg font-extrabold">Health without secret access</h2>
               </div>
               <KeyRound size={19} className="text-[var(--accent-strong)]" />
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-left">
                 <thead>
-                  <tr className="border-b border-[var(--line)] text-[9px] font-black uppercase tracking-[0.11em] text-[var(--muted)]">
+                  <tr className="border-b border-[var(--line)] text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">
                     <th className="px-5 py-3">Business</th>
                     <th className="px-4 py-3">Connection</th>
                     <th className="px-4 py-3">Branches</th>
@@ -367,7 +367,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                       key={connection.business}
                       className="border-b border-[var(--line)] last:border-0"
                     >
-                      <td className="px-5 py-4 text-sm font-black">{connection.business}</td>
+                      <td className="px-5 py-4 text-sm font-extrabold">{connection.business}</td>
                       <td className="px-4 py-4 text-xs font-bold">{connection.adapter}</td>
                       <td className="px-4 py-4 text-xs">{connection.branches}</td>
                       <td className="px-4 py-4 text-xs text-[var(--muted-strong)]">
@@ -388,8 +388,8 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                 <Eyebrow>Recovery queue</Eyebrow>
                 <Webhook size={20} />
               </div>
-              <p className="mt-7 text-4xl font-black tracking-[-0.06em]">3</p>
-              <p className="mt-1 text-sm font-black">deliveries need replay</p>
+              <p className="mt-7 text-4xl font-extrabold tracking-[-0.03em]">3</p>
+              <p className="mt-1 text-sm font-extrabold">deliveries need replay</p>
               <div className="mt-5 divide-y divide-[rgb(31_27_24/14%)] border-y border-[rgb(31_27_24/14%)]">
                 {[
                   ["reward.redeemed", "HTTP 503 · attempt 8"],
@@ -397,7 +397,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                   ["balance.adjusted", "Endpoint timeout"],
                 ].map(([event, detail]) => (
                   <div key={event} className="py-3">
-                    <code className="text-[10px] font-black">{event}</code>
+                    <code className="text-[10px] font-extrabold">{event}</code>
                     <p className="mt-1 text-[10px] text-[var(--ink)]/85">{detail}</p>
                   </div>
                 ))}
@@ -416,7 +416,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
               <div className="flex items-start gap-3">
                 <ShieldCheck size={19} className="mt-0.5 shrink-0 text-[var(--success)]" />
                 <div>
-                  <p className="text-sm font-black">Credential boundary intact</p>
+                  <p className="text-sm font-extrabold">Credential boundary intact</p>
                   <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                     Platform staff see scopes, age, actor, and health—not plaintext
                     secrets or customer event payloads.
@@ -457,7 +457,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                 className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
               >
                 <Icon size={18} className="text-[var(--accent-strong)]" />
-                <h2 className="mt-6 text-sm font-black">{item.title}</h2>
+                <h2 className="mt-6 text-sm font-extrabold">{item.title}</h2>
                 <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
                   {item.detail}
                 </p>

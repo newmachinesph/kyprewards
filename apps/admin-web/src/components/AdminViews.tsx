@@ -122,7 +122,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
                     className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === business.id ? "bg-[rgb(242_161_45/9%)]" : "hover:bg-[var(--paper)]"}`}
                   >
                     <td className="px-5 py-4">
-                      <p className="text-sm font-black">{business.name}</p>
+                      <p className="text-sm font-extrabold">{business.name}</p>
                       <p className="mt-0.5 text-[10px] text-[var(--muted)]">
                         {business.owner} · {business.city}
                       </p>
@@ -137,7 +137,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
                     <td className="px-4 py-4 text-sm font-bold">
                       {business.members.toLocaleString()}
                     </td>
-                    <td className="px-4 py-4 text-sm font-black">
+                    <td className="px-4 py-4 text-sm font-extrabold">
                       ₱{business.mrr.toLocaleString()}
                     </td>
                     <td className="px-4 py-4">
@@ -174,7 +174,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
         </section>
         <aside className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <div className="flex items-center justify-between">
-            <span className="grid size-12 place-items-center rounded-2xl bg-[var(--accent)] text-lg font-black text-[var(--ink)]">
+            <span className="grid size-12 place-items-center rounded-2xl bg-[var(--accent)] text-lg font-extrabold text-[var(--ink)]">
               {selected.name
                 .split(" ")
                 .slice(0, 2)
@@ -185,7 +185,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
               {selected.risk}
             </Pill>
           </div>
-          <h2 className="mt-6 text-2xl font-black tracking-[-0.04em]">
+          <h2 className="mt-6 text-2xl font-extrabold tracking-[-0.02em]">
             {selected.name}
           </h2>
           <p className="mt-1 text-sm text-white/60">
@@ -200,7 +200,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
             ].map(([label, value]) => (
               <div key={label} className="bg-[var(--ink-soft)] p-4">
                 <p className="text-[10px] text-white/50">{label}</p>
-                <p className="mt-1 text-sm font-black">{value}</p>
+                <p className="mt-1 text-sm font-extrabold">{value}</p>
               </div>
             ))}
           </div>
@@ -265,10 +265,10 @@ function PeopleView({ notify }: { notify: Notify }) {
               className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
             >
               <Icon size={18} className="text-[var(--accent-strong)]" />
-              <p className="mt-7 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+              <p className="mt-7 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
                 {label}
               </p>
-              <p className="mt-1 text-2xl font-black">{value}</p>
+              <p className="mt-1 text-2xl font-extrabold">{value}</p>
               <p className="mt-1 text-xs text-[var(--muted-strong)]">
                 {detail}
               </p>
@@ -281,7 +281,7 @@ function PeopleView({ notify }: { notify: Notify }) {
           <div className="flex items-center justify-between">
             <div>
               <Eyebrow>Data-subject requests</Eyebrow>
-              <h2 className="mt-1 text-lg font-black">Active work</h2>
+              <h2 className="mt-1 text-lg font-extrabold">Active work</h2>
             </div>
             <Pill tone="success">All in SLA</Pill>
           </div>
@@ -299,7 +299,7 @@ function PeopleView({ notify }: { notify: Notify }) {
             ].map(([id, request, status, age]) => (
               <div key={id} className="grid grid-cols-[1fr_auto] gap-4 py-4">
                 <div>
-                  <p className="text-sm font-black">{request}</p>
+                  <p className="text-sm font-extrabold">{request}</p>
                   <p className="mt-1 font-mono text-[10px] text-[var(--muted)]">
                     {id} · {status}
                   </p>
@@ -313,7 +313,7 @@ function PeopleView({ notify }: { notify: Notify }) {
         </section>
         <section className="rounded-2xl bg-[var(--accent)] p-6">
           <ShieldCheck size={22} />
-          <h2 className="mt-8 max-w-[12ch] text-3xl font-black tracking-[-0.05em]">
+          <h2 className="mt-8 max-w-[12ch] text-3xl font-extrabold tracking-[-0.02em]">
             Rights are operational workflows.
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-[var(--ink)]/80">
@@ -324,7 +324,7 @@ function PeopleView({ notify }: { notify: Notify }) {
           <button
             type="button"
             onClick={() => notify("Privacy workflow playbook opened.")}
-            className="mt-7 inline-flex items-center gap-2 text-xs font-black"
+            className="mt-7 inline-flex items-center gap-2 text-xs font-extrabold"
           >
             Open privacy playbook <ArrowRight size={14} />
           </button>
@@ -375,7 +375,7 @@ function OperationsView({ notify }: { notify: Notify }) {
                 {service.status}
               </Pill>
             </div>
-            <h2 className="mt-7 text-base font-black">{service.name}</h2>
+            <h2 className="mt-7 text-base font-extrabold">{service.name}</h2>
             <div className="mt-4 flex justify-between border-t border-[var(--line)] pt-3 text-xs">
               <span className="text-[var(--muted)]">
                 Latency {service.latency}
@@ -390,7 +390,7 @@ function OperationsView({ notify }: { notify: Notify }) {
           <div className="flex items-center justify-between">
             <div>
               <Eyebrow>Worker queues</Eyebrow>
-              <h2 className="mt-1 text-lg font-black">Backlog by job type</h2>
+              <h2 className="mt-1 text-lg font-extrabold">Backlog by job type</h2>
             </div>
             <Activity />
           </div>
@@ -422,7 +422,7 @@ function OperationsView({ notify }: { notify: Notify }) {
             <Eyebrow>Active incident</Eyebrow>
             <Pill tone="danger">Investigating</Pill>
           </div>
-          <h2 className="mt-7 text-2xl font-black tracking-[-0.04em]">
+          <h2 className="mt-7 text-2xl font-extrabold tracking-[-0.02em]">
             SMS delivery latency
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-white/65">
@@ -503,7 +503,7 @@ function SupportView({ notify }: { notify: Notify }) {
                   )}
                 </span>
                 <span>
-                  <span className="block text-sm font-black">
+                  <span className="block text-sm font-extrabold">
                     {ticket.title}
                   </span>
                   <span className="mt-1 block text-[10px]">
@@ -524,14 +524,14 @@ function SupportView({ notify }: { notify: Notify }) {
               {selected.id}
             </span>
           </div>
-          <h2 className="mt-6 text-2xl font-black tracking-[-0.04em]">
+          <h2 className="mt-6 text-2xl font-extrabold tracking-[-0.02em]">
             {selected.title}
           </h2>
           <p className="mt-2 text-sm text-white/60">
             {selected.business} · {selected.category}
           </p>
           <div className="mt-7 rounded-2xl bg-white/6 p-4">
-            <p className="text-xs font-black">Recommended next step</p>
+            <p className="text-xs font-extrabold">Recommended next step</p>
             <p className="mt-2 text-xs leading-relaxed text-white/65">
               Verify the requester and event scope, request time-limited support
               access when needed, then record the decision and customer-facing
@@ -604,7 +604,7 @@ function AuditView({ notify }: { notify: Notify }) {
                   className="border-b border-[var(--line)] last:border-0"
                 >
                   <td className="px-5 py-4">
-                    <p className="text-sm font-black">{event.actor}</p>
+                    <p className="text-sm font-extrabold">{event.actor}</p>
                     <p className="mt-0.5 text-[10px] text-[var(--muted)]">
                       {event.role}
                     </p>
@@ -637,7 +637,7 @@ function AuditView({ notify }: { notify: Notify }) {
       <div className="mt-3 flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
         <FileClock size={19} className="mt-0.5 text-[var(--accent-strong)]" />
         <div>
-          <p className="text-sm font-black">Append-only by design</p>
+          <p className="text-sm font-extrabold">Append-only by design</p>
           <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
             Demo records are local JSON. The production API should hash event
             chains, retain actor and request context, and export signed evidence
@@ -692,10 +692,10 @@ function EconomicsView() {
             key={label}
             className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
           >
-            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
               {label}
             </p>
-            <p className="mt-5 text-2xl font-black tracking-[-0.05em]">
+            <p className="mt-5 text-2xl font-extrabold tracking-[-0.02em]">
               {value}
             </p>
             <p className="mt-1 text-xs text-[var(--muted-strong)]">{detail}</p>
@@ -706,7 +706,7 @@ function EconomicsView() {
         <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="border-b border-[var(--line)] p-5">
             <Eyebrow>Plan contribution</Eyebrow>
-            <h2 className="mt-1 text-lg font-black">
+            <h2 className="mt-1 text-lg font-extrabold">
               Revenue after direct service cost
             </h2>
           </div>
@@ -727,7 +727,7 @@ function EconomicsView() {
                     key={plan.name}
                     className="border-b border-[var(--line)] last:border-0"
                   >
-                    <td className="px-5 py-4 text-sm font-black">
+                    <td className="px-5 py-4 text-sm font-extrabold">
                       {plan.name}
                     </td>
                     <td className="px-4 py-4 text-sm">{plan.accounts}</td>
@@ -761,7 +761,7 @@ function EconomicsView() {
             <Eyebrow>Pricing guardrail</Eyebrow>
             <CircleDollarSign size={20} />
           </div>
-          <p className="mt-7 text-4xl font-black tracking-[-0.06em]">
+          <p className="mt-7 text-4xl font-extrabold tracking-[-0.03em]">
             {margin.toFixed(1)}%
           </p>
           <p className="mt-1 text-sm font-bold">
@@ -773,7 +773,7 @@ function EconomicsView() {
             load is priced high enough to remain useful, not merely popular.
           </p>
           <div className="mt-6 rounded-2xl bg-[var(--surface)] p-4">
-            <p className="text-xs font-black">
+            <p className="text-xs font-extrabold">
               Rule: variable channels stay variable
             </p>
             <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
@@ -787,7 +787,7 @@ function EconomicsView() {
       <section className="mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="border-b border-[var(--line)] p-5">
           <Eyebrow>Channel unit economics</Eyebrow>
-          <h2 className="mt-1 text-lg font-black">
+          <h2 className="mt-1 text-lg font-extrabold">
             Delivery volume, revenue, and cost
           </h2>
         </div>
@@ -801,7 +801,7 @@ function EconomicsView() {
                     key={channel.name}
                     className="border-b border-[var(--line)] last:border-0"
                   >
-                    <td className="px-5 py-4 text-sm font-black">
+                    <td className="px-5 py-4 text-sm font-extrabold">
                       {channel.name}
                     </td>
                     <td className="px-4 py-4 text-xs">
@@ -817,7 +817,7 @@ function EconomicsView() {
                       ₱{channel.cost.toLocaleString()} cost
                     </td>
                     <td
-                      className={`px-4 py-4 text-sm font-black ${contribution >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
+                      className={`px-4 py-4 text-sm font-extrabold ${contribution >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
                     >
                       {contribution >= 0 ? "+" : ""}₱
                       {contribution.toLocaleString()}
@@ -859,7 +859,7 @@ function SettingsView({ notify }: { notify: Notify }) {
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="border-b border-[var(--line)] p-5">
             <Eyebrow>Safety defaults</Eyebrow>
-            <h2 className="mt-1 text-lg font-black">
+            <h2 className="mt-1 text-lg font-extrabold">
               Controls that apply network-wide
             </h2>
           </div>
@@ -902,7 +902,7 @@ function SettingsView({ notify }: { notify: Notify }) {
                   <Icon size={17} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-black">{title}</p>
+                  <p className="text-sm font-extrabold">{title}</p>
                   <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                     {detail}
                   </p>
@@ -950,7 +950,7 @@ function SettingsView({ notify }: { notify: Notify }) {
             <button
               type="button"
               onClick={() => notify("Provider policy editor opened.")}
-              className="mt-5 inline-flex items-center gap-2 text-xs font-black text-[var(--accent)]"
+              className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-[var(--accent)]"
             >
               Edit provider policies <ArrowRight size={14} />
             </button>
@@ -962,7 +962,7 @@ function SettingsView({ notify }: { notify: Notify }) {
                 className="mt-0.5 text-[var(--accent-strong)]"
               />
               <div>
-                <p className="text-sm font-black">
+                <p className="text-sm font-extrabold">
                   Administrator access review
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">

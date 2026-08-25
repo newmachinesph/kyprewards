@@ -127,7 +127,7 @@ export function StampDots({
       {Array.from({ length: total }, (_, index) => (
         <span
           key={index}
-          className={`grid size-7 place-items-center rounded-full border text-[9px] font-black ${
+          className={`grid size-7 place-items-center rounded-full border text-[9px] font-extrabold ${
             index < filled
               ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--ink)]"
               : dark
@@ -158,7 +158,7 @@ export function DemoActionDialog({
         <header className="flex items-start justify-between gap-4 border-b border-[var(--line)] p-5 sm:p-6">
           <div>
             <Eyebrow>Interactive demo action</Eyebrow>
-            <h2 id="demo-action-title" className="mt-2 text-xl font-black tracking-[-0.035em]">
+            <h2 id="demo-action-title" className="mt-2 text-xl font-extrabold tracking-[-0.02em]">
               {title.replace(/\.$/, "")}
             </h2>
           </div>
@@ -176,7 +176,7 @@ export function DemoActionDialog({
           <dl className="mt-5 divide-y divide-[var(--line)] border-y border-[var(--line)]">
             {[["Mode", "Local preview"], ["Persistence", "Current browser session"], ["Network activity", "None"]].map(([term, description]) => (
               <div key={term} className="grid grid-cols-[118px_1fr] gap-3 py-3 text-xs">
-                <dt className="font-black text-[var(--muted-strong)]">{term}</dt>
+                <dt className="font-extrabold text-[var(--muted-strong)]">{term}</dt>
                 <dd className="font-bold">{description}</dd>
               </div>
             ))}
@@ -207,7 +207,7 @@ export function Pill({
   };
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${tones[tone]}`}
+      className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] ${tones[tone]}`}
     >
       {children}
     </span>
@@ -232,7 +232,7 @@ export function Panel({
 
 export function FieldLabel({ children }: { children: ReactNode }) {
   return (
-    <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-strong)]">
+    <span className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted-strong)]">
       {children}
     </span>
   );
@@ -240,7 +240,7 @@ export function FieldLabel({ children }: { children: ReactNode }) {
 
 export function DemoBadge({ label = "Frontend demo only" }: { label?: string }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(149_83_12/30%)] bg-[rgb(242_161_45/14%)] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+    <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(149_83_12/30%)] bg-[rgb(242_161_45/14%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
       <FlaskConical size={13} aria-hidden="true" /> {label}
     </span>
   );
@@ -271,7 +271,7 @@ export function ViewFrame({
         <header className="flex flex-col gap-5 border-b border-[var(--line)] pb-7 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Eyebrow>{eyebrow}</Eyebrow>
-            <h1 className="mt-2 text-3xl font-black tracking-[-0.055em] sm:text-4xl">
+            <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
               {title}
             </h1>
             <p className="mt-2 max-w-[66ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -318,7 +318,7 @@ export function StatCard({
       <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.12em] opacity-65">
         {label}
       </p>
-      <p className="mt-1 text-3xl font-black tracking-[-0.06em]">{value}</p>
+      <p className="mt-1 text-3xl font-extrabold tracking-[-0.03em]">{value}</p>
     </article>
   );
 }

@@ -46,7 +46,7 @@ export function ProductPreview() {
               <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
                 Good morning
               </p>
-              <p className="mt-1 text-lg font-black tracking-[-0.04em]">
+              <p className="mt-1 text-lg font-extrabold tracking-[-0.02em]">
                 Sweet Crumbs
               </p>
             </div>
@@ -80,7 +80,7 @@ export function ProductPreview() {
                   >
                     {item.label}
                   </p>
-                  <p className="mt-0.5 text-xl font-black">{item.value}</p>
+                  <p className="mt-0.5 text-xl font-extrabold">{item.value}</p>
                 </div>
               );
             })}

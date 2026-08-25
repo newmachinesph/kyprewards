@@ -80,7 +80,7 @@ export default function IntegrationsPage() {
           <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
             <div>
               <SiteEyebrow>Choose the lightest path</SiteEyebrow>
-              <h2 className="mt-4 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+              <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 Integrate at your own pace.
               </h2>
             </div>
@@ -131,14 +131,14 @@ export default function IntegrationsPage() {
                     <span className="grid size-12 place-items-center rounded-2xl bg-[var(--paper)]">
                       <Icon size={20} />
                     </span>
-                    <span className="rounded-full border border-[var(--line-strong)] px-3 py-1 text-[9px] font-black uppercase tracking-[0.1em]">
+                    <span className="rounded-full border border-[var(--line-strong)] px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.1em]">
                       {item.status}
                     </span>
                   </div>
-                  <p className="mt-9 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+                  <p className="mt-9 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
                     {item.eyebrow}
                   </p>
-                  <h3 className="mt-2 text-xl font-black tracking-[-0.035em]">
+                  <h3 className="mt-2 text-xl font-extrabold tracking-[-0.02em]">
                     {item.title}
                   </h3>
                   <p className="mt-3 max-w-[50ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -155,7 +155,7 @@ export default function IntegrationsPage() {
         <div className="mx-auto grid max-w-[1400px] gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
           <div className="lg:sticky lg:top-28">
             <SiteEyebrow>A contract built for recovery</SiteEyebrow>
-            <h2 className="mt-4 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+            <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
               Safe when networks and providers are not.
             </h2>
             <p className="mt-5 max-w-[50ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -177,10 +177,10 @@ export default function IntegrationsPage() {
           <div className="overflow-hidden rounded-[18px] bg-[var(--ink)] text-[var(--paper)]">
             <div className="flex items-start justify-between gap-4 border-b border-white/12 p-6 sm:p-7">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent)]">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent)]">
                   Planned quickstart
                 </p>
-                <h3 className="mt-2 text-xl font-black">Record a Philippine sale</h3>
+                <h3 className="mt-2 text-xl font-extrabold">Record a Philippine sale</h3>
               </div>
               <PlugZap size={20} className="text-[var(--accent)]" />
             </div>
@@ -209,7 +209,7 @@ X-Merchant-ID: mrc_sweet_crumbs
                 return (
                   <div key={String(title)} className="bg-[var(--ink)] p-5">
                     <Icon size={17} className="text-[var(--accent)]" />
-                    <p className="mt-5 text-sm font-black">{String(title)}</p>
+                    <p className="mt-5 text-sm font-extrabold">{String(title)}</p>
                     <p className="mt-2 text-xs leading-relaxed text-white/55">
                       {String(detail)}
                     </p>
@@ -225,7 +225,7 @@ X-Merchant-ID: mrc_sweet_crumbs
         <div className="mx-auto max-w-[1400px]">
           <div className="max-w-3xl">
             <SiteEyebrow>Operational guarantees</SiteEyebrow>
-            <h2 className="mt-4 max-w-[13ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+            <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
               The fallback is part of the product.
             </h2>
           </div>
@@ -263,7 +263,7 @@ X-Merchant-ID: mrc_sweet_crumbs
                   <span className="grid size-11 place-items-center rounded-2xl bg-[var(--surface-2)]">
                     <Icon size={18} />
                   </span>
-                  <h3 className="text-base font-black">{item.title}</h3>
+                  <h3 className="text-base font-extrabold">{item.title}</h3>
                   <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
                     {item.detail}
                   </p>
@@ -278,7 +278,7 @@ X-Merchant-ID: mrc_sweet_crumbs
         <div className="mx-auto grid max-w-[1400px] gap-10 lg:grid-cols-[0.75fr_1.25fr]">
           <div>
             <SiteEyebrow>Clear claims</SiteEyebrow>
-            <h2 className="mt-4 max-w-[10ch] text-4xl font-black leading-[1] tracking-[-0.055em]">
+            <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
               Preview the setup. Verify the provider.
             </h2>
             <p className="mt-5 max-w-[46ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -289,7 +289,7 @@ X-Merchant-ID: mrc_sweet_crumbs
           <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
             {questions.map((item) => (
               <article key={item.question} className="py-6">
-                <h3 className="text-lg font-black">{item.question}</h3>
+                <h3 className="text-lg font-extrabold">{item.question}</h3>
                 <p className="mt-3 max-w-[70ch] text-sm leading-relaxed text-[var(--muted-strong)]">
                   {item.answer}
                 </p>

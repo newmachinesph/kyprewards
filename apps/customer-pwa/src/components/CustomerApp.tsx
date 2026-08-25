@@ -104,7 +104,7 @@ function LoyaltyCard({ compact = false }: { compact?: boolean }) {
         </span>
       </div>
       {!compact && (
-        <p className="mt-7 max-w-[19ch] text-2xl font-black leading-[1.05] tracking-[-0.05em]">
+        <p className="mt-7 max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em]">
           Three more visits, then pastry.
         </p>
       )}
@@ -148,7 +148,7 @@ function HomeView({
       <div className="mt-2 flex items-end justify-between gap-3">
         <div>
           <p className="text-sm text-[var(--muted-strong)]">Good morning,</p>
-          <h1 className="text-3xl font-black tracking-[-0.055em]">
+          <h1 className="text-3xl font-extrabold tracking-[-0.03em]">
             {sharedScenario.customer.split(" ")[0]}.
           </h1>
         </div>
@@ -270,7 +270,7 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
   return (
     <div className="px-5 pb-32 pt-5">
       <Eyebrow>Your collection</Eyebrow>
-      <h1 className="mt-2 text-3xl font-black tracking-[-0.055em]">Wallet</h1>
+      <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em]">Wallet</h1>
       <p className="mt-2 text-sm text-[var(--muted-strong)]">
         Every joined business, one private loyalty ID.
       </p>
@@ -337,12 +337,12 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
             <span className="grid size-10 place-items-center rounded-2xl bg-[rgb(32_169_120/12%)] text-[var(--success)]">
               <Coins size={18} />
             </span>
-            <span className="rounded-full bg-[var(--surface-2)] px-2 py-1 text-[8px] font-black uppercase tracking-[0.1em]">
+            <span className="rounded-full bg-[var(--surface-2)] px-2 py-1 text-[8px] font-extrabold uppercase tracking-[0.1em]">
               Points
             </span>
           </div>
           <p className="mt-7 text-sm font-extrabold">Sage & Steam</p>
-          <p className="mt-2 text-2xl font-black tracking-[-0.05em]">
+          <p className="mt-2 text-2xl font-extrabold tracking-[-0.02em]">
             640 <span className="text-xs text-[var(--muted)]">pts</span>
           </p>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--surface-2)]">
@@ -361,12 +361,12 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
             <span className="grid size-10 place-items-center rounded-2xl bg-[var(--surface)]">
               <Crown size={18} />
             </span>
-            <span className="rounded-full border border-[rgb(37_29_24/15%)] px-2 py-1 text-[8px] font-black uppercase tracking-[0.1em]">
+            <span className="rounded-full border border-[rgb(37_29_24/15%)] px-2 py-1 text-[8px] font-extrabold uppercase tracking-[0.1em]">
               Member
             </span>
           </div>
           <p className="mt-7 text-sm font-extrabold">Rooted Studio</p>
-          <p className="mt-2 text-2xl font-black tracking-[-0.05em]">
+          <p className="mt-2 text-2xl font-extrabold tracking-[-0.02em]">
             3 <span className="text-xs text-[var(--ink)]/80">of 5</span>
           </p>
           <p className="mt-3 text-[10px] leading-relaxed text-[var(--ink)]/80">
@@ -385,7 +385,7 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="truncate text-sm font-extrabold">Corner Thread</p>
-            <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[8px] font-black uppercase tracking-[0.1em]">
+            <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.1em]">
               Gift
             </span>
           </div>
@@ -393,7 +393,7 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
             Stored balance · partial use allowed
           </p>
         </div>
-        <p className="text-lg font-black tracking-[-0.04em]">₱740</p>
+        <p className="text-lg font-extrabold tracking-[-0.02em]">₱740</p>
       </button>
       {visibleCount === 0 && (
         <div className="mt-5 rounded-2xl border border-dashed border-[var(--line-strong)] p-7 text-center">
@@ -442,7 +442,7 @@ function DiscoverView({
   return (
     <div className="px-5 pb-32 pt-5">
       <Eyebrow>Local rewards</Eyebrow>
-      <h1 className="mt-2 text-3xl font-black tracking-[-0.055em]">Discover</h1>
+      <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em]">Discover</h1>
       <p className="mt-2 text-sm text-[var(--muted-strong)]">
         Good places, made easier to return to.
       </p>
@@ -550,7 +550,7 @@ function DiscoverView({
                     {business.name}
                   </span>
                   {joined && (
-                    <span className="rounded-full bg-[rgb(15_118_85/12%)] px-2 py-0.5 text-[8px] font-black uppercase tracking-[0.08em] text-[var(--success)]">
+                    <span className="rounded-full bg-[rgb(15_118_85/12%)] px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.08em] text-[var(--success)]">
                       Joined
                     </span>
                   )}
@@ -598,9 +598,9 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
   return (
     <div className="px-5 pb-32 pt-5">
       <Eyebrow>Your account</Eyebrow>
-      <h1 className="mt-2 text-3xl font-black tracking-[-0.055em]">Profile</h1>
+      <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em]">Profile</h1>
       <div className="mt-6 flex items-center gap-4">
-        <span className="grid size-16 place-items-center rounded-2xl bg-[var(--accent)] text-xl font-black">
+        <span className="grid size-16 place-items-center rounded-2xl bg-[var(--accent)] text-xl font-extrabold">
           {customerDemo.profile.initials}
         </span>
         <div>
@@ -729,7 +729,7 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
       <button
         type="button"
         onClick={() => signOutDemo("customer")}
-        className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[rgb(178_59_43/28%)] bg-[rgb(178_59_43/6%)] text-sm font-black text-[var(--danger)] active:scale-[0.98]"
+        className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[rgb(178_59_43/28%)] bg-[rgb(178_59_43/6%)] text-sm font-extrabold text-[var(--danger)] active:scale-[0.98]"
       >
         <LogOut size={16} /> Sign out of this device
       </button>
@@ -766,7 +766,7 @@ function QrModal({ close }: { close: () => void }) {
         <Eyebrow>Personal loyalty ID</Eyebrow>
         <h2
           id="qr-title"
-          className="mt-2 text-2xl font-black tracking-[-0.045em]"
+          className="mt-2 text-2xl font-extrabold tracking-[-0.02em]"
         >
           Show this at the counter
         </h2>
@@ -849,7 +849,7 @@ function NotificationSheet({ close }: { close: () => void }) {
         <Eyebrow>Your places</Eyebrow>
         <h2
           id="notifications-title"
-          className="mt-2 text-3xl font-black tracking-[-0.055em]"
+          className="mt-2 text-3xl font-extrabold tracking-[-0.03em]"
         >
           Inbox
         </h2>
@@ -878,7 +878,7 @@ function NotificationSheet({ close }: { close: () => void }) {
                       <span className="size-2 shrink-0 rounded-full bg-[var(--accent-strong)]" />
                     )}
                   </div>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-[0.1em] text-[var(--accent-strong)]">
+                  <p className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
                     {notification.business} · {notification.kind}
                   </p>
                   <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
@@ -925,7 +925,7 @@ function ActivitySheet({ close }: { close: () => void }) {
         <Eyebrow>Your loyalty ledger</Eyebrow>
         <h2
           id="activity-title"
-          className="mt-2 text-3xl font-black tracking-[-0.055em]"
+          className="mt-2 text-3xl font-extrabold tracking-[-0.03em]"
         >
           Every change, explained.
         </h2>
@@ -1025,13 +1025,13 @@ function BusinessSheet({
             <span className="grid size-14 place-items-center rounded-xl bg-[var(--accent)] text-[var(--ink)]">
               <Icon size={24} />
             </span>
-            <span className="rounded-full border border-white/15 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-white/70">
+            <span className="rounded-full border border-white/15 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-white/70">
               {business.open ? "Open now" : "Closed"}
             </span>
           </div>
           <h2
             id="business-title"
-            className="mt-8 text-3xl font-black tracking-[-0.055em]"
+            className="mt-8 text-3xl font-extrabold tracking-[-0.03em]"
           >
             {business.name}
           </h2>
@@ -1048,10 +1048,10 @@ function BusinessSheet({
             />
           </div>
           <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent)]">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent)]">
               Program
             </p>
-            <p className="mt-2 text-xl font-black">{business.reward}</p>
+            <p className="mt-2 text-xl font-extrabold">{business.reward}</p>
             <p className="mt-2 text-xs leading-relaxed text-white/60">
               Earn after an eligible purchase. Staff confirms every earn and
               redemption event.
@@ -1063,7 +1063,7 @@ function BusinessSheet({
             <div className="flex items-start gap-3">
               <MapPin size={17} className="mt-0.5 shrink-0 text-[var(--muted)]" />
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
                   Address
                 </p>
                 <p className="mt-1 text-sm font-extrabold leading-snug">
@@ -1074,7 +1074,7 @@ function BusinessSheet({
             <div className="mt-4 flex items-start gap-3 border-t border-[var(--line)] pt-4">
               <Clock size={17} className="mt-0.5 shrink-0 text-[var(--muted)]" />
               <div className="w-full">
-                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
                   Opening hours
                 </p>
                 <dl className="mt-1 space-y-1">
@@ -1175,10 +1175,10 @@ function JoinConsentDialog({
         className="absolute inset-0 cursor-default bg-[rgb(20_16_13/55%)] backdrop-blur-sm"
       />
       <section className="relative w-full rounded-t-[18px] bg-[var(--surface)] p-5 pb-8 sm:max-w-md sm:rounded-[18px] sm:pb-5">
-        <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
           Before you join
         </p>
-        <h3 id="join-consent-title" className="mt-2 text-xl font-black tracking-[-0.04em]">
+        <h3 id="join-consent-title" className="mt-2 text-xl font-extrabold tracking-[-0.02em]">
           Share your profile with {businessName}?
         </h3>
         <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
@@ -1189,7 +1189,7 @@ function JoinConsentDialog({
           {shared.map(({ label, value, icon: ItemIcon }) => (
             <li key={label} className="flex items-center gap-3 px-4 py-3">
               <ItemIcon size={15} className="shrink-0 text-[var(--muted)]" />
-              <span className="w-28 shrink-0 text-[11px] font-black uppercase tracking-[0.08em] text-[var(--muted-strong)]">
+              <span className="w-28 shrink-0 text-[11px] font-extrabold uppercase tracking-[0.08em] text-[var(--muted-strong)]">
                 {label}
               </span>
               <span className="truncate text-xs font-bold">{value}</span>
@@ -1254,13 +1254,13 @@ function WalletSheet({
             <span className="grid size-12 place-items-center rounded-2xl bg-white/10 text-[var(--accent)]">
               <WalletCards size={20} />
             </span>
-            <span className="rounded-full border border-white/15 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-white/70">
+            <span className="rounded-full border border-white/15 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.1em] text-white/70">
               {card.kind}
             </span>
           </div>
           <h2
             id="wallet-card-title"
-            className="mt-8 text-2xl font-black tracking-[-0.045em]"
+            className="mt-8 text-2xl font-extrabold tracking-[-0.02em]"
           >
             {card.business}
           </h2>
@@ -1293,7 +1293,7 @@ function WalletSheet({
                     {activity.detail} · {activity.date}
                   </p>
                 </div>
-                <span className="text-xs font-black">{activity.value}</span>
+                <span className="text-xs font-extrabold">{activity.value}</span>
               </div>
             ))}
         </section>
@@ -1358,7 +1358,7 @@ function ProfileSheet({
         <Eyebrow>Your control</Eyebrow>
         <h2
           id="profile-sheet-title"
-          className="mt-2 text-2xl font-black tracking-[-0.045em]"
+          className="mt-2 text-2xl font-extrabold tracking-[-0.02em]"
         >
           {title}
         </h2>

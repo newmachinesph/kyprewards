@@ -73,7 +73,7 @@ export function PageHero({
       <div className="mx-auto grid min-h-[540px] max-w-[1400px] items-end gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-28">
         <div>
           <SiteEyebrow>{eyebrow}</SiteEyebrow>
-          <h1 className="mt-5 max-w-[14ch] text-5xl font-black leading-[0.96] tracking-[-0.065em] sm:text-6xl lg:text-7xl">
+          <h1 className="mt-5 max-w-[14ch] text-5xl font-extrabold leading-[0.96] tracking-[-0.03em] sm:text-6xl lg:text-7xl">
             {title}
           </h1>
         </div>
@@ -103,7 +103,7 @@ export function MarketingCta({
         <div className="absolute right-10 top-1/2 hidden size-48 -translate-y-1/2 rounded-full border-[38px] border-[var(--accent)] opacity-80 lg:block" />
         <div className="relative">
           <SiteEyebrow inverse>Start with Stampr</SiteEyebrow>
-          <h2 className="mt-4 max-w-[16ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+          <h2 className="mt-4 max-w-[16ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
             {title}
           </h2>
           <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-white/70 sm:text-base">
@@ -130,7 +130,7 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
         <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[var(--ink)] text-[var(--paper)]">
           <Stamp size={21} />
         </span>
-        <p className="mt-4 text-lg font-black tracking-[-0.04em]">
+        <p className="mt-4 text-lg font-extrabold tracking-[-0.02em]">
           SWEET CRUMBS
         </p>
         <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--muted)]">
@@ -160,7 +160,7 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
         {Array.from({ length: 8 }, (_, index) => (
           <span
             key={index}
-            className={`grid aspect-square place-items-center rounded-full border text-[9px] font-black ${index < 5 ? "border-[var(--accent)] bg-[var(--accent)]" : "border-[var(--line-strong)]"}`}
+            className={`grid aspect-square place-items-center rounded-full border text-[9px] font-extrabold ${index < 5 ? "border-[var(--accent)] bg-[var(--accent)]" : "border-[var(--line-strong)]"}`}
           >
             {index < 5 ? "S" : ""}
           </span>
@@ -174,7 +174,7 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
           <QrCode size={48} strokeWidth={1.2} />
         </div>
       </div>
-      <div className="stamp-arrive ink-stamp absolute -right-5 top-[44%] grid size-24 place-items-center rounded-full bg-[var(--surface)] text-center text-[9px] font-black uppercase leading-tight tracking-[0.12em] text-[var(--accent-strong)]">
+      <div className="stamp-arrive ink-stamp absolute -right-5 top-[44%] grid size-24 place-items-center rounded-full bg-[var(--surface)] text-center text-[9px] font-extrabold uppercase leading-tight tracking-[0.12em] text-[var(--accent-strong)]">
         Reward
         <br />
         in reach
@@ -191,7 +191,7 @@ export function ProofStrip() {
           (name) => (
             <div
               key={name}
-              className="flex min-h-20 items-center justify-center px-3 text-center text-sm font-black tracking-[-0.03em] text-[var(--muted-strong)]"
+              className="flex min-h-20 items-center justify-center px-3 text-center text-sm font-extrabold tracking-[-0.03em] text-[var(--muted-strong)]"
             >
               {name}
             </div>

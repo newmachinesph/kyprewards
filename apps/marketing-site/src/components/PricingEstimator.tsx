@@ -88,7 +88,7 @@ export function PricingEstimator() {
             <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
               Plan estimator
             </p>
-            <h2 className="mt-2 text-2xl font-black tracking-[-0.045em]">
+            <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.02em]">
               Model a real month
             </h2>
           </div>
@@ -190,7 +190,7 @@ export function PricingEstimator() {
                 className="rounded-2xl bg-[var(--paper)] p-4"
               >
                 <Icon size={16} className="text-[var(--accent-strong)]" />
-                <p className="mt-4 text-xs font-black">{item.title}</p>
+                <p className="mt-4 text-xs font-extrabold">{item.title}</p>
                 <p className="mt-1 text-[10px] text-[var(--muted)]">
                   {item.detail}
                 </p>
@@ -204,11 +204,11 @@ export function PricingEstimator() {
           <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-white/70">
             Recommended
           </p>
-          <span className="rounded-full bg-[var(--accent)] px-3 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-[var(--ink)]">
+          <span className="rounded-full bg-[var(--accent)] px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--ink)]">
             {estimate.plan.name}
           </span>
         </div>
-        <p className="mt-8 text-5xl font-black tracking-[-0.065em]">
+        <p className="mt-8 text-5xl font-extrabold tracking-[-0.03em]">
           ₱
           {estimate.total.toLocaleString(undefined, {
             maximumFractionDigits: 0,

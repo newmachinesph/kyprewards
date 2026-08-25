@@ -16,7 +16,7 @@ body {
     radial-gradient(circle at 80% 5%, rgb(242 161 45 / 7%), transparent 26rem),
     var(--paper);
   color: var(--ink);
-  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+  font-family: var(--font-sans), "Segoe UI", sans-serif;
 }
 button,
 input {

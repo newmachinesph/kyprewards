@@ -140,13 +140,13 @@ export default function FaqPage() {
           <div className="space-y-14">
             {groups.map((group) => (
               <section key={group.title}>
-                <h2 className="text-2xl font-black tracking-[-0.045em]">
+                <h2 className="text-2xl font-extrabold tracking-[-0.02em]">
                   {group.title}
                 </h2>
                 <div className="mt-5 divide-y divide-[var(--line)] border-y border-[var(--line)]">
                   {group.questions.map(([question, answer]) => (
                     <details key={question} className="group py-5">
-                      <summary className="flex cursor-pointer list-none items-center justify-between gap-5 font-black">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-5 font-extrabold">
                         <span>{question}</span>
                         <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[var(--line-strong)] transition group-open:rotate-45">
                           +

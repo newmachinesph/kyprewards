@@ -220,7 +220,7 @@ export function BusinessShell({
               onClick={() => setAccountOpen((open) => !open)}
               className="flex w-full items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 text-left transition hover:bg-[var(--surface-2)]"
             >
-              <span className="grid size-9 place-items-center rounded-xl bg-[var(--accent)] text-xs font-black">
+              <span className="grid size-9 place-items-center rounded-xl bg-[var(--accent)] text-xs font-extrabold">
                 SC
               </span>
               <span className="min-w-0 flex-1">
@@ -258,7 +258,7 @@ export function BusinessShell({
             >
               <Bell size={18} />
             </button>
-            <span className="grid size-10 place-items-center rounded-full bg-[var(--accent)] text-xs font-black">
+            <span className="grid size-10 place-items-center rounded-full bg-[var(--accent)] text-xs font-extrabold">
               SC
             </span>
           </div>

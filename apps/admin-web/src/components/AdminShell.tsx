@@ -113,7 +113,7 @@ export function AdminShell({
         <Icon size={17} aria-hidden="true" />
         <span className="flex-1">{item.label}</span>
         {item.count && (
-          <span className="grid min-w-6 place-items-center rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-[10px] font-black text-[var(--ink)]">
+          <span className="grid min-w-6 place-items-center rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-[10px] font-extrabold text-[var(--ink)]">
             {item.count}
           </span>
         )}
@@ -153,7 +153,7 @@ export function AdminShell({
           <button
             type="button"
             onClick={() => signOutDemo("admin")}
-            className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/6 text-xs font-black text-white/78 transition hover:bg-white/10 hover:text-white"
+            className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/6 text-xs font-extrabold text-white/78 transition hover:bg-white/10 hover:text-white"
           >
             <LogOut size={15} /> Sign out securely
           </button>
@@ -254,7 +254,7 @@ export function AdminShell({
                 onClick={() => setAccountOpen((open) => !open)}
                 className="flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1 pr-3"
               >
-                <span className="grid size-8 place-items-center rounded-full bg-[var(--ink)] text-[10px] font-black text-[var(--paper)]">
+                <span className="grid size-8 place-items-center rounded-full bg-[var(--ink)] text-[10px] font-extrabold text-[var(--paper)]">
                   AD
                 </span>
                 <ChevronDown size={14} className={`transition ${accountOpen ? "rotate-180" : ""}`} />
@@ -262,7 +262,7 @@ export function AdminShell({
               {accountOpen && (
                 <div id="admin-account-menu" role="menu" className="absolute right-0 top-[calc(100%+8px)] z-50 w-64 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-2xl">
                   <div className="border-b border-[var(--line)] px-3 pb-3 pt-2">
-                    <p className="text-xs font-black">Platform Administrator</p>
+                    <p className="text-xs font-extrabold">Platform Administrator</p>
                     <p className="mt-1 text-[10px] text-[var(--muted)]">admin@stampr.ph</p>
                   </div>
                   <button type="button" role="menuitem" onClick={() => navigate("settings")} className="mt-1 flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><Settings2 size={15} /> Administrator settings</button>
@@ -281,7 +281,7 @@ export function AdminShell({
             <nav className="space-y-1" aria-label="Mobile platform navigation">
               {navContent}
             </nav>
-            <button type="button" onClick={() => signOutDemo("admin")} className="mt-6 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/7 text-sm font-black text-white"><LogOut size={16} /> Sign out securely</button>
+            <button type="button" onClick={() => signOutDemo("admin")} className="mt-6 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/7 text-sm font-extrabold text-white"><LogOut size={16} /> Sign out securely</button>
           </div>
         )}
         <div id="main-content" tabIndex={-1}>

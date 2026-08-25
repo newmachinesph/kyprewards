@@ -44,7 +44,7 @@ export default async function IndustryPage({ params }: Props) {
         <div className="mx-auto grid min-h-[720px] max-w-[1400px] items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
           <div>
             <SiteEyebrow>{industry.eyebrow}</SiteEyebrow>
-            <h1 className="mt-6 max-w-[11ch] text-5xl font-black leading-[0.94] tracking-[-0.07em] sm:text-6xl lg:text-7xl">
+            <h1 className="mt-6 max-w-[11ch] text-5xl font-extrabold leading-[0.94] tracking-[-0.03em] sm:text-6xl lg:text-7xl">
               {industry.headline}
             </h1>
             <p className="mt-6 max-w-[56ch] text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
@@ -70,7 +70,7 @@ export default async function IndustryPage({ params }: Props) {
         <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
             <SiteEyebrow>The real challenge</SiteEyebrow>
-            <h2 className="mt-4 max-w-[12ch] text-4xl font-black leading-[1] tracking-[-0.055em]">
+            <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
               Recognition gets harder when business gets busy.
             </h2>
           </div>
@@ -80,7 +80,7 @@ export default async function IndustryPage({ params }: Props) {
             </p>
             <div className="mt-10 grid grid-cols-2 gap-3">
               <div className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
-                <p className="text-4xl font-black tracking-[-0.06em]">
+                <p className="text-4xl font-extrabold tracking-[-0.03em]">
                   {industry.metric}
                 </p>
                 <p className="mt-2 text-xs leading-relaxed text-white/70">
@@ -89,7 +89,7 @@ export default async function IndustryPage({ params }: Props) {
               </div>
               <div className="rounded-2xl bg-[var(--accent)] p-6">
                 <Gift size={20} />
-                <p className="mt-8 text-lg font-black tracking-[-0.04em]">
+                <p className="mt-8 text-lg font-extrabold tracking-[-0.02em]">
                   {industry.reward}
                 </p>
               </div>
@@ -105,7 +105,7 @@ export default async function IndustryPage({ params }: Props) {
               <SiteEyebrow>
                 Made for {industry.shortName.toLowerCase()} teams
               </SiteEyebrow>
-              <h2 className="mt-4 text-4xl font-black tracking-[-0.055em]">
+              <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.03em]">
                 Useful from day one.
               </h2>
             </div>
@@ -124,7 +124,7 @@ export default async function IndustryPage({ params }: Props) {
                       <Icon size={19} />
                     </span>
                     <div>
-                      <h3 className="text-xl font-black tracking-[-0.035em]">
+                      <h3 className="text-xl font-extrabold tracking-[-0.02em]">
                         {feature.title}
                       </h3>
                       <p className="mt-2 max-w-[58ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -144,7 +144,7 @@ export default async function IndustryPage({ params }: Props) {
           <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr]">
             <div>
               <SiteEyebrow inverse>Launch sequence</SiteEyebrow>
-              <h2 className="mt-4 max-w-[10ch] text-4xl font-black leading-[1] tracking-[-0.055em]">
+              <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
                 Live before the next busy day.
               </h2>
             </div>
@@ -183,7 +183,7 @@ export default async function IndustryPage({ params }: Props) {
                     >
                       Step 0{index + 1}
                     </p>
-                    <h3 className="mt-2 text-xl font-black tracking-[-0.035em]">
+                    <h3 className="mt-2 text-xl font-extrabold tracking-[-0.02em]">
                       {step.title}
                     </h3>
                     <p

@@ -44,7 +44,7 @@ export default function ResourcesPage() {
           <div className="grid gap-12 lg:grid-cols-[0.62fr_1.38fr]">
             <div>
               <SiteEyebrow>Featured field notes</SiteEyebrow>
-              <h2 className="mt-4 max-w-[10ch] text-4xl font-black leading-[1] tracking-[-0.055em]">
+              <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
                 Useful before your first campaign.
               </h2>
               <p className="mt-5 max-w-[38ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -67,7 +67,7 @@ export default function ResourcesPage() {
                       >
                         {resource.category} · {resource.readTime}
                       </p>
-                      <h3 className="mt-5 max-w-[22ch] text-2xl font-black leading-tight tracking-[-0.045em] sm:text-3xl">
+                      <h3 className="mt-5 max-w-[22ch] text-2xl font-extrabold leading-tight tracking-[-0.02em] sm:text-3xl">
                         {resource.title}
                       </h3>
                       <p
@@ -102,7 +102,7 @@ export default function ResourcesPage() {
             <span className="grid size-13 place-items-center rounded-xl bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
               <BookOpen />
             </span>
-            <h2 className="mt-8 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em]">
+            <h2 className="mt-8 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
               A practical loyalty playbook is coming.
             </h2>
           </div>

@@ -43,7 +43,7 @@ export default function SolutionsPage() {
           <div className="grid gap-12 lg:grid-cols-[0.62fr_1.38fr]">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SiteEyebrow>Choose your rhythm</SiteEyebrow>
-              <h2 className="mt-4 text-4xl font-black leading-[1] tracking-[-0.055em]">
+              <h2 className="mt-4 text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
                 Start with how people already come back.
               </h2>
               <p className="mt-5 max-w-[40ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -78,7 +78,7 @@ export default function SolutionsPage() {
                       >
                         {industry.eyebrow}
                       </p>
-                      <h3 className="mt-3 text-2xl font-black tracking-[-0.045em]">
+                      <h3 className="mt-3 text-2xl font-extrabold tracking-[-0.02em]">
                         {industry.name}
                       </h3>
                       <p
@@ -99,7 +99,7 @@ export default function SolutionsPage() {
         <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <div>
             <SiteEyebrow>One platform underneath</SiteEyebrow>
-            <h2 className="mt-4 max-w-[12ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+            <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
               The shape changes. The fundamentals do not.
             </h2>
           </div>
@@ -114,7 +114,7 @@ export default function SolutionsPage() {
                 key={item}
                 className="grid grid-cols-[48px_1fr] items-center py-5"
               >
-                <span className="font-mono text-xs font-black text-[var(--accent-strong)]">
+                <span className="font-mono text-xs font-extrabold text-[var(--accent-strong)]">
                   0{index + 1}
                 </span>
                 <p className="text-base font-bold">{item}</p>

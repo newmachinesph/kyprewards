@@ -162,7 +162,7 @@ function StatusBadge({ status }: { status: DeliveryStatus | CredentialStatus }) 
   } as const;
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.1em] ${classes[status]}`}
+      className={`inline-flex rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.1em] ${classes[status]}`}
     >
       {status}
     </span>
@@ -343,7 +343,7 @@ export function IntegrationsView({
       <header className="flex flex-col gap-5 border-b border-[var(--line)] pb-7 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <Eyebrow>Connect your counter</Eyebrow>
-          <h1 className="mt-2 text-3xl font-black tracking-[-0.055em] sm:text-4xl">
+          <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
             POS & API integrations
           </h1>
           <p className="mt-2 max-w-[68ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -358,14 +358,14 @@ export function IntegrationsView({
         <div className="grid gap-7 xl:grid-cols-[1fr_auto] xl:items-start">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em]">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em]">
                 <CircleDot size={12} className="text-[var(--accent)]" /> Sweet Crumbs
               </span>
               <span className="text-xs font-semibold text-white/60">
                 Planned API base · /api/v1
               </span>
             </div>
-            <h2 className="mt-6 max-w-2xl text-2xl font-black tracking-[-0.04em] sm:text-3xl">
+            <h2 className="mt-6 max-w-2xl text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">
               Your integration boundary, visible at a glance.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/65">
@@ -383,7 +383,7 @@ export function IntegrationsView({
                 type="button"
                 aria-pressed={environment === item}
                 onClick={() => chooseEnvironment(item)}
-                className={`min-h-10 rounded-full px-4 text-xs font-black capitalize transition ${
+                className={`min-h-10 rounded-full px-4 text-xs font-extrabold capitalize transition ${
                   environment === item
                     ? "bg-[var(--accent)] text-[var(--ink)]"
                     : "text-white/70 hover:bg-white/10 hover:text-white"
@@ -402,7 +402,7 @@ export function IntegrationsView({
             ["Environment", environment === "sandbox" ? "Sandbox · test data" : "Preview only · not live"],
           ].map(([term, detail]) => (
             <div key={term} className="bg-[var(--ink)] px-4 py-4">
-              <dt className="text-[9px] font-black uppercase tracking-[0.12em] text-white/45">
+              <dt className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/45">
                 {term}
               </dt>
               <dd className="mt-1 break-all font-mono text-xs font-bold text-white/90">
@@ -417,7 +417,7 @@ export function IntegrationsView({
         <div className="flex flex-col gap-3 border-b border-[var(--line)] p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
           <div>
             <Eyebrow>01 · Connection method</Eyebrow>
-            <h2 className="mt-1 text-xl font-black tracking-[-0.035em]">
+            <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
               Start with the register you have
             </h2>
           </div>
@@ -452,13 +452,13 @@ export function IntegrationsView({
                   <Icon size={19} aria-hidden="true" />
                 </span>
                 <span
-                  className={`mt-7 block text-[9px] font-black uppercase tracking-[0.12em] ${
+                  className={`mt-7 block text-[9px] font-extrabold uppercase tracking-[0.12em] ${
                     active ? "text-[var(--accent)]" : "text-[var(--accent-strong)]"
                   }`}
                 >
                   {option.eyebrow}
                 </span>
-                <span className="mt-1 block text-base font-black">{option.name}</span>
+                <span className="mt-1 block text-base font-extrabold">{option.name}</span>
                 <span
                   className={`mt-2 block text-xs leading-relaxed ${
                     active ? "text-white/60" : "text-[var(--muted-strong)]"
@@ -466,7 +466,7 @@ export function IntegrationsView({
                 >
                   {option.description}
                 </span>
-                <span className="mt-5 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.09em]">
+                <span className="mt-5 inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.09em]">
                   {active ? <CheckCircle2 size={13} /> : <ArrowRight size={13} />}
                   {active ? "Selected" : option.availability}
                 </span>
@@ -482,11 +482,11 @@ export function IntegrationsView({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <Eyebrow>02 · Machine access</Eyebrow>
-                <h2 className="mt-1 text-xl font-black tracking-[-0.035em]">
+                <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
                   API credentials
                 </h2>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgb(15_118_85/10%)] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-[var(--success)]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgb(15_118_85/10%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--success)]">
                 <ShieldCheck size={13} /> Least privilege
               </span>
             </div>
@@ -519,7 +519,7 @@ export function IntegrationsView({
               </select>
             </label>
             <fieldset className="sm:col-span-2">
-              <legend className="mb-2 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-strong)]">
+              <legend className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted-strong)]">
                 Permission scopes
               </legend>
               <div className="grid gap-2 sm:grid-cols-2">
@@ -573,7 +573,7 @@ export function IntegrationsView({
               <div className="flex items-start gap-3">
                 <KeyRound size={18} className="mt-0.5 shrink-0 text-[var(--accent-strong)]" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-black">Copy this sample secret now</p>
+                  <p className="text-sm font-extrabold">Copy this sample secret now</p>
                   <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                     A real secret is shown once. Stampr stores only a secure hash after you leave.
                   </p>
@@ -609,7 +609,7 @@ export function IntegrationsView({
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-black">{credential.label}</h3>
+                      <h3 className="text-sm font-extrabold">{credential.label}</h3>
                       <StatusBadge status={credential.status} />
                     </div>
                     <p className="mt-1 text-xs text-[var(--muted)]">
@@ -620,7 +620,7 @@ export function IntegrationsView({
                     <button
                       type="button"
                       onClick={() => revokeCredential(credential.id, credential.label)}
-                      className="text-left text-[10px] font-black uppercase tracking-[0.1em] text-[var(--danger)]"
+                      className="text-left text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--danger)]"
                     >
                       Revoke key
                     </button>
@@ -629,7 +629,7 @@ export function IntegrationsView({
                 <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
                   <div className="flex min-w-0 items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--paper)] p-2 pl-3">
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[9px] font-black uppercase tracking-[0.1em] text-[var(--muted)]">
+                      <span className="block text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted)]">
                         Client key · safe to identify
                       </span>
                       <code className="mt-0.5 block overflow-hidden text-ellipsis whitespace-nowrap text-xs font-bold">
@@ -646,7 +646,7 @@ export function IntegrationsView({
                     </button>
                   </div>
                   <div className="rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3 py-2">
-                    <span className="block text-[9px] font-black uppercase tracking-[0.1em] text-[var(--muted)]">
+                    <span className="block text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted)]">
                       Secret
                     </span>
                     <code className="mt-0.5 block text-xs font-bold">••••••••••••Q4N8</code>
@@ -671,7 +671,7 @@ export function IntegrationsView({
           <Panel className="overflow-hidden">
             <div className="border-b border-[var(--line)] p-5">
               <Eyebrow>How it is set up</Eyebrow>
-              <h2 className="mt-1 text-lg font-black">Request path</h2>
+              <h2 className="mt-1 text-lg font-extrabold">Request path</h2>
             </div>
             <ol className="divide-y divide-[var(--line)]">
               {[
@@ -681,7 +681,7 @@ export function IntegrationsView({
                 ["4", "Append the ledger", "Immutable earn, redeem, refund, or reversal entry"],
               ].map(([number, title, detail]) => (
                 <li key={number} className="flex gap-3 p-5">
-                  <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[var(--ink)] text-xs font-black text-[var(--paper)]">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[var(--ink)] text-xs font-extrabold text-[var(--paper)]">
                     {number}
                   </span>
                   <span>
@@ -699,7 +699,7 @@ export function IntegrationsView({
             <div className="flex items-start justify-between gap-3 border-b border-white/12 p-5">
               <div>
                 <Eyebrow>Quickstart</Eyebrow>
-                <h2 className="mt-1 text-lg font-black">Record a PHP sale</h2>
+                <h2 className="mt-1 text-lg font-extrabold">Record a PHP sale</h2>
               </div>
               <button
                 type="button"
@@ -728,7 +728,7 @@ export function IntegrationsView({
             <div className="flex items-center justify-between gap-3">
               <div>
                 <Eyebrow>03 · POS → Stampr</Eyebrow>
-                <h2 className="mt-1 text-xl font-black tracking-[-0.035em]">
+                <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
                   Inbound webhook
                 </h2>
               </div>
@@ -768,7 +768,7 @@ export function IntegrationsView({
                     setInboundSecret("whsec_test_sample_3F8K2P7N");
                     notify("Sample signing secret rotated and shown once.");
                   }}
-                  className="shrink-0 text-[10px] font-black uppercase tracking-[0.1em] text-[var(--accent-strong)]"
+                  className="shrink-0 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]"
                 >
                   Rotate
                 </button>
@@ -797,7 +797,7 @@ export function IntegrationsView({
             <div className="flex items-start gap-3 rounded-2xl bg-[rgb(15_118_85/9%)] p-4">
               <BadgeCheck size={18} className="mt-0.5 shrink-0 text-[var(--success)]" />
               <div>
-                <p className="text-xs font-black">Replay protection planned</p>
+                <p className="text-xs font-extrabold">Replay protection planned</p>
                 <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
                   HMAC signature, timestamp window, stable event ID, and idempotent
                   processing are required before a live endpoint is enabled.
@@ -812,7 +812,7 @@ export function IntegrationsView({
             <div className="flex items-center justify-between gap-3">
               <div>
                 <Eyebrow>04 · Stampr → your system</Eyebrow>
-                <h2 className="mt-1 text-xl font-black tracking-[-0.035em]">
+                <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
                   Outbound webhook
                 </h2>
               </div>
@@ -833,7 +833,7 @@ export function IntegrationsView({
               />
             </label>
             <fieldset>
-              <legend className="mb-2 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-strong)]">
+              <legend className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted-strong)]">
                 Send these events
               </legend>
               <div className="grid gap-2 sm:grid-cols-2">
@@ -891,7 +891,7 @@ export function IntegrationsView({
         <div className="flex flex-col gap-3 border-b border-[var(--line)] p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
           <div>
             <Eyebrow>Delivery desk</Eyebrow>
-            <h2 className="mt-1 text-xl font-black tracking-[-0.035em]">
+            <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
               Recent integration events
             </h2>
             <p className="mt-2 text-xs text-[var(--muted-strong)]">
@@ -914,15 +914,15 @@ export function IntegrationsView({
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <code className="text-[10px] font-black text-[var(--accent-strong)]">
+                  <code className="text-[10px] font-extrabold text-[var(--accent-strong)]">
                     {delivery.id}
                   </code>
                   <StatusBadge status={delivery.status} />
                 </div>
-                <p className="mt-2 break-all text-sm font-black">{delivery.event}</p>
+                <p className="mt-2 break-all text-sm font-extrabold">{delivery.event}</p>
               </div>
               <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.1em] text-[var(--muted)]">
+                <p className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted)]">
                   Source / destination
                 </p>
                 <p className="mt-1 text-xs font-bold">{delivery.source}</p>
@@ -937,7 +937,7 @@ export function IntegrationsView({
                 <button
                   type="button"
                   onClick={() => retryDelivery(delivery.id)}
-                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-4 text-xs font-black"
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-4 text-xs font-extrabold"
                 >
                   <RotateCcw size={13} /> Retry
                 </button>
@@ -945,7 +945,7 @@ export function IntegrationsView({
                 <button
                   type="button"
                   onClick={() => notify(`${delivery.id} inspection drawer opened.`)}
-                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-4 text-xs font-black"
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-4 text-xs font-extrabold"
                 >
                   Inspect <ArrowRight size={13} />
                 </button>
@@ -986,14 +986,14 @@ export function IntegrationsView({
               className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
             >
               <Icon size={18} className="text-[var(--accent-strong)]" />
-              <h2 className="mt-6 text-sm font-black">{item.title}</h2>
+              <h2 className="mt-6 text-sm font-extrabold">{item.title}</h2>
               <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
                 {item.detail}
               </p>
               <button
                 type="button"
                 onClick={item.onClick}
-                className="mt-5 inline-flex min-h-10 items-center gap-2 text-xs font-black text-[var(--accent-strong)]"
+                className="mt-5 inline-flex min-h-10 items-center gap-2 text-xs font-extrabold text-[var(--accent-strong)]"
               >
                 {item.action} <ExternalLink size={13} />
               </button>

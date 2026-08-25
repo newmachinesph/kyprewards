@@ -93,10 +93,10 @@ function CustomerAuthVisual({ mode }: { mode: DemoAuthMode }) {
           <Smartphone size={21} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--muted-strong)]">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--muted-strong)]">
             Code ready
           </p>
-          <p className="mt-1 text-sm font-black tracking-[-0.02em]">Sent to your demo mobile</p>
+          <p className="mt-1 text-sm font-extrabold tracking-[-0.02em]">Sent to your demo mobile</p>
         </div>
         <div className="flex gap-1" aria-hidden="true">
           {Array.from({ length: 6 }).map((_, index) => (
@@ -121,10 +121,10 @@ function CustomerAuthVisual({ mode }: { mode: DemoAuthMode }) {
           ))}
         </div>
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[rgb(37_29_24/62%)]">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[rgb(37_29_24/62%)]">
             One free wallet
           </p>
-          <p className="mt-1 text-sm font-black tracking-[-0.025em]">
+          <p className="mt-1 text-sm font-extrabold tracking-[-0.025em]">
             Rewards from every local favorite
           </p>
         </div>
@@ -140,11 +140,11 @@ function CustomerAuthVisual({ mode }: { mode: DemoAuthMode }) {
             <Croissant size={19} />
           </span>
           <div>
-            <p className="text-sm font-black tracking-[-0.025em]">Sweet Crumbs</p>
+            <p className="text-sm font-extrabold tracking-[-0.025em]">Sweet Crumbs</p>
             <p className="mt-0.5 text-[10px] font-semibold text-white/50">Closest reward</p>
           </div>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent)] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-[var(--ink)]">
+        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent)] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--ink)]">
           <Sparkles size={11} /> 5-stamp streak
         </span>
       </div>
@@ -177,7 +177,7 @@ function CustomerAuthShell({
       <section className="phone-shell relative mx-auto flex min-h-[100dvh] max-w-[460px] flex-col overflow-hidden border-x border-[rgb(37_29_24/8%)] bg-[var(--accent)] sm:min-h-[calc(100dvh-3rem)] sm:rounded-[18px] sm:border sm:shadow-[0_28px_90px_rgb(37_29_24/20%)]">
         <header className="flex items-center justify-between gap-4 px-5 pb-4 pt-[max(1.1rem,env(safe-area-inset-top))]">
           <BrandMark label="Wallet" />
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgb(37_29_24/12%)] bg-[rgb(255_253_249/42%)] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.11em] text-[var(--ink)]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgb(37_29_24/12%)] bg-[rgb(255_253_249/42%)] px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--ink)]">
             <LockKeyhole size={11} /> Demo only
           </span>
         </header>
@@ -189,14 +189,14 @@ function CustomerAuthShell({
         <div className="customer-auth-sheet flex-1 rounded-t-[18px] bg-[var(--paper)] px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-6">
           <span className="mx-auto block h-1 w-10 rounded-full bg-[var(--line-strong)]" aria-hidden="true" />
           <div className="mt-5 flex items-center justify-between gap-4">
-            <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
               {stageLabel}
             </span>
             <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-[var(--success)]">
               <span className="size-1.5 rounded-full bg-[var(--success)]" /> Private by default
             </span>
           </div>
-          <h1 className="mt-3 text-[2rem] font-black leading-[0.98] tracking-[-0.055em]">
+          <h1 className="mt-3 text-[2rem] font-extrabold leading-[0.98] tracking-[-0.03em]">
             {title}
           </h1>
           <p className="mt-3 max-w-[38ch] text-[13px] leading-relaxed text-[var(--muted-strong)]">
@@ -288,16 +288,16 @@ function AuthShell({
           <BrandMark inverse label={config.label} />
         </div>
         <div className="relative my-auto max-w-md py-16">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--accent)]">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[var(--accent)]">
             Demo access receipt
           </p>
-          <h2 className="mt-5 text-4xl font-black leading-[0.98] tracking-[-0.06em] xl:text-5xl">
+          <h2 className="mt-5 text-4xl font-extrabold leading-[0.98] tracking-[-0.03em] xl:text-5xl">
             Every role enters through a clear, trusted door.
           </h2>
           <div className="mt-10 divide-y divide-white/12 border-y border-white/12">
             {config.steps.map(([label, value]) => (
               <div key={label} className="grid grid-cols-[88px_1fr] gap-4 py-4">
-                <span className="font-mono text-[9px] font-black uppercase tracking-[0.12em] text-white/55">
+                <span className="font-mono text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/55">
                   {label}
                 </span>
                 <span className="text-sm font-bold text-white/85">{value}</span>
@@ -320,14 +320,14 @@ function AuthShell({
             <BrandMark label={config.label} />
           </div>
           <div className="flex items-center justify-between gap-4">
-            <span className="text-[10px] font-black uppercase tracking-[0.17em] text-[var(--accent-strong)]">
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-[var(--accent-strong)]">
               {config.eyebrow}
             </span>
-            <span className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.11em] text-[var(--muted-strong)]">
+            <span className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted-strong)]">
               Frontend demo
             </span>
           </div>
-          <h1 className="mt-5 max-w-[13ch] text-4xl font-black leading-[0.98] tracking-[-0.06em] sm:text-5xl">
+          <h1 className="mt-5 max-w-[13ch] text-4xl font-extrabold leading-[0.98] tracking-[-0.03em] sm:text-5xl">
             {title}
           </h1>
           <p className="mt-4 max-w-[52ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -358,7 +358,7 @@ function Field({
   required?: boolean;
 }) {
   return (
-    <label className="grid gap-2 text-xs font-black text-[var(--ink)]">
+    <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
       {label}
       <input
         type={type}
@@ -378,7 +378,7 @@ function PrimaryButton({ children, disabled = false }: { children: ReactNode; di
     <button
       type="submit"
       disabled={disabled}
-      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-black text-[var(--paper)] transition hover:bg-[var(--ink-soft)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45"
+      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] transition hover:bg-[var(--ink-soft)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45"
     >
       {children} <ArrowRight size={16} />
     </button>
@@ -481,7 +481,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
                   setChannel(item);
                   setIdentifier(item === "mobile" ? "+63 917 555 0182" : "jacqueline.daniel@example.com");
                 }}
-                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg text-xs font-black capitalize transition ${channel === item ? "bg-[var(--ink)] text-[var(--paper)] shadow-sm" : "text-[var(--muted-strong)]"}`}
+                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg text-xs font-extrabold capitalize transition ${channel === item ? "bg-[var(--ink)] text-[var(--paper)] shadow-sm" : "text-[var(--muted-strong)]"}`}
               >
                 {item === "mobile" ? <Smartphone size={14} /> : <Mail size={14} />}
                 {item}
@@ -498,7 +498,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
             autoComplete={role === "customer" && channel === "mobile" ? "tel" : "email"}
           />
           {role !== "customer" && (
-            <label className="grid gap-2 text-xs font-black text-[var(--ink)]">
+            <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
               Password
               <span className="relative">
                 <input
@@ -530,7 +530,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
               {role === "customer" ? "Trust this device" : "Remember this browser"}
             </label>
             {role !== "customer" && (
-              <a href="/forgot-password" className="font-black text-[var(--accent-strong)] hover:underline">
+              <a href="/forgot-password" className="font-extrabold text-[var(--accent-strong)] hover:underline">
                 Forgot password?
               </a>
             )}
@@ -540,32 +540,32 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
           </PrimaryButton>
         </form>
 
-        <div className="my-6 flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
+        <div className="my-6 flex items-center gap-3 text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
           <span className="h-px flex-1 bg-[var(--line)]" /> {role === "customer" ? "Or" : "Or use demo identity"} <span className="h-px flex-1 bg-[var(--line)]" />
         </div>
         <div className={`grid gap-2 ${role === "business" ? "sm:grid-cols-2" : ""}`}>
           {role === "business" ? (
             <>
-              <button type="button" onClick={() => go("/workspaces")} className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-black transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
+              <button type="button" onClick={() => go("/workspaces")} className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-extrabold transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
                 Continue with Google
               </button>
-              <button type="button" onClick={() => go("/workspaces")} className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-black transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
+              <button type="button" onClick={() => go("/workspaces")} className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-extrabold transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
                 Continue with Microsoft
               </button>
             </>
           ) : role === "admin" ? (
-            <button type="button" onClick={() => go("/verify")} className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-black transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
+            <button type="button" onClick={() => go("/verify")} className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-extrabold transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
               Continue with platform SSO
             </button>
           ) : (
-            <button type="button" onClick={() => completeSession("/#home")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-black transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
+            <button type="button" onClick={() => completeSession("/#home")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-extrabold transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
               <KeyRound size={15} /> Use a passkey on this device
             </button>
           )}
         </div>
         {role === "customer" && (
           <p className="mt-6 text-center text-xs text-[var(--muted-strong)]">
-            New to Stampr? <a href="/create-account" className="font-black text-[var(--accent-strong)] hover:underline">Create your wallet</a>
+            New to Stampr? <a href="/create-account" className="font-extrabold text-[var(--accent-strong)] hover:underline">Create your wallet</a>
           </p>
         )}
         <DemoBoundary compact={role === "customer"} />
@@ -579,15 +579,15 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
         {sent ? (
           <div aria-live="polite" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-7">
             <span className="grid size-12 place-items-center rounded-2xl bg-[rgb(15_118_85/10%)] text-[var(--success)]"><Mail size={20} /></span>
-            <h2 className="mt-6 text-xl font-black">Recovery instructions prepared.</h2>
+            <h2 className="mt-6 text-xl font-extrabold">Recovery instructions prepared.</h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">A demo recovery link for <strong>{identifier}</strong> is ready. No email was actually sent.</p>
-            <a href="/login" className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-black text-[var(--paper)]">Return to sign in <ArrowRight size={15} /></a>
+            <a href="/login" className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)]">Return to sign in <ArrowRight size={15} /></a>
           </div>
         ) : (
           <form onSubmit={(event) => { event.preventDefault(); setSent(true); }} className="space-y-5">
             <Field label="Work email" type="email" value={identifier} onChange={setIdentifier} autoComplete="email" />
             <PrimaryButton>Prepare recovery link</PrimaryButton>
-            <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-black text-[var(--muted-strong)] hover:text-[var(--ink)]"><ArrowLeft size={14} /> Back to sign in</a>
+            <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)] hover:text-[var(--ink)]"><ArrowLeft size={14} /> Back to sign in</a>
           </form>
         )}
         <DemoBoundary compact={role === "customer"} />
@@ -600,7 +600,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
     return (
       <AuthShell role={role} mode="verify" title={role === "customer" ? "Enter your code." : "Confirm it is you."} description={role === "admin" ? "Enter the six-digit code from your administrator authenticator." : role === "customer" ? "Use the six-digit code prepared for your demo wallet." : "Enter the six-digit code prepared for your demo account."}>
         <form onSubmit={(event) => { event.preventDefault(); if (code.length !== 6) { setNotice("Enter all six digits."); return; } completeSession(destination); }} className="space-y-5">
-          <label className="grid gap-2 text-xs font-black">
+          <label className="grid gap-2 text-xs font-extrabold">
             Six-digit verification code
             <input
               value={code}
@@ -608,14 +608,14 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
               inputMode="numeric"
               autoComplete="one-time-code"
               aria-describedby="code-help"
-              className="min-h-16 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-center font-mono text-2xl font-black tracking-[0.42em] outline-none focus:border-[var(--accent-strong)]"
+              className="min-h-16 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-center font-mono text-2xl font-extrabold tracking-[0.42em] outline-none focus:border-[var(--accent-strong)]"
             />
             <span id="code-help" className="text-[10px] font-semibold text-[var(--muted)]">Demo code: 424242</span>
           </label>
           {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
           <PrimaryButton disabled={code.length !== 6}>Verify and continue</PrimaryButton>
-          <button type="button" onClick={() => setNotice("A new demo code is ready: 424242.")} className="min-h-11 w-full text-xs font-black text-[var(--accent-strong)] hover:underline">Resend demo code</button>
-          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-black text-[var(--muted-strong)]"><ArrowLeft size={14} /> Use another account</a>
+          <button type="button" onClick={() => setNotice("A new demo code is ready: 424242.")} className="min-h-11 w-full text-xs font-extrabold text-[var(--accent-strong)] hover:underline">Resend demo code</button>
+          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> Use another account</a>
         </form>
         <DemoBoundary compact={role === "customer"} />
       </AuthShell>
@@ -635,7 +635,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
           </label>
           {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
           <PrimaryButton>Create demo wallet</PrimaryButton>
-          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-black text-[var(--muted-strong)]"><ArrowLeft size={14} /> I already have a wallet</a>
+          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> I already have a wallet</a>
         </form>
       </AuthShell>
     );
@@ -657,16 +657,16 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
                 <input type="radio" name="workspace" value={option.id} checked={selected} onChange={() => setWorkspace(option.id)} className="sr-only" />
                 <span className={`grid size-11 place-items-center rounded-2xl ${selected ? "bg-[var(--accent)]" : "bg-[var(--surface-2)]"}`}><Icon size={18} /></span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-black">{option.name}</span>
+                  <span className="block text-sm font-extrabold">{option.name}</span>
                   <span className="mt-1 block text-xs text-[var(--muted-strong)]">{option.detail}</span>
                 </span>
-                <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[var(--accent-strong)]">{option.badge}</span>
+                <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]">{option.badge}</span>
                 {selected && <Check size={17} className="text-[var(--success)]" />}
               </label>
             );
           })}
           <div className="pt-3"><PrimaryButton>Open selected workspace</PrimaryButton></div>
-          <button type="button" onClick={() => signOutDemo("business")} className="min-h-11 w-full text-xs font-black text-[var(--muted-strong)] hover:text-[var(--ink)]">Sign in with another account</button>
+          <button type="button" onClick={() => signOutDemo("business")} className="min-h-11 w-full text-xs font-extrabold text-[var(--muted-strong)] hover:text-[var(--ink)]">Sign in with another account</button>
         </form>
       </AuthShell>
     );
@@ -677,17 +677,17 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
       <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="bg-[var(--ink)] p-6 text-[var(--paper)]">
           <span className="grid size-12 place-items-center rounded-2xl bg-[var(--accent)] text-[var(--ink)]"><UserRoundPlus size={20} /></span>
-          <h2 className="mt-6 text-xl font-black">Sweet Crumbs Bakery</h2>
+          <h2 className="mt-6 text-xl font-extrabold">Sweet Crumbs Bakery</h2>
           <p className="mt-1 text-xs text-white/65">Invited by Mara Santos · Owner</p>
         </div>
         <div className="divide-y divide-[var(--line)]">
           {[["Role", "Manager"], ["Locations", "Kapitolyo and BGC High Street"], ["Access", "Customers, campaigns, and reports"]].map(([label, value]) => (
-            <div key={label} className="grid grid-cols-[86px_1fr] gap-3 px-6 py-4"><span className="text-[9px] font-black uppercase tracking-[0.11em] text-[var(--muted)]">{label}</span><span className="text-xs font-bold">{value}</span></div>
+            <div key={label} className="grid grid-cols-[86px_1fr] gap-3 px-6 py-4"><span className="text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">{label}</span><span className="text-xs font-bold">{value}</span></div>
           ))}
         </div>
       </div>
-      <button type="button" onClick={() => go("/workspaces")} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-black text-[var(--paper)]">Accept demo invitation <ChevronRight size={16} /></button>
-      <a href="/login" className="mt-3 flex min-h-11 items-center justify-center text-xs font-black text-[var(--muted-strong)]">Decline and return to sign in</a>
+      <button type="button" onClick={() => go("/workspaces")} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)]">Accept demo invitation <ChevronRight size={16} /></button>
+      <a href="/login" className="mt-3 flex min-h-11 items-center justify-center text-xs font-extrabold text-[var(--muted-strong)]">Decline and return to sign in</a>
       <DemoBoundary />
     </AuthShell>
   );

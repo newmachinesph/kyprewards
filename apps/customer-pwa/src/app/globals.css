@@ -19,7 +19,7 @@ body {
     ),
     #ded8cf;
   color: var(--ink);
-  font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+  font-family: var(--font-sans), "Segoe UI", sans-serif;
 }
 button,
 input {

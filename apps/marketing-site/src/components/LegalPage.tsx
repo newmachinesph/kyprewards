@@ -26,7 +26,7 @@ export function LegalPage({
           <SiteEyebrow>{eyebrow}</SiteEyebrow>
           <div className="mt-12 grid gap-10 lg:grid-cols-[0.7fr_0.3fr] lg:items-end">
             <div>
-              <h1 className="text-5xl font-black tracking-[-0.065em] sm:text-6xl">
+              <h1 className="text-5xl font-extrabold tracking-[-0.03em] sm:text-6xl">
                 {title}
               </h1>
               <p className="mt-5 max-w-[60ch] text-base leading-relaxed text-[var(--muted-strong)]">
@@ -59,7 +59,7 @@ export function LegalPage({
               <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--accent-strong)]">
                 {String(index + 1).padStart(2, "0")}
               </p>
-              <h2 className="mt-3 text-2xl font-black tracking-[-0.04em]">
+              <h2 className="mt-3 text-2xl font-extrabold tracking-[-0.02em]">
                 {section.title}
               </h2>
               <div className="mt-5 space-y-4">

@@ -94,7 +94,7 @@ export default function PricingPage() {
           <div className="grid gap-8 lg:grid-cols-[0.62fr_1.38fr] lg:items-end">
             <div>
               <SiteEyebrow>Costs before checkout</SiteEyebrow>
-              <h2 className="mt-4 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em]">
+              <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
                 Price the relationship, including delivery.
               </h2>
             </div>
@@ -115,7 +115,7 @@ export default function PricingPage() {
           <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr]">
             <div>
               <SiteEyebrow>Included in every plan</SiteEyebrow>
-              <h2 className="mt-4 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em]">
+              <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
                 The fundamentals are never add-ons.
               </h2>
             </div>
@@ -150,7 +150,7 @@ export default function PricingPage() {
                 return (
                   <article key={item.title} className="bg-[var(--surface)] p-7">
                     <Icon size={21} className="text-[var(--accent-strong)]" />
-                    <h3 className="mt-10 text-xl font-black tracking-[-0.035em]">
+                    <h3 className="mt-10 text-xl font-extrabold tracking-[-0.02em]">
                       {item.title}
                     </h3>
                     <p className="mt-3 text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -169,14 +169,14 @@ export default function PricingPage() {
           <div className="grid gap-10 lg:grid-cols-[0.6fr_1.4fr]">
             <div>
               <SiteEyebrow>Questions before checkout</SiteEyebrow>
-              <h2 className="mt-4 text-4xl font-black tracking-[-0.055em]">
+              <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.03em]">
                 Straight answers.
               </h2>
             </div>
             <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
               {faqs.map((faq) => (
                 <details key={faq.question} className="group py-5">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-base font-black">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-base font-extrabold">
                     <span>{faq.question}</span>
                     <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[var(--line)] text-lg font-normal transition group-open:rotate-45">
                       +

@@ -43,7 +43,7 @@ export default function HomePage() {
               </span>
               Built for the businesses people remember
             </div>
-            <h1 className="mt-8 max-w-[10.5ch] text-6xl font-black leading-[0.9] tracking-[-0.075em] sm:text-7xl lg:text-[92px]">
+            <h1 className="mt-8 max-w-[10.5ch] text-6xl font-extrabold leading-[0.9] tracking-[-0.03em] sm:text-7xl lg:text-[92px]">
               Turn one visit into the next.
             </h1>
             <p className="mt-7 max-w-[56ch] text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
@@ -96,7 +96,7 @@ export default function HomePage() {
           <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr]">
             <div>
               <SiteEyebrow>One customer loop</SiteEyebrow>
-              <h2 className="mt-4 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.06em] sm:text-5xl">
+              <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 Simple at the counter. Useful everywhere else.
               </h2>
             </div>
@@ -117,7 +117,7 @@ export default function HomePage() {
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/70">
                   At the counter
                 </p>
-                <h3 className="mt-3 text-3xl font-black tracking-[-0.05em]">
+                <h3 className="mt-3 text-3xl font-extrabold tracking-[-0.02em]">
                   A stamp takes seconds.
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-white/70">
@@ -132,7 +132,7 @@ export default function HomePage() {
                 <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(242_161_45/14%)] text-[var(--accent-strong)]">
                   <BellRing />
                 </span>
-                <h3 className="mt-12 text-2xl font-black tracking-[-0.04em]">
+                <h3 className="mt-12 text-2xl font-extrabold tracking-[-0.02em]">
                   Customers see progress.
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -144,7 +144,7 @@ export default function HomePage() {
                 <span className="grid size-11 place-items-center rounded-2xl bg-[var(--surface)]">
                   <ChartNoAxesCombined />
                 </span>
-                <h3 className="mt-12 text-2xl font-black tracking-[-0.04em]">
+                <h3 className="mt-12 text-2xl font-extrabold tracking-[-0.02em]">
                   Owners learn what returns.
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-[var(--ink)]">
@@ -164,7 +164,7 @@ export default function HomePage() {
               <SiteEyebrow inverse>
                 Everything in one calm workspace
               </SiteEyebrow>
-              <h2 className="mt-5 max-w-[10ch] text-4xl font-black leading-[1] tracking-[-0.06em] sm:text-5xl">
+              <h2 className="mt-5 max-w-[10ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 Know your regulars without guessing.
               </h2>
               <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-white/70">
@@ -213,7 +213,7 @@ export default function HomePage() {
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <SiteEyebrow>Made to fit the visit</SiteEyebrow>
-              <h2 className="mt-4 max-w-[12ch] text-4xl font-black leading-[1] tracking-[-0.055em] sm:text-5xl">
+              <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 Different businesses. Same human habit.
               </h2>
             </div>
@@ -230,7 +230,7 @@ export default function HomePage() {
                   0{index + 1}
                 </span>
                 <div>
-                  <h3 className="text-xl font-black tracking-[-0.04em] sm:text-2xl">
+                  <h3 className="text-xl font-extrabold tracking-[-0.02em] sm:text-2xl">
                     {industry.name}
                   </h3>
                   <p className="mt-1 max-w-[64ch] text-sm text-[var(--muted-strong)]">
@@ -251,7 +251,7 @@ export default function HomePage() {
           <div className="grid gap-10 lg:grid-cols-[0.65fr_1.35fr]">
             <div>
               <SiteEyebrow>Field notes</SiteEyebrow>
-              <h2 className="mt-4 text-4xl font-black tracking-[-0.055em]">
+              <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.03em]">
                 Build loyalty with intention.
               </h2>
               <p className="mt-4 max-w-[40ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -269,7 +269,7 @@ export default function HomePage() {
                     <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--accent-strong)]">
                       {resource.category}
                     </p>
-                    <h3 className="mt-2 text-xl font-black tracking-[-0.035em]">
+                    <h3 className="mt-2 text-xl font-extrabold tracking-[-0.02em]">
                       {resource.title}
                     </h3>
                     <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-[var(--muted-strong)]">

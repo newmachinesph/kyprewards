@@ -19,7 +19,7 @@ export default function ErrorPage({
         <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[rgb(217_87_67/12%)] text-[var(--danger)]">
           <Heart />
         </span>
-        <h1 className="mt-5 text-2xl font-black tracking-[-0.04em]">
+        <h1 className="mt-5 text-2xl font-extrabold tracking-[-0.02em]">
           Your cards did not load.
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
