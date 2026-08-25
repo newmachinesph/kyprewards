@@ -58,7 +58,7 @@ export default async function ComparisonPage({ params }: Props) {
         </SiteButton>
       </PageHero>
       <section className="border-b border-[var(--line)] bg-[var(--surface)] px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-[1200px] gap-px overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2">
+        <div className="mx-auto grid max-w-[1200px] gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] md:grid-cols-2">
           <article className="bg-[var(--surface)] p-6">
             <SiteEyebrow>{comparison.competitor} public pricing</SiteEyebrow>
             <p className="mt-4 text-xl font-black">
@@ -89,7 +89,7 @@ export default async function ComparisonPage({ params }: Props) {
               stated product direction.
             </p>
           </div>
-          <div className="mt-10 overflow-x-auto rounded-[28px] border border-[var(--line)]">
+          <div className="mt-10 overflow-x-auto rounded-2xl border border-[var(--line)]">
             <table className="w-full min-w-[760px] text-left">
               <thead className="bg-[var(--ink)] text-[var(--paper)]">
                 <tr>
@@ -119,7 +119,7 @@ export default async function ComparisonPage({ params }: Props) {
                         {fact.competitor}
                       </span>
                     </td>
-                    <td className="bg-[rgb(227_154_69/8%)] px-6 py-5 text-sm leading-relaxed">
+                    <td className="bg-[rgb(242_161_45/8%)] px-6 py-5 text-sm leading-relaxed">
                       <span className="flex items-start gap-3">
                         <Check
                           size={15}
@@ -146,7 +146,7 @@ export default async function ComparisonPage({ params }: Props) {
                 href={source.href}
                 target="_blank"
                 rel="noreferrer"
-                className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--line-strong)] bg-[var(--paper)] px-5 text-sm font-bold"
+                className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-5 text-sm font-bold"
               >
                 {source.label}
                 <ArrowUpRight size={15} />

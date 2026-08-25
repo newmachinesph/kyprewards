@@ -119,7 +119,7 @@ export default function PricingPage() {
                 The fundamentals are never add-ons.
               </h2>
             </div>
-            <div className="grid gap-px overflow-hidden rounded-[28px] border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
+            <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
               {[
                 {
                   icon: ShieldCheck,

@@ -1,22 +1,7 @@
 @import "tailwindcss";
+@import "../../../../packages/ui/src/tokens.css";
 @source "../../../../packages/ui/src";
 
-:root {
-  color-scheme: light;
-  --paper: #fbf8f2;
-  --surface: #fffdf9;
-  --surface-2: #f2ede5;
-  --ink: #241d19;
-  --ink-soft: #3a2f29;
-  --muted: #75685f;
-  --muted-strong: #6e6259;
-  --line: #e7dfd5;
-  --line-strong: #d9cfc3;
-  --accent: #ee9b2b;
-  --accent-strong: #95530c;
-  --success: #0f7655;
-  --danger: #b23b2b;
-}
 
 * {
   box-sizing: border-box;
@@ -28,7 +13,7 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at 80% 5%, rgb(238 155 43 / 7%), transparent 26rem),
+    radial-gradient(circle at 80% 5%, rgb(242 161 45 / 7%), transparent 26rem),
     var(--paper);
   color: var(--ink);
   font-family: var(--font-geist-sans), "Segoe UI", sans-serif;

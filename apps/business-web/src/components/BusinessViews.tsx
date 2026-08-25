@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { demoData } from "@stampr/demo-data";
-import { Button, Eyebrow, StampDots } from "@stampr/ui";
+import { Button, Eyebrow, Pill, StampDots, ViewFrame } from "@stampr/ui";
 import {
   ArrowRight,
   BadgeCheck,
@@ -67,59 +67,6 @@ const qrPattern = [
 
 type Notify = (message: string) => void;
 
-function ViewFrame({
-  eyebrow,
-  title,
-  description,
-  action,
-  children,
-}: {
-  eyebrow: string;
-  title: string;
-  description: string;
-  action?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <main className="mx-auto min-h-[calc(100dvh-64px)] max-w-[1400px] px-4 py-6 sm:px-7 lg:px-10 lg:py-9">
-      <header className="flex flex-col gap-5 border-b border-[var(--line)] pb-7 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <Eyebrow>{eyebrow}</Eyebrow>
-          <h1 className="mt-2 text-3xl font-black tracking-[-0.055em] sm:text-4xl">
-            {title}
-          </h1>
-          <p className="mt-2 max-w-[64ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-            {description}
-          </p>
-        </div>
-        {action}
-      </header>
-      <div className="pt-6">{children}</div>
-    </main>
-  );
-}
-
-function StatusPill({
-  children,
-  tone = "neutral",
-}: {
-  children: ReactNode;
-  tone?: "neutral" | "success" | "warning" | "danger";
-}) {
-  const tones = {
-    neutral: "bg-[var(--surface-2)] text-[var(--muted-strong)]",
-    success: "bg-[rgb(15_118_85/12%)] text-[var(--success)]",
-    warning: "bg-[rgb(149_83_12/12%)] text-[var(--accent-strong)]",
-    danger: "bg-[rgb(216_83_62/12%)] text-[var(--danger)]",
-  };
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${tones[tone]}`}
-    >
-      {children}
-    </span>
-  );
-}
 
 function ScanView({ notify }: { notify: Notify }) {
   const [step, setStep] = useState<"ready" | "found" | "complete">("ready");
@@ -129,13 +76,13 @@ function ScanView({ notify }: { notify: Notify }) {
       title="Scan a customer"
       description="A guided earn-and-redeem flow that remains safe and understandable during the busiest part of service."
       action={
-        <StatusPill tone="success">
+        <Pill tone="success">
           <WifiOff size={12} className="mr-1.5" /> Offline queue ready
-        </StatusPill>
+        </Pill>
       }
     >
       <div className="grid gap-3 xl:grid-cols-[minmax(420px,0.8fr)_minmax(0,1.2fr)]">
-        <section className="rounded-[28px] bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
+        <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
           <div className="flex items-center justify-between">
             <Eyebrow>Secure scanner</Eyebrow>
             <span className="font-mono text-[10px] text-white/60">
@@ -144,7 +91,7 @@ function ScanView({ notify }: { notify: Notify }) {
           </div>
           {step === "ready" && (
             <div className="mx-auto mt-8 max-w-sm">
-              <div className="relative aspect-square rounded-[30px] border border-white/15 bg-white/[0.04] p-12">
+              <div className="relative aspect-square rounded-[18px] border border-white/15 bg-white/[0.04] p-12">
                 <span className="absolute left-5 top-5 size-16 border-l-2 border-t-2 border-[var(--accent)]" />
                 <span className="absolute right-5 top-5 size-16 border-r-2 border-t-2 border-[var(--accent)]" />
                 <span className="absolute bottom-5 left-5 size-16 border-b-2 border-l-2 border-[var(--accent)]" />
@@ -165,9 +112,9 @@ function ScanView({ notify }: { notify: Notify }) {
           )}
           {step === "found" && (
             <div className="mt-8">
-              <div className="rounded-[26px] bg-[var(--surface)] p-5 text-[var(--ink)]">
+              <div className="rounded-2xl bg-[var(--surface)] p-5 text-[var(--ink)]">
                 <div className="flex items-center gap-4">
-                  <span className="grid size-14 place-items-center rounded-[20px] bg-[var(--accent)] text-lg font-black">
+                  <span className="grid size-14 place-items-center rounded-xl bg-[var(--accent)] text-lg font-black">
                     {business.customers[0].initials}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -238,7 +185,7 @@ function ScanView({ notify }: { notify: Notify }) {
             </div>
           )}
         </section>
-        <section className="rounded-[28px] border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
           <div className="flex items-center justify-between">
             <div>
               <Eyebrow>Recent counter activity</Eyebrow>
@@ -288,11 +235,11 @@ function ScanView({ notify }: { notify: Notify }) {
                   </p>
                 </div>
                 <div className="text-right">
-                  <StatusPill
+                  <Pill
                     tone={item.status === "Approved" ? "success" : "warning"}
                   >
                     {item.status}
-                  </StatusPill>
+                  </Pill>
                   <p className="mt-1 text-[10px] text-[var(--muted)]">
                     {item.time.split(", ")[1]}
                   </p>
@@ -335,7 +282,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
       }
     >
       <div className="grid gap-3 lg:grid-cols-[0.8fr_1.2fr]">
-        <section className="rounded-[28px] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
           <label className="grid gap-2 text-xs font-bold">
             Location
             <select
@@ -348,7 +295,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
               ))}
             </select>
           </label>
-          <div className="mx-auto mt-8 w-fit rounded-[28px] border border-[var(--line)] bg-white p-5 shadow-[0_18px_45px_rgb(36_29_25/10%)]">
+          <div className="mx-auto mt-8 w-fit rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_18px_45px_rgb(36_29_25/10%)]">
             <div className="grid grid-cols-[repeat(14,10px)] gap-[2px]">
               {qrPattern.flatMap((row, y) =>
                 row
@@ -386,7 +333,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
             </Button>
           </div>
         </section>
-        <section className="rounded-[28px] bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
+        <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
           <Eyebrow>What customers see</Eyebrow>
           <h2 className="mt-5 max-w-[13ch] text-3xl font-black tracking-[-0.05em]">
             Join in under thirty seconds.
@@ -463,7 +410,7 @@ function CustomersView({ notify }: { notify: Notify }) {
       }
     >
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
-        <section className="overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+        <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="grid gap-3 border-b border-[var(--line)] p-4 sm:grid-cols-[1fr_auto]">
             <label className="flex min-h-11 items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3">
               <Search size={16} className="text-[var(--muted)]" />
@@ -522,7 +469,7 @@ function CustomersView({ notify }: { notify: Notify }) {
                         setSelectedId(customer.id);
                       }
                     }}
-                    className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] transition focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === customer.id ? "bg-[rgb(238_155_43/9%)]" : "hover:bg-[var(--paper)]"}`}
+                    className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] transition focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === customer.id ? "bg-[rgb(242_161_45/9%)]" : "hover:bg-[var(--paper)]"}`}
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
@@ -538,7 +485,7 @@ function CustomersView({ notify }: { notify: Notify }) {
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <StatusPill
+                      <Pill
                         tone={
                           customer.risk === "High"
                             ? "danger"
@@ -548,7 +495,7 @@ function CustomersView({ notify }: { notify: Notify }) {
                         }
                       >
                         {customer.segment}
-                      </StatusPill>
+                      </Pill>
                     </td>
                     <td className="px-4 py-4 text-sm font-bold">
                       {customer.visits}
@@ -579,9 +526,9 @@ function CustomersView({ notify }: { notify: Notify }) {
             )}
           </div>
         </section>
-        <aside className="rounded-[26px] bg-[var(--ink)] p-6 text-[var(--paper)]">
+        <aside className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <div className="flex items-center gap-4">
-            <span className="grid size-14 place-items-center rounded-[20px] bg-[var(--accent)] text-lg font-black text-[var(--ink)]">
+            <span className="grid size-14 place-items-center rounded-xl bg-[var(--accent)] text-lg font-black text-[var(--ink)]">
               {selected.initials}
             </span>
             <div>
@@ -661,11 +608,18 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
       }
     >
       <section className="grid gap-3 lg:grid-cols-[0.75fr_1.25fr]">
-        <article className="rounded-[26px] bg-[var(--ink)] p-6 text-[var(--paper)]">
-          <span className="grid size-14 place-items-center rounded-[20px] bg-[var(--accent)] text-xl font-black text-[var(--ink)]">
-            SC
-          </span>
-          <h2 className="mt-8 text-2xl font-black">{business.profile.name}</h2>
+        <article className="overflow-hidden rounded-xl bg-[var(--ink)] text-[var(--paper)]">
+          <div className="h-36 overflow-hidden">
+            <img
+              src="/images/sweet-crumbs.webp"
+              alt="Inside the Sweet Crumbs Kapitolyo shop"
+              width={1200}
+              height={800}
+              className="size-full object-cover"
+            />
+          </div>
+          <div className="p-6">
+          <h2 className="mt-2 text-2xl font-black">{business.profile.name}</h2>
           <p className="mt-2 text-sm text-white/60">
             {business.profile.category} · owned by {business.profile.owner}
           </p>
@@ -693,12 +647,13 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
           >
             Edit public profile
           </Button>
+        </div>
         </article>
         <div className="space-y-3">
           {business.locations.map((location, index) => (
             <article
               key={location.id}
-              className="grid gap-4 rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-5 sm:grid-cols-[auto_1fr_auto] sm:items-center"
+              className="grid gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:grid-cols-[auto_1fr_auto] sm:items-center"
             >
               <span
                 className={`grid size-12 place-items-center rounded-2xl ${index === 0 ? "bg-[var(--accent)]" : "bg-[var(--surface-2)]"}`}
@@ -708,11 +663,11 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-black">{location.name}</h3>
-                  <StatusPill
+                  <Pill
                     tone={location.status === "Live" ? "success" : "warning"}
                   >
                     {location.status}
-                  </StatusPill>
+                  </Pill>
                 </div>
                 <p className="mt-1 text-xs text-[var(--muted-strong)]">
                   {location.address}
@@ -768,7 +723,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
       }
     >
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.25fr)_minmax(340px,0.75fr)]">
-        <section className="overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+        <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="grid sm:grid-cols-2">
             {business.programs.map((program, index) => {
               const Icon = programIcons[program.type] ?? Gift;
@@ -784,7 +739,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
                     <span className="grid size-10 place-items-center rounded-xl bg-[var(--paper)]">
                       <Icon size={18} />
                     </span>
-                    <StatusPill
+                    <Pill
                       tone={
                         program.status === "Live"
                           ? "success"
@@ -794,7 +749,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
                       }
                     >
                       {program.status}
-                    </StatusPill>
+                    </Pill>
                   </div>
                   <p className="mt-7 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-strong)]">
                     {program.type}
@@ -805,7 +760,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
             })}
           </div>
         </section>
-        <aside className="rounded-[26px] bg-[var(--ink)] p-6 text-[var(--paper)]">
+        <aside className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <Eyebrow>Program record</Eyebrow>
           <p className="mt-6 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent)]">
             {selected.type}
@@ -877,7 +832,7 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
       }
     >
       <div className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-6">
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
           <Eyebrow>Top regular choices</Eyebrow>
           <div className="mt-6 space-y-5">
             {business.favoriteOrders.map((item, index) => (
@@ -911,7 +866,7 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
             ))}
           </div>
         </section>
-        <section className="rounded-[26px] bg-[var(--accent)] p-6">
+        <section className="rounded-2xl bg-[var(--accent)] p-6">
           <div className="flex items-center justify-between">
             <Eyebrow>Useful segment</Eyebrow>
             <Heart size={19} />
@@ -961,10 +916,10 @@ function BirthdayView({ notify }: { notify: Notify }) {
       eyebrow="Birthday moments"
       title="Birthday offers"
       description="Build one thoughtful birthday journey with explicit eligibility, a budget ceiling, and channel-specific consent."
-      action={<StatusPill tone="success">Automation live</StatusPill>}
+      action={<Pill tone="success">Automation live</Pill>}
     >
       <div className="grid gap-3 lg:grid-cols-[0.82fr_1.18fr]">
-        <section className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-6">
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
           <div className="flex items-center justify-between">
             <div>
               <Eyebrow>Next 30 days</Eyebrow>
@@ -986,14 +941,14 @@ function BirthdayView({ notify }: { notify: Notify }) {
                     {customer.birthday} · {customer.favorite}
                   </p>
                 </div>
-                <StatusPill tone={customer.smsConsent ? "success" : "neutral"}>
+                <Pill tone={customer.smsConsent ? "success" : "neutral"}>
                   {customer.smsConsent ? "3 channels" : "2 channels"}
-                </StatusPill>
+                </Pill>
               </div>
             ))}
           </div>
         </section>
-        <section className="rounded-[26px] bg-[var(--ink)] p-6 text-[var(--paper)]">
+        <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <Eyebrow>Journey editor</Eyebrow>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2 text-xs font-bold">
@@ -1083,7 +1038,7 @@ function RedemptionsView({ notify }: { notify: Notify }) {
         </Button>
       }
     >
-      <section className="overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+      <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[820px] text-left">
             <thead>
@@ -1117,11 +1072,11 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                     {item.value ? `₱${item.value}` : "—"}
                   </td>
                   <td className="px-4 py-4">
-                    <StatusPill
+                    <Pill
                       tone={item.status === "Approved" ? "success" : "warning"}
                     >
                       {item.status}
-                    </StatusPill>
+                    </Pill>
                   </td>
                   <td className="px-4 py-4 text-xs text-[var(--muted)]">
                     {item.time}
@@ -1140,7 +1095,7 @@ function RedemptionsView({ notify }: { notify: Notify }) {
         ].map(([label, value, detail]) => (
           <article
             key={label}
-            className="rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-5"
+            className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
           >
             <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
               {label}
@@ -1230,7 +1185,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
       }
     >
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
-        <section className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="grid gap-2 text-xs font-bold">
               Campaign name
@@ -1342,7 +1297,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
             </label>
           </div>
         </section>
-        <aside className="rounded-[26px] bg-[var(--accent)] p-6">
+        <aside className="rounded-2xl bg-[var(--accent)] p-6">
           <div className="flex items-center justify-between">
             <Eyebrow>Campaign economics</Eyebrow>
             <CircleDollarSign size={20} />
@@ -1406,7 +1361,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
           </div>
         </aside>
       </div>
-      <section className="mt-3 overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+      <section className="mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="flex items-center justify-between border-b border-[var(--line)] p-5">
           <div>
             <Eyebrow>Campaign history</Eyebrow>
@@ -1447,13 +1402,13 @@ function CampaignsView({ notify }: { notify: Notify }) {
                     ₱{campaign.revenue.toLocaleString()}
                   </td>
                   <td className="px-4 py-4">
-                    <StatusPill
+                    <Pill
                       tone={
                         campaign.status === "Completed" ? "success" : "warning"
                       }
                     >
                       {campaign.status}
-                    </StatusPill>
+                    </Pill>
                   </td>
                 </tr>
               ))}
@@ -1490,7 +1445,7 @@ function MessageLogView({ notify }: { notify: Notify }) {
         </Button>
       }
     >
-      <section className="overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+      <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="flex flex-col gap-3 border-b border-[var(--line)] p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
             {["All", "In-app", "Push", "Email", "SMS"].map((item) => (
@@ -1541,13 +1496,13 @@ function MessageLogView({ notify }: { notify: Notify }) {
                     {message.channel}
                   </td>
                   <td className="px-4 py-4">
-                    <StatusPill
+                    <Pill
                       tone={
                         message.status === "Opted out" ? "warning" : "success"
                       }
                     >
                       {message.status}
-                    </StatusPill>
+                    </Pill>
                   </td>
                   <td className="px-4 py-4 font-mono text-xs">
                     {message.cost ? `₱${message.cost.toFixed(2)}` : "Included"}
@@ -1590,13 +1545,13 @@ function AnalyticsView() {
       description="Measure the return visit, not vanity reach. Connect program behavior, campaign cost, reward liability, and member revenue."
     >
       <div className="grid gap-3 xl:grid-cols-[1.2fr_0.8fr]">
-        <section className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-6">
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
           <div className="flex items-center justify-between">
             <div>
               <Eyebrow>Six-week retention</Eyebrow>
               <h2 className="mt-1 text-lg font-black">Customers who return</h2>
             </div>
-            <StatusPill tone="success">+7.4% vs prior</StatusPill>
+            <Pill tone="success">+7.4% vs prior</Pill>
           </div>
           <div className="mt-10 flex h-64 items-end gap-3">
             {retention.map((value, index) => (
@@ -1618,7 +1573,7 @@ function AnalyticsView() {
             ))}
           </div>
         </section>
-        <section className="rounded-[26px] bg-[var(--ink)] p-6 text-[var(--paper)]">
+        <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <Eyebrow>Member economics</Eyebrow>
           <p className="mt-7 text-4xl font-black tracking-[-0.06em]">₱482.6k</p>
           <p className="mt-1 text-xs text-white/55">
@@ -1642,7 +1597,7 @@ function AnalyticsView() {
           </div>
         </section>
       </div>
-      <section className="mt-3 rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-6">
+      <section className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
         <div className="flex items-end justify-between">
           <div>
             <Eyebrow>Cohort return matrix</Eyebrow>
@@ -1679,7 +1634,7 @@ function AnalyticsView() {
                     className="grid min-h-12 place-items-center rounded-lg text-xs font-black"
                     style={{
                       backgroundColor: value
-                        ? `rgb(238 155 43 / ${0.12 + value / 130})`
+                        ? `rgb(242 161 45 / ${0.12 + value / 130})`
                         : "var(--surface-2)",
                       color: value > 55 ? "var(--ink)" : "var(--muted-strong)",
                     }}
@@ -1711,7 +1666,7 @@ function StaffView({ notify }: { notify: Notify }) {
         </Button>
       }
     >
-      <section className="overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+      <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[780px] text-left">
             <thead>
@@ -1741,22 +1696,22 @@ function StaffView({ notify }: { notify: Notify }) {
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <StatusPill
+                    <Pill
                       tone={person.role === "Owner" ? "warning" : "neutral"}
                     >
                       {person.role}
-                    </StatusPill>
+                    </Pill>
                   </td>
                   <td className="px-4 py-4 text-xs">{person.location}</td>
                   <td className="px-4 py-4 text-xs text-[var(--muted)]">
                     {person.lastActive}
                   </td>
                   <td className="px-4 py-4">
-                    <StatusPill
+                    <Pill
                       tone={person.status === "Active" ? "success" : "warning"}
                     >
                       {person.status}
-                    </StatusPill>
+                    </Pill>
                   </td>
                   <td className="px-4 py-4">
                     <button
@@ -1784,7 +1739,7 @@ function StaffView({ notify }: { notify: Notify }) {
         ].map(([role, detail]) => (
           <article
             key={role}
-            className="rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-5"
+            className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
           >
             <p className="text-sm font-black">{role}</p>
             <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
@@ -1813,7 +1768,7 @@ function SettingsView({ notify }: { notify: Notify }) {
       description="Manage messaging providers, wallet passes, data controls, and the channel budget that protects your monthly spend. POS and API setup now lives in Integrations."
     >
       <div className="grid gap-3 xl:grid-cols-[1.2fr_0.8fr]">
-        <section className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="border-b border-[var(--line)] p-5">
             <Eyebrow>Channels & services</Eyebrow>
             <h2 className="mt-1 text-lg font-black">
@@ -1867,10 +1822,10 @@ function SettingsView({ notify }: { notify: Notify }) {
           </div>
         </section>
         <aside className="space-y-3">
-          <article className="rounded-[26px] bg-[var(--ink)] p-6 text-[var(--paper)]">
+          <article className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
             <div className="flex items-center justify-between">
               <Eyebrow>Current plan</Eyebrow>
-              <StatusPill tone="success">Active</StatusPill>
+              <Pill tone="success">Active</Pill>
             </div>
             <p className="mt-7 text-3xl font-black">Grow · ₱1,290</p>
             <p className="mt-1 text-xs text-white/55">
@@ -1897,7 +1852,7 @@ function SettingsView({ notify }: { notify: Notify }) {
               Manage plan
             </Button>
           </article>
-          <article className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-6">
+          <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
             <div className="flex items-start gap-3">
               <ShieldCheck
                 size={19}

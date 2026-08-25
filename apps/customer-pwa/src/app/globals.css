@@ -1,22 +1,7 @@
 @import "tailwindcss";
+@import "../../../../packages/ui/src/tokens.css";
 @source "../../../../packages/ui/src";
 
-:root {
-  color-scheme: light;
-  --paper: #f7f3ec;
-  --surface: #fffdf9;
-  --surface-2: #eee8df;
-  --ink: #251d18;
-  --ink-soft: #3a2d26;
-  --muted: #75685f;
-  --muted-strong: #6d6057;
-  --line: #e4dbd0;
-  --line-strong: #d6cabd;
-  --accent: #f2a12d;
-  --accent-strong: #95530c;
-  --success: #0f7655;
-  --danger: #b23b2b;
-}
 
 * {
   box-sizing: border-box;
@@ -78,7 +63,7 @@ button:disabled {
   align-items: center;
   gap: 14px;
   border: 1px solid rgb(37 29 24 / 10%);
-  border-radius: 24px;
+  border-radius: 16px;
   background: rgb(255 253 249 / 62%);
   padding: 18px;
   box-shadow: 0 16px 34px rgb(37 29 24 / 10%);
@@ -90,17 +75,17 @@ button:disabled {
 }
 .customer-auth-content input:is([type="tel"], [type="email"], [type="text"]):not([inputmode="numeric"]) {
   min-height: 54px;
-  border-radius: 18px;
+  border-radius: 12px;
   background: #fff;
   font-size: 16px;
 }
 .customer-auth-content button[type="submit"] {
   min-height: 54px;
-  border-radius: 18px;
+  border-radius: 12px;
   box-shadow: 0 8px 20px rgb(37 29 24 / 14%);
 }
 .customer-auth-content input[inputmode="numeric"] {
-  border-radius: 20px;
+  border-radius: 12px;
   background: #fff;
 }
 .customer-auth-content a,

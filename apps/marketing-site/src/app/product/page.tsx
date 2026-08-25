@@ -134,7 +134,7 @@ export default function ProductPage() {
                     className="grid gap-5 py-8 sm:grid-cols-[70px_1fr]"
                   >
                     <span
-                      className={`grid size-13 place-items-center rounded-[18px] ${index === 1 ? "bg-[var(--accent)]" : "bg-[var(--surface)]"}`}
+                      className={`grid size-13 place-items-center rounded-xl ${index === 1 ? "bg-[var(--accent)]" : "bg-[var(--surface)]"}`}
                     >
                       <Icon size={22} />
                     </span>
@@ -212,7 +212,7 @@ export default function ProductPage() {
                 />
               </div>
             </div>
-            <div className="relative min-h-[590px] overflow-hidden rounded-[34px] border border-[var(--line)] bg-[var(--surface-2)] p-8 sm:p-12">
+            <div className="relative min-h-[590px] overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--surface-2)] p-8 sm:p-12">
               <div className="absolute -bottom-24 -left-24 size-80 rounded-full border-[60px] border-[var(--accent)]" />
               <div className="relative mx-auto max-w-[360px]">
                 <ReceiptDemo compact />
@@ -231,7 +231,7 @@ export default function ProductPage() {
                 The practical tools behind every return.
               </h2>
             </div>
-            <div className="grid gap-px overflow-hidden rounded-[28px] border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
+            <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
               {modules.map((module, index) => {
                 const Icon = module.icon;
                 return (
@@ -259,9 +259,9 @@ export default function ProductPage() {
       </section>
 
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <div className="mx-auto grid max-w-[1400px] gap-12 rounded-[34px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-10 lg:grid-cols-[0.7fr_1.3fr] lg:p-14">
+        <div className="mx-auto grid max-w-[1400px] gap-12 rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-10 lg:grid-cols-[0.7fr_1.3fr] lg:p-14">
           <div>
-            <span className="grid size-13 place-items-center rounded-[18px] bg-[rgb(227_154_69/16%)] text-[var(--accent-strong)]">
+            <span className="grid size-13 place-items-center rounded-xl bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
               <LockKeyhole />
             </span>
             <h2 className="mt-8 text-3xl font-black tracking-[-0.05em]">

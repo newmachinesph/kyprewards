@@ -59,7 +59,7 @@ export default function ResourcesPage() {
                   <Link
                     key={resource.slug}
                     href={`/resources/${resource.slug}`}
-                    className={`group grid min-h-[250px] gap-8 rounded-[28px] p-7 transition hover:-translate-y-1 sm:grid-cols-[1fr_auto] ${index === 0 ? "bg-[var(--ink)] text-[var(--paper)]" : index === 1 ? "bg-[var(--accent)]" : "border border-[var(--line)] bg-[var(--surface)]"}`}
+                    className={`group grid min-h-[250px] gap-8 rounded-2xl p-7 transition hover:-translate-y-1 sm:grid-cols-[1fr_auto] ${index === 0 ? "bg-[var(--ink)] text-[var(--paper)]" : index === 1 ? "bg-[var(--accent)]" : "border border-[var(--line)] bg-[var(--surface)]"}`}
                   >
                     <div className="flex flex-col">
                       <p
@@ -99,7 +99,7 @@ export default function ResourcesPage() {
       <section className="border-y border-[var(--line)] bg-[var(--surface)] px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
         <div className="mx-auto grid max-w-[1400px] gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-center">
           <div>
-            <span className="grid size-13 place-items-center rounded-[18px] bg-[rgb(227_154_69/16%)] text-[var(--accent-strong)]">
+            <span className="grid size-13 place-items-center rounded-xl bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
               <BookOpen />
             </span>
             <h2 className="mt-8 max-w-[11ch] text-4xl font-black leading-[1] tracking-[-0.055em]">

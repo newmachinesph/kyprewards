@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Stampr",
   description: "Keep every local reward in one pocket.",
   applicationName: "Stampr",
-  icons: { icon: "/icon.svg", shortcut: "/icon.svg", apple: "/icon.svg" },
+  icons: { icon: "/icon.svg", shortcut: "/icon.svg", apple: "/apple-touch-icon.png" },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Stampr" },
   robots: { index: false, follow: false },
 };

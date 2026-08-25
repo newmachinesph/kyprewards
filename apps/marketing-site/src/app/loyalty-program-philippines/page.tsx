@@ -94,7 +94,7 @@ export default function LoyaltyPhilippinesPage() {
       </PageHero>
 
       <section className="border-b border-[var(--line)] bg-[var(--surface)] px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-[1100px] gap-5 rounded-[28px] border border-[var(--line)] bg-[var(--paper)] p-6 sm:p-8 lg:grid-cols-[auto_1fr] lg:gap-8">
+        <div className="mx-auto grid max-w-[1100px] gap-5 rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-6 sm:p-8 lg:grid-cols-[auto_1fr] lg:gap-8">
           <span className="grid size-12 place-items-center rounded-2xl bg-[var(--accent)]">
             <Check size={20} />
           </span>
@@ -121,7 +121,7 @@ export default function LoyaltyPhilippinesPage() {
                 Match the reward to the natural buying rhythm.
               </h2>
             </div>
-            <div className="grid gap-px overflow-hidden rounded-[28px] border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
+            <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
               {[
                 [
                   "Stamps",
@@ -213,7 +213,7 @@ export default function LoyaltyPhilippinesPage() {
                 return (
                   <article
                     key={item.title}
-                    className="rounded-[24px] border border-white/12 bg-white/5 p-5"
+                    className="rounded-2xl border border-white/12 bg-white/5 p-5"
                   >
                     <Icon size={19} className="text-[var(--accent)]" />
                     <h3 className="mt-7 font-black">{item.title}</h3>
@@ -272,7 +272,7 @@ export default function LoyaltyPhilippinesPage() {
               return (
                 <article
                   key={item.title}
-                  className="grid gap-4 rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-5 sm:grid-cols-[auto_1fr]"
+                  className="grid gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:grid-cols-[auto_1fr]"
                 >
                   <span className="grid size-11 place-items-center rounded-2xl bg-[var(--surface-2)]">
                     <Icon size={18} />

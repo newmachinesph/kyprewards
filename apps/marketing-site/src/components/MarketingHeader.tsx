@@ -49,7 +49,7 @@ export function MarketingHeader({ businessUrl }: { businessUrl: string }) {
           </a>
           <Link
             href="/contact"
-            className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(33_27_23/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
+            className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(33_27_23/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
           >
             Start your program <ArrowUpRight size={16} />
           </Link>
@@ -79,13 +79,13 @@ export function MarketingHeader({ businessUrl }: { businessUrl: string }) {
             <Link
               href="/contact"
               onClick={() => setOpen(false)}
-              className="focus-ring mt-3 flex min-h-11 items-center justify-center rounded-full border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)]"
+              className="focus-ring mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)]"
             >
               Start your program
             </Link>
             <a
               href={businessUrl}
-              className="focus-ring flex min-h-11 items-center justify-center rounded-full border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-sm font-bold"
+              className="focus-ring flex min-h-11 items-center justify-center rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-sm font-bold"
             >
               Business sign in
             </a>

@@ -108,7 +108,7 @@ export default function HomePage() {
           </div>
 
           <div className="mt-16 grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
-            <article className="relative overflow-hidden rounded-[30px] bg-[var(--ink)] p-7 text-[var(--paper)] sm:p-10">
+            <article className="relative overflow-hidden rounded-[18px] bg-[var(--ink)] p-7 text-[var(--paper)] sm:p-10">
               <div className="absolute right-0 top-0 size-64 translate-x-1/3 -translate-y-1/3 rounded-full border-[46px] border-[var(--accent)]" />
               <span className="relative grid size-12 place-items-center rounded-2xl bg-white/10 text-[var(--accent)]">
                 <ScanLine />
@@ -128,8 +128,8 @@ export default function HomePage() {
               </div>
             </article>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <article className="rounded-[30px] border border-[var(--line)] bg-[var(--surface)] p-7">
-                <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(227_154_69/14%)] text-[var(--accent-strong)]">
+              <article className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7">
+                <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(242_161_45/14%)] text-[var(--accent-strong)]">
                   <BellRing />
                 </span>
                 <h3 className="mt-12 text-2xl font-black tracking-[-0.04em]">
@@ -140,7 +140,7 @@ export default function HomePage() {
                   private mobile wallet.
                 </p>
               </article>
-              <article className="rounded-[30px] bg-[var(--accent)] p-7">
+              <article className="rounded-[18px] bg-[var(--accent)] p-7">
                 <span className="grid size-11 place-items-center rounded-2xl bg-[var(--surface)]">
                   <ChartNoAxesCombined />
                 </span>

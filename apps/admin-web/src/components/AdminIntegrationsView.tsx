@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { demoData } from "@stampr/demo-data";
-import { Button, Eyebrow } from "@stampr/ui";
+import { Button, Eyebrow, Panel } from "@stampr/ui";
 import {
   Activity,
   BadgeCheck,
@@ -113,22 +113,13 @@ const tenantConnections = [
   },
 ];
 
-function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return (
-    <section
-      className={`rounded-[26px] border border-[var(--line)] bg-[var(--surface)] ${className}`}
-    >
-      {children}
-    </section>
-  );
-}
 
 function Status({ value }: { value: AdapterStatus | ConnectionHealth }) {
   const classes: Record<AdapterStatus | ConnectionHealth, string> = {
     Available: "bg-[rgb(15_118_85/12%)] text-[var(--success)]",
     Healthy: "bg-[rgb(15_118_85/12%)] text-[var(--success)]",
-    Pilot: "bg-[rgb(237_152_43/16%)] text-[var(--accent-strong)]",
-    Approval: "bg-[rgb(237_152_43/16%)] text-[var(--accent-strong)]",
+    Pilot: "bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]",
+    Approval: "bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]",
     Attention: "bg-[rgb(178_59_43/12%)] text-[var(--danger)]",
     Sandbox: "bg-[var(--surface-2)] text-[var(--muted-strong)]",
     Planned: "bg-[var(--surface-2)] text-[var(--muted-strong)]",
@@ -170,12 +161,12 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
               readiness without exposing customer payloads or plaintext secrets.
             </p>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(149_83_12/28%)] bg-[rgb(237_152_43/13%)] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.11em] text-[var(--accent-strong)]">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(149_83_12/28%)] bg-[rgb(242_161_45/13%)] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.11em] text-[var(--accent-strong)]">
             <TestTube2 size={13} /> Demo control data
           </span>
         </header>
 
-        <section className="mt-6 overflow-hidden rounded-[28px] bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-7">
+        <section className="mt-6 overflow-hidden rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-7">
           <div className="grid gap-6 xl:grid-cols-[1fr_auto] xl:items-start">
             <div>
               <div className="flex flex-wrap items-center gap-2">
@@ -392,7 +383,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
           </Panel>
 
           <div className="space-y-3">
-            <section className="rounded-[26px] bg-[var(--accent)] p-6">
+            <section className="rounded-2xl bg-[var(--accent)] p-6">
               <div className="flex items-center justify-between">
                 <Eyebrow>Recovery queue</Eyebrow>
                 <Webhook size={20} />
@@ -463,7 +454,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
             return (
               <article
                 key={item.title}
-                className="rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-5"
+                className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
               >
                 <Icon size={18} className="text-[var(--accent-strong)]" />
                 <h2 className="mt-6 text-sm font-black">{item.title}</h2>

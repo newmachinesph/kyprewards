@@ -128,7 +128,7 @@ export default function DemoPage() {
             </div>
           </div>
 
-          <div className="mt-10 grid overflow-hidden rounded-[28px] border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-10 grid overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2 xl:grid-cols-4">
             {[
               {
                 label: "Public website",
@@ -239,7 +239,7 @@ export default function DemoPage() {
                   </div>
                   <a
                     href={step.href}
-                    className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[var(--ink)] px-5 text-sm font-extrabold transition hover:bg-[var(--ink)] hover:text-[var(--paper)] lg:justify-self-end"
+                    className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--ink)] px-5 text-sm font-extrabold transition hover:bg-[var(--ink)] hover:text-[var(--paper)] lg:justify-self-end"
                   >
                     {step.action} <ArrowRight size={15} />
                   </a>
@@ -262,7 +262,7 @@ export default function DemoPage() {
               workable, then reveals retention economics and platform control.
             </p>
           </div>
-          <div className="grid gap-px overflow-hidden rounded-[28px] bg-white/12 sm:grid-cols-2">
+          <div className="grid gap-px overflow-hidden rounded-2xl bg-white/12 sm:grid-cols-2">
             {[
               {
                 time: "0:00–1:30",
@@ -311,7 +311,7 @@ export default function DemoPage() {
 
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto grid max-w-[1400px] gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-[30px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-9">
+          <div className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-9">
             <SiteEyebrow>What is real today</SiteEyebrow>
             <h2 className="mt-4 text-3xl font-black tracking-[-0.05em]">
               Product decisions are already testable.
@@ -333,7 +333,7 @@ export default function DemoPage() {
               ))}
             </div>
           </div>
-          <div className="rounded-[30px] bg-[var(--accent)] p-7 sm:p-9">
+          <div className="rounded-[18px] bg-[var(--accent)] p-7 sm:p-9">
             <span className="text-[11px] font-extrabold uppercase tracking-[0.17em] text-[var(--ink)]">
               What comes next
             </span>

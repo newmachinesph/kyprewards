@@ -130,7 +130,7 @@ export function AdminShell({
         Skip to control room
       </a>
       <aside className="sticky top-0 hidden h-[100dvh] overflow-hidden bg-[var(--ink)] px-4 py-5 text-[var(--paper)] lg:flex lg:flex-col">
-        <div className="absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_left,rgb(237_152_43/20%),transparent_64%)]" />
+        <div className="absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_left,rgb(242_161_45/20%),transparent_64%)]" />
         <div className="relative px-2">
           <BrandMark inverse label="Stampr Platform" />
         </div>

@@ -127,8 +127,8 @@ export default function OpenGraphImage() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background: index < 5 ? "#e39a45" : "transparent",
-                border: "2px solid #e39a45",
+                background: index < 5 ? "#f2a12d" : "transparent",
+                border: "2px solid #f2a12d",
                 fontWeight: 900,
               }}
             >

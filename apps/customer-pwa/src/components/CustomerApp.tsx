@@ -84,7 +84,7 @@ const qrPattern = [
 
 function LoyaltyCard({ compact = false }: { compact?: boolean }) {
   return (
-    <article className="loyalty-ticket overflow-hidden rounded-[28px] px-5 py-5 text-[var(--paper)]">
+    <article className="loyalty-ticket overflow-hidden rounded-2xl px-5 py-5 text-[var(--paper)]">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <span className="grid size-11 place-items-center rounded-2xl bg-white/10 text-[var(--accent)]">
@@ -187,7 +187,7 @@ function HomeView({
         <div className="grid grid-cols-[1.2fr_0.8fr] gap-3">
           <button
             onClick={onDiscover}
-            className="group rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition hover:-translate-y-0.5"
+            className="group rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition hover:-translate-y-0.5"
           >
             <div className="flex items-start justify-between">
               <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(242_161_45/14%)] text-[var(--accent-strong)]">
@@ -205,7 +205,7 @@ function HomeView({
           </button>
           <button
             onClick={onDiscover}
-            className="group rounded-[24px] bg-[var(--accent)] p-4 text-left transition hover:-translate-y-0.5"
+            className="group rounded-2xl bg-[var(--accent)] p-4 text-left transition hover:-translate-y-0.5"
           >
             <span className="grid size-11 place-items-center rounded-2xl bg-[var(--surface)]">
               <Leaf />
@@ -231,7 +231,7 @@ function HomeView({
             View activity
           </button>
         </div>
-        <article className="flex items-start gap-3 rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-4">
+        <article className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
           <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)]">
             <Megaphone size={17} />
           </span>
@@ -278,7 +278,7 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
         type="button"
         onClick={() => setQuickPassAdded(true)}
         disabled={quickPassAdded}
-        className={`mt-5 flex w-full items-center gap-3 rounded-[20px] border p-3.5 text-left transition ${quickPassAdded ? "border-[rgb(32_169_120/28%)] bg-[rgb(32_169_120/9%)]" : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"}`}
+        className={`mt-5 flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition ${quickPassAdded ? "border-[rgb(32_169_120/28%)] bg-[rgb(32_169_120/9%)]" : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"}`}
       >
         <span
           className={`grid size-10 shrink-0 place-items-center rounded-2xl ${quickPassAdded ? "bg-[var(--success)] text-white" : "bg-[var(--ink)] text-[var(--paper)]"}`}
@@ -331,7 +331,7 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
         <button
           type="button"
           onClick={() => onCard("wallet_2")}
-          className={`${showSage ? "block" : "hidden"} rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition active:scale-[0.98]`}
+          className={`${showSage ? "block" : "hidden"} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition active:scale-[0.98]`}
         >
           <div className="flex items-start justify-between">
             <span className="grid size-10 place-items-center rounded-2xl bg-[rgb(32_169_120/12%)] text-[var(--success)]">
@@ -355,7 +355,7 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
         <button
           type="button"
           onClick={() => onCard("wallet_3")}
-          className={`${showRooted ? "block" : "hidden"} rounded-[24px] bg-[var(--accent)] p-4 text-left transition active:scale-[0.98]`}
+          className={`${showRooted ? "block" : "hidden"} rounded-2xl bg-[var(--accent)] p-4 text-left transition active:scale-[0.98]`}
         >
           <div className="flex items-start justify-between">
             <span className="grid size-10 place-items-center rounded-2xl bg-[var(--surface)]">
@@ -377,7 +377,7 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
       <button
         type="button"
         onClick={() => onCard("wallet_4")}
-        className={`${showCorner ? "mt-3 flex" : "hidden"} w-full items-center gap-4 rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition active:scale-[0.99]`}
+        className={`${showCorner ? "mt-3 flex" : "hidden"} w-full items-center gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition active:scale-[0.99]`}
       >
         <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[var(--ink)] text-[var(--accent)]">
           <Gift size={19} />
@@ -396,7 +396,7 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
         <p className="text-lg font-black tracking-[-0.04em]">₱740</p>
       </button>
       {visibleCount === 0 && (
-        <div className="mt-5 rounded-[22px] border border-dashed border-[var(--line-strong)] p-7 text-center">
+        <div className="mt-5 rounded-2xl border border-dashed border-[var(--line-strong)] p-7 text-center">
           <Search className="mx-auto text-[var(--muted)]" />
           <p className="mt-3 text-sm font-extrabold">No wallet cards found.</p>
           <p className="mt-1 text-xs text-[var(--muted)]">
@@ -404,7 +404,7 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
           </p>
         </div>
       )}
-      <div className="mt-7 rounded-[24px] border border-dashed border-[var(--line-strong)] p-6 text-center">
+      <div className="mt-7 rounded-2xl border border-dashed border-[var(--line-strong)] p-6 text-center">
         <span className="mx-auto grid size-11 place-items-center rounded-2xl bg-[var(--surface-2)] text-[var(--muted-strong)]">
           <WalletCards />
         </span>
@@ -531,10 +531,18 @@ function DiscoverView({
               type="button"
               onClick={() => onBusiness(business.id)}
               key={business.name}
-              className={`group flex w-full items-center gap-4 rounded-[22px] p-3.5 text-left transition hover:-translate-y-0.5 ${index === 0 ? "bg-[var(--accent)]" : "border border-[var(--line)] bg-[var(--surface)]"}`}
+              className={`group flex w-full items-center gap-4 rounded-2xl p-3.5 text-left transition hover:-translate-y-0.5 ${index === 0 ? "bg-[var(--accent)]" : "border border-[var(--line)] bg-[var(--surface)]"}`}
             >
-              <span className="grid size-13 shrink-0 place-items-center rounded-2xl bg-[var(--surface)]">
-                <Icon size={22} />
+              <span className="relative grid size-13 shrink-0 place-items-center overflow-hidden rounded-xl bg-[var(--surface)]">
+                <img
+                  src={business.image}
+                  alt=""
+                  loading="lazy"
+                  width={52}
+                  height={52}
+                  className="absolute inset-0 size-full object-cover"
+                />
+                <Icon size={22} className="opacity-0" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">
@@ -561,7 +569,7 @@ function DiscoverView({
           );
         })}
         {visibleBusinesses.length === 0 && (
-          <div className="rounded-[22px] border border-dashed border-[var(--line-strong)] p-7 text-center">
+          <div className="rounded-2xl border border-dashed border-[var(--line-strong)] p-7 text-center">
             <Search className="mx-auto text-[var(--muted)]" />
             <p className="mt-3 text-sm font-extrabold">
               No places match this search.
@@ -572,7 +580,7 @@ function DiscoverView({
           </div>
         )}
       </div>
-      <article className="mt-7 rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-5">
+      <article className="mt-7 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
         <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(32_169_120/12%)] text-[var(--success)]">
           <Dumbbell />
         </span>
@@ -592,7 +600,7 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
       <Eyebrow>Your account</Eyebrow>
       <h1 className="mt-2 text-3xl font-black tracking-[-0.055em]">Profile</h1>
       <div className="mt-6 flex items-center gap-4">
-        <span className="grid size-16 place-items-center rounded-[22px] bg-[var(--accent)] text-xl font-black">
+        <span className="grid size-16 place-items-center rounded-2xl bg-[var(--accent)] text-xl font-black">
           {customerDemo.profile.initials}
         </span>
         <div>
@@ -604,7 +612,7 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
           </p>
         </div>
       </div>
-      <section className="mt-7 overflow-hidden rounded-[24px] border border-[var(--line)] bg-[var(--surface)]">
+      <section className="mt-7 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         {[
           {
             label: "Personal information",
@@ -646,7 +654,7 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
           );
         })}
       </section>
-      <section className="mt-4 rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-5">
+      <section className="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
         <div className="flex items-start gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[rgb(32_169_120/12%)] text-[var(--success)]">
             <ShieldCheck size={18} />
@@ -660,7 +668,7 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
           </div>
         </div>
       </section>
-      <section className="mt-4 overflow-hidden rounded-[24px] border border-[var(--line)] bg-[var(--surface)]">
+      <section className="mt-4 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="border-b border-[var(--line)] p-4">
           <Eyebrow>Data and rights</Eyebrow>
           <p className="mt-1 text-sm font-extrabold">You stay in control</p>
@@ -765,7 +773,7 @@ function QrModal({ close }: { close: () => void }) {
         <p className="mt-2 max-w-[30ch] text-sm leading-relaxed text-[var(--muted-strong)]">
           Staff can stamp or redeem after you approve the visit.
         </p>
-        <div className="relative mt-8 overflow-hidden rounded-[28px] border border-[var(--line)] bg-white p-5 shadow-[0_20px_50px_rgb(37_29_24/12%)]">
+        <div className="relative mt-8 overflow-hidden rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_20px_50px_rgb(37_29_24/12%)]">
           <div
             className="grid grid-cols-[repeat(14,12px)] gap-[2px]"
             aria-label="Demo QR code"
@@ -925,14 +933,14 @@ function ActivitySheet({ close }: { close: () => void }) {
           Earns, redemptions, and membership use stay traceable across every
           business in your wallet.
         </p>
-        <div className="mt-6 grid grid-cols-3 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1">
+        <div className="mt-6 grid grid-cols-3 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-1">
           {(["All", "Earned", "Used"] as const).map((item) => (
             <button
               key={item}
               type="button"
               aria-pressed={filter === item}
               onClick={() => setFilter(item)}
-              className={`min-h-10 rounded-full text-xs font-extrabold ${
+              className={`min-h-10 rounded-lg text-xs font-extrabold ${
                 filter === item
                   ? "bg-[var(--ink)] text-[var(--paper)]"
                   : "text-[var(--muted-strong)]"
@@ -972,7 +980,7 @@ function ActivitySheet({ close }: { close: () => void }) {
             </article>
           ))}
         </div>
-        <div className="mt-5 flex items-start gap-3 rounded-[22px] bg-[rgb(15_118_85/9%)] p-4">
+        <div className="mt-5 flex items-start gap-3 rounded-2xl bg-[rgb(15_118_85/9%)] p-4">
           <ShieldCheck
             size={18}
             className="mt-0.5 shrink-0 text-[var(--success)]"
@@ -1002,6 +1010,7 @@ function BusinessSheet({
     customerDemo.discover.find((item) => item.id === id) ??
     customerDemo.discover[0];
   const Icon = categoryIcons[business.category] ?? Store;
+  const [consentOpen, setConsentOpen] = useState(false);
   return (
     <div
       className="absolute inset-0 z-[55] overflow-y-auto bg-[var(--paper)]"
@@ -1013,7 +1022,7 @@ function BusinessSheet({
       <div className="pb-12">
         <section className="bg-[var(--ink)] px-5 py-8 text-[var(--paper)]">
           <div className="flex items-start justify-between">
-            <span className="grid size-14 place-items-center rounded-[20px] bg-[var(--accent)] text-[var(--ink)]">
+            <span className="grid size-14 place-items-center rounded-xl bg-[var(--accent)] text-[var(--ink)]">
               <Icon size={24} />
             </span>
             <span className="rounded-full border border-white/15 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-white/70">
@@ -1029,7 +1038,16 @@ function BusinessSheet({
           <p className="mt-2 text-sm text-white/60">
             {business.category} · {business.neighborhood} · {business.distance}
           </p>
-          <div className="mt-7 rounded-[22px] border border-white/12 bg-white/5 p-5">
+          <div className="mt-6 h-40 overflow-hidden rounded-2xl border border-white/12">
+            <img
+              src={business.image}
+              alt={`Inside ${business.name}`}
+              width={800}
+              height={533}
+              className="size-full object-cover"
+            />
+          </div>
+          <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-5">
             <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent)]">
               Program
             </p>
@@ -1041,7 +1059,7 @@ function BusinessSheet({
           </div>
         </section>
         <div className="px-5 pt-6">
-          <section className="mb-4 rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-4">
+          <section className="mb-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
             <div className="flex items-start gap-3">
               <MapPin size={17} className="mt-0.5 shrink-0 text-[var(--muted)]" />
               <div>
@@ -1082,7 +1100,7 @@ function BusinessSheet({
             ].map(([title, detail]) => (
               <article
                 key={title}
-                className="rounded-[20px] border border-[var(--line)] bg-[var(--surface)] p-4"
+                className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4"
               >
                 <Check size={16} className="text-[var(--success)]" />
                 <p className="mt-5 text-sm font-extrabold">{title}</p>
@@ -1092,7 +1110,7 @@ function BusinessSheet({
               </article>
             ))}
           </div>
-          <div className="mt-5 flex items-start gap-3 rounded-[20px] bg-[rgb(15_118_85/9%)] p-4">
+          <div className="mt-5 flex items-start gap-3 rounded-xl bg-[rgb(15_118_85/9%)] p-4">
             <ShieldCheck
               size={17}
               className="mt-0.5 shrink-0 text-[var(--success)]"
@@ -1106,13 +1124,102 @@ function BusinessSheet({
           <button
             type="button"
             disabled={joined}
-            onClick={onJoin}
-            className={`mt-5 min-h-12 w-full rounded-full text-sm font-extrabold ${joined ? "bg-[rgb(15_118_85/12%)] text-[var(--success)]" : "bg-[var(--ink)] text-[var(--paper)]"}`}
+            onClick={() => setConsentOpen(true)}
+            className={`mt-5 min-h-12 w-full rounded-xl text-sm font-extrabold ${joined ? "bg-[rgb(15_118_85/12%)] text-[var(--success)]" : "bg-[var(--ink)] text-[var(--paper)]"}`}
           >
             {joined ? "Already in your wallet" : `Join ${business.name}`}
           </button>
         </div>
       </div>
+      {consentOpen && (
+        <JoinConsentDialog
+          businessName={business.name}
+          onCancel={() => setConsentOpen(false)}
+          onConfirm={() => {
+            setConsentOpen(false);
+            onJoin();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function JoinConsentDialog({
+  businessName,
+  onCancel,
+  onConfirm,
+}: {
+  businessName: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const shared = [
+    { label: "Loyalty ID", value: customerDemo.profile.id, icon: QrCode },
+    { label: "Name", value: customerDemo.profile.name, icon: UserRound },
+    { label: "Mobile number", value: customerDemo.profile.mobile, icon: Phone },
+    { label: "Email", value: customerDemo.profile.email, icon: Mail },
+    { label: "Birthday", value: customerDemo.profile.birthday, icon: CakeSlice },
+  ];
+  return (
+    <div
+      className="fixed inset-0 z-[70] grid place-items-end sm:place-items-center"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="join-consent-title"
+    >
+      <button
+        type="button"
+        aria-label="Cancel joining"
+        onClick={onCancel}
+        className="absolute inset-0 cursor-default bg-[rgb(20_16_13/55%)] backdrop-blur-sm"
+      />
+      <section className="relative w-full rounded-t-[18px] bg-[var(--surface)] p-5 pb-8 sm:max-w-md sm:rounded-[18px] sm:pb-5">
+        <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+          Before you join
+        </p>
+        <h3 id="join-consent-title" className="mt-2 text-xl font-black tracking-[-0.04em]">
+          Share your profile with {businessName}?
+        </h3>
+        <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
+          Joining shares the details below so {businessName} can run your
+          rewards. Promotional messages stay off until you turn them on.
+        </p>
+        <ul className="mt-4 divide-y divide-[var(--line)] rounded-xl border border-[var(--line)]">
+          {shared.map(({ label, value, icon: ItemIcon }) => (
+            <li key={label} className="flex items-center gap-3 px-4 py-3">
+              <ItemIcon size={15} className="shrink-0 text-[var(--muted)]" />
+              <span className="w-28 shrink-0 text-[11px] font-black uppercase tracking-[0.08em] text-[var(--muted-strong)]">
+                {label}
+              </span>
+              <span className="truncate text-xs font-bold">{value}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 flex items-start gap-3 rounded-xl bg-[rgb(15_118_85/9%)] p-3.5">
+          <ShieldCheck size={16} className="mt-0.5 shrink-0 text-[var(--success)]" />
+          <p className="text-[11px] leading-relaxed text-[var(--muted-strong)]">
+            You can leave the program and revoke access anytime from your
+            profile. Stampr never sells your data.
+          </p>
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="min-h-12 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] text-sm font-extrabold"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="min-h-12 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
+          >
+            Share &amp; join
+          </button>
+        </div>
+      </section>
     </div>
   );
 }
@@ -1142,7 +1249,7 @@ function WalletSheet({
     >
       <SheetHeader title="Wallet card" close={close} />
       <div className="px-5 pb-12 pt-6">
-        <section className="loyalty-ticket rounded-[28px] p-6 text-[var(--paper)]">
+        <section className="loyalty-ticket rounded-2xl p-6 text-[var(--paper)]">
           <div className="flex items-start justify-between">
             <span className="grid size-12 place-items-center rounded-2xl bg-white/10 text-[var(--accent)]">
               <WalletCards size={20} />
@@ -1169,7 +1276,7 @@ function WalletSheet({
             <strong className="text-[var(--accent)]">{card.reward}</strong>
           </div>
         </section>
-        <section className="mt-4 overflow-hidden rounded-[24px] border border-[var(--line)] bg-[var(--surface)]">
+        <section className="mt-4 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           {customerDemo.activity
             .filter((activity) => activity.business === card.business)
             .map((activity) => (
@@ -1190,7 +1297,7 @@ function WalletSheet({
               </div>
             ))}
         </section>
-        <div className="mt-4 rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-5">
+        <div className="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
           <p className="text-sm font-extrabold">Program terms</p>
           <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
             Only approved events change this balance. Rewards have no cash
@@ -1292,13 +1399,13 @@ function ProfileSheet({
             <button
               type="button"
               onClick={() => notify("Profile changes saved on this device.")}
-              className="min-h-12 w-full rounded-full bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
+              className="min-h-12 w-full rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
             >
               Save changes
             </button>
           </div>
         ) : isNotifications ? (
-          <div className="mt-6 overflow-hidden rounded-[24px] border border-[var(--line)] bg-[var(--surface)]">
+          <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
             {(
               [
                 [
@@ -1344,7 +1451,7 @@ function ProfileSheet({
           </div>
         ) : isDanger ? (
           <div className="mt-6">
-            <div className="rounded-[24px] border border-[rgb(217_87_67/30%)] bg-[rgb(217_87_67/8%)] p-5">
+            <div className="rounded-2xl border border-[rgb(217_87_67/30%)] bg-[rgb(217_87_67/8%)] p-5">
               <Trash2 className="text-[var(--danger)]" />
               <p className="mt-5 text-sm font-extrabold">
                 Choose the smallest action that fits.
@@ -1359,7 +1466,7 @@ function ProfileSheet({
               type="button"
               aria-expanded={leaveOpen}
               onClick={() => setLeaveOpen((open) => !open)}
-              className="mt-4 min-h-12 w-full rounded-full border border-[var(--line-strong)] bg-[var(--surface)] text-sm font-bold"
+              className="mt-4 min-h-12 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] text-sm font-bold"
             >
               Choose a business to leave
             </button>
@@ -1392,7 +1499,7 @@ function ProfileSheet({
                 setDeletionRequested(true);
                 notify("Account deletion request queued for identity review.");
               }}
-              className="mt-2 min-h-12 w-full rounded-full bg-[var(--danger)] text-sm font-extrabold text-white disabled:opacity-65"
+              className="mt-2 min-h-12 w-full rounded-xl bg-[var(--danger)] text-sm font-extrabold text-white disabled:opacity-65"
             >
               {deletionRequested
                 ? "Deletion request received"
@@ -1401,7 +1508,7 @@ function ProfileSheet({
           </div>
         ) : (
           <div className="mt-6">
-            <div className="rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-5">
+            <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
               <ShieldCheck className="text-[var(--success)]" />
               <p className="mt-5 text-sm font-extrabold">
                 A complete, readable record
@@ -1435,7 +1542,7 @@ function ProfileSheet({
                   setExportRequested(true);
                   notify("Portable data export is being prepared.");
                 }}
-                className="mt-5 min-h-12 w-full rounded-full bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-65"
+                className="mt-5 min-h-12 w-full rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-65"
               >
                 {exportRequested ? "Export requested" : "Request portable export"}
               </button>
@@ -1560,7 +1667,7 @@ export function CustomerApp() {
       <button
         type="button"
         onClick={() => setQrOpen(true)}
-        className="absolute bottom-[76px] left-1/2 z-40 inline-flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-full bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] shadow-[0_12px_30px_rgb(37_29_24/28%)] transition hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+        className="absolute bottom-[76px] left-1/2 z-40 inline-flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] shadow-[0_12px_30px_rgb(37_29_24/28%)] transition hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
       >
         <span className="grid size-8 place-items-center rounded-full bg-[var(--accent)] text-[var(--ink)]">
           <QrCode size={17} />

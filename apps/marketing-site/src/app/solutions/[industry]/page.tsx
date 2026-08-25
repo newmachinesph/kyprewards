@@ -79,7 +79,7 @@ export default async function IndustryPage({ params }: Props) {
               {industry.challenge}
             </p>
             <div className="mt-10 grid grid-cols-2 gap-3">
-              <div className="rounded-[24px] bg-[var(--ink)] p-6 text-[var(--paper)]">
+              <div className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
                 <p className="text-4xl font-black tracking-[-0.06em]">
                   {industry.metric}
                 </p>
@@ -87,7 +87,7 @@ export default async function IndustryPage({ params }: Props) {
                   {industry.metricLabel}
                 </p>
               </div>
-              <div className="rounded-[24px] bg-[var(--accent)] p-6">
+              <div className="rounded-2xl bg-[var(--accent)] p-6">
                 <Gift size={20} />
                 <p className="mt-8 text-lg font-black tracking-[-0.04em]">
                   {industry.reward}
@@ -175,7 +175,7 @@ export default async function IndustryPage({ params }: Props) {
                 return (
                   <article
                     key={step.title}
-                    className={`rounded-[26px] border p-6 ${index === 0 ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--ink)]" : "border-white/10 bg-white/5"}`}
+                    className={`rounded-2xl border p-6 ${index === 0 ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--ink)]" : "border-white/10 bg-white/5"}`}
                   >
                     <Icon size={20} />
                     <p

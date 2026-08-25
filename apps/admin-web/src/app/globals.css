@@ -1,22 +1,7 @@
 @import "tailwindcss";
+@import "../../../../packages/ui/src/tokens.css";
 @source "../../../../packages/ui/src";
 
-:root {
-  color-scheme: light;
-  --paper: #f3f0e9;
-  --surface: #fbfaf6;
-  --surface-2: #e9e4da;
-  --ink: #1f1b18;
-  --ink-soft: #332d28;
-  --muted: #75685f;
-  --muted-strong: #675e56;
-  --line: #ddd6cc;
-  --line-strong: #cfc5b8;
-  --accent: #ed982b;
-  --accent-strong: #95530c;
-  --success: #0f7655;
-  --danger: #b23b2b;
-}
 
 * {
   box-sizing: border-box;

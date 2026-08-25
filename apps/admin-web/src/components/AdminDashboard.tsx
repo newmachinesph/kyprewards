@@ -97,12 +97,12 @@ export function AdminDashboard({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex rounded-full border border-[var(--line)] bg-[var(--surface)] p-1">
+            <div className="flex rounded-xl border border-[var(--line)] bg-[var(--surface)] p-1">
               {["Network", "Today"].map((item) => (
                 <button
                   key={item}
                   onClick={() => setScope(item)}
-                  className={`rounded-full px-3.5 py-2 text-xs font-bold transition ${scope === item ? "bg-[var(--ink)] text-[var(--paper)]" : "text-[var(--muted-strong)]"}`}
+                  className={`rounded-lg px-3.5 py-2 text-xs font-bold transition ${scope === item ? "bg-[var(--ink)] text-[var(--paper)]" : "text-[var(--muted-strong)]"}`}
                 >
                   {item}
                 </button>
@@ -148,7 +148,7 @@ export function AdminDashboard({
           className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-[1.15fr_1fr_1fr_0.85fr]"
           aria-label="Platform metrics"
         >
-          <article className="relative overflow-hidden rounded-[24px] bg-[var(--ink)] p-6 text-[var(--paper)] sm:row-span-2 xl:row-span-1">
+          <article className="relative overflow-hidden rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:row-span-2 xl:row-span-1">
             <div className="absolute -right-10 -top-10 size-40 rounded-full border-[28px] border-[var(--accent)] opacity-80" />
             <div className="relative">
               <p className="text-[11px] font-extrabold uppercase tracking-[0.15em] text-white/50">
@@ -187,7 +187,7 @@ export function AdminDashboard({
             return (
               <article
                 key={item.label}
-                className="rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-5"
+                className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
               >
                 <div className="flex items-start justify-between">
                   <span className="grid size-9 place-items-center rounded-xl bg-[var(--surface-2)]">
@@ -210,7 +210,7 @@ export function AdminDashboard({
         </section>
 
         <section className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.45fr)_minmax(390px,0.8fr)]">
-          <article className="overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+          <article className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
             <header className="flex items-start justify-between border-b border-[var(--line)] p-5 sm:p-6">
               <div>
                 <Eyebrow>Network velocity</Eyebrow>
@@ -251,7 +251,7 @@ export function AdminDashboard({
             </div>
           </article>
 
-          <article className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+          <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
             <div className="flex items-start justify-between">
               <div>
                 <Eyebrow>System posture</Eyebrow>
@@ -290,7 +290,7 @@ export function AdminDashboard({
         </section>
 
         <section className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <article className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+          <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <Eyebrow>Attention queue</Eyebrow>
@@ -345,7 +345,7 @@ export function AdminDashboard({
             </button>
           </article>
 
-          <article className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+          <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <Eyebrow>Event stream</Eyebrow>
@@ -388,7 +388,7 @@ export function AdminDashboard({
         </section>
 
         <section className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.6fr)]">
-          <article className="flex flex-col justify-between overflow-hidden rounded-[26px] bg-[var(--accent)] p-6 sm:flex-row sm:items-end">
+          <article className="flex flex-col justify-between overflow-hidden rounded-2xl bg-[var(--accent)] p-6 sm:flex-row sm:items-end">
             <div>
               <div className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.14em]">
                 <Sparkles size={15} /> Weekly signal
@@ -405,7 +405,7 @@ export function AdminDashboard({
               View cohort
             </Button>
           </article>
-          <article className="flex items-center gap-4 rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-6">
+          <article className="flex items-center gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
             <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[rgb(216_86_65/12%)] text-[var(--danger)]">
               <CircleAlert />
             </span>

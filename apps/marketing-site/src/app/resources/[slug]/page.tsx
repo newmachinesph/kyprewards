@@ -61,7 +61,7 @@ export default async function ResourcePage({ params }: Props) {
 
         <div className="mx-auto grid max-w-[1100px] gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[0.28fr_0.72fr] lg:px-8 lg:py-24">
           <aside className="lg:sticky lg:top-28 lg:self-start">
-            <span className="grid size-13 place-items-center rounded-[18px] bg-[var(--ink)] text-[var(--accent)]">
+            <span className="grid size-13 place-items-center rounded-xl bg-[var(--ink)] text-[var(--accent)]">
               <Stamp />
             </span>
             <p className="mt-5 max-w-[24ch] text-xs leading-relaxed text-[var(--muted)]">
@@ -91,7 +91,7 @@ export default async function ResourcePage({ params }: Props) {
                 </section>
               ))}
             </div>
-            <div className="mt-16 rounded-[28px] bg-[var(--accent)] p-7 sm:p-9">
+            <div className="mt-16 rounded-2xl bg-[var(--accent)] p-7 sm:p-9">
               <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ink)]">
                 Next field note
               </p>

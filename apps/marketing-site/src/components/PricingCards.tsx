@@ -74,14 +74,14 @@ export function PricingCards() {
     <div>
       <div className="flex justify-center">
         <div
-          className="inline-flex rounded-full border border-[var(--line)] bg-[var(--surface)] p-1"
+          className="inline-flex rounded-xl border border-[var(--line)] bg-[var(--surface)] p-1"
           aria-label="Billing period"
         >
           <button
             type="button"
             aria-pressed={!annual}
             onClick={() => setAnnual(false)}
-            className={`focus-ring rounded-full px-4 py-2 text-xs font-bold transition ${!annual ? "bg-[var(--ink)] text-[var(--surface)]" : "text-[var(--muted-strong)] hover:bg-[var(--paper)] hover:text-[var(--ink)]"}`}
+            className={`focus-ring rounded-lg px-4 py-2 text-xs font-bold transition ${!annual ? "bg-[var(--ink)] text-[var(--surface)]" : "text-[var(--muted-strong)] hover:bg-[var(--paper)] hover:text-[var(--ink)]"}`}
           >
             Monthly
           </button>
@@ -89,7 +89,7 @@ export function PricingCards() {
             type="button"
             aria-pressed={annual}
             onClick={() => setAnnual(true)}
-            className={`focus-ring flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition ${annual ? "bg-[var(--ink)] text-[var(--surface)]" : "text-[var(--muted-strong)] hover:bg-[var(--paper)] hover:text-[var(--ink)]"}`}
+            className={`focus-ring flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition ${annual ? "bg-[var(--ink)] text-[var(--surface)]" : "text-[var(--muted-strong)] hover:bg-[var(--paper)] hover:text-[var(--ink)]"}`}
           >
             Yearly{" "}
             <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[9px] text-[var(--ink)]">
@@ -105,7 +105,7 @@ export function PricingCards() {
           return (
             <article
               key={plan.name}
-              className={`relative flex min-h-[590px] flex-col rounded-[30px] p-7 ${plan.featured ? "bg-[var(--ink)] text-[var(--paper)] xl:-my-4 xl:min-h-[622px] xl:py-10" : "border border-[var(--line)] bg-[var(--surface)]"}`}
+              className={`relative flex min-h-[590px] flex-col rounded-[18px] p-7 ${plan.featured ? "bg-[var(--ink)] text-[var(--paper)] xl:-my-4 xl:min-h-[622px] xl:py-10" : "border border-[var(--line)] bg-[var(--surface)]"}`}
             >
               {plan.featured && (
                 <span className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--ink)]">
@@ -144,7 +144,7 @@ export function PricingCards() {
                     className={`flex items-start gap-3 text-sm ${plan.featured ? "text-white/80" : "text-[var(--muted-strong)]"}`}
                   >
                     <span
-                      className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full ${plan.featured ? "bg-white/10 text-[var(--accent)]" : "bg-[rgb(227_154_69/15%)] text-[var(--accent-strong)]"}`}
+                      className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full ${plan.featured ? "bg-white/10 text-[var(--accent)]" : "bg-[rgb(242_161_45/15%)] text-[var(--accent-strong)]"}`}
                     >
                       <Check size={12} strokeWidth={3} />
                     </span>

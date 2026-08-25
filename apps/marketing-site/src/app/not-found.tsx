@@ -24,7 +24,7 @@ export default function NotFound() {
         </p>
         <Link
           href="/"
-          className="focus-ring mt-7 inline-flex min-h-12 items-center gap-2 rounded-full bg-[var(--ink)] px-6 text-sm font-bold text-[var(--paper)] transition active:scale-[0.98]"
+          className="focus-ring mt-7 inline-flex min-h-12 items-center gap-2 rounded-xl bg-[var(--ink)] px-6 text-sm font-bold text-[var(--paper)] transition active:scale-[0.98]"
         >
           <ArrowLeft size={16} /> Return home
         </Link>

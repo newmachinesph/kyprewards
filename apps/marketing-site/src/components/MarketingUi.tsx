@@ -99,7 +99,7 @@ export function MarketingCta({
 }) {
   return (
     <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-      <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[34px] bg-[var(--ink)] px-6 py-12 text-[var(--paper)] sm:px-10 lg:grid lg:grid-cols-[1fr_auto] lg:items-end lg:px-14 lg:py-16">
+      <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[18px] bg-[var(--ink)] px-6 py-12 text-[var(--paper)] sm:px-10 lg:grid lg:grid-cols-[1fr_auto] lg:items-end lg:px-14 lg:py-16">
         <div className="absolute right-10 top-1/2 hidden size-48 -translate-y-1/2 rounded-full border-[38px] border-[var(--accent)] opacity-80 lg:block" />
         <div className="relative">
           <SiteEyebrow inverse>Start with Stampr</SiteEyebrow>
@@ -217,7 +217,7 @@ export function CheckList({
           className={`flex items-start gap-3 text-sm ${inverse ? "text-white/80" : "text-[var(--muted-strong)]"}`}
         >
           <span
-            className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full ${inverse ? "bg-white/10 text-[var(--accent)]" : "bg-[rgb(227_154_69/16%)] text-[var(--accent-strong)]"}`}
+            className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full ${inverse ? "bg-white/10 text-[var(--accent)]" : "bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]"}`}
           >
             <Check size={12} strokeWidth={3} />
           </span>

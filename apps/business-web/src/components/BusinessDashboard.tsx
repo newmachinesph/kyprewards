@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Eyebrow, StampDots, TrendBadge } from "@stampr/ui";
+import { Button, Eyebrow, StampDots, StatCard } from "@stampr/ui";
 import {
   ArrowRight,
   BadgePercent,
@@ -136,41 +136,6 @@ const automationDefaults = [
   },
 ];
 
-function Metric({
-  label,
-  value,
-  detail,
-  icon: Icon,
-  accent = false,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-  icon: typeof Users;
-  accent?: boolean;
-}) {
-  return (
-    <article
-      className={`col-span-6 min-h-36 rounded-[22px] border p-5 lg:col-span-3 ${accent ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]" : "border-[var(--line)] bg-[var(--surface)]"}`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <span
-          className={`grid size-9 place-items-center rounded-xl ${accent ? "bg-white/10 text-[var(--accent)]" : "bg-[var(--surface-2)] text-[var(--muted-strong)]"}`}
-        >
-          <Icon size={17} aria-hidden="true" />
-        </span>
-        <TrendBadge
-          value={detail}
-          trend={label === "Redemptions" ? "flat" : "up"}
-        />
-      </div>
-      <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.12em] opacity-65">
-        {label}
-      </p>
-      <p className="mt-1 text-3xl font-black tracking-[-0.06em]">{value}</p>
-    </article>
-  );
-}
 
 export function BusinessDashboard({
   onNavigate,
@@ -230,22 +195,23 @@ export function BusinessDashboard({
         className="metric-grid mt-8 grid gap-3"
         aria-label="Business overview"
       >
-        <Metric label="Visits" value="128" detail="18%" icon={Repeat2} accent />
-        <Metric
+        <StatCard className="col-span-6 lg:col-span-3" label="Visits" value="128" detail="18%" icon={Repeat2} accent />
+        <StatCard
+          className="col-span-6 lg:col-span-3"
           label="New regulars"
           value="24"
           detail="6 this week"
           icon={UserPlus}
         />
-        <Metric label="Stamps issued" value="216" detail="31%" icon={Stamp} />
-        <Metric label="Redemptions" value="18" detail="On pace" icon={Gift} />
+        <StatCard className="col-span-6 lg:col-span-3" label="Stamps issued" value="216" detail="31%" icon={Stamp} />
+        <StatCard className="col-span-6 lg:col-span-3" label="Redemptions" value="18" detail="On pace" icon={Gift} trend="flat" />
       </section>
 
       <section
         id="analytics"
         className="mt-3 grid scroll-mt-24 gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(340px,0.75fr)]"
       >
-        <article className="overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+        <article className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <header className="flex flex-col gap-4 border-b border-[var(--line)] p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <Eyebrow>Footfall rhythm</Eyebrow>
@@ -295,7 +261,7 @@ export function BusinessDashboard({
           </div>
         </article>
 
-        <article className="ticket-edge relative overflow-hidden rounded-[26px] p-7 text-[var(--paper)]">
+        <article className="ticket-edge relative overflow-hidden rounded-2xl p-7 text-[var(--paper)]">
           <div className="relative z-10">
             <div className="flex items-center justify-between">
               <Eyebrow>Live reward</Eyebrow>
@@ -334,7 +300,7 @@ export function BusinessDashboard({
         id="customers"
         className="mt-3 grid scroll-mt-24 gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
       >
-        <article className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+        <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <Eyebrow>Setup ledger</Eyebrow>
@@ -370,7 +336,7 @@ export function BusinessDashboard({
               onClick={() => setScanOpen(true)}
               className="flex w-full items-center gap-3 py-3 text-left text-sm font-bold"
             >
-              <span className="grid size-5 place-items-center rounded-full border border-[var(--accent)] bg-[rgb(238_155_43/10%)]">
+              <span className="grid size-5 place-items-center rounded-full border border-[var(--accent)] bg-[rgb(242_161_45/10%)]">
                 <ScanLine size={12} />
               </span>
               Run a test stamp
@@ -379,7 +345,7 @@ export function BusinessDashboard({
           </div>
         </article>
 
-        <article className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+        <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <Eyebrow>Next best action</Eyebrow>
@@ -387,7 +353,7 @@ export function BusinessDashboard({
                 Bring back the almost-regulars
               </h2>
             </div>
-            <span className="grid size-10 place-items-center rounded-xl bg-[rgb(238_155_43/14%)] text-[var(--accent-strong)]">
+            <span className="grid size-10 place-items-center rounded-xl bg-[rgb(242_161_45/14%)] text-[var(--accent-strong)]">
               <Sparkles size={18} />
             </span>
           </div>
@@ -418,7 +384,7 @@ export function BusinessDashboard({
 
       <section
         id="programs"
-        className="mt-3 scroll-mt-24 overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]"
+        className="mt-3 scroll-mt-24 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]"
       >
         <header className="flex flex-col gap-4 border-b border-[var(--line)] p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
           <div>
@@ -510,7 +476,7 @@ export function BusinessDashboard({
         id="automations"
         className="mt-3 grid scroll-mt-24 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.48fr)]"
       >
-        <article className="overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+        <article className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <header className="flex items-center justify-between gap-4 border-b border-[var(--line)] p-5 sm:p-6">
             <div>
               <Eyebrow>Lifecycle automation</Eyebrow>
@@ -563,7 +529,7 @@ export function BusinessDashboard({
           </div>
         </article>
 
-        <article className="rounded-[26px] bg-[var(--accent)] p-6">
+        <article className="rounded-2xl bg-[var(--accent)] p-6">
           <div className="flex items-center justify-between">
             <Eyebrow>Message guardrails</Eyebrow>
             <Send size={18} />
@@ -598,7 +564,7 @@ export function BusinessDashboard({
 
       <section
         id="counter"
-        className="mt-3 scroll-mt-24 rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6"
+        className="mt-3 scroll-mt-24 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6"
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -642,7 +608,7 @@ export function BusinessDashboard({
             return (
               <article
                 key={item.title}
-                className="rounded-[20px] border border-[var(--line)] bg-[var(--paper)] p-5"
+                className="rounded-xl border border-[var(--line)] bg-[var(--paper)] p-5"
               >
                 <div className="flex items-start justify-between">
                   <span className="grid size-10 place-items-center rounded-xl bg-[var(--surface)]">
@@ -688,7 +654,7 @@ export function BusinessDashboard({
           return (
             <article
               key={item.title}
-              className="rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-5"
+              className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
             >
               <Icon size={19} className="text-[var(--accent-strong)]" />
               <h2 className="mt-7 text-lg font-black tracking-[-0.03em]">
@@ -709,7 +675,7 @@ export function BusinessDashboard({
           aria-modal="true"
           aria-labelledby="scan-title"
         >
-          <div className="w-full max-w-md rounded-[28px] bg-[var(--surface)] p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl bg-[var(--surface)] p-6 shadow-2xl">
             <div className="flex items-center justify-between">
               <div>
                 <Eyebrow>Counter scanner</Eyebrow>
@@ -728,7 +694,7 @@ export function BusinessDashboard({
                 <X size={18} />
               </button>
             </div>
-            <div className="relative mx-auto mt-7 aspect-square max-w-64 overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--ink)] p-6">
+            <div className="relative mx-auto mt-7 aspect-square max-w-64 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--ink)] p-6">
               <div className="absolute left-5 top-5 size-12 border-l-2 border-t-2 border-[var(--accent)]" />
               <div className="absolute right-5 top-5 size-12 border-r-2 border-t-2 border-[var(--accent)]" />
               <div className="absolute bottom-5 left-5 size-12 border-b-2 border-l-2 border-[var(--accent)]" />

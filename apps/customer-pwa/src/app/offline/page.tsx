@@ -18,7 +18,7 @@ export default function OfflinePage() {
         <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
           Reconnect to refresh cards or use your secure QR code.
         </p>
-        <Link href="/" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--ink)] px-5 text-sm font-bold text-[var(--paper)] transition active:scale-[0.98]">
+        <Link href="/" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--ink)] px-5 text-sm font-bold text-[var(--paper)] transition active:scale-[0.98]">
           Try again
         </Link>
       </div>

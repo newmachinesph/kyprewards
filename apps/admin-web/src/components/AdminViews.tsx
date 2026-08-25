@@ -2,7 +2,12 @@
 
 import { useState, type ReactNode } from "react";
 import { demoData } from "@stampr/demo-data";
-import { Button, Eyebrow } from "@stampr/ui";
+import {
+  Button,
+  Eyebrow,
+  Pill,
+  ViewFrame as SharedViewFrame,
+} from "@stampr/ui";
 import {
   Activity,
   ArrowRight,
@@ -33,60 +38,10 @@ import { AdminIntegrationsView } from "@/components/AdminIntegrationsView";
 const admin = demoData.admin;
 type Notify = (message: string) => void;
 
-function ViewFrame({
-  eyebrow,
-  title,
-  description,
-  action,
-  children,
-}: {
-  eyebrow: string;
-  title: string;
-  description: string;
-  action?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <main className="admin-grid min-h-[calc(100dvh-68px)] px-4 py-6 sm:px-7 lg:px-10 lg:py-8">
-      <div className="mx-auto max-w-[1500px]">
-        <header className="flex flex-col gap-5 border-b border-[var(--line)] pb-7 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <Eyebrow>{eyebrow}</Eyebrow>
-            <h1 className="mt-2 text-3xl font-black tracking-[-0.055em] sm:text-4xl">
-              {title}
-            </h1>
-            <p className="mt-2 max-w-[68ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-              {description}
-            </p>
-          </div>
-          {action}
-        </header>
-        <div className="pt-6">{children}</div>
-      </div>
-    </main>
-  );
-}
 
-function Pill({
-  children,
-  tone = "neutral",
-}: {
-  children: ReactNode;
-  tone?: "neutral" | "success" | "warning" | "danger";
-}) {
-  const tones = {
-    neutral: "bg-[var(--surface-2)] text-[var(--muted-strong)]",
-    success: "bg-[rgb(13_113_79/12%)] text-[var(--success)]",
-    warning: "bg-[rgb(149_83_12/12%)] text-[var(--accent-strong)]",
-    danger: "bg-[rgb(178_59_43/12%)] text-[var(--danger)]",
-  };
-  return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${tones[tone]}`}
-    >
-      {children}
-    </span>
-  );
+
+function ViewFrame(props: Omit<Parameters<typeof SharedViewFrame>[0], "wide" | "className">) {
+  return <SharedViewFrame wide className="admin-grid" {...props} />;
 }
 
 function BusinessesView({ notify }: { notify: Notify }) {
@@ -117,7 +72,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
       }
     >
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
-        <section className="overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+        <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="flex gap-3 border-b border-[var(--line)] p-4">
             <label className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3">
               <Search size={16} />
@@ -164,7 +119,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
                         setSelectedId(business.id);
                       }
                     }}
-                    className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === business.id ? "bg-[rgb(237_152_43/9%)]" : "hover:bg-[var(--paper)]"}`}
+                    className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === business.id ? "bg-[rgb(242_161_45/9%)]" : "hover:bg-[var(--paper)]"}`}
                   >
                     <td className="px-5 py-4">
                       <p className="text-sm font-black">{business.name}</p>
@@ -217,7 +172,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
             </table>
           </div>
         </section>
-        <aside className="rounded-[26px] bg-[var(--ink)] p-6 text-[var(--paper)]">
+        <aside className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <div className="flex items-center justify-between">
             <span className="grid size-12 place-items-center rounded-2xl bg-[var(--accent)] text-lg font-black text-[var(--ink)]">
               {selected.name
@@ -307,7 +262,7 @@ function PeopleView({ notify }: { notify: Notify }) {
           return (
             <article
               key={String(label)}
-              className="rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-5"
+              className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
             >
               <Icon size={18} className="text-[var(--accent-strong)]" />
               <p className="mt-7 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
@@ -322,7 +277,7 @@ function PeopleView({ notify }: { notify: Notify }) {
         })}
       </div>
       <div className="mt-3 grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-6">
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
           <div className="flex items-center justify-between">
             <div>
               <Eyebrow>Data-subject requests</Eyebrow>
@@ -356,7 +311,7 @@ function PeopleView({ notify }: { notify: Notify }) {
             ))}
           </div>
         </section>
-        <section className="rounded-[26px] bg-[var(--accent)] p-6">
+        <section className="rounded-2xl bg-[var(--accent)] p-6">
           <ShieldCheck size={22} />
           <h2 className="mt-8 max-w-[12ch] text-3xl font-black tracking-[-0.05em]">
             Rights are operational workflows.
@@ -404,11 +359,11 @@ function OperationsView({ notify }: { notify: Notify }) {
         {admin.services.map((service) => (
           <article
             key={service.name}
-            className="rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-5"
+            className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
           >
             <div className="flex items-start justify-between">
               <span
-                className={`grid size-10 place-items-center rounded-xl ${service.status === "Degraded" ? "bg-[rgb(178_59_43/12%)] text-[var(--danger)]" : "bg-[rgb(13_113_79/12%)] text-[var(--success)]"}`}
+                className={`grid size-10 place-items-center rounded-xl ${service.status === "Degraded" ? "bg-[rgb(178_59_43/12%)] text-[var(--danger)]" : "bg-[rgb(15_118_85/12%)] text-[var(--success)]"}`}
               >
                 {service.status === "Degraded" ? (
                   <CircleAlert size={18} />
@@ -431,7 +386,7 @@ function OperationsView({ notify }: { notify: Notify }) {
         ))}
       </section>
       <div className="mt-3 grid gap-3 xl:grid-cols-[1.15fr_0.85fr]">
-        <section className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-6">
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
           <div className="flex items-center justify-between">
             <div>
               <Eyebrow>Worker queues</Eyebrow>
@@ -462,7 +417,7 @@ function OperationsView({ notify }: { notify: Notify }) {
             ))}
           </div>
         </section>
-        <section className="rounded-[26px] bg-[var(--ink)] p-6 text-[var(--paper)]">
+        <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <div className="flex items-center justify-between">
             <Eyebrow>Active incident</Eyebrow>
             <Pill tone="danger">Investigating</Pill>
@@ -523,7 +478,7 @@ function SupportView({ notify }: { notify: Notify }) {
       }
     >
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(380px,0.7fr)]">
-        <section className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-5">
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
           <div className="flex items-center justify-between">
             <Eyebrow>Open work</Eyebrow>
             <Pill tone="danger">7 open</Pill>
@@ -560,7 +515,7 @@ function SupportView({ notify }: { notify: Notify }) {
             ))}
           </div>
         </section>
-        <aside className="rounded-[26px] bg-[var(--ink)] p-6 text-[var(--paper)]">
+        <aside className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <div className="flex items-center justify-between">
             <Pill tone={selected.priority === "High" ? "danger" : "neutral"}>
               {selected.priority}
@@ -629,7 +584,7 @@ function AuditView({ notify }: { notify: Notify }) {
         </Button>
       }
     >
-      <section className="overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+      <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-left">
             <thead>
@@ -679,7 +634,7 @@ function AuditView({ notify }: { notify: Notify }) {
           </table>
         </div>
       </section>
-      <div className="mt-3 flex items-start gap-3 rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-5">
+      <div className="mt-3 flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
         <FileClock size={19} className="mt-0.5 text-[var(--accent-strong)]" />
         <div>
           <p className="text-sm font-black">Append-only by design</p>
@@ -735,7 +690,7 @@ function EconomicsView() {
         ].map(([label, value, detail]) => (
           <article
             key={label}
-            className="rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-5"
+            className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
           >
             <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
               {label}
@@ -748,7 +703,7 @@ function EconomicsView() {
         ))}
       </div>
       <div className="mt-3 grid gap-3 xl:grid-cols-[1.1fr_0.9fr]">
-        <section className="overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+        <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="border-b border-[var(--line)] p-5">
             <Eyebrow>Plan contribution</Eyebrow>
             <h2 className="mt-1 text-lg font-black">
@@ -801,7 +756,7 @@ function EconomicsView() {
             </table>
           </div>
         </section>
-        <section className="rounded-[26px] bg-[var(--accent)] p-6">
+        <section className="rounded-2xl bg-[var(--accent)] p-6">
           <div className="flex items-center justify-between">
             <Eyebrow>Pricing guardrail</Eyebrow>
             <CircleDollarSign size={20} />
@@ -829,7 +784,7 @@ function EconomicsView() {
           </div>
         </section>
       </div>
-      <section className="mt-3 overflow-hidden rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+      <section className="mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="border-b border-[var(--line)] p-5">
           <Eyebrow>Channel unit economics</Eyebrow>
           <h2 className="mt-1 text-lg font-black">
@@ -901,7 +856,7 @@ function SettingsView({ notify }: { notify: Notify }) {
       }
     >
       <div className="grid gap-3 xl:grid-cols-[1fr_0.72fr]">
-        <section className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)]">
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="border-b border-[var(--line)] p-5">
             <Eyebrow>Safety defaults</Eyebrow>
             <h2 className="mt-1 text-lg font-black">
@@ -970,7 +925,7 @@ function SettingsView({ notify }: { notify: Notify }) {
           })}
         </section>
         <aside className="space-y-3">
-          <article className="rounded-[26px] bg-[var(--ink)] p-6 text-[var(--paper)]">
+          <article className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
             <div className="flex items-center justify-between">
               <Eyebrow>Provider policies</Eyebrow>
               <Webhook size={19} className="text-[var(--accent)]" />
@@ -1000,7 +955,7 @@ function SettingsView({ notify }: { notify: Notify }) {
               Edit provider policies <ArrowRight size={14} />
             </button>
           </article>
-          <article className="rounded-[26px] border border-[var(--line)] bg-[var(--surface)] p-6">
+          <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
             <div className="flex gap-3">
               <UserRoundCog
                 size={19}

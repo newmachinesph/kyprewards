@@ -16,8 +16,8 @@ export default function Loading() {
       </div>
       <div className="mx-auto max-w-[1400px] px-4 py-20 sm:px-6 lg:px-8">
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="h-80 rounded-[28px] bg-[var(--surface-2)]" />
-          <div className="h-80 rounded-[28px] bg-[var(--surface-2)]" />
+          <div className="h-80 rounded-2xl bg-[var(--surface-2)]" />
+          <div className="h-80 rounded-2xl bg-[var(--surface-2)]" />
         </div>
       </div>
     </main>

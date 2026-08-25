@@ -11,11 +11,11 @@ export default function Loading() {
           {Array.from({ length: 4 }, (_, i) => (
             <div
               key={i}
-              className="h-44 rounded-[24px] bg-[var(--surface-2)]"
+              className="h-44 rounded-2xl bg-[var(--surface-2)]"
             />
           ))}
         </div>
-        <div className="mt-3 h-80 rounded-[26px] bg-[var(--surface-2)]" />
+        <div className="mt-3 h-80 rounded-2xl bg-[var(--surface-2)]" />
       </div>
     </main>
   );

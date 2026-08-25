@@ -15,7 +15,7 @@ export default function ErrorPage({
   return (
     <main className="site-grid grid min-h-[calc(100dvh-72px)] place-items-center px-4 py-20 text-center">
       <div>
-        <span className="mx-auto grid size-14 place-items-center rounded-[20px] bg-[var(--ink)] text-[var(--accent)]">
+        <span className="mx-auto grid size-14 place-items-center rounded-xl bg-[var(--ink)] text-[var(--accent)]">
           <Stamp />
         </span>
         <p className="mt-7 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
@@ -31,7 +31,7 @@ export default function ErrorPage({
         <button
           type="button"
           onClick={retry}
-          className="focus-ring mt-7 inline-flex min-h-12 items-center gap-2 rounded-full bg-[var(--ink)] px-6 text-sm font-bold text-[var(--paper)] transition active:scale-[0.98]"
+          className="focus-ring mt-7 inline-flex min-h-12 items-center gap-2 rounded-xl bg-[var(--ink)] px-6 text-sm font-bold text-[var(--paper)] transition active:scale-[0.98]"
         >
           <RotateCcw size={16} /> Try again
         </button>

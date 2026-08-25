@@ -64,7 +64,7 @@ export default function AboutPage() {
       <section className="bg-[var(--ink)] px-4 py-20 text-[var(--paper)] sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">
           <SiteEyebrow inverse>What guides the product</SiteEyebrow>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[30px] border border-white/10 bg-white/10 sm:grid-cols-2">
+          <div className="mt-12 grid gap-px overflow-hidden rounded-[18px] border border-white/10 bg-white/10 sm:grid-cols-2">
             {[
               {
                 icon: Store,
@@ -120,10 +120,10 @@ export default function AboutPage() {
               Designed near the counter.
             </h2>
           </div>
-          <div className="rounded-[32px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-10">
+          <div className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-10">
             <div className="grid gap-8 sm:grid-cols-[1fr_auto] sm:items-end">
               <div>
-                <span className="grid size-12 place-items-center rounded-2xl bg-[rgb(227_154_69/16%)] text-[var(--accent-strong)]">
+                <span className="grid size-12 place-items-center rounded-2xl bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
                   <MapPin />
                 </span>
                 <h3 className="mt-8 max-w-[18ch] text-3xl font-black tracking-[-0.05em]">

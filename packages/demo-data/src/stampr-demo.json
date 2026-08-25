@@ -683,6 +683,7 @@
     "discover": [
       {
         "id": "discover_1",
+        "image": "/images/discover/sweet-crumbs.webp",
         "name": "Sweet Crumbs",
         "category": "Bakery",
         "neighborhood": "Kapitolyo",
@@ -698,6 +699,7 @@
       },
       {
         "id": "discover_2",
+        "image": "/images/discover/sage-steam.webp",
         "name": "Sage & Steam",
         "category": "Café",
         "neighborhood": "Brixton",
@@ -712,6 +714,7 @@
       },
       {
         "id": "discover_3",
+        "image": "/images/discover/rooted-studio.webp",
         "name": "Rooted Studio",
         "category": "Wellness",
         "neighborhood": "Capitol Commons",
@@ -727,6 +730,7 @@
       },
       {
         "id": "discover_4",
+        "image": "/images/discover/common-ground.webp",
         "name": "Common Ground Barbers",
         "category": "Grooming",
         "neighborhood": "Ortigas",
@@ -742,6 +746,7 @@
       },
       {
         "id": "discover_5",
+        "image": "/images/discover/corner-thread.webp",
         "name": "Corner Thread",
         "category": "Retail",
         "neighborhood": "Shaw",
@@ -756,6 +761,7 @@
       },
       {
         "id": "discover_6",
+        "image": "/images/discover/pace-house.webp",
         "name": "Pace House",
         "category": "Fitness",
         "neighborhood": "Greenfield",

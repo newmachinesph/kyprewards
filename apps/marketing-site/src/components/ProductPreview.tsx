@@ -11,7 +11,7 @@ import {
 
 export function ProductPreview() {
   return (
-    <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[var(--surface)] text-[var(--ink)] shadow-[0_30px_100px_rgb(0_0_0/28%)]">
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-[var(--surface)] text-[var(--ink)] shadow-[0_30px_100px_rgb(0_0_0/28%)]">
       <div className="flex h-12 items-center gap-2 border-b border-[var(--line)] px-4">
         <span className="size-2.5 rounded-full bg-[var(--line-strong)]" />
         <span className="size-2.5 rounded-full bg-[var(--line-strong)]" />
@@ -22,8 +22,9 @@ export function ProductPreview() {
       </div>
       <div className="grid min-h-[430px] grid-cols-[76px_1fr] sm:grid-cols-[150px_1fr]">
         <aside className="border-r border-[var(--line)] bg-[var(--paper)] p-3">
-          <span className="grid size-8 place-items-center rounded-xl bg-[var(--ink)] text-[10px] font-black text-[var(--paper)]">
-            S
+          <span className="block size-8 overflow-hidden rounded-lg ring-1 ring-[var(--line)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/logo.png" alt="" width={32} height={32} className="size-full object-cover" />
           </span>
           <div className="mt-8 space-y-2">
             {[BarChart3, ScanLine, Users, Gift].map((Icon, index) => (

@@ -51,11 +51,11 @@ export function PlaybookSignup() {
           autoComplete="email"
           placeholder="Work email"
           aria-describedby={error ? "playbook-error" : undefined}
-          className="focus-ring min-h-12 min-w-0 flex-1 rounded-full border border-[var(--line-strong)] bg-[var(--paper)] px-5 text-sm outline-none placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
+          className="focus-ring min-h-12 min-w-0 flex-1 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-5 text-sm outline-none placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
         />
         <button
           type="submit"
-          className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--ink)] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(33_27_23/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
+          className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(33_27_23/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
         >
           Preview playbook signup <ArrowRight size={15} />
         </button>

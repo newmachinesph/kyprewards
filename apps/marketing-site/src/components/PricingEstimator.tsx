@@ -82,7 +82,7 @@ export function PricingEstimator() {
 
   return (
     <div className="grid gap-3 lg:grid-cols-[1.08fr_0.92fr]">
-      <section className="rounded-[30px] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
+      <section className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
@@ -199,7 +199,7 @@ export function PricingEstimator() {
           })}
         </div>
       </section>
-      <aside className="rounded-[30px] bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
+      <aside className="rounded-[18px] bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
         <div className="flex items-center justify-between">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-white/70">
             Recommended

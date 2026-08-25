@@ -199,7 +199,7 @@ export default function FeaturesPage() {
                 program type.
               </p>
             </div>
-            <div className="overflow-hidden rounded-[30px] border border-[var(--line)] bg-[var(--surface)]">
+            <div className="overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--surface)]">
               {programs.map((program, index) => {
                 const Icon = program.icon;
                 return (
@@ -255,7 +255,7 @@ export default function FeaturesPage() {
             </div>
           </div>
 
-          <div className="rounded-[32px] border border-white/12 bg-white/[0.055] p-5 sm:p-7">
+          <div className="rounded-[18px] border border-white/12 bg-white/[0.055] p-5 sm:p-7">
             <div className="flex items-center justify-between border-b border-white/10 pb-5">
               <div>
                 <p className="text-sm font-black">Visit capture</p>
@@ -294,7 +294,7 @@ export default function FeaturesPage() {
                 return (
                   <article
                     key={item.title}
-                    className="rounded-[22px] border border-white/10 bg-[var(--ink-soft)] p-5"
+                    className="rounded-2xl border border-white/10 bg-[var(--ink-soft)] p-5"
                   >
                     <Icon size={20} className="text-[var(--accent)]" />
                     <h3 className="mt-7 text-base font-black">{item.title}</h3>
@@ -305,7 +305,7 @@ export default function FeaturesPage() {
                 );
               })}
             </div>
-            <div className="mt-3 flex items-center gap-3 rounded-[20px] border border-white/10 p-4">
+            <div className="mt-3 flex items-center gap-3 rounded-xl border border-white/10 p-4">
               <RefreshCcw size={18} className="shrink-0 text-[var(--accent)]" />
               <p className="text-xs leading-relaxed text-white/70">
                 <strong className="text-white">
@@ -331,7 +331,7 @@ export default function FeaturesPage() {
                 Every journey respects channel consent, quiet hours, frequency
                 limits, and location relevance before a message can go out.
               </p>
-              <div className="mt-8 flex items-start gap-3 rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-5">
+              <div className="mt-8 flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
                 <BellRing
                   className="mt-0.5 shrink-0 text-[var(--accent-strong)]"
                   size={19}
@@ -368,7 +368,7 @@ export default function FeaturesPage() {
       <section className="border-y border-[var(--line)] bg-[var(--surface)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">
           <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="overflow-hidden rounded-[30px] border border-[var(--line)] bg-[var(--paper)]">
+            <div className="overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--paper)]">
               <div className="flex items-center justify-between border-b border-[var(--line)] p-6">
                 <div>
                   <SiteEyebrow>Analytics model</SiteEyebrow>
@@ -390,7 +390,7 @@ export default function FeaturesPage() {
                 </div>
               ))}
             </div>
-            <div className="flex flex-col justify-between rounded-[30px] bg-[var(--accent)] p-7 sm:p-9">
+            <div className="flex flex-col justify-between rounded-[18px] bg-[var(--accent)] p-7 sm:p-9">
               <div>
                 <SiteEyebrow>Explainable actions</SiteEyebrow>
                 <h2 className="mt-4 max-w-[10ch] text-4xl font-black leading-[1] tracking-[-0.055em]">
@@ -402,7 +402,7 @@ export default function FeaturesPage() {
                   reward cost, and opt-in status before launch.
                 </p>
               </div>
-              <div className="mt-12 rounded-[22px] bg-[var(--surface)] p-5">
+              <div className="mt-12 rounded-2xl bg-[var(--surface)] p-5">
                 <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent-strong)]">
                   <MessageSquareText size={14} /> Next best action
                 </div>
@@ -427,7 +427,7 @@ export default function FeaturesPage() {
               Built for the whole business, not one QR poster.
             </h2>
           </div>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[30px] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2">
+          <div className="mt-12 grid gap-px overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2">
             {operations.map((item, index) => {
               const Icon = item.icon;
               return (
@@ -451,8 +451,8 @@ export default function FeaturesPage() {
             })}
           </div>
 
-          <div className="mt-12 grid gap-5 rounded-[30px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:grid-cols-[auto_1fr] sm:items-start sm:p-9">
-            <span className="grid size-13 place-items-center rounded-[18px] bg-[rgb(227_154_69/16%)] text-[var(--accent-strong)]">
+          <div className="mt-12 grid gap-5 rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:grid-cols-[auto_1fr] sm:items-start sm:p-9">
+            <span className="grid size-13 place-items-center rounded-xl bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
               <Fingerprint />
             </span>
             <div>

@@ -58,7 +58,7 @@ export default function SolutionsPage() {
                   <Link
                     key={industry.slug}
                     href={`/solutions/${industry.slug}`}
-                    className={`group min-h-[360px] rounded-[30px] p-7 transition hover:-translate-y-1 ${index === 0 ? "bg-[var(--ink)] text-[var(--paper)]" : index === 1 ? "bg-[var(--accent)]" : "border border-[var(--line)] bg-[var(--surface)]"}`}
+                    className={`group min-h-[360px] rounded-[18px] p-7 transition hover:-translate-y-1 ${index === 0 ? "bg-[var(--ink)] text-[var(--paper)]" : index === 1 ? "bg-[var(--accent)]" : "border border-[var(--line)] bg-[var(--surface)]"}`}
                   >
                     <div className="flex items-start justify-between">
                       <span

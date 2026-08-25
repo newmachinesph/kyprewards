@@ -31,7 +31,7 @@ export function ContactForm() {
   if (state === "sent") {
     return (
       <div
-        className="grid min-h-[580px] place-items-center rounded-[30px] border border-[var(--line)] bg-[var(--surface)] p-8 text-center"
+        className="grid min-h-[580px] place-items-center rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-8 text-center"
         aria-live="polite"
       >
         <div>
@@ -59,7 +59,7 @@ export function ContactForm() {
   return (
     <form
       onSubmit={submit}
-      className="rounded-[30px] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8"
+      className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8"
       noValidate
     >
       <div className="grid gap-5 sm:grid-cols-2">
@@ -137,7 +137,7 @@ export function ContactForm() {
         <button
           type="submit"
           disabled={state === "sending"}
-          className="focus-ring inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full border border-[var(--ink)] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(33_27_23/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+          className="focus-ring inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(33_27_23/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {state === "sending" ? (
             <>

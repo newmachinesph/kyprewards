@@ -16,7 +16,7 @@ export default function ErrorPage({
   return (
     <main className="grid min-h-[100dvh] place-items-center p-6">
       <div className="max-w-md text-center">
-        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[rgb(216_83_62/12%)] text-[var(--danger)]">
+        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[rgb(178_59_43/12%)] text-[var(--danger)]">
           <CircleAlert />
         </span>
         <h1 className="mt-5 text-2xl font-black tracking-[-0.04em]">

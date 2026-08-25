@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Button, Eyebrow } from "@stampr/ui";
+import { Button, DemoBadge, Eyebrow, FieldLabel, Panel } from "@stampr/ui";
 import {
   ArrowRight,
   BadgeCheck,
@@ -150,37 +150,6 @@ const initialDeliveries: Delivery[] = [
   },
 ];
 
-function DemoBadge() {
-  return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(149_83_12/30%)] bg-[rgb(238_155_43/14%)] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-[var(--accent-strong)]">
-      <TestTube2 size={13} aria-hidden="true" /> Frontend demo only
-    </span>
-  );
-}
-
-function Panel({
-  children,
-  className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <section
-      className={`rounded-[26px] border border-[var(--line)] bg-[var(--surface)] ${className}`}
-    >
-      {children}
-    </section>
-  );
-}
-
-function FieldLabel({ children }: { children: ReactNode }) {
-  return (
-    <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.12em] text-[var(--muted-strong)]">
-      {children}
-    </span>
-  );
-}
 
 function StatusBadge({ status }: { status: DeliveryStatus | CredentialStatus }) {
   const classes = {
@@ -188,7 +157,7 @@ function StatusBadge({ status }: { status: DeliveryStatus | CredentialStatus }) 
     Revoked: "bg-[var(--surface-2)] text-[var(--muted-strong)]",
     Delivered: "bg-[rgb(15_118_85/12%)] text-[var(--success)]",
     "Ignored safely": "bg-[rgb(36_29_25/8%)] text-[var(--ink-soft)]",
-    Retrying: "bg-[rgb(238_155_43/16%)] text-[var(--accent-strong)]",
+    Retrying: "bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]",
     Failed: "bg-[rgb(178_59_43/12%)] text-[var(--danger)]",
   } as const;
   return (
@@ -385,7 +354,7 @@ export function IntegrationsView({
         <DemoBadge />
       </header>
 
-      <section className="ticket-edge mt-6 overflow-hidden rounded-[28px] px-5 py-6 text-[var(--paper)] sm:px-7">
+      <section className="ticket-edge mt-6 overflow-hidden rounded-2xl px-5 py-6 text-[var(--paper)] sm:px-7">
         <div className="grid gap-7 xl:grid-cols-[1fr_auto] xl:items-start">
           <div>
             <div className="flex flex-wrap items-center gap-3">
@@ -600,7 +569,7 @@ export function IntegrationsView({
           </div>
 
           {oneTimeSecret && (
-            <div className="border-b border-[rgb(149_83_12/22%)] bg-[rgb(238_155_43/12%)] p-5 sm:p-6" role="status">
+            <div className="border-b border-[rgb(149_83_12/22%)] bg-[rgb(242_161_45/12%)] p-5 sm:p-6" role="status">
               <div className="flex items-start gap-3">
                 <KeyRound size={18} className="mt-0.5 shrink-0 text-[var(--accent-strong)]" />
                 <div className="min-w-0 flex-1">
@@ -726,7 +695,7 @@ export function IntegrationsView({
             </ol>
           </Panel>
 
-          <section className="overflow-hidden rounded-[26px] bg-[var(--ink)] text-[var(--paper)]">
+          <section className="overflow-hidden rounded-2xl bg-[var(--ink)] text-[var(--paper)]">
             <div className="flex items-start justify-between gap-3 border-b border-white/12 p-5">
               <div>
                 <Eyebrow>Quickstart</Eyebrow>
@@ -1014,7 +983,7 @@ export function IntegrationsView({
           return (
             <article
               key={item.title}
-              className="rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-5"
+              className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
             >
               <Icon size={18} className="text-[var(--accent-strong)]" />
               <h2 className="mt-6 text-sm font-black">{item.title}</h2>
