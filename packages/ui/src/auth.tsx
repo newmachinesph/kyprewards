@@ -13,15 +13,20 @@ import {
   Building2,
   Check,
   ChevronRight,
+  Croissant,
   Eye,
   EyeOff,
+  Gift,
   KeyRound,
+  LockKeyhole,
   Mail,
   ShieldCheck,
+  Smartphone,
+  Sparkles,
   Store,
   UserRoundPlus,
 } from "lucide-react";
-import { BrandMark } from "./index";
+import { BrandMark, StampDots } from "./index";
 
 export type DemoAuthRole = "business" | "admin" | "customer";
 export type DemoAuthMode =
@@ -69,9 +74,9 @@ const roleConfig = {
     identifierLabel: "Mobile number",
     identifierType: "tel",
     identifier: "+63 917 555 0182",
-    signInTitle: "Your rewards are waiting.",
+    signInTitle: "Open your wallet.",
     signInDescription:
-      "Use your mobile number or email to open the same private wallet on this device.",
+      "Use your mobile number or email. We will send a one-time code—no password needed.",
     steps: [
       ["Member", "Jacqueline Daniel"],
       ["Wallet", "4 local businesses"],
@@ -79,6 +84,130 @@ const roleConfig = {
     ],
   },
 } as const;
+
+function CustomerAuthVisual({ mode }: { mode: DemoAuthMode }) {
+  if (mode === "verify") {
+    return (
+      <div className="customer-auth-visual customer-auth-code-card">
+        <span className="grid size-12 place-items-center rounded-[18px] bg-[var(--surface)] text-[var(--accent-strong)] shadow-sm">
+          <Smartphone size={21} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[var(--muted-strong)]">
+            Code ready
+          </p>
+          <p className="mt-1 text-sm font-black tracking-[-0.02em]">Sent to your demo mobile</p>
+        </div>
+        <div className="flex gap-1" aria-hidden="true">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <span key={index} className="size-1.5 rounded-full bg-[var(--ink)]" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "create") {
+    return (
+      <div className="customer-auth-visual customer-auth-create-card">
+        <div className="flex -space-x-3" aria-hidden="true">
+          {[Croissant, Gift, Sparkles].map((Icon, index) => (
+            <span
+              key={index}
+              className={`grid size-12 place-items-center rounded-[18px] border-4 border-[var(--accent)] ${index === 1 ? "bg-[var(--ink)] text-[var(--accent)]" : "bg-[var(--surface)] text-[var(--ink)]"}`}
+            >
+              <Icon size={19} />
+            </span>
+          ))}
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[rgb(37_29_24/62%)]">
+            One free wallet
+          </p>
+          <p className="mt-1 text-sm font-black tracking-[-0.025em]">
+            Rewards from every local favorite
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <article className="loyalty-ticket customer-auth-loyalty-card overflow-hidden rounded-[26px] px-5 py-5 text-[var(--paper)]">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 place-items-center rounded-2xl bg-white/10 text-[var(--accent)]">
+            <Croissant size={19} />
+          </span>
+          <div>
+            <p className="text-sm font-black tracking-[-0.025em]">Sweet Crumbs</p>
+            <p className="mt-0.5 text-[10px] font-semibold text-white/50">Closest reward</p>
+          </div>
+        </div>
+        <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent)] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.1em] text-[var(--ink)]">
+          <Sparkles size={11} /> 5-stamp streak
+        </span>
+      </div>
+      <div className="mt-5 overflow-x-auto pb-1">
+        <StampDots filled={5} total={8} dark />
+      </div>
+      <div className="mt-3 flex items-center justify-between text-[10px] font-bold">
+        <span className="text-white/50">3 visits to go</span>
+        <span className="text-[var(--accent)]">Free pastry</span>
+      </div>
+    </article>
+  );
+}
+
+function CustomerAuthShell({
+  mode,
+  title,
+  description,
+  children,
+}: {
+  mode: DemoAuthMode;
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  const stageLabel = mode === "verify" ? "Verify" : mode === "create" ? "Join Stampr" : "Welcome back";
+
+  return (
+    <main className="customer-auth min-h-[100dvh] bg-[#d9d5ce] sm:px-5 sm:py-6">
+      <section className="phone-shell relative mx-auto flex min-h-[100dvh] max-w-[460px] flex-col overflow-hidden border-x border-[rgb(37_29_24/8%)] bg-[var(--accent)] sm:min-h-[calc(100dvh-3rem)] sm:rounded-[34px] sm:border sm:shadow-[0_28px_90px_rgb(37_29_24/20%)]">
+        <header className="flex items-center justify-between gap-4 px-5 pb-4 pt-[max(1.1rem,env(safe-area-inset-top))]">
+          <BrandMark label="Wallet" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgb(37_29_24/12%)] bg-[rgb(255_253_249/42%)] px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.11em] text-[var(--ink)]">
+            <LockKeyhole size={11} /> Demo only
+          </span>
+        </header>
+
+        <div className="px-5 pb-5">
+          <CustomerAuthVisual mode={mode} />
+        </div>
+
+        <div className="customer-auth-sheet flex-1 rounded-t-[32px] bg-[var(--paper)] px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-6">
+          <span className="mx-auto block h-1 w-10 rounded-full bg-[var(--line-strong)]" aria-hidden="true" />
+          <div className="mt-5 flex items-center justify-between gap-4">
+            <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[var(--accent-strong)]">
+              {stageLabel}
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-[var(--success)]">
+              <span className="size-1.5 rounded-full bg-[var(--success)]" /> Private by default
+            </span>
+          </div>
+          <h1 className="mt-3 text-[2rem] font-black leading-[0.98] tracking-[-0.055em]">
+            {title}
+          </h1>
+          <p className="mt-3 max-w-[38ch] text-[13px] leading-relaxed text-[var(--muted-strong)]">
+            {description}
+          </p>
+          <div className="customer-auth-content mt-6">{children}</div>
+        </div>
+      </section>
+    </main>
+  );
+}
 
 function sessionKey(role: DemoAuthRole) {
   return `stampr-${role}-demo-session`;
@@ -130,16 +259,27 @@ export function DemoSessionGate({
 
 function AuthShell({
   role,
+  mode,
   title,
   description,
   children,
 }: {
   role: DemoAuthRole;
+  mode: DemoAuthMode;
   title: string;
   description: string;
   children: ReactNode;
 }) {
   const config = roleConfig[role];
+
+  if (role === "customer") {
+    return (
+      <CustomerAuthShell mode={mode} title={title} description={description}>
+        {children}
+      </CustomerAuthShell>
+    );
+  }
+
   return (
     <main className="min-h-[100dvh] bg-[var(--paper)] lg:grid lg:grid-cols-[minmax(340px,0.72fr)_minmax(0,1.28fr)]">
       <aside className="relative hidden min-h-[100dvh] overflow-hidden bg-[var(--ink)] p-8 text-[var(--paper)] lg:flex lg:flex-col xl:p-12">
@@ -245,7 +385,18 @@ function PrimaryButton({ children, disabled = false }: { children: ReactNode; di
   );
 }
 
-function DemoBoundary() {
+function DemoBoundary({ compact = false }: { compact?: boolean }) {
+  if (compact) {
+    return (
+      <div className="mt-5 flex items-start gap-3 rounded-[18px] bg-[var(--surface-2)] px-3.5 py-3">
+        <BadgeCheck size={16} className="mt-0.5 shrink-0 text-[var(--success)]" />
+        <p className="text-[11px] leading-relaxed text-[var(--muted-strong)]">
+          Demo mode: nothing is sent or saved to a server.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-6 flex items-start gap-3 rounded-2xl border border-[rgb(15_118_85/18%)] bg-[rgb(15_118_85/7%)] p-4">
       <BadgeCheck size={17} className="mt-0.5 shrink-0 text-[var(--success)]" />
@@ -282,6 +433,12 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
     }
   }, []);
 
+  useEffect(() => {
+    if (role !== "customer") return;
+    const frame = window.requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0 }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [mode, role]);
+
   function go(path: string) {
     window.location.assign(path);
   }
@@ -307,7 +464,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
 
   if (mode === "login") {
     return (
-      <AuthShell role={role} title={config.signInTitle} description={config.signInDescription}>
+      <AuthShell role={role} mode="login" title={config.signInTitle} description={config.signInDescription}>
         {notice && (
           <p aria-live="polite" className="mb-5 rounded-2xl bg-[var(--surface-2)] px-4 py-3 text-xs font-bold text-[var(--muted-strong)]">
             {notice}
@@ -324,8 +481,9 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
                   setChannel(item);
                   setIdentifier(item === "mobile" ? "+63 917 555 0182" : "jacqueline.daniel@example.com");
                 }}
-                className={`min-h-10 rounded-full text-xs font-black capitalize ${channel === item ? "bg-[var(--ink)] text-[var(--paper)]" : "text-[var(--muted-strong)]"}`}
+                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full text-xs font-black capitalize transition ${channel === item ? "bg-[var(--ink)] text-[var(--paper)] shadow-sm" : "text-[var(--muted-strong)]"}`}
               >
+                {item === "mobile" ? <Smartphone size={14} /> : <Mail size={14} />}
                 {item}
               </button>
             ))}
@@ -378,12 +536,12 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
             )}
           </div>
           <PrimaryButton>
-            {role === "customer" ? "Send verification code" : "Continue securely"}
+            {role === "customer" ? (channel === "mobile" ? "Text me a code" : "Email me a code") : "Continue securely"}
           </PrimaryButton>
         </form>
 
         <div className="my-6 flex items-center gap-3 text-[9px] font-black uppercase tracking-[0.12em] text-[var(--muted)]">
-          <span className="h-px flex-1 bg-[var(--line)]" /> Or use demo identity <span className="h-px flex-1 bg-[var(--line)]" />
+          <span className="h-px flex-1 bg-[var(--line)]" /> {role === "customer" ? "Or" : "Or use demo identity"} <span className="h-px flex-1 bg-[var(--line)]" />
         </div>
         <div className={`grid gap-2 ${role === "business" ? "sm:grid-cols-2" : ""}`}>
           {role === "business" ? (
@@ -410,14 +568,14 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
             New to Stampr? <a href="/create-account" className="font-black text-[var(--accent-strong)] hover:underline">Create your wallet</a>
           </p>
         )}
-        <DemoBoundary />
+        <DemoBoundary compact={role === "customer"} />
       </AuthShell>
     );
   }
 
   if (mode === "forgot") {
     return (
-      <AuthShell role={role} title="Reset your access." description="Enter the work email attached to your demo account. The recovery state is simulated locally.">
+      <AuthShell role={role} mode="forgot" title="Reset your access." description="Enter the work email attached to your demo account. The recovery state is simulated locally.">
         {sent ? (
           <div aria-live="polite" className="rounded-[28px] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-7">
             <span className="grid size-12 place-items-center rounded-2xl bg-[rgb(15_118_85/10%)] text-[var(--success)]"><Mail size={20} /></span>
@@ -432,7 +590,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
             <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-black text-[var(--muted-strong)] hover:text-[var(--ink)]"><ArrowLeft size={14} /> Back to sign in</a>
           </form>
         )}
-        <DemoBoundary />
+        <DemoBoundary compact={role === "customer"} />
       </AuthShell>
     );
   }
@@ -440,7 +598,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   if (mode === "verify") {
     const destination = role === "business" ? "/workspaces" : role === "customer" ? "/#home" : "/#overview";
     return (
-      <AuthShell role={role} title="Confirm it is you." description={role === "admin" ? "Enter the six-digit code from your administrator authenticator." : "Enter the six-digit code prepared for your demo account."}>
+      <AuthShell role={role} mode="verify" title={role === "customer" ? "Enter your code." : "Confirm it is you."} description={role === "admin" ? "Enter the six-digit code from your administrator authenticator." : role === "customer" ? "Use the six-digit code prepared for your demo wallet." : "Enter the six-digit code prepared for your demo account."}>
         <form onSubmit={(event) => { event.preventDefault(); if (code.length !== 6) { setNotice("Enter all six digits."); return; } completeSession(destination); }} className="space-y-5">
           <label className="grid gap-2 text-xs font-black">
             Six-digit verification code
@@ -459,14 +617,14 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
           <button type="button" onClick={() => setNotice("A new demo code is ready: 424242.")} className="min-h-11 w-full text-xs font-black text-[var(--accent-strong)] hover:underline">Resend demo code</button>
           <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-black text-[var(--muted-strong)]"><ArrowLeft size={14} /> Use another account</a>
         </form>
-        <DemoBoundary />
+        <DemoBoundary compact={role === "customer"} />
       </AuthShell>
     );
   }
 
   if (mode === "create") {
     return (
-      <AuthShell role="customer" title="Create one local wallet." description="Keep rewards from nearby businesses in one account with permissions you can change anytime.">
+      <AuthShell role="customer" mode="create" title="Set up your wallet." description="Keep rewards from nearby businesses together, with permissions you can change anytime.">
         <form onSubmit={(event) => { event.preventDefault(); if (!accepted) { setNotice("Accept the terms to continue."); return; } window.sessionStorage.setItem("stampr-customer-signup-name", name); go("/verify"); }} className="space-y-5">
           <Field label="Full name" value={name} onChange={setName} autoComplete="name" />
           <Field label="Mobile number" type="tel" value={identifier} onChange={setIdentifier} autoComplete="tel" />
@@ -489,7 +647,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
       { id: "sage-steam", name: "Sage & Steam", detail: "Analyst · 2 locations", badge: "Training", icon: Building2 },
     ];
     return (
-      <AuthShell role="business" title="Choose your workspace." description="Your demo role and location access change with the workspace you enter.">
+      <AuthShell role="business" mode="workspaces" title="Choose your workspace." description="Your demo role and location access change with the workspace you enter.">
         <form onSubmit={(event) => { event.preventDefault(); completeSession("/#dashboard"); }} className="space-y-3">
           {options.map((option) => {
             const Icon = option.icon;
@@ -515,7 +673,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   }
 
   return (
-    <AuthShell role="business" title="You have been invited." description="Review the role and locations before joining the Sweet Crumbs demo workspace.">
+    <AuthShell role="business" mode="invite" title="You have been invited." description="Review the role and locations before joining the Sweet Crumbs demo workspace.">
       <div className="overflow-hidden rounded-[28px] border border-[var(--line)] bg-[var(--surface)]">
         <div className="bg-[var(--ink)] p-6 text-[var(--paper)]">
           <span className="grid size-12 place-items-center rounded-2xl bg-[var(--accent)] text-[var(--ink)]"><UserRoundPlus size={20} /></span>

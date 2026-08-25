@@ -59,6 +59,75 @@ button:disabled {
 .phone-shell {
   box-shadow: 0 24px 80px rgb(37 29 24 / 16%);
 }
+.customer-auth {
+  background:
+    radial-gradient(circle at 50% -10%, rgb(242 161 45 / 24%), transparent 27rem),
+    linear-gradient(145deg, #e5e1da, #d3cec6);
+  overscroll-behavior-y: none;
+}
+.customer-auth-visual {
+  animation: wallet-card-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.customer-auth-loyalty-card {
+  box-shadow: 0 18px 40px rgb(37 29 24 / 20%);
+}
+.customer-auth-code-card,
+.customer-auth-create-card {
+  display: flex;
+  min-height: 94px;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid rgb(37 29 24 / 10%);
+  border-radius: 24px;
+  background: rgb(255 253 249 / 62%);
+  padding: 18px;
+  box-shadow: 0 16px 34px rgb(37 29 24 / 10%);
+  backdrop-filter: blur(12px);
+}
+.customer-auth-sheet {
+  animation: wallet-sheet-in 560ms 80ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  box-shadow: 0 -12px 34px rgb(37 29 24 / 9%);
+}
+.customer-auth-content input:is([type="tel"], [type="email"], [type="text"]):not([inputmode="numeric"]) {
+  min-height: 54px;
+  border-radius: 18px;
+  background: #fff;
+  font-size: 16px;
+}
+.customer-auth-content button[type="submit"] {
+  min-height: 54px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgb(37 29 24 / 14%);
+}
+.customer-auth-content input[inputmode="numeric"] {
+  border-radius: 20px;
+  background: #fff;
+}
+.customer-auth-content a,
+.customer-auth-content button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes wallet-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) rotate(-1deg) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0) scale(1);
+  }
+}
+@keyframes wallet-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .customer-scroll {
   scrollbar-width: none;
 }
@@ -98,6 +167,9 @@ button:disabled {
   html,
   body {
     background: var(--paper);
+  }
+  .customer-auth {
+    background: var(--accent);
   }
   .phone-shell {
     box-shadow: none;

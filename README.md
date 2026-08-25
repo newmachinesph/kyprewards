@@ -72,8 +72,11 @@ docker compose -f compose.frontend.yaml up --build
 npm.cmd run typecheck
 npm.cmd run lint
 npm.cmd run audit:controls
+npm.cmd run qa:customer-auth
 npm.cmd run build
 ```
+
+`qa:customer-auth` runs the customer login, verification, and signup journeys in Playwright at phone and desktop widths. Set `CUSTOMER_APP_URL` to run the same suite against a deployed PWA.
 
 The latest measured release results and scope boundary are recorded in [docs/frontend-release-audit.md](docs/frontend-release-audit.md).
 

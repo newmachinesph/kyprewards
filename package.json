@@ -13,6 +13,7 @@
     "dev:marketing": "npm run dev --workspace @stampr/marketing-site",
     "build": "npm run build --workspaces --if-present",
     "audit:controls": "node scripts/audit-controls.mjs",
+    "qa:customer-auth": "node scripts/qa-customer-auth.mjs",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint apps packages"
   },
@@ -23,6 +24,7 @@
     "@types/react-dom": "latest",
     "eslint": "9.39.5",
     "eslint-config-next": "latest",
+    "playwright": "^1.62.1",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3"
   },
