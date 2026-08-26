@@ -59,7 +59,7 @@ export default function ContactPage() {
                 {
                   icon: Mail,
                   title: "Prefer email?",
-                  text: "hello@kypstamping.com",
+                  text: "hello@kypstamping.ph",
                 },
               ].map((item) => {
                 const Icon = item.icon;

@@ -56,14 +56,14 @@ const sections = [
     ],
     bullets: [
       "Depending on where you live, you may have rights to access, correct, delete, restrict, or receive a copy of personal information.",
-      "Requests can be sent to privacy@kypstamping.com. We may verify identity before completing a request.",
+      "Requests can be sent to privacy@kypstamping.ph. We may verify identity before completing a request.",
     ],
   },
   {
     title: "Changes and contact",
     paragraphs: [
       "We will update this notice when our practices or legal obligations change. Material changes will be communicated through the service or by another appropriate method.",
-      "Questions about this notice can be sent to privacy@kypstamping.com.",
+      "Questions about this notice can be sent to privacy@kypstamping.ph.",
     ],
   },
 ];
