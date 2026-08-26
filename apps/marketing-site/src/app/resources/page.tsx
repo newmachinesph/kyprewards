@@ -99,7 +99,7 @@ export default function ResourcesPage() {
       <section className="border-y border-[var(--line)] bg-[var(--surface)] px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
         <div className="mx-auto grid max-w-[1400px] gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-center">
           <div>
-            <span className="grid size-13 place-items-center rounded-xl bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
+            <span className="grid size-13 place-items-center rounded-xl bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]">
               <BookOpen />
             </span>
             <h2 className="mt-8 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">

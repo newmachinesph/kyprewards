@@ -119,7 +119,7 @@ export default async function ComparisonPage({ params }: Props) {
                         {fact.competitor}
                       </span>
                     </td>
-                    <td className="bg-[rgb(242_161_45/8%)] px-6 py-5 text-sm leading-relaxed">
+                    <td className="bg-[rgb(232_163_61/8%)] px-6 py-5 text-sm leading-relaxed">
                       <span className="flex items-start gap-3">
                         <Check
                           size={15}

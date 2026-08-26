@@ -175,7 +175,7 @@ export function BusinessShell({
       >
         Skip to workspace
       </a>
-      <aside className="sticky top-0 hidden h-[100dvh] border-r border-[var(--line)] bg-[rgb(255_253_249/86%)] px-4 py-5 backdrop-blur-xl md:flex md:flex-col">
+      <aside className="sticky top-0 hidden h-[100dvh] border-r border-[var(--line)] bg-[rgb(255_254_251/86%)] px-4 py-5 backdrop-blur-xl md:flex md:flex-col">
         <div className="px-2">
           <BrandMark />
         </div>
@@ -246,7 +246,7 @@ export function BusinessShell({
       </aside>
 
       <div className="min-w-0">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[var(--line)] bg-[rgb(251_248_242/92%)] px-4 backdrop-blur-xl md:hidden">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/92%)] px-4 backdrop-blur-xl md:hidden">
           <button
             type="button"
             onClick={() => setMobileOpen((value) => !value)}
@@ -276,7 +276,7 @@ export function BusinessShell({
           </div>
         </header>
         {mobileOpen && (
-          <div className="fixed inset-0 top-16 z-40 overflow-y-auto bg-[rgb(251_248_242/98%)] p-4 backdrop-blur-xl md:hidden">
+          <div className="fixed inset-0 top-16 z-40 overflow-y-auto bg-[rgb(250_248_243/98%)] p-4 backdrop-blur-xl md:hidden">
             <nav className="space-y-6" aria-label="Mobile business navigation">
               {navigationContent}
             </nav>

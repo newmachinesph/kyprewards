@@ -130,7 +130,7 @@ export function AdminShell({
         Skip to control room
       </a>
       <aside className="sticky top-0 hidden h-[100dvh] overflow-hidden bg-[var(--ink)] px-4 py-5 text-[var(--paper)] lg:flex lg:flex-col">
-        <div className="absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_left,rgb(242_161_45/20%),transparent_64%)]" />
+        <div className="absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_left,rgb(232_163_61/20%),transparent_64%)]" />
         <div className="relative px-2">
           <BrandMark inverse label="KYPStamping Platform" />
         </div>
@@ -161,7 +161,7 @@ export function AdminShell({
       </aside>
 
       <div className="min-w-0">
-        <header className="sticky top-0 z-30 flex h-17 items-center gap-4 border-b border-[var(--line)] bg-[rgb(243_240_233/90%)] px-4 backdrop-blur-xl sm:px-7 lg:px-10">
+        <header className="sticky top-0 z-30 flex h-17 items-center gap-4 border-b border-[var(--line)] bg-[rgb(250_248_243/90%)] px-4 backdrop-blur-xl sm:px-7 lg:px-10">
           <button
             type="button"
             onClick={() => setMobileOpen((value) => !value)}

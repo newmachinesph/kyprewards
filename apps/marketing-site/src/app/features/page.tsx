@@ -452,7 +452,7 @@ export default function FeaturesPage() {
           </div>
 
           <div className="mt-12 grid gap-5 rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:grid-cols-[auto_1fr] sm:items-start sm:p-9">
-            <span className="grid size-13 place-items-center rounded-xl bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
+            <span className="grid size-13 place-items-center rounded-xl bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]">
               <Fingerprint />
             </span>
             <div>

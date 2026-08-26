@@ -118,8 +118,8 @@ function Status({ value }: { value: AdapterStatus | ConnectionHealth }) {
   const classes: Record<AdapterStatus | ConnectionHealth, string> = {
     Available: "bg-[rgb(15_118_85/12%)] text-[var(--success)]",
     Healthy: "bg-[rgb(15_118_85/12%)] text-[var(--success)]",
-    Pilot: "bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]",
-    Approval: "bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]",
+    Pilot: "bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]",
+    Approval: "bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]",
     Attention: "bg-[rgb(178_59_43/12%)] text-[var(--danger)]",
     Sandbox: "bg-[var(--surface-2)] text-[var(--muted-strong)]",
     Planned: "bg-[var(--surface-2)] text-[var(--muted-strong)]",
@@ -161,7 +161,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
               readiness without exposing customer payloads or plaintext secrets.
             </p>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(149_83_12/28%)] bg-[rgb(242_161_45/13%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--accent-strong)]">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(143_85_16/28%)] bg-[rgb(232_163_61/13%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--accent-strong)]">
             <TestTube2 size={13} /> Demo control data
           </span>
         </header>
@@ -390,7 +390,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
               </div>
               <p className="mt-7 text-4xl font-extrabold tracking-[-0.03em]">3</p>
               <p className="mt-1 text-sm font-extrabold">deliveries need replay</p>
-              <div className="mt-5 divide-y divide-[rgb(31_27_24/14%)] border-y border-[rgb(31_27_24/14%)]">
+              <div className="mt-5 divide-y divide-[rgb(24_18_12/14%)] border-y border-[rgb(24_18_12/14%)]">
                 {[
                   ["reward.redeemed", "HTTP 503 · attempt 8"],
                   ["sale.refunded", "Signature window expired"],

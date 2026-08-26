@@ -320,7 +320,7 @@ export function BusinessDashboard({
               onClick={() => setScanOpen(true)}
               className="flex w-full items-center gap-3 py-3 text-left text-sm font-bold"
             >
-              <span className="grid size-5 place-items-center rounded-full border border-[var(--accent)] bg-[rgb(242_161_45/10%)]">
+              <span className="grid size-5 place-items-center rounded-full border border-[var(--accent)] bg-[rgb(232_163_61/10%)]">
                 <ScanLine size={12} />
               </span>
               Run a test stamp
@@ -337,7 +337,7 @@ export function BusinessDashboard({
                 Bring back the almost-regulars
               </h2>
             </div>
-            <span className="grid size-10 place-items-center rounded-xl bg-[rgb(242_161_45/14%)] text-[var(--accent-strong)]">
+            <span className="grid size-10 place-items-center rounded-xl bg-[rgb(232_163_61/14%)] text-[var(--accent-strong)]">
               <Sparkles size={18} />
             </span>
           </div>
@@ -521,7 +521,7 @@ export function BusinessDashboard({
           <p className="mt-8 max-w-[12ch] text-3xl font-extrabold leading-[1.02] tracking-[-0.03em]">
             Reach people without wearing out the welcome.
           </p>
-          <div className="mt-8 divide-y divide-[rgb(36_29_25/14%)] border-y border-[rgb(36_29_25/14%)]">
+          <div className="mt-8 divide-y divide-[rgb(24_18_12/14%)] border-y border-[rgb(24_18_12/14%)]">
             {[
               "Channel consent checked",
               "Quiet hours · 8 PM–8 AM",
@@ -654,7 +654,7 @@ export function BusinessDashboard({
 
       {scanOpen && (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-[rgb(36_29_25/55%)] p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 grid place-items-center bg-[rgb(24_18_12/55%)] p-4 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="scan-title"

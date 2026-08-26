@@ -30,13 +30,13 @@ export function SiteButton({
   arrow?: boolean;
 }) {
   const tones = {
-    dark: "border border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)] shadow-[0_2px_0_rgb(33_27_23/18%)] hover:-translate-y-0.5 hover:bg-[var(--ink-soft)]",
+    dark: "border border-[var(--ink)] bg-[var(--ink)] text-[var(--surface)] shadow-[0_2px_0_rgb(24_18_12/18%)] hover:-translate-y-0.5 hover:bg-[var(--ink-soft)]",
     accent:
       "border border-[var(--accent)] bg-[var(--accent)] text-[var(--ink)] shadow-[0_2px_0_rgb(0_0_0/12%)] hover:-translate-y-0.5 hover:bg-[#d88c38]",
     light:
       "border border-white/35 bg-[var(--surface)] text-[var(--ink)] shadow-[0_2px_0_rgb(0_0_0/14%)] hover:-translate-y-0.5 hover:bg-white",
     outline:
-      "border border-[var(--line-strong)] bg-[rgb(255_253_248/72%)] text-[var(--ink)] hover:-translate-y-0.5 hover:border-[var(--ink)] hover:bg-[var(--surface)]",
+      "border border-[var(--line-strong)] bg-[rgb(255_254_251/72%)] text-[var(--ink)] hover:-translate-y-0.5 hover:border-[var(--ink)] hover:bg-[var(--surface)]",
   };
   const external = href.startsWith("http");
   const className = `focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-extrabold transition duration-200 active:translate-y-0 active:scale-[0.98] ${tones[tone]}`;
@@ -219,7 +219,7 @@ export function CheckList({
           className={`flex items-start gap-3 text-sm ${inverse ? "text-white/80" : "text-[var(--muted-strong)]"}`}
         >
           <span
-            className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full ${inverse ? "bg-white/10 text-[var(--accent)]" : "bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]"}`}
+            className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full ${inverse ? "bg-white/10 text-[var(--accent)]" : "bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]"}`}
           >
             <Check size={12} strokeWidth={3} />
           </span>

@@ -261,7 +261,7 @@ export default function ProductPage() {
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto grid max-w-[1400px] gap-12 rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-10 lg:grid-cols-[0.7fr_1.3fr] lg:p-14">
           <div>
-            <span className="grid size-13 place-items-center rounded-xl bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
+            <span className="grid size-13 place-items-center rounded-xl bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]">
               <LockKeyhole />
             </span>
             <h2 className="mt-8 text-3xl font-extrabold tracking-[-0.02em]">

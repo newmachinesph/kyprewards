@@ -295,7 +295,7 @@ export function AdminDashboard({
                   })()}
                 </h2>
               </div>
-              <span className="grid size-10 place-items-center rounded-full bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
+              <span className="grid size-10 place-items-center rounded-full bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]">
                 <CheckCircle2 size={19} />
               </span>
             </div>

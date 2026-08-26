@@ -55,7 +55,7 @@ export function PlaybookSignup() {
         />
         <button
           type="submit"
-          className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(33_27_23/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
+          className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(24_18_12/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
         >
           Preview playbook signup <ArrowRight size={15} />
         </button>
@@ -63,7 +63,7 @@ export function PlaybookSignup() {
       {error && (
         <p
           id="playbook-error"
-          className="mt-3 rounded-xl bg-[rgb(149_83_12/10%)] px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]"
+          className="mt-3 rounded-xl bg-[rgb(143_85_16/10%)] px-4 py-3 text-sm font-semibold text-[var(--accent-strong)]"
           role="alert"
         >
           {error}

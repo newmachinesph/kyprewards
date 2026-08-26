@@ -123,7 +123,7 @@ export default function AboutPage() {
           <div className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-10">
             <div className="grid gap-8 sm:grid-cols-[1fr_auto] sm:items-end">
               <div>
-                <span className="grid size-12 place-items-center rounded-2xl bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]">
+                <span className="grid size-12 place-items-center rounded-2xl bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]">
                   <MapPin />
                 </span>
                 <h3 className="mt-8 max-w-[18ch] text-3xl font-extrabold tracking-[-0.02em]">

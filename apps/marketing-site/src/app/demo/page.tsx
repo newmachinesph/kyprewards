@@ -348,7 +348,7 @@ export default function DemoPage() {
               ].map(([icon, title, detail]) => {
                 const Icon = icon as typeof Webhook;
                 return (
-                  <div key={String(title)} className="flex gap-3 border-t border-[rgb(33_27_23/16%)] pt-4">
+                  <div key={String(title)} className="flex gap-3 border-t border-[rgb(24_18_12/16%)] pt-4">
                     <Icon size={18} className="mt-0.5 shrink-0" />
                     <div>
                       <p className="text-sm font-extrabold">{String(title)}</p>

@@ -45,7 +45,7 @@ export default function HomePage() {
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-[linear-gradient(90deg,var(--paper)_8%,rgb(247_243_236/86%)_42%,rgb(247_243_236/34%)_100%)]"
+          className="absolute inset-0 bg-[linear-gradient(90deg,var(--paper)_8%,rgb(250_248_243/86%)_42%,rgb(250_248_243/34%)_100%)]"
         />
         <div
           aria-hidden="true"
@@ -53,7 +53,7 @@ export default function HomePage() {
         />
         <div className="relative mx-auto grid min-h-[760px] max-w-[1400px] items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:py-24">
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[rgb(255_253_248/72%)] px-3 py-2 text-[11px] font-bold text-[var(--muted-strong)] backdrop-blur">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[rgb(255_254_251/72%)] px-3 py-2 text-[11px] font-bold text-[var(--muted-strong)] backdrop-blur">
               <span className="grid size-5 place-items-center rounded-full bg-[var(--accent)]">
                 <Stamp size={11} />
               </span>
@@ -145,7 +145,7 @@ export default function HomePage() {
             </article>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
               <article className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7">
-                <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(242_161_45/14%)] text-[var(--accent-strong)]">
+                <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(232_163_61/14%)] text-[var(--accent-strong)]">
                   <BellRing />
                 </span>
                 <h3 className="mt-12 text-2xl font-extrabold tracking-[-0.02em]">

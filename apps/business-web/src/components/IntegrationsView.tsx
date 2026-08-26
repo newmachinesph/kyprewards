@@ -157,8 +157,8 @@ function StatusBadge({ status }: { status: DeliveryStatus | CredentialStatus }) 
     Active: "bg-[rgb(15_118_85/12%)] text-[var(--success)]",
     Revoked: "bg-[var(--surface-2)] text-[var(--muted-strong)]",
     Delivered: "bg-[rgb(15_118_85/12%)] text-[var(--success)]",
-    "Ignored safely": "bg-[rgb(36_29_25/8%)] text-[var(--ink-soft)]",
-    Retrying: "bg-[rgb(242_161_45/16%)] text-[var(--accent-strong)]",
+    "Ignored safely": "bg-[rgb(24_18_12/8%)] text-[var(--ink-soft)]",
+    Retrying: "bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]",
     Failed: "bg-[rgb(178_59_43/12%)] text-[var(--danger)]",
   } as const;
   return (
@@ -570,7 +570,7 @@ export function IntegrationsView({
           </div>
 
           {oneTimeSecret && (
-            <div className="border-b border-[rgb(149_83_12/22%)] bg-[rgb(242_161_45/12%)] p-5 sm:p-6" role="status">
+            <div className="border-b border-[rgb(143_85_16/22%)] bg-[rgb(232_163_61/12%)] p-5 sm:p-6" role="status">
               <div className="flex items-start gap-3">
                 <KeyRound size={18} className="mt-0.5 shrink-0 text-[var(--accent-strong)]" />
                 <div className="min-w-0 flex-1">
@@ -578,7 +578,7 @@ export function IntegrationsView({
                   <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                     A real secret is shown once. KYPStamping stores only a secure hash after you leave.
                   </p>
-                  <div className="mt-3 flex items-center gap-2 rounded-xl border border-[rgb(149_83_12/25%)] bg-[var(--surface)] p-2 pl-3">
+                  <div className="mt-3 flex items-center gap-2 rounded-xl border border-[rgb(143_85_16/25%)] bg-[var(--surface)] p-2 pl-3">
                     <code className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-bold">
                       {oneTimeSecret}
                     </code>

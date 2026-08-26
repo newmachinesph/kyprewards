@@ -119,7 +119,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
                         setSelectedId(business.id);
                       }
                     }}
-                    className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === business.id ? "bg-[rgb(242_161_45/9%)]" : "hover:bg-[var(--paper)]"}`}
+                    className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === business.id ? "bg-[rgb(232_163_61/9%)]" : "hover:bg-[var(--paper)]"}`}
                   >
                     <td className="px-5 py-4">
                       <p className="text-sm font-extrabold">{business.name}</p>

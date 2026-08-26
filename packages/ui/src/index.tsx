@@ -274,7 +274,7 @@ export function Pill({
   const tones = {
     neutral: "bg-[var(--surface-2)] text-[var(--muted-strong)]",
     success: "bg-[rgb(15_118_85/12%)] text-[var(--success)]",
-    warning: "bg-[rgb(149_83_12/12%)] text-[var(--accent-strong)]",
+    warning: "bg-[rgb(143_85_16/12%)] text-[var(--accent-strong)]",
     danger: "bg-[rgb(178_59_43/12%)] text-[var(--danger)]",
   };
   return (
@@ -312,7 +312,7 @@ export function FieldLabel({ children }: { children: ReactNode }) {
 
 export function DemoBadge({ label = "Frontend demo only" }: { label?: string }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(149_83_12/30%)] bg-[rgb(242_161_45/14%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+    <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(143_85_16/30%)] bg-[rgb(232_163_61/14%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
       <FlaskConical size={13} aria-hidden="true" /> {label}
     </span>
   );

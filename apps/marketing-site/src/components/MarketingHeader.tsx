@@ -17,7 +17,7 @@ export function MarketingHeader({ businessUrl }: { businessUrl: string }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[rgb(246_242_234/88%)] backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[rgb(250_248_243/88%)] backdrop-blur-xl">
       <div className="mx-auto flex h-[72px] max-w-[1400px] items-center gap-8 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
@@ -48,7 +48,7 @@ export function MarketingHeader({ businessUrl }: { businessUrl: string }) {
           </a>
           <Link
             href="/contact"
-            className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(33_27_23/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
+            className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(24_18_12/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
           >
             Start your program <ArrowUpRight size={16} />
           </Link>

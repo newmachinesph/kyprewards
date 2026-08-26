@@ -295,7 +295,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
               ))}
             </select>
           </label>
-          <div className="mx-auto mt-8 w-fit rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_18px_45px_rgb(36_29_25/10%)]">
+          <div className="mx-auto mt-8 w-fit rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_18px_45px_rgb(24_18_12/10%)]">
             <div className="grid grid-cols-[repeat(14,10px)] gap-[2px]">
               {qrPattern.flatMap((row, y) =>
                 row
@@ -473,7 +473,7 @@ function CustomersView({ notify }: { notify: Notify }) {
                         setSelectedId(customer.id);
                       }
                     }}
-                    className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] transition focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === customer.id ? "bg-[rgb(242_161_45/9%)]" : "hover:bg-[var(--paper)]"}`}
+                    className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] transition focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === customer.id ? "bg-[rgb(232_163_61/9%)]" : "hover:bg-[var(--paper)]"}`}
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
@@ -1307,7 +1307,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
             <Eyebrow>Campaign economics</Eyebrow>
             <CircleDollarSign size={20} />
           </div>
-          <div className="mt-7 divide-y divide-[rgb(36_29_25/16%)] border-y border-[rgb(36_29_25/16%)]">
+          <div className="mt-7 divide-y divide-[rgb(24_18_12/16%)] border-y border-[rgb(24_18_12/16%)]">
             {[
               ["Reachable with consent", reachable.toLocaleString()],
               ["Estimated delivery cost", `₱${deliveryCost.toFixed(2)}`],

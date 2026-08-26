@@ -192,7 +192,7 @@ function HomeView({
             className="group rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition hover:-translate-y-0.5"
           >
             <div className="flex items-start justify-between">
-              <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(242_161_45/14%)] text-[var(--accent-strong)]">
+              <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(232_163_61/14%)] text-[var(--accent-strong)]">
                 <Coffee />
               </span>
               <ArrowRight
@@ -363,7 +363,7 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
             <span className="grid size-10 place-items-center rounded-2xl bg-[var(--surface)]">
               <Crown size={18} />
             </span>
-            <span className="rounded-full border border-[rgb(37_29_24/15%)] px-2 py-1 text-[8px] font-extrabold uppercase tracking-[0.1em]">
+            <span className="rounded-full border border-[rgb(24_18_12/15%)] px-2 py-1 text-[8px] font-extrabold uppercase tracking-[0.1em]">
               Member
             </span>
           </div>
@@ -775,7 +775,7 @@ function QrModal({ close }: { close: () => void }) {
         <p className="mt-2 max-w-[30ch] text-sm leading-relaxed text-[var(--muted-strong)]">
           Staff can stamp or redeem after you approve the visit.
         </p>
-        <div className="relative mt-8 overflow-hidden rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_20px_50px_rgb(37_29_24/12%)]">
+        <div className="relative mt-8 overflow-hidden rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_20px_50px_rgb(24_18_12/12%)]">
           <div
             className="grid grid-cols-[repeat(14,12px)] gap-[2px]"
             aria-label="Demo QR code"
@@ -821,7 +821,7 @@ function SheetHeader({ title, close }: { title: string; close: () => void }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [close]);
   return (
-    <header className="sticky top-0 z-10 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(247_243_236/94%)] px-5 backdrop-blur-xl">
+    <header className="sticky top-0 z-10 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/94%)] px-5 backdrop-blur-xl">
       <button
         type="button"
         onClick={close}
@@ -1667,9 +1667,9 @@ export function CustomerApp() {
       <main
         id="main-content"
         tabIndex={-1}
-        className="relative mx-auto min-h-[100dvh] max-w-[460px] overflow-hidden border-x border-[rgb(37_29_24/8%)] bg-[var(--paper)] phone-shell"
+        className="relative mx-auto min-h-[100dvh] max-w-[460px] overflow-hidden border-x border-[rgb(24_18_12/8%)] bg-[var(--paper)] phone-shell"
       >
-      <header className="sticky top-0 z-30 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(247_243_236/90%)] px-5 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/90%)] px-5 backdrop-blur-xl">
         <BrandMark compact />
         <span className="sr-only">{titles[tab]}</span>
         <button
@@ -1695,7 +1695,7 @@ export function CustomerApp() {
       <button
         type="button"
         onClick={() => setQrOpen(true)}
-        className="absolute bottom-[76px] left-1/2 z-40 inline-flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] shadow-[0_12px_30px_rgb(37_29_24/28%)] transition hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+        className="absolute bottom-[76px] left-1/2 z-40 inline-flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] shadow-[0_12px_30px_rgb(24_18_12/28%)] transition hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
       >
         <span className="grid size-8 place-items-center rounded-full bg-[var(--accent)] text-[var(--ink)]">
           <QrCode size={17} />
@@ -1704,7 +1704,7 @@ export function CustomerApp() {
       </button>
 
       <nav
-        className="absolute inset-x-0 bottom-0 z-30 grid h-[68px] grid-cols-4 border-t border-[var(--line)] bg-[rgb(255_253_249/94%)] px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
+        className="absolute inset-x-0 bottom-0 z-30 grid h-[68px] grid-cols-4 border-t border-[var(--line)] bg-[rgb(255_254_251/94%)] px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
         aria-label="Customer navigation"
       >
         {tabs.map((item) => {
