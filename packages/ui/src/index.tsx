@@ -19,6 +19,62 @@ type BrandMarkProps = {
   label?: string;
 };
 
+/* Seal badge — 16 rounded scallops around a solid disc, gold ring, K monogram.
+   Bump centres are precomputed at r=186 on a 512 grid (docs/BRAND.md). */
+const SEAL_BUMPS = Array.from({ length: 16 }, (_, i) => {
+  const a = (i * Math.PI) / 8;
+  return [256 + 186 * Math.cos(a), 256 + 186 * Math.sin(a)] as const;
+});
+
+export function SealMark({
+  size = 40,
+  inverse = false,
+}: {
+  size?: number;
+  inverse?: boolean;
+}) {
+  const badge = inverse ? "var(--accent)" : "var(--ink)";
+  const mono = inverse ? "var(--ink)" : "var(--paper)";
+  const ring = inverse ? "var(--ink)" : "var(--accent)";
+  return (
+    <svg
+      viewBox="0 0 512 512"
+      width={size}
+      height={size}
+      className="shrink-0"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <g fill={badge}>
+        {SEAL_BUMPS.map(([x, y]) => (
+          <circle key={`${x},${y}`} cx={x} cy={y} r={40} />
+        ))}
+        <circle cx={256} cy={256} r={190} />
+      </g>
+      <circle
+        cx={256}
+        cy={256}
+        r={126}
+        fill="none"
+        stroke={ring}
+        strokeWidth={15}
+        opacity={inverse ? 0.35 : 1}
+      />
+      <text
+        x={256}
+        y={313}
+        textAnchor="middle"
+        fontFamily="var(--font-display), Arial, sans-serif"
+        fontSize={160}
+        fontWeight={700}
+        fill={mono}
+      >
+        K
+      </text>
+    </svg>
+  );
+}
+
 export function BrandMark({
   compact = false,
   inverse = false,
@@ -26,23 +82,10 @@ export function BrandMark({
 }: BrandMarkProps) {
   return (
     <div className="flex items-center gap-3" aria-label={label}>
-      <span
-        className={`grid size-10 shrink-0 place-items-center overflow-hidden rounded-[10px] ${
-          inverse ? "ring-1 ring-white/20" : "ring-1 ring-[var(--line)]"
-        }`}
-      >
-        {/* Static brand asset shipped in each app's public/brand directory. */}
-        <img
-          src="/brand/logo.png"
-          alt=""
-          width={40}
-          height={40}
-          className="size-full object-cover"
-        />
-      </span>
+      <SealMark size={40} inverse={inverse} />
       {!compact && (
         <span className="leading-none">
-          <span className="block text-[16px] font-bold tracking-[-0.03em]">
+          <span className="font-display block text-[16px] font-bold tracking-[-0.02em]">
             {label.startsWith("KYP") ? (
               <>
                 <span
@@ -60,8 +103,12 @@ export function BrandMark({
               label
             )}
           </span>
-          <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-            Loyalty, made local
+          <span
+            className={`mt-1 block font-mono text-[9px] font-semibold uppercase tracking-[0.14em] ${
+              inverse ? "text-white/55" : "text-[var(--muted)]"
+            }`}
+          >
+            Keep stamping · Earn the reward
           </span>
         </span>
       )}
@@ -145,15 +192,15 @@ export function StampDots({
       {Array.from({ length: total }, (_, index) => (
         <span
           key={index}
-          className={`grid size-7 place-items-center rounded-full border text-[9px] font-extrabold ${
+          className={`font-display grid size-7 place-items-center rounded-full text-[10px] font-bold ${
             index < filled
-              ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--ink)]"
+              ? "bg-[var(--accent)] text-[var(--ink)]"
               : dark
-                ? "border-white/40 bg-white/5 text-white/50"
-                : "border-[var(--line-strong)] bg-[var(--surface)] text-[var(--muted)]"
+                ? "border border-dashed border-white/40 text-white/50"
+                : "border border-dashed border-[var(--line-strong)] text-[var(--muted)]"
           }`}
         >
-          {index < filled ? "S" : ""}
+          {index < filled ? "K" : ""}
         </span>
       ))}
     </div>

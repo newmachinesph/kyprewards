@@ -4,6 +4,20 @@ export const alt = "KYPStamping loyalty program receipt and return-visit ledger"
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+/* Scalloped seal badge — same geometry as the app icons (docs/BRAND.md). */
+const SEAL_DATA_URI = `data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">${Array.from(
+    { length: 16 },
+    (_, i) =>
+      `<circle cx="${(256 + 186 * Math.cos((i * Math.PI) / 8)).toFixed(1)}" cy="${(
+        256 +
+        186 * Math.sin((i * Math.PI) / 8)
+      ).toFixed(1)}" r="40" fill="#18120c"/>`,
+  ).join(
+    "",
+  )}<circle cx="256" cy="256" r="190" fill="#18120c"/><circle cx="256" cy="256" r="126" fill="none" stroke="#e8a33d" stroke-width="15"/><text x="256" y="313" text-anchor="middle" font-family="Arial, sans-serif" font-size="160" font-weight="700" fill="#faf8f3">K</text></svg>`,
+)}`;
+
 export default function OpenGraphImage() {
   return new ImageResponse(
     <div
@@ -13,8 +27,8 @@ export default function OpenGraphImage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        background: "#f6f2ea",
-        color: "#211b17",
+        background: "#faf8f3",
+        color: "#18120c",
         padding: "72px",
         fontFamily: "Arial, sans-serif",
         position: "relative",
@@ -28,7 +42,7 @@ export default function OpenGraphImage() {
           display: "flex",
           opacity: 0.08,
           backgroundImage:
-            "linear-gradient(#211b17 1px, transparent 1px), linear-gradient(90deg, #211b17 1px, transparent 1px)",
+            "linear-gradient(#18120c 1px, transparent 1px), linear-gradient(90deg, #18120c 1px, transparent 1px)",
           backgroundSize: "28px 28px",
         }}
       />
@@ -48,29 +62,21 @@ export default function OpenGraphImage() {
             fontWeight: 800,
           }}
         >
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 15,
-              background: "#211b17",
-              color: "#f6f2ea",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            K
+          {/* Seal badge, inlined as a data URI so satori renders it as an image. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={SEAL_DATA_URI} width={56} height={56} alt="" />
+          <div style={{ display: "flex" }}>
+            <span style={{ color: "#8f5510" }}>KYP</span>
+            <span>Stamping</span>
           </div>
-          <span style={{ color: "#95530c" }}>KYP</span>Stamping
         </div>
         <div
           style={{
             marginTop: 64,
             fontSize: 70,
-            lineHeight: 0.98,
-            letterSpacing: -4,
-            fontWeight: 900,
+            lineHeight: 1.02,
+            letterSpacing: -2,
+            fontWeight: 700,
           }}
         >
           Loyalty, made local.
@@ -92,7 +98,7 @@ export default function OpenGraphImage() {
           width: 320,
           minHeight: 460,
           padding: "38px",
-          background: "#fffdf8",
+          background: "#fffefb",
           boxShadow: "0 30px 80px rgba(33,27,23,.16)",
           transform: "rotate(3deg)",
           display: "flex",
@@ -127,12 +133,12 @@ export default function OpenGraphImage() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background: index < 5 ? "#f2a12d" : "transparent",
-                border: "2px solid #f2a12d",
-                fontWeight: 900,
+                background: index < 5 ? "#e8a33d" : "transparent",
+                border: index < 5 ? "none" : "2px dashed #d6ccbf",
+                fontWeight: 700,
               }}
             >
-              {index < 5 ? "S" : ""}
+              {index < 5 ? "K" : ""}
             </div>
           ))}
         </div>

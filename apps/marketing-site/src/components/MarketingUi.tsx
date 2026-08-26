@@ -160,9 +160,11 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
         {Array.from({ length: 8 }, (_, index) => (
           <span
             key={index}
-            className={`grid aspect-square place-items-center rounded-full border text-[9px] font-extrabold ${index < 5 ? "border-[var(--accent)] bg-[var(--accent)]" : "border-[var(--line-strong)]"}`}
+            /* ponytail: mirrors StampDots by hand — that one is fixed-width and
+               this receipt needs fluid columns. Keep the two in sync. */
+            className={`font-display grid aspect-square place-items-center rounded-full text-[10px] font-bold ${index < 5 ? "bg-[var(--accent)] text-[var(--ink)]" : "border border-dashed border-[var(--line-strong)]"}`}
           >
-            {index < 5 ? "S" : ""}
+            {index < 5 ? "K" : ""}
           </span>
         ))}
       </div>

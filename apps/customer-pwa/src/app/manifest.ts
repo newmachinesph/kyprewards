@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Keep every local reward in one pocket.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f7f3ec",
-    theme_color: "#f7f3ec",
+    background_color: "#faf8f3",
+    theme_color: "#faf8f3",
     orientation: "portrait",
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },

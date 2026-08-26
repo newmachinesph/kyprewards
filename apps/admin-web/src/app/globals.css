@@ -38,14 +38,14 @@ button:disabled {
 
 .admin-grid {
   background-image:
-    linear-gradient(rgb(31 27 24 / 3%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(31 27 24 / 3%) 1px, transparent 1px);
+    linear-gradient(rgb(24 18 12 / 3%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(24 18 12 / 3%) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 .bar-grid {
   background-image: linear-gradient(
     to top,
-    rgb(31 27 24 / 6%) 1px,
+    rgb(24 18 12 / 6%) 1px,
     transparent 1px
   );
   background-size: 100% 25%;

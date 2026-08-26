@@ -1,17 +1,25 @@
-/* Stampr design tokens — single source of truth for all four apps. */
+/* KYPStamping design tokens — single source of truth for all four apps.
+   Palette + type scale are documented in docs/BRAND.md. */
 :root {
   color-scheme: light;
-  --paper: #f7f3ec;
-  --surface: #fffdf9;
-  --surface-2: #eee8df;
-  --ink: #251d18;
-  --ink-soft: #3a2d26;
-  --muted: #75685f;
-  --muted-strong: #6d6057;
-  --line: #e4dbd0;
-  --line-strong: #d6cabd;
-  --accent: #f2a12d;
-  --accent-strong: #95530c;
+
+  /* Core three — espresso / paper / amber (docs/BRAND.md) */
+  --paper: #faf8f3;
+  --ink: #18120c;
+  --accent: #e8a33d;
+
+  /* Derived neutrals */
+  --surface: #fffefb;
+  --surface-2: #eee9e0;
+  --ink-soft: #2c231b;
+  --muted: #6f6359;
+  --muted-strong: #675b51;
+  --line: #e5ded3;
+  --line-strong: #d6ccbf;
+
+  /* Amber darkened for text/focus on paper (AA on --paper) */
+  --accent-strong: #8f5510;
+
   --success: #0f7655;
   --danger: #b23b2b;
 
@@ -22,4 +30,13 @@
   --radius-lg: 16px;
   --radius-xl: 18px;
   --radius-2xl: 20px;
+}
+
+/* Display type — Sora carries the wordmark and headings, Inter carries body copy.
+   `--font-display` / `--font-sans` are wired per app by next/font in layout.tsx. */
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display), var(--font-sans), "Segoe UI", sans-serif;
 }

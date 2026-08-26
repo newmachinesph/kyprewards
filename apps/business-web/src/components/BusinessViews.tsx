@@ -1639,7 +1639,7 @@ function AnalyticsView() {
                     className="grid min-h-12 place-items-center rounded-lg text-xs font-extrabold"
                     style={{
                       backgroundColor: value
-                        ? `rgb(242 161 45 / ${0.12 + value / 130})`
+                        ? `rgb(232 163 61 / ${0.12 + value / 130})`
                         : "var(--surface-2)",
                       color: value > 55 ? "var(--ink)" : "var(--muted-strong)",
                     }}

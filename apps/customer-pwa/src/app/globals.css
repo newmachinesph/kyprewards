@@ -14,7 +14,7 @@ body {
   background:
     radial-gradient(
       circle at 20% 15%,
-      rgb(242 161 45 / 11%),
+      rgb(232 163 61 / 11%),
       transparent 23rem
     ),
     #ded8cf;
@@ -46,7 +46,7 @@ button:disabled {
 }
 .customer-auth {
   background:
-    radial-gradient(circle at 50% -10%, rgb(242 161 45 / 24%), transparent 27rem),
+    radial-gradient(circle at 50% -10%, rgb(232 163 61 / 24%), transparent 27rem),
     linear-gradient(145deg, #e5e1da, #d3cec6);
   overscroll-behavior-y: none;
 }

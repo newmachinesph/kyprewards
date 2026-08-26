@@ -8,6 +8,7 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
+import { SealMark } from "@stampr/ui";
 
 export function ProductPreview() {
   return (
@@ -17,15 +18,12 @@ export function ProductPreview() {
         <span className="size-2.5 rounded-full bg-[var(--line-strong)]" />
         <span className="size-2.5 rounded-full bg-[var(--accent)]" />
         <span className="ml-2 rounded-full bg-[var(--surface-2)] px-3 py-1 font-mono text-[9px] text-[var(--muted)]">
-          business.kypstamping.com
+          biz.kypstamping.ph
         </span>
       </div>
       <div className="grid min-h-[430px] grid-cols-[76px_1fr] sm:grid-cols-[150px_1fr]">
         <aside className="border-r border-[var(--line)] bg-[var(--paper)] p-3">
-          <span className="block size-8 overflow-hidden rounded-lg ring-1 ring-[var(--line)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/logo.png" alt="" width={32} height={32} className="size-full object-cover" />
-          </span>
+          <SealMark size={32} />
           <div className="mt-8 space-y-2">
             {[BarChart3, ScanLine, Users, Gift].map((Icon, index) => (
               <span

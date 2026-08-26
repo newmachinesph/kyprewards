@@ -12,13 +12,13 @@ export default function GlobalError({
   useEffect(() => console.error(error), [error]);
   return (
     <html lang="en">
-      <body style={{ margin: 0, background: "#f3f0e9", color: "#211b17" }}>
+      <body style={{ margin: 0, background: "#faf8f3", color: "#18120c" }}>
         <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24, fontFamily: "system-ui, sans-serif", textAlign: "center" }}>
           <div style={{ maxWidth: 440 }}>
             <div style={{ fontSize: 42 }}>◇</div>
             <h1 style={{ margin: "20px 0 8px", fontSize: 30 }}>The control room needs a reload.</h1>
             <p style={{ margin: 0, color: "#5f534b", lineHeight: 1.6 }}>The failure was contained. Retry the platform interface to continue.</p>
-            <button type="button" onClick={retry} style={{ marginTop: 24, minHeight: 48, border: 0, borderRadius: 999, background: "#211b17", color: "#fffdf8", padding: "0 24px", fontWeight: 800, cursor: "pointer" }}>Reload control room</button>
+            <button type="button" onClick={retry} style={{ marginTop: 24, minHeight: 48, border: 0, borderRadius: 999, background: "#18120c", color: "#fffefb", padding: "0 24px", fontWeight: 800, cursor: "pointer" }}>Reload control room</button>
           </div>
         </main>
       </body>

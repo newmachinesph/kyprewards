@@ -13,7 +13,7 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body style={{ margin: 0, background: "#f6f2ea", color: "#211b17" }}>
+      <body style={{ margin: 0, background: "#faf8f3", color: "#18120c" }}>
         <main
           style={{
             minHeight: "100vh",
@@ -41,8 +41,8 @@ export default function GlobalError({
                 minHeight: 48,
                 border: 0,
                 borderRadius: 999,
-                background: "#211b17",
-                color: "#fffdf8",
+                background: "#18120c",
+                color: "#fffefb",
                 padding: "0 24px",
                 fontWeight: 800,
                 cursor: "pointer",
