@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button, Eyebrow, StampDots, StatCard } from "@stampr/ui";
+import { todayLabel } from "@stampr/ui/shell";
 import {
   ArrowRight,
   BadgePercent,
@@ -143,7 +144,7 @@ export function BusinessDashboard({
     >
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <Eyebrow>Tuesday, 25 August</Eyebrow>
+          <Eyebrow>{todayLabel()}</Eyebrow>
           <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
             Good morning, Sweet Crumbs.
           </h1>

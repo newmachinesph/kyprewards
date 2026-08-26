@@ -1841,6 +1841,7 @@ function SettingsView({ notify }: { notify: Notify }) {
             <div className="mt-6 divide-y divide-white/12 border-y border-white/12">
               {[
                 ["SMS balance", "1,842 credits"],
+                ["Push allowance", "31,900 / 50,000"],
                 ["Email allowance", "18,420 / 25,000"],
                 ["Active members", "5,202 / 10,000"],
                 ["Locations", "3 / 3"],

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { demoData } from "@stampr/demo-data";
 import { BrandMark, Eyebrow, StampDots } from "@stampr/ui";
 import { signOutDemo } from "@stampr/ui/auth";
+import { Toast, todayLabel, useToast } from "@stampr/ui/shell";
 import {
   ArrowLeft,
   ArrowRight,
@@ -145,7 +146,7 @@ function HomeView({
   return (
     <div className="px-5 pb-32 pt-5">
       <Eyebrow>
-            {new Date().toLocaleDateString("en-PH", { weekday: "long", day: "numeric", month: "long" })}
+            {todayLabel()}
           </Eyebrow>
       <div className="mt-2 flex items-end justify-between gap-3">
         <div>
@@ -1582,20 +1583,14 @@ function ProfileSheet({
 export function CustomerApp() {
   const [tab, setTab] = useState<Tab>("home");
   const [qrOpen, setQrOpen] = useState(false);
+  const { toast, setToast, dismiss } = useToast(3000);
   const [sheet, setSheet] = useState<Sheet>(null);
-  const [toast, setToast] = useState<string | null>(null);
   const [notificationsRead, setNotificationsRead] = useState(false);
   const [joinedIds, setJoinedIds] = useState(() =>
     customerDemo.discover
       .filter((business) => business.joined)
       .map((business) => business.id),
   );
-
-  useEffect(() => {
-    if (!toast) return;
-    const timeout = window.setTimeout(() => setToast(null), 3000);
-    return () => window.clearTimeout(timeout);
-  }, [toast]);
 
   useEffect(() => {
     const validTabs = new Set<Tab>(["home", "wallet", "discover", "profile"]);
@@ -1769,24 +1764,7 @@ export function CustomerApp() {
         />
       )}
       {toast && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="absolute bottom-24 left-4 right-4 z-[70] flex items-center gap-3 rounded-2xl bg-[var(--ink)] px-4 py-3 text-sm font-bold text-[var(--paper)] shadow-2xl"
-        >
-          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[var(--success)]">
-            <Check size={14} strokeWidth={3} />
-          </span>
-          <span className="min-w-0 flex-1">{toast}</span>
-          <button
-            type="button"
-            onClick={() => setToast(null)}
-            aria-label="Dismiss message"
-            className="grid size-8 place-items-center rounded-full text-white/70 hover:text-white"
-          >
-            <X size={16} />
-          </button>
-        </div>
+        <Toast message={toast} onDismiss={dismiss} placement="sheet" />
       )}
       </main>
     </>

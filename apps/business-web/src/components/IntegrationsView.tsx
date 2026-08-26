@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { demoData } from "@stampr/demo-data";
 import { Button, DemoBadge, Eyebrow, FieldLabel, Panel } from "@stampr/ui";
+import { PlanTag } from "@stampr/ui/shell";
 import {
   ArrowRight,
   BadgeCheck,
@@ -343,13 +344,19 @@ export function IntegrationsView({
     <main className="mx-auto min-h-[calc(100dvh-64px)] max-w-[1400px] px-4 py-6 sm:px-7 lg:px-10 lg:py-9">
       <header className="flex flex-col gap-5 border-b border-[var(--line)] pb-7 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <Eyebrow>Connect your counter</Eyebrow>
+          <div className="flex flex-wrap items-center gap-3">
+            <Eyebrow>Connect your counter</Eyebrow>
+            {/* API, webhooks, and POS adapters are a Scale feature on the
+                pricing page — say so here instead of showing them unmarked. */}
+            <PlanTag plan="Scale" />
+          </div>
           <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
             POS & API integrations
           </h1>
           <p className="mt-2 max-w-[68ch] text-sm leading-relaxed text-[var(--muted-strong)]">
             Choose how sales reach KYPStamping, issue least-privilege keys, sign webhooks,
-            and trace every event without tying loyalty to one POS vendor.
+            and trace every event without tying loyalty to one POS vendor. Sweet Crumbs is
+            on Grow, so this workspace has it switched on as a preview.
           </p>
         </div>
         <DemoBadge />

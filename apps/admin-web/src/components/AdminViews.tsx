@@ -789,8 +789,8 @@ function EconomicsView() {
             </p>
             <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
               SMS is prepaid at ₱0.95 per segment. Email overages are ₱25 per
-              1,000. Connected channels pass through provider cost plus
-              orchestration.
+              1,000 and push ₱8 per 1,000. Connected channels pass through
+              provider cost plus orchestration.
             </p>
           </div>
         </section>

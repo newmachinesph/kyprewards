@@ -10,7 +10,7 @@
     "purchase": {
       "amount": 286,
       "currency": "PHP",
-      "display": "₱286"
+      "display": "\u20b1286"
     },
     "loyaltyEvent": {
       "id": "evt_SC_10482",
@@ -330,7 +330,7 @@
       {
         "id": "auto_geo",
         "name": "Nearby on a quiet afternoon",
-        "trigger": "100 m, Tue–Thu, 1–4 PM",
+        "trigger": "100 m, Tue\u2013Thu, 1\u20134 PM",
         "audience": 108,
         "channel": "Push",
         "status": "Draft",
@@ -351,7 +351,10 @@
         "id": "cmp_201",
         "name": "Tuesday treat",
         "audience": "Almost regulars",
-        "channels": ["Push", "Email"],
+        "channels": [
+          "Push",
+          "Email"
+        ],
         "sent": 824,
         "visited": 126,
         "revenue": 38200,
@@ -362,7 +365,10 @@
         "id": "cmp_202",
         "name": "Birthday batch",
         "audience": "August birthdays",
-        "channels": ["Email", "SMS"],
+        "channels": [
+          "Email",
+          "SMS"
+        ],
         "sent": 94,
         "visited": 22,
         "revenue": 14800,
@@ -373,7 +379,11 @@
         "id": "cmp_203",
         "name": "BGC opening week",
         "audience": "Pasig regulars near BGC",
-        "channels": ["Push", "Email", "SMS"],
+        "channels": [
+          "Push",
+          "Email",
+          "SMS"
+        ],
         "sent": 1460,
         "visited": 188,
         "revenue": 61200,
@@ -384,7 +394,10 @@
         "id": "cmp_204",
         "name": "Seven-stamp nudge",
         "audience": "One stamp from reward",
-        "channels": ["In-app", "Push"],
+        "channels": [
+          "In-app",
+          "Push"
+        ],
         "sent": 318,
         "visited": 74,
         "revenue": 22100,
@@ -557,11 +570,36 @@
       }
     ],
     "favoriteOrders": [
-      { "item": "Spanish latte", "orders": 682, "regulars": 248, "change": 18 },
-      { "item": "Kouign-amann", "orders": 534, "regulars": 182, "change": 24 },
-      { "item": "Cinnamon roll", "orders": 418, "regulars": 164, "change": 9 },
-      { "item": "Iced latte", "orders": 376, "regulars": 142, "change": 12 },
-      { "item": "Ensaymada", "orders": 312, "regulars": 118, "change": -4 }
+      {
+        "item": "Spanish latte",
+        "orders": 682,
+        "regulars": 248,
+        "change": 18
+      },
+      {
+        "item": "Kouign-amann",
+        "orders": 534,
+        "regulars": 182,
+        "change": 24
+      },
+      {
+        "item": "Cinnamon roll",
+        "orders": 418,
+        "regulars": 164,
+        "change": 9
+      },
+      {
+        "item": "Iced latte",
+        "orders": 376,
+        "regulars": 142,
+        "change": 12
+      },
+      {
+        "item": "Ensaymada",
+        "orders": 312,
+        "regulars": 118,
+        "change": -4
+      }
     ],
     "integrations": [
       {
@@ -569,14 +607,14 @@
         "name": "Semaphore SMS",
         "category": "Messaging",
         "status": "Connected",
-        "detail": "₱0.95 customer price per SMS segment"
+        "detail": "\u20b10.95 customer price per SMS segment"
       },
       {
         "id": "int_ses",
         "name": "Amazon SES",
         "category": "Email",
         "status": "Connected",
-        "detail": "Domain verified · healthy reputation"
+        "detail": "Domain verified \u00b7 healthy reputation"
       },
       {
         "id": "int_fcm",
@@ -644,7 +682,7 @@
         "id": "wallet_2",
         "business": "Sage & Steam",
         "kind": "Points",
-        "category": "Café",
+        "category": "Caf\u00e9",
         "progress": 640,
         "target": 1000,
         "balance": "640 points",
@@ -673,7 +711,7 @@
         "category": "Retail",
         "progress": 740,
         "target": 1000,
-        "balance": "₱740 balance",
+        "balance": "\u20b1740 balance",
         "reward": "Stored gift value",
         "status": "Gift",
         "color": "paper",
@@ -688,11 +726,17 @@
         "category": "Bakery",
         "neighborhood": "Kapitolyo",
         "distance": "450 m",
-        "reward": "8 visits → free pastry",
+        "reward": "8 visits \u2192 free pastry",
         "address": "12 East Capitol Drive, Kapitolyo, Pasig",
         "hours": [
-          { "days": "Mon – Fri", "time": "7:00 AM – 8:00 PM" },
-          { "days": "Sat – Sun", "time": "8:00 AM – 9:00 PM" }
+          {
+            "days": "Mon \u2013 Fri",
+            "time": "7:00 AM \u2013 8:00 PM"
+          },
+          {
+            "days": "Sat \u2013 Sun",
+            "time": "8:00 AM \u2013 9:00 PM"
+          }
         ],
         "joined": true,
         "open": true
@@ -701,13 +745,16 @@
         "id": "discover_2",
         "image": "/images/discover/sage-steam.webp",
         "name": "Sage & Steam",
-        "category": "Café",
+        "category": "Caf\u00e9",
         "neighborhood": "Brixton",
         "distance": "1.2 km",
-        "reward": "₱1 → 1 point",
+        "reward": "\u20b11 \u2192 1 point",
         "address": "48 Brixton Street, Kapitolyo, Pasig",
         "hours": [
-          { "days": "Mon – Sun", "time": "6:30 AM – 10:00 PM" }
+          {
+            "days": "Mon \u2013 Sun",
+            "time": "6:30 AM \u2013 10:00 PM"
+          }
         ],
         "joined": true,
         "open": true
@@ -722,8 +769,14 @@
         "reward": "VIP monthly access",
         "address": "5F Estancia Mall, Capitol Commons, Pasig",
         "hours": [
-          { "days": "Tue – Sun", "time": "9:00 AM – 7:00 PM" },
-          { "days": "Mon", "time": "Closed" }
+          {
+            "days": "Tue \u2013 Sun",
+            "time": "9:00 AM \u2013 7:00 PM"
+          },
+          {
+            "days": "Mon",
+            "time": "Closed"
+          }
         ],
         "joined": true,
         "open": false
@@ -735,11 +788,17 @@
         "category": "Grooming",
         "neighborhood": "Ortigas",
         "distance": "1.8 km",
-        "reward": "5 cuts → signature treatment",
+        "reward": "5 cuts \u2192 signature treatment",
         "address": "G/F Emerald Avenue, Ortigas Center, Pasig",
         "hours": [
-          { "days": "Mon – Sat", "time": "10:00 AM – 9:00 PM" },
-          { "days": "Sun", "time": "11:00 AM – 6:00 PM" }
+          {
+            "days": "Mon \u2013 Sat",
+            "time": "10:00 AM \u2013 9:00 PM"
+          },
+          {
+            "days": "Sun",
+            "time": "11:00 AM \u2013 6:00 PM"
+          }
         ],
         "joined": false,
         "open": true
@@ -754,7 +813,10 @@
         "reward": "Member pricing + gift value",
         "address": "2F Shaw Boulevard, Mandaluyong",
         "hours": [
-          { "days": "Mon – Sun", "time": "10:00 AM – 9:00 PM" }
+          {
+            "days": "Mon \u2013 Sun",
+            "time": "10:00 AM \u2013 9:00 PM"
+          }
         ],
         "joined": true,
         "open": true
@@ -769,8 +831,14 @@
         "reward": "10-class multipass",
         "address": "Mayflower Street, Greenfield District, Mandaluyong",
         "hours": [
-          { "days": "Mon – Fri", "time": "6:00 AM – 10:00 PM" },
-          { "days": "Sat – Sun", "time": "7:00 AM – 6:00 PM" }
+          {
+            "days": "Mon \u2013 Fri",
+            "time": "6:00 AM \u2013 10:00 PM"
+          },
+          {
+            "days": "Sat \u2013 Sun",
+            "time": "7:00 AM \u2013 6:00 PM"
+          }
         ],
         "joined": false,
         "open": true
@@ -810,7 +878,7 @@
         "id": "act_1",
         "business": "Sweet Crumbs",
         "action": "+1 stamp",
-        "detail": "Kapitolyo · approved by Jan",
+        "detail": "Kapitolyo \u00b7 approved by Jan",
         "date": "Today",
         "value": "+1",
         "reference": "evt_SC_10482"
@@ -819,7 +887,7 @@
         "id": "act_2",
         "business": "Sage & Steam",
         "action": "+286 points",
-        "detail": "Brixton · ₱286 purchase",
+        "detail": "Brixton \u00b7 \u20b1286 purchase",
         "date": "Yesterday",
         "value": "+286",
         "reference": "evt_SS_8431"
@@ -828,9 +896,9 @@
         "id": "act_3",
         "business": "Rooted Studio",
         "action": "Member visit used",
-        "detail": "Capitol Commons · yoga flow",
+        "detail": "Capitol Commons \u00b7 yoga flow",
         "date": "Sunday",
-        "value": "−1",
+        "value": "\u22121",
         "reference": "evt_RS_2287"
       },
       {
@@ -839,7 +907,7 @@
         "action": "Birthday pastry redeemed",
         "detail": "BGC High Street",
         "date": "22 August",
-        "value": "₱185",
+        "value": "\u20b1185",
         "reference": "evt_SC_9821"
       }
     ]
@@ -905,7 +973,7 @@
       },
       {
         "id": "biz_5",
-        "name": "Field Notes Café",
+        "name": "Field Notes Caf\u00e9",
         "owner": "Luis Tan",
         "city": "Davao",
         "plan": "Core",
@@ -962,7 +1030,7 @@
       {
         "id": "sup_4",
         "title": "Suspicious redemption cluster",
-        "business": "Field Notes Café",
+        "business": "Field Notes Caf\u00e9",
         "category": "Fraud",
         "priority": "High",
         "age": "2 hr",
@@ -1006,7 +1074,7 @@
         "actor": "Mika Lim",
         "role": "Trust admin",
         "action": "Reversed 12 suspicious redemptions",
-        "target": "Field Notes Café",
+        "target": "Field Notes Caf\u00e9",
         "time": "10:42 AM",
         "ip": "10.24.x.x",
         "severity": "Elevated"
@@ -1132,9 +1200,9 @@
         {
           "name": "Push",
           "volume": 418000,
-          "revenue": 0,
+          "revenue": 1480,
           "cost": 840,
-          "model": "Included"
+          "model": "Allowance + overage"
         },
         {
           "name": "Email",
