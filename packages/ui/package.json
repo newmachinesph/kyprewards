@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.tsx",
-    "./auth": "./src/auth.tsx"
+    "./auth": "./src/auth.tsx",
+    "./shell": "./src/shell.tsx"
   },
   "dependencies": {
     "lucide-react": "latest",

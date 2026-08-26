@@ -352,7 +352,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-left">
                 <thead>
-                  <tr className="border-b border-[var(--line)] text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">
+                  <tr className="border-b border-[var(--line)] text-[10px] uppercase tracking-[0.12em] text-[var(--muted)]">
                     <th className="px-5 py-3">Business</th>
                     <th className="px-4 py-3">Connection</th>
                     <th className="px-4 py-3">Branches</th>
