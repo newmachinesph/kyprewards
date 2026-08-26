@@ -3,69 +3,7 @@
 import { useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { SiteButton } from "@/components/MarketingUi";
-
-const plans = [
-  {
-    name: "Launch",
-    monthly: 0,
-    yearly: 0,
-    description: "Prove the return-visit loop before paying.",
-    features: [
-      "250 active members",
-      "One location and one program",
-      "QR join, earn, and redeem",
-      "Customer PWA and in-app updates",
-      "Two staff accounts",
-    ],
-    cta: "Start free",
-    featured: false,
-  },
-  {
-    name: "Core",
-    monthly: 499,
-    yearly: 399,
-    description: "For one local business building a dependable customer base.",
-    features: [
-      "1,500 active members",
-      "Two concurrent programs",
-      "QR, NFC, and offline counter mode",
-      "5,000 emails each month",
-      "Three staff accounts",
-    ],
-    cta: "Choose Core",
-    featured: false,
-  },
-  {
-    name: "Grow",
-    monthly: 1290,
-    yearly: 990,
-    description: "For teams ready to automate retention across locations.",
-    features: [
-      "10,000 active members",
-      "Three locations and all eight program types",
-      "Segments, referrals, reviews, and automations",
-      "25,000 emails + 100 SMS credits monthly",
-      "RFM, retention, and revenue analytics",
-    ],
-    cta: "Choose Grow",
-    featured: true,
-  },
-  {
-    name: "Scale",
-    monthly: 3490,
-    yearly: 2790,
-    description: "For established multi-location operations and integrations.",
-    features: [
-      "50,000 active members",
-      "Ten locations and 50 staff",
-      "API, webhooks, POS, and commerce adapters",
-      "100,000 emails + 500 SMS credits monthly",
-      "Wallet passes, white label, and priority onboarding",
-    ],
-    cta: "Choose Scale",
-    featured: false,
-  },
-];
+import { plans } from "@/lib/plans";
 
 export function PricingCards() {
   const [annual, setAnnual] = useState(true);
@@ -138,13 +76,13 @@ export function PricingCards() {
                 className={`my-7 h-px ${plan.featured ? "bg-white/12" : "bg-[var(--line)]"}`}
               />
               <div className="space-y-3.5">
-                {plan.features.map((feature) => (
+                {plan.highlights.map((feature) => (
                   <div
                     key={feature}
                     className={`flex items-start gap-3 text-sm ${plan.featured ? "text-white/80" : "text-[var(--muted-strong)]"}`}
                   >
                     <span
-                      className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full ${plan.featured ? "bg-white/10 text-[var(--accent)]" : "bg-[rgb(242_161_45/15%)] text-[var(--accent-strong)]"}`}
+                      className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full ${plan.featured ? "bg-white/10 text-[var(--accent)]" : "bg-[rgb(232_163_61/15%)] text-[var(--accent-strong)]"}`}
                     >
                       <Check size={12} strokeWidth={3} />
                     </span>

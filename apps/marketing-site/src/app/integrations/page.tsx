@@ -22,6 +22,7 @@ import {
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
 import { businessAppUrl } from "@/lib/site";
+import { channelRates } from "@/lib/plans";
 
 export const metadata: Metadata = {
   title: "POS, API and Webhook Integrations",
@@ -147,6 +148,62 @@ export default function IntegrationsPage() {
                 </article>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid gap-8 lg:grid-cols-[0.62fr_1.38fr] lg:items-end">
+            <div>
+              <SiteEyebrow>Delivery channels</SiteEyebrow>
+              <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.02em] sm:text-5xl">
+                Five ways to reach a customer, each priced honestly.
+              </h2>
+            </div>
+            <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
+              Messaging runs on named providers, not a black box. Every plan
+              includes a monthly allowance per channel; past it you pay the
+              add-on rate. Consent, quiet hours, and frequency caps apply on
+              every channel including the free ones.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-px overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2 xl:grid-cols-3">
+            {channelRates.map((rate) => (
+              <article
+                key={rate.channel}
+                className="flex flex-col bg-[var(--surface)] p-7"
+              >
+                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--muted)]">
+                  {rate.provider}
+                </p>
+                <h3 className="mt-3 text-xl font-extrabold tracking-[-0.02em]">
+                  {rate.channel}
+                </h3>
+                <p className="mt-3 max-w-[46ch] text-sm leading-relaxed text-[var(--muted-strong)]">
+                  {rate.detail}
+                </p>
+                <dl className="mt-auto grid grid-cols-2 gap-4 pt-7 text-sm">
+                  <div>
+                    <dt className="text-xs text-[var(--muted)]">Included</dt>
+                    <dd className="mt-1 font-bold">{rate.included}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-[var(--muted)]">Add-on rate</dt>
+                    <dd className="mt-1 font-bold text-[var(--accent-strong)]">
+                      {rate.overage}
+                    </dd>
+                  </div>
+                </dl>
+              </article>
+            ))}
+            {/* Fills the trailing grid cell so the gap-px rule does not show through. */}
+            <div className="hidden bg-[var(--surface)] md:block" aria-hidden="true" />
+          </div>
+          <div className="mt-10">
+            <SiteButton href="/pricing#compare" tone="outline">
+              See allowances by plan
+            </SiteButton>
           </div>
         </div>
       </section>
