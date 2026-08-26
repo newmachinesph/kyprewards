@@ -14,6 +14,7 @@ export default function ContactPage() {
   return (
     <main>
       <PageHero
+        image="/images/hero-contact.webp"
         eyebrow="Talk to the team"
         title="Tell us how customers return today."
         description="We’ll help you shape a program around the rhythm, reward, and counter workflow that already make sense for your business."

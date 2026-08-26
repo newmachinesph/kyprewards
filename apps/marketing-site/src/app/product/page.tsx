@@ -102,6 +102,7 @@ export default function ProductPage() {
   return (
     <main>
       <PageHero
+        image="/images/hero-product.webp"
         eyebrow="The complete loyalty loop"
         title="One small scan. A much better return visit."
         description="KYPStamping connects the moment at the counter with the customer wallet, business workspace, and thoughtful follow-up that happen afterward."

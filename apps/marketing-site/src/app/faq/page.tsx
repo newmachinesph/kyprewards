@@ -118,6 +118,7 @@ export default function FaqPage() {
         }}
       />
       <PageHero
+        image="/images/hero-pricing.webp"
         eyebrow="Buyer and operator answers"
         title="Everything important, answered plainly."
         description="A practical reference for owners, staff, customers, technical evaluators, and answer engines—without hiding the fact that this release is a frontend demo."

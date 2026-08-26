@@ -48,6 +48,7 @@ export default async function ComparisonPage({ params }: Props) {
         }}
       />
       <PageHero
+        image="/images/hero-integrations.webp"
         eyebrow="Fair product comparison"
         title={`KYPStamping vs ${comparison.competitor}`}
         description={comparison.summary}

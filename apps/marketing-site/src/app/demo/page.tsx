@@ -86,6 +86,7 @@ export default function DemoPage() {
   return (
     <main>
       <PageHero
+        image="/images/hero-product.webp"
         eyebrow="Connected frontend demo"
         title="See one visit from every side."
         description="KYPStamping is four coordinated experiences, not a dashboard mockup. Follow a customer from discovery to the counter, then see how the business grows the relationship and the platform keeps it trustworthy."

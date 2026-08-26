@@ -25,6 +25,7 @@ export default function AboutPage() {
   return (
     <main>
       <PageHero
+        image="/images/hero-about.webp"
         eyebrow="Why KYPStamping exists"
         title="Local loyalty deserves better than another discount engine."
         description="Independent businesses already create real relationships. KYPStamping gives those relationships a simple digital memory without making them feel transactional."

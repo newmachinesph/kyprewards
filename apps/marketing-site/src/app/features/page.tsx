@@ -175,6 +175,7 @@ export default function FeaturesPage() {
   return (
     <main>
       <PageHero
+        image="/images/hero-features.webp"
         eyebrow="The full loyalty system"
         title="Every way to reward. One local relationship."
         description="Run simple stamps today, then add points, memberships, gift value, referrals, and automations without making customers juggle another account for every shop."

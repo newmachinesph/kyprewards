@@ -61,16 +61,41 @@ export function PageHero({
   eyebrow,
   title,
   description,
+  image,
   children,
 }: {
   eyebrow: string;
   title: string;
   description: string;
+  /** Path under /images. Rendered behind the copy, faded to paper like the homepage hero. */
+  image?: string;
   children?: ReactNode;
 }) {
   return (
-    <section className="site-grid border-b border-[var(--line)]">
-      <div className="mx-auto grid min-h-[540px] max-w-[1400px] items-end gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-28">
+    <section className="site-grid relative overflow-hidden border-b border-[var(--line)]">
+      {image && (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={image}
+            alt=""
+            aria-hidden="true"
+            fetchPriority="high"
+            className="absolute inset-0 size-full object-cover object-[70%_center]"
+          />
+          {/* Heavier wash than the homepage: this hero runs body copy over the
+              right half, where the homepage only has a solid card. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-[linear-gradient(90deg,var(--paper)_10%,rgb(250_248_243/93%)_52%,rgb(250_248_243/74%)_100%)]"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent,var(--paper))]"
+          />
+        </>
+      )}
+      <div className="relative mx-auto grid min-h-[540px] max-w-[1400px] items-end gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-28">
         <div>
           <SiteEyebrow>{eyebrow}</SiteEyebrow>
           <h1 className="mt-5 max-w-[14ch] text-5xl font-extrabold leading-[0.96] tracking-[-0.03em] sm:text-6xl lg:text-7xl">

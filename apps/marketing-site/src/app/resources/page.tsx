@@ -29,6 +29,7 @@ export default function ResourcesPage() {
   return (
     <main>
       <PageHero
+        image="/images/hero-resources.webp"
         eyebrow="The return-visit library"
         title="Practical ideas for becoming someone’s regular place."
         description="Clear guidance for designing rewards, reaching customers, and earning the kind of trust that lasts longer than a discount."

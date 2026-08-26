@@ -83,6 +83,7 @@ export default function LoyaltyPhilippinesPage() {
         ]}
       />
       <PageHero
+        image="/images/hero-about.webp"
         eyebrow="Digital loyalty program Philippines"
         title="A loyalty program people can use—and a business can afford."
         description="For Philippine cafés, salons, restaurants, and retailers: start with a simple return-visit loop, choose channels by value, and keep every reward and message economically visible."

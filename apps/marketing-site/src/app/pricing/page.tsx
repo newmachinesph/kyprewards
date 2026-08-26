@@ -46,6 +46,7 @@ export default function PricingPage() {
         }}
       />
       <PageHero
+        image="/images/hero-pricing.webp"
         eyebrow="Simple plans, useful limits"
         title="Start small. Pay when loyalty starts working."
         description="Launch the core visit-and-reward loop for free. Upgrade when you are ready to segment, automate, and manage a larger customer base."
