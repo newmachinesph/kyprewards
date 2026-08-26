@@ -79,20 +79,20 @@ const connectionOptions = [
     availability: "Sandbox ready",
   },
   {
-    id: "mosaic",
-    name: "Mosaic POS",
+    id: "pos-webhook",
+    name: "POS webhook",
     icon: Store,
-    eyebrow: "Provider adapter",
-    description: "Preview the mapped setup while commercial API access is being approved.",
-    availability: "Approval required",
+    eyebrow: "Any register",
+    description: "Post sale and refund events from your existing POS using the shared event contract.",
+    availability: "Sandbox ready",
   },
   {
-    id: "storehub",
-    name: "StoreHub",
+    id: "pos-pull",
+    name: "Scheduled pull",
     icon: PlugZap,
-    eyebrow: "Provider adapter",
-    description: "Prepare branch mapping and credentials before provider authorization.",
-    availability: "Approval required",
+    eyebrow: "Any register",
+    description: "Let KYPStamping fetch sales on a schedule when your POS cannot send webhooks.",
+    availability: "Sandbox ready",
   },
 ] as const;
 
@@ -121,7 +121,7 @@ const initialDeliveries: Delivery[] = [
   {
     id: "evt_01J7SC10482",
     event: "loyalty.transaction.completed",
-    source: "Mosaic sandbox",
+    source: "POS sandbox",
     status: "Delivered",
     detail: "202 ms · Today, 9:42 AM",
     requestId: "req_7G2K9P",
@@ -129,7 +129,7 @@ const initialDeliveries: Delivery[] = [
   {
     id: "evt_01J7SC10481",
     event: "loyalty.transaction.completed",
-    source: "Mosaic sandbox",
+    source: "POS sandbox",
     status: "Ignored safely",
     detail: "Duplicate event · Today, 9:41 AM",
     requestId: "req_6Q1M3A",
@@ -981,10 +981,10 @@ export function IntegrationsView({
           },
           {
             icon: TriangleAlert,
-            title: "Need provider access?",
-            detail: "Adapter availability depends on documented APIs and authorization from the POS provider.",
+            title: "Using an unusual POS?",
+            detail: "Any register that can post webhooks or expose a read API connects through the same event contract.",
             action: "Review readiness",
-            onClick: () => notify("Provider readiness checklist opened in demo mode."),
+            onClick: () => notify("Integration readiness checklist opened in demo mode."),
           },
         ].map((item) => {
           const Icon = item.icon;

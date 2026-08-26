@@ -351,11 +351,19 @@ export const channelRates = [
       "Carrier cost is roughly ₱0.56 ex-VAT per segment. The margin covers multipart messages, provider failover, and payment fees.",
   },
   {
-    channel: "Viber, WhatsApp, Messenger",
-    provider: "Your own provider account",
-    included: "Connect your own account",
-    overage: "Provider cost + 15%",
+    channel: "Viber",
+    provider: "Viber business messages",
+    included: "Pay as you send",
+    overage: "₱0.42 per message",
     detail:
-      "Priced as pass-through rather than an unlimited promise, because the provider bills per conversation.",
+      "Used ahead of SMS whenever a customer is reachable there, which is the cheapest way to cut campaign cost without losing reach.",
+  },
+  {
+    channel: "WhatsApp, Messenger",
+    provider: "Meta",
+    included: "Not available yet",
+    overage: "Planned",
+    detail:
+      "Blocked on a verified Meta Business account. Pricing will be published once the channel is approved and built.",
   },
 ];

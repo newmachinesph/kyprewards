@@ -624,11 +624,11 @@
         "detail": "Web push and installed PWA"
       },
       {
-        "id": "int_maya",
-        "name": "Maya payment reference",
+        "id": "int_payments_ph",
+        "name": "GCash, Maya & QR Ph",
         "category": "Payments",
-        "status": "Available",
-        "detail": "Attach membership and gift-value payments"
+        "status": "Planned",
+        "detail": "Earn on payment. Enabled once business registration is approved"
       },
       {
         "id": "int_pos",
@@ -645,11 +645,25 @@
         "detail": "Quick-access pass and live balance"
       },
       {
-        "id": "int_connected",
-        "name": "Viber, WhatsApp & Messenger",
+        "id": "int_viber",
+        "name": "Viber business messages",
         "category": "Messaging",
         "status": "Available",
-        "detail": "Provider pass-through cost plus orchestration fee"
+        "detail": "\u20b10.42 per message \u00b7 used ahead of SMS when reachable"
+      },
+      {
+        "id": "int_meta",
+        "name": "WhatsApp & Messenger",
+        "category": "Messaging",
+        "status": "Planned",
+        "detail": "Requires a verified Meta Business account before build"
+      },
+      {
+        "id": "int_fb_page",
+        "name": "Facebook Page",
+        "category": "Messaging",
+        "status": "Planned",
+        "detail": "Join links and reward updates from your Page inbox"
       }
     ]
   },

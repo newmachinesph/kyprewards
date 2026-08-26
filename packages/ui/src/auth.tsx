@@ -416,6 +416,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   const [remember, setRemember] = useState(true);
   const [code, setCode] = useState("424242");
   const [name, setName] = useState("Jacqueline Daniel");
+  const [businessName, setBusinessName] = useState("Sweet Crumbs Bakery");
   const [email, setEmail] = useState("jacqueline.daniel@example.com");
   const [accepted, setAccepted] = useState(true);
   const [notice, setNotice] = useState("");
@@ -563,9 +564,12 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
             </button>
           )}
         </div>
-        {role === "customer" && (
+        {(role === "customer" || role === "business") && (
           <p className="mt-6 text-center text-xs text-[var(--muted-strong)]">
-            New to KYPStamping? <a href="/create-account" className="font-extrabold text-[var(--accent-strong)] hover:underline">Create your wallet</a>
+            New to KYPStamping?{" "}
+            <a href="/create-account" className="font-extrabold text-[var(--accent-strong)] hover:underline">
+              {role === "business" ? "Create a business account" : "Create your wallet"}
+            </a>
           </p>
         )}
         <DemoBoundary compact={role === "customer"} />
@@ -596,10 +600,16 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   }
 
   if (mode === "verify") {
-    const destination = role === "business" ? "/workspaces" : role === "customer" ? "/#home" : "/#overview";
+    function verifyDestination() {
+      if (role === "customer") return "/#home";
+      if (role === "admin") return "/#overview";
+      return window.sessionStorage.getItem("stampr-business-signup")
+        ? "/onboarding"
+        : "/workspaces";
+    }
     return (
       <AuthShell role={role} mode="verify" title={role === "customer" ? "Enter your code." : "Confirm it is you."} description={role === "admin" ? "Enter the six-digit code from your administrator authenticator." : role === "customer" ? "Use the six-digit code prepared for your demo wallet." : "Enter the six-digit code prepared for your demo account."}>
-        <form onSubmit={(event) => { event.preventDefault(); if (code.length !== 6) { setNotice("Enter all six digits."); return; } completeSession(destination); }} className="space-y-5">
+        <form onSubmit={(event) => { event.preventDefault(); if (code.length !== 6) { setNotice("Enter all six digits."); return; } completeSession(verifyDestination()); }} className="space-y-5">
           <label className="grid gap-2 text-xs font-extrabold">
             Six-digit verification code
             <input
@@ -618,6 +628,59 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
           <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> Use another account</a>
         </form>
         <DemoBoundary compact={role === "customer"} />
+      </AuthShell>
+    );
+  }
+
+  if (mode === "create" && role === "business") {
+    return (
+      <AuthShell role="business" mode="create" title="Start your loyalty program." description="Create the workspace for your business. You can add locations, staff, and your first program right after.">
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!businessName.trim()) { setNotice("Enter your business name."); return; }
+            if (!identifier.trim()) { setNotice("Enter your work email."); return; }
+            if (password.length < 8) { setNotice("Use at least 8 characters for this demo password."); return; }
+            if (!accepted) { setNotice("Accept the terms to continue."); return; }
+            window.sessionStorage.setItem("stampr-business-signup", businessName);
+            go("/verify");
+          }}
+          className="space-y-5"
+        >
+          <Field label="Business name" value={businessName} onChange={setBusinessName} autoComplete="organization" />
+          <Field label="Your full name" value={name} onChange={setName} autoComplete="name" />
+          <Field label="Work email" type="email" value={identifier} onChange={setIdentifier} autoComplete="email" />
+          <Field label="Mobile number" type="tel" value={email} onChange={setEmail} autoComplete="tel" />
+          <label className="grid gap-2 text-xs font-extrabold">
+            Password
+            <span className="relative flex items-center">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="new-password"
+                className="min-h-12 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 pr-12 text-sm font-semibold outline-none focus:border-[var(--accent-strong)]"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((value) => !value)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-2 grid size-9 place-items-center rounded-lg text-[var(--muted-strong)] hover:bg-[var(--surface-2)]"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </span>
+            <span className="text-[10px] font-semibold text-[var(--muted)]">At least 8 characters.</span>
+          </label>
+          <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">
+            <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-0.5 size-4 accent-[var(--ink)]" />
+            <span>I agree to the demo terms and understand no real workspace is created.</span>
+          </label>
+          {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
+          <PrimaryButton>Create demo workspace</PrimaryButton>
+          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> I already have an account</a>
+        </form>
+        <DemoBoundary />
       </AuthShell>
     );
   }

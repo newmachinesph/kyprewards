@@ -23,6 +23,7 @@ import {
   Link2,
   Mail,
   MessageCircle,
+  MessagesSquare,
   MessageSquareText,
   Nfc,
   Pencil,
@@ -32,6 +33,7 @@ import {
   QrCode,
   Search,
   Send,
+  Route,
   ShieldCheck,
   Smartphone,
   Stamp,
@@ -336,6 +338,57 @@ function JoinCodeView({ notify }: { notify: Notify }) {
               Set up NFC
             </Button>
           </div>
+
+          <div className="mt-6 rounded-2xl border border-dashed border-[var(--line-strong)] bg-[var(--surface)] p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--surface-2)]">
+                  <CreditCard size={17} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-extrabold">Printed member cards</p>
+                  <p className="mt-1 max-w-[52ch] text-xs leading-relaxed text-[var(--muted-strong)]">
+                    Wallet-sized cards carrying each customer&rsquo;s own code. For
+                    customers without a smartphone, or when data is down, staff scan
+                    the printed card exactly like the in-app code.
+                  </p>
+                </div>
+              </div>
+              <span className="rounded-full bg-[rgb(232_163_61/16%)] px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
+                Add-on
+              </span>
+            </div>
+            <dl className="mt-4 grid gap-2 text-xs sm:grid-cols-3">
+              {[
+                ["Linked by", "Customer mobile number"],
+                ["Minimum order", "100 cards"],
+                ["Quoted separately", "Not included in plan"],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-xl bg-[var(--paper)] p-3">
+                  <dt className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted)]">
+                    {label}
+                  </dt>
+                  <dd className="mt-1 font-bold">{value}</dd>
+                </div>
+              ))}
+            </dl>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button
+                tone="quiet"
+                icon={<Send size={15} />}
+                onClick={() => notify("Card order request opened in demo mode.")}
+              >
+                Request a quote
+              </Button>
+              <Button
+                tone="quiet"
+                icon={<WalletCards size={15} />}
+                onClick={() => notify("Wallet pass preview opened in demo mode.")}
+              >
+                Use wallet passes instead
+              </Button>
+            </div>
+          </div>
         </section>
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
           <Eyebrow>What customers see</Eyebrow>
@@ -358,6 +411,11 @@ function JoinCodeView({ notify }: { notify: Notify }) {
                 icon: Smartphone,
                 title: "No app-store gate",
                 text: "The PWA opens immediately; a quick wallet pass is optional.",
+              },
+              {
+                icon: WifiOff,
+                title: "Works without a signal",
+                text: "Customers can save or print their code, or carry a printed member card, and still be scanned.",
               },
               {
                 icon: Link2,
@@ -1116,21 +1174,47 @@ function RedemptionsView({ notify }: { notify: Notify }) {
   );
 }
 
-const channelConfig = [
+type ChannelStatus = "ready" | "planned";
+
+const channelConfig: {
+  name: string;
+  icon: typeof BellRing;
+  eligible: number;
+  unit: number;
+  note: string;
+  status: ChannelStatus;
+}[] = [
   {
     name: "In-app",
     icon: MessageSquareText,
     eligible: 1280,
     unit: 0,
     note: "Included",
+    status: "ready",
   },
-  { name: "Push", icon: BellRing, eligible: 1120, unit: 0, note: "Included" },
+  {
+    name: "Push",
+    icon: BellRing,
+    eligible: 1120,
+    unit: 0,
+    note: "Included",
+    status: "ready",
+  },
   {
     name: "Email",
     icon: Mail,
     eligible: 1060,
     unit: 0.025,
     note: "Uses allowance",
+    status: "ready",
+  },
+  {
+    name: "Viber",
+    icon: MessageCircle,
+    eligible: 610,
+    unit: 0.42,
+    note: "₱0.42 / message",
+    status: "ready",
   },
   {
     name: "SMS",
@@ -1138,13 +1222,23 @@ const channelConfig = [
     eligible: 780,
     unit: 0.95,
     note: "₱0.95 / segment",
+    status: "ready",
   },
   {
-    name: "Connected",
-    icon: MessageCircle,
+    name: "WhatsApp",
+    icon: Send,
     eligible: 240,
-    unit: 0.65,
-    note: "Provider quote + fee",
+    unit: 0.55,
+    note: "Needs Meta Business verification",
+    status: "planned",
+  },
+  {
+    name: "Messenger",
+    icon: MessagesSquare,
+    eligible: 430,
+    unit: 0.35,
+    note: "Needs Meta Business verification",
+    status: "planned",
   },
 ];
 
@@ -1154,18 +1248,34 @@ function CampaignsView({ notify }: { notify: Notify }) {
     "In-app": true,
     Push: true,
     Email: true,
+    Viber: false,
     SMS: false,
-    Connected: false,
   });
+  const [smartRouting, setSmartRouting] = useState(true);
   const [message, setMessage] = useState(
     "A warm pastry is waiting. Visit Sweet Crumbs before 4 PM this Tuesday and your next stamp counts twice.",
   );
   const selectedChannels = channelConfig.filter(
-    (channel) => channels[channel.name],
+    (channel) => channel.status === "ready" && channels[channel.name],
   );
-  const deliveryCost = selectedChannels.reduce(
-    (sum, channel) => sum + Math.min(audience, channel.eligible) * channel.unit,
+  const smsChannel = channelConfig.find((channel) => channel.name === "SMS");
+  const viberChannel = channelConfig.find((channel) => channel.name === "Viber");
+  // ponytail: routing only ever diverts SMS to the cheaper messaging app. One
+  // subtraction beats modelling a full per-recipient channel waterfall.
+  const smsAudience =
+    smsChannel && channels.SMS ? Math.min(audience, smsChannel.eligible) : 0;
+  const divertedToViber =
+    smartRouting && viberChannel ? Math.min(smsAudience, viberChannel.eligible) : 0;
+  const routingSavings =
+    smsChannel && viberChannel
+      ? divertedToViber * (smsChannel.unit - viberChannel.unit)
+      : 0;
+  const deliveryCost = Math.max(
     0,
+    selectedChannels.reduce(
+      (sum, channel) => sum + Math.min(audience, channel.eligible) * channel.unit,
+      0,
+    ) - routingSavings,
   );
   const reachable = Math.min(
     audience,
@@ -1178,7 +1288,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
     <ViewFrame
       eyebrow="Campaign studio"
       title="Campaigns"
-      description="Plan across in-app, push, email, SMS, and connected messaging with consent eligibility, delivery cost, quiet hours, and expected business value visible before launch."
+      description="Plan across in-app, push, email, Viber, and SMS with consent eligibility, delivery cost, quiet hours, and expected business value visible before launch. Messaging apps are used ahead of SMS whenever a customer is reachable there."
       action={
         <Button
           tone="quiet"
@@ -1234,19 +1344,22 @@ function CampaignsView({ notify }: { notify: Notify }) {
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {channelConfig.map((channel) => {
                 const Icon = channel.icon;
-                const active = channels[channel.name];
+                const planned = channel.status === "planned";
+                const active = !planned && channels[channel.name];
                 return (
                   <button
                     type="button"
                     key={channel.name}
-                    aria-pressed={active}
+                    aria-pressed={planned ? undefined : active}
+                    disabled={planned}
+                    title={planned ? "Available after Meta Business verification" : undefined}
                     onClick={() =>
                       setChannels((current) => ({
                         ...current,
                         [channel.name]: !active,
                       }))
                     }
-                    className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition ${active ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]" : "border-[var(--line)] bg-[var(--paper)]"}`}
+                    className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition ${planned ? "cursor-not-allowed border-dashed border-[var(--line-strong)] bg-[var(--surface)] opacity-70" : active ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]" : "border-[var(--line)] bg-[var(--paper)]"}`}
                   >
                     <span
                       className={`grid size-9 place-items-center rounded-xl ${active ? "bg-white/10 text-[var(--accent)]" : "bg-[var(--surface)]"}`}
@@ -1254,13 +1367,18 @@ function CampaignsView({ notify }: { notify: Notify }) {
                       <Icon size={16} />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-extrabold">
-                        {channel.name}
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-extrabold">{channel.name}</span>
+                        {planned && (
+                          <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted-strong)]">
+                            Soon
+                          </span>
+                        )}
                       </span>
                       <span
                         className={`mt-0.5 block text-[10px] ${active ? "text-white/60" : "text-[var(--muted)]"}`}
                       >
-                        {channel.eligible.toLocaleString()} eligible ·{" "}
+                        {channel.eligible.toLocaleString()} reachable ·{" "}
                         {channel.note}
                       </span>
                     </span>
@@ -1269,6 +1387,33 @@ function CampaignsView({ notify }: { notify: Notify }) {
                 );
               })}
             </div>
+            <button
+              type="button"
+              aria-pressed={smartRouting}
+              onClick={() => setSmartRouting((value) => !value)}
+              className={`mt-3 flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition ${smartRouting ? "border-[var(--success)] bg-[rgb(15_118_85/7%)]" : "border-[var(--line)] bg-[var(--paper)]"}`}
+            >
+              <span
+                className={`grid size-9 shrink-0 place-items-center rounded-xl ${smartRouting ? "bg-[var(--success)] text-white" : "bg-[var(--surface)]"}`}
+              >
+                <Route size={16} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-extrabold">
+                  Reach on a messaging app before SMS
+                </span>
+                <span className="mt-0.5 block text-[11px] leading-relaxed text-[var(--muted-strong)]">
+                  {channels.SMS
+                    ? divertedToViber > 0
+                      ? `${divertedToViber.toLocaleString()} of ${smsAudience.toLocaleString()} SMS recipients are reachable on Viber, saving ₱${routingSavings.toFixed(2)} on this send.`
+                      : "No selected recipients are reachable on a messaging app right now."
+                    : "Turn on SMS to see how many recipients can be reached more cheaply."}
+                </span>
+              </span>
+              <span className="shrink-0 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted-strong)]">
+                {smartRouting ? "On" : "Off"}
+              </span>
+            </button>
           </div>
           <label className="mt-6 grid gap-2 text-xs font-bold">
             Message
@@ -1786,6 +1931,9 @@ function SettingsView({ notify }: { notify: Notify }) {
               .filter((integration) => integration.id !== "int_pos")
               .map((integration, index) => {
               const isConnected = connected[integration.id];
+              // Planned integrations are blocked on an external approval, so the
+              // switch stays inert rather than pretending it can be turned on.
+              const isPlanned = integration.status === "Planned";
               return (
                 <article
                   key={integration.id}
@@ -1800,6 +1948,8 @@ function SettingsView({ notify }: { notify: Notify }) {
                       role="switch"
                       aria-label={`Toggle ${integration.name}`}
                       aria-checked={isConnected}
+                      disabled={isPlanned}
+                      title={isPlanned ? "Not available yet" : undefined}
                       onClick={() => {
                         setConnected((current) => ({
                           ...current,
@@ -1809,7 +1959,7 @@ function SettingsView({ notify }: { notify: Notify }) {
                           `${integration.name} ${isConnected ? "disconnected" : "connected"} in demo mode.`,
                         );
                       }}
-                      className={`relative h-6 w-10 rounded-full ${isConnected ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
+                      className={`relative h-6 w-10 rounded-full ${isPlanned ? "cursor-not-allowed bg-[var(--line)] opacity-60" : isConnected ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                     >
                       <span
                         className={`absolute top-1 size-4 rounded-full bg-white transition ${isConnected ? "left-5" : "left-1"}`}

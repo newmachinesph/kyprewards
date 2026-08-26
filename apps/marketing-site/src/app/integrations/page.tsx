@@ -28,7 +28,7 @@ import { channelRates } from "@/lib/plans";
 export const metadata: Metadata = {
   title: "POS, API and Webhook Integrations",
   description:
-    "Start KYPStamping beside any POS, then connect sales through a versioned API, signed webhooks, file imports, or isolated provider adapters.",
+    "Start KYPStamping beside any POS, then connect sales through a versioned API, signed webhooks, file imports, or scheduled pulls.",
   alternates: { canonical: "/integrations" },
 };
 
@@ -36,12 +36,12 @@ const questions = [
   {
     question: "Do we need to replace our POS?",
     answer:
-      "No. Businesses can begin with the KYPStamping sidecar counter flow, then add a direct API or supported provider adapter when it creates enough operational value.",
+      "No. Businesses can begin with the KYPStamping sidecar counter flow, then add a direct API or webhook connection when it creates enough operational value.",
   },
   {
-    question: "Are Mosaic and StoreHub already connected?",
+    question: "Which POS systems are supported?",
     answer:
-      "The frontend demonstrates the intended adapter setup. A production connection still depends on documented provider APIs, authorization, commercial approval, and conformance testing.",
+      "KYPStamping does not maintain per-vendor integrations. Any register that can post sale webhooks, expose a read API, or export sale files connects through one shared event contract, so support does not depend on a vendor partnership.",
   },
   {
     question: "How are duplicate sales prevented?",
@@ -114,7 +114,7 @@ export default function IntegrationsPage() {
                 icon: Webhook,
                 eyebrow: "Event path",
                 title: "Signed webhooks",
-                detail: "Receive provider events and deliver loyalty changes with traceable retry and replay behavior.",
+                detail: "Receive register events and deliver loyalty changes with traceable retry and replay behavior.",
                 status: "Reliable delivery",
               },
               {
@@ -339,11 +339,11 @@ X-Merchant-ID: mrc_sweet_crumbs
           <div>
             <SiteEyebrow>Clear claims</SiteEyebrow>
             <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
-              Preview the setup. Verify the provider.
+              Preview the setup. Connect any register.
             </h2>
             <p className="mt-5 max-w-[46ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-              The demo shows how provider adapters will be configured. It does not
-              represent a commercial partnership or live connection before provider approval.
+              The demo shows how a register connection will be configured. It does not
+              represent a live connection before the shared API and worker are built.
             </p>
           </div>
           <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">

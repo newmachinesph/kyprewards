@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { demoData } from "@stampr/demo-data";
 import { BrandMark, Eyebrow, StampDots } from "@stampr/ui";
 import { signOutDemo } from "@stampr/ui/auth";
@@ -32,6 +32,7 @@ import {
   Megaphone,
   Nfc,
   Phone,
+  Printer,
   QrCode,
   Search,
   Settings2,
@@ -42,6 +43,7 @@ import {
   Trash2,
   UserRound,
   WalletCards,
+  WifiOff,
   X,
 } from "lucide-react";
 
@@ -82,6 +84,37 @@ const qrPattern = [
   "10001010100100",
   "11111001101111",
 ];
+
+const memberCode = `KYP-${customerDemo.profile.id.toUpperCase()}`;
+
+// ponytail: paint the same pattern to a canvas on demand instead of shipping a QR
+// library. The saved image is what makes the code work with no signal at all.
+function saveQrImage() {
+  const scale = 16;
+  const quiet = 2;
+  const cols = qrPattern[0].length;
+  const rows = qrPattern.length;
+  const canvas = document.createElement("canvas");
+  canvas.width = (cols + quiet * 2) * scale;
+  canvas.height = (rows + quiet * 2) * scale;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return false;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#181210";
+  qrPattern.forEach((row, y) =>
+    row.split("").forEach((cell, x) => {
+      if (cell === "1") {
+        ctx.fillRect((x + quiet) * scale, (y + quiet) * scale, scale, scale);
+      }
+    }),
+  );
+  const link = document.createElement("a");
+  link.download = `kypstamping-${customerDemo.profile.id}.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+  return true;
+}
 
 function LoyaltyCard({ compact = false }: { compact?: boolean }) {
   return (
@@ -740,16 +773,28 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
   );
 }
 
-function QrModal({ close }: { close: () => void }) {
+function QrModal({ close, notify }: { close: () => void; notify: (message: string) => void }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") close();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [close]);
+
   return (
     <div
-      className="absolute inset-0 z-50 bg-[var(--paper)]"
+      className="qr-screen absolute inset-0 z-50 bg-[var(--paper)]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="qr-title"
     >
       <header className="flex h-17 items-center justify-between border-b border-[var(--line)] px-5">
         <button
+          ref={closeRef}
           onClick={close}
           aria-label="Close QR code"
           className="grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
@@ -774,12 +819,13 @@ function QrModal({ close }: { close: () => void }) {
           Show this at the counter
         </h2>
         <p className="mt-2 max-w-[30ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-          Staff can stamp or redeem after you approve the visit.
+          Staff scan this to add a stamp. Redeeming a reward asks you to approve it first.
         </p>
-        <div className="relative mt-8 overflow-hidden rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_20px_50px_rgb(24_18_12/12%)]">
+        <div className="qr-printable relative mt-8 overflow-hidden rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_20px_50px_rgb(24_18_12/12%)]">
           <div
             className="grid grid-cols-[repeat(14,12px)] gap-[2px]"
-            aria-label="Demo QR code"
+            role="img"
+            aria-label={`Loyalty code ${memberCode}`}
           >
             {qrPattern.flatMap((row, y) =>
               row
@@ -794,19 +840,46 @@ function QrModal({ close }: { close: () => void }) {
           </div>
           <span className="scan-pass absolute inset-x-4 top-8 h-px bg-[var(--accent)] shadow-[0_0_10px_var(--accent)]" />
         </div>
-        <span className="mt-5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 font-mono text-xs font-bold tracking-[0.08em]">
-          {`KYP-${customerDemo.profile.id.toUpperCase()}`}
+        <span className="qr-printable-code mt-5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 font-mono text-xs font-bold tracking-[0.08em]">
+          {memberCode}
         </span>
-        <div className="mt-7 flex max-w-[34ch] items-start gap-2 rounded-2xl bg-[rgb(32_169_120/10%)] p-3 text-left text-xs leading-relaxed text-[var(--muted-strong)]">
-          <ShieldCheck
-            size={16}
-            className="mt-0.5 shrink-0 text-[var(--success)]"
-          />{" "}
-          Your rotating code identifies you securely. It does not contain your
-          contact details.
+
+        <div className="mt-6 grid w-full max-w-[34ch] grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              const saved = saveQrImage();
+              notify(
+                saved
+                  ? "Code saved to your device. It works with no signal."
+                  : "This browser could not save the image. Try printing instead.",
+              );
+            }}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-xs font-extrabold transition active:scale-[0.98]"
+          >
+            <Download size={15} aria-hidden="true" /> Save image
+          </button>
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-xs font-extrabold transition active:scale-[0.98]"
+          >
+            <Printer size={15} aria-hidden="true" /> Print
+          </button>
+        </div>
+
+        <div className="mt-5 flex max-w-[34ch] items-start gap-2 rounded-2xl bg-[rgb(32_169_120/10%)] p-3 text-left text-xs leading-relaxed text-[var(--muted-strong)]">
+          <WifiOff size={16} className="mt-0.5 shrink-0 text-[var(--success)]" aria-hidden="true" />{" "}
+          Works without data. Save it to your photos, print it, or ask your
+          business for a printed KYPStamping card with the same code.
+        </div>
+        <div className="mt-3 flex max-w-[34ch] items-start gap-2 text-left text-[11px] leading-relaxed text-[var(--muted)]">
+          <ShieldCheck size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> The code
+          identifies your account only. It carries no contact details, and rewards
+          cannot be redeemed without your approval.
         </div>
         <div className="mt-3 flex items-center gap-2 text-[11px] font-bold text-[var(--muted)]">
-          <Nfc size={15} /> You can also tap at supported counters.
+          <Nfc size={15} aria-hidden="true" /> You can also tap at supported counters.
         </div>
       </div>
     </div>
@@ -1722,7 +1795,7 @@ export function CustomerApp() {
         })}
       </nav>
 
-      {qrOpen && <QrModal close={() => setQrOpen(false)} />}
+      {qrOpen && <QrModal close={() => setQrOpen(false)} notify={setToast} />}
       {sheet?.kind === "notifications" && (
         <NotificationSheet
           close={() => setSheet(null)}

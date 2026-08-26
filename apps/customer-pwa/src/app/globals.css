@@ -169,3 +169,34 @@ button:disabled {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Printing the loyalty code produces a card the customer can carry with no phone. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .qr-screen .qr-printable,
+  .qr-screen .qr-printable *,
+  .qr-screen .qr-printable-code,
+  .qr-screen .qr-printable-code * {
+    visibility: visible;
+  }
+  .qr-screen .qr-printable {
+    position: absolute;
+    top: 18mm;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+  .qr-screen .qr-printable-code {
+    position: absolute;
+    top: 92mm;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 1px solid #000;
+  }
+  .scan-pass {
+    display: none !important;
+  }
+}

@@ -56,7 +56,7 @@ const groups = [
     questions: [
       [
         "Which messaging channels are included?",
-        "Campaign planning covers in-app inbox, web push, email, SMS, and connected providers such as Viber, WhatsApp, or Messenger. Connected channels use provider pass-through cost plus an orchestration fee.",
+        "Campaign planning covers the in-app inbox, web push, email, Viber, and SMS. Campaigns reach customers on Viber before falling back to SMS, which lowers delivery cost without losing reach. WhatsApp and Messenger are planned and require a verified Meta Business account before they can be built.",
       ],
       [
         "Why is SMS not unlimited?",

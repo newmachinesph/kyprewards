@@ -266,8 +266,8 @@ export default function FeaturesPage() {
             <div className="mt-8 flex flex-wrap gap-2">
               {[
                 "No app-store download",
-                "GCash and Maya friendly",
-                "English and Filipino",
+                "Works without a signal",
+                "Printed cards available",
                 "Works beside any POS",
               ].map((item) => (
                 <span
