@@ -91,6 +91,7 @@ const sections = [
 export default function TermsPage() {
   return (
     <LegalPage
+      path="/terms"
       eyebrow="Using the platform"
       title="Terms of service"
       summary="These terms explain the responsibilities of customers, businesses, staff, and KYPStamping while using the loyalty platform."

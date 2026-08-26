@@ -6,6 +6,7 @@ import {
   SiteEyebrow,
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb } from "@/lib/schema";
 
 const groups = [
   {
@@ -106,6 +107,7 @@ export const metadata: Metadata = {
 export default function FaqPage() {
   return (
     <main>
+      <StructuredData data={breadcrumb([{ name: "FAQ", path: "/faq" }])} />
       <StructuredData
         data={{
           "@context": "https://schema.org",

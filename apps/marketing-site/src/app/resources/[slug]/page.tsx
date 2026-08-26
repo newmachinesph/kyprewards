@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock3, Stamp } from "lucide-react";
 import { MarketingCta, SiteEyebrow } from "@/components/MarketingUi";
 import { resources } from "@/lib/content";
+import { StructuredData } from "@/components/StructuredData";
+import { article, breadcrumb } from "@/lib/schema";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -30,6 +32,23 @@ export default async function ResourcePage({ params }: Props) {
   const next = resources[(currentIndex + 1) % resources.length];
 
   return (
+    <>
+      <StructuredData
+        data={[
+          article({
+            headline: resource.title,
+            description: resource.summary,
+            path: `/resources/${resource.slug}`,
+            section: resource.category,
+            published: "2026-08-25",
+            modified: "2026-08-26",
+          }),
+          breadcrumb([
+            { name: "Resources", path: "/resources" },
+            { name: resource.title, path: `/resources/${resource.slug}` },
+          ]),
+        ]}
+      />
     <main>
       <article>
         <header className="site-grid border-b border-[var(--line)] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
@@ -116,5 +135,6 @@ export default async function ResourcePage({ params }: Props) {
         description="KYPStamping gives you the tools to launch, measure, and refine the return-visit loop without replacing the way your business already works."
       />
     </main>
+    </>
   );
 }

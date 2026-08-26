@@ -1,4 +1,6 @@
 import { SiteEyebrow } from "@/components/MarketingUi";
+import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb } from "@/lib/schema";
 
 export type LegalSection = {
   title: string;
@@ -12,15 +14,19 @@ export function LegalPage({
   summary,
   effective,
   sections,
+  path,
 }: {
   eyebrow: string;
   title: string;
   summary: string;
   effective: string;
   sections: LegalSection[];
+  /** Site-relative path, used for the breadcrumb node. */
+  path: string;
 }) {
   return (
     <main>
+      <StructuredData data={breadcrumb([{ name: title, path }])} />
       <header className="site-grid border-b border-[var(--line)] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="mx-auto max-w-[1100px]">
           <SiteEyebrow>{eyebrow}</SiteEyebrow>

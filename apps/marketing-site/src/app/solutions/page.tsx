@@ -14,6 +14,8 @@ import {
   SiteEyebrow,
 } from "@/components/MarketingUi";
 import { industries } from "@/lib/content";
+import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb, itemList } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "Solutions",
@@ -27,6 +29,19 @@ const icons = [Coffee, Dumbbell, UtensilsCrossed, ShoppingBag];
 export default function SolutionsPage() {
   return (
     <main>
+      <StructuredData
+        data={[
+          itemList({
+            name: "KYPStamping loyalty solutions by industry",
+            items: industries.map((industry) => ({
+              name: industry.name,
+              path: `/solutions/${industry.slug}`,
+              description: industry.description,
+            })),
+          }),
+          breadcrumb([{ name: "Solutions", path: "/solutions" }]),
+        ]}
+      />
       <PageHero
         image="/images/hero-solutions.webp"
         eyebrow="Solutions by business rhythm"

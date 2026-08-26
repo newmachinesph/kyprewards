@@ -12,12 +12,14 @@ import {
 } from "lucide-react";
 import {
   MarketingCta,
+  AnswerBlock,
   PageHero,
   SiteButton,
   SiteEyebrow,
   TextLink,
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb } from "@/lib/schema";
 
 const questions = [
   [
@@ -54,6 +56,7 @@ export const metadata: Metadata = {
 export default function LoyaltyPhilippinesPage() {
   return (
     <main>
+      <StructuredData data={breadcrumb([{ name: "Loyalty programs in the Philippines", path: "/loyalty-program-philippines" }])} />
       <StructuredData
         data={[
           {
@@ -93,6 +96,16 @@ export default function LoyaltyPhilippinesPage() {
           Explore the product
         </SiteButton>
       </PageHero>
+      <AnswerBlock
+        question="What is a digital loyalty program, and do Philippine businesses need an app for one?"
+        answer="A digital loyalty program replaces the paper punch card with a record the customer carries on their phone. In the Philippines it usually works through a QR code and a web app, so neither the shop nor the customer installs anything from an app store. The business keeps its existing register; the loyalty record simply sits alongside it."
+        facts={[
+          { label: "App store install", value: "Not required" },
+          { label: "Typical entry cost", value: "₱0 – ₱499 / month" },
+          { label: "Common formats", value: "Stamps, points, discounts" },
+          { label: "Privacy law", value: "Data Privacy Act of 2012" },
+        ]}
+      />
 
       <section className="border-b border-[var(--line)] bg-[var(--surface)] px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-[1100px] gap-5 rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-6 sm:p-8 lg:grid-cols-[auto_1fr] lg:gap-8">

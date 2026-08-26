@@ -8,6 +8,7 @@ import {
   SiteEyebrow,
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb, organizationId, softwareId } from "@/lib/schema";
 import { comparisons, getComparison } from "@/lib/comparisons";
 
 type Props = { params: Promise<{ competitor: string }> };
@@ -34,18 +35,30 @@ export default async function ComparisonPage({ params }: Props) {
   return (
     <main>
       <StructuredData
-        data={{
-          "@context": "https://schema.org",
-          "@type": "Article",
-          headline: `KYPStamping vs ${comparison.competitor}`,
-          description: comparison.summary,
-          dateModified: "2026-08-25",
-          author: { "@type": "Organization", name: "KYPStamping" },
-          about: [
-            { "@type": "SoftwareApplication", name: "KYPStamping" },
-            { "@type": "SoftwareApplication", name: comparison.competitor },
-          ],
-        }}
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: `KYPStamping vs ${comparison.competitor}`,
+            description: comparison.summary,
+            datePublished: "2026-08-25",
+            dateModified: "2026-08-26",
+            inLanguage: "en-PH",
+            author: { "@id": organizationId },
+            publisher: { "@id": organizationId },
+            about: [
+              { "@id": softwareId },
+              { "@type": "SoftwareApplication", name: comparison.competitor },
+            ],
+          },
+          breadcrumb([
+            { name: "Compare", path: "/compare" },
+            {
+              name: `vs ${comparison.competitor}`,
+              path: `/compare/${comparison.slug}`,
+            },
+          ]),
+        ]}
       />
       <PageHero
         image="/images/hero-integrations.webp"

@@ -27,10 +27,13 @@ import {
 } from "lucide-react";
 import {
   MarketingCta,
+  AnswerBlock,
   PageHero,
   SiteButton,
   SiteEyebrow,
 } from "@/components/MarketingUi";
+import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb, webPage } from "@/lib/schema";
 import { businessAppUrl, customerAppUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -174,6 +177,17 @@ const operations = [
 export default function FeaturesPage() {
   return (
     <main>
+      <StructuredData
+        data={[
+          webPage({
+            name: "KYPStamping features",
+            description:
+              "Eight program formats, counter methods, lifecycle automation, analytics, and Philippine operations.",
+            path: "/features",
+          }),
+          breadcrumb([{ name: "Features", path: "/features" }]),
+        ]}
+      />
       <PageHero
         image="/images/hero-features.webp"
         eyebrow="The full loyalty system"
@@ -185,6 +199,16 @@ export default function FeaturesPage() {
           Open the customer wallet
         </SiteButton>
       </PageHero>
+      <AnswerBlock
+        question="What types of loyalty program can a small business run?"
+        answer="KYPStamping runs eight formats from one program engine: stamp cards, points and cashback, tiered discounts, memberships, coupons, a reward catalog, prepaid multipasses, and gift cards. A business can run several at once — a stamp card for regulars and a birthday coupon for everyone else — without managing separate tools."
+        facts={[
+          { label: "Program formats", value: "8, one engine" },
+          { label: "Run at once", value: "Unlimited on Grow and up" },
+          { label: "Counter methods", value: "QR, NFC, printed, offline" },
+          { label: "Customer wallet", value: "PWA plus wallet pass" },
+        ]}
+      />
 
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">

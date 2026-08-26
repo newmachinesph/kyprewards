@@ -86,9 +86,29 @@ export default function RootLayout({
               "@type": "Organization",
               "@id": `${siteUrl}/#organization`,
               name: "KYPStamping",
+              alternateName: "KYP Stamping",
               url: siteUrl,
               description:
                 "A digital loyalty platform designed for Philippine local businesses.",
+              // Entity anchors: generative engines resolve the company from
+              // these, so keep them factual — no invented profiles or offices.
+              areaServed: { "@type": "Country", name: "Philippines" },
+              address: { "@type": "PostalAddress", addressCountry: "PH" },
+              knowsLanguage: ["en-PH", "fil"],
+              knowsAbout: [
+                "Customer loyalty programs",
+                "Digital stamp cards",
+                "Customer retention for small businesses",
+                "Loyalty program pricing in the Philippines",
+                "Data privacy for customer records",
+              ],
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "sales",
+                url: `${siteUrl}/contact`,
+                areaServed: "PH",
+                availableLanguage: ["en", "fil"],
+              },
             },
             {
               "@context": "https://schema.org",

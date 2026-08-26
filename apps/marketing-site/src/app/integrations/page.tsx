@@ -21,6 +21,7 @@ import {
   SiteEyebrow,
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb } from "@/lib/schema";
 import { businessAppUrl } from "@/lib/site";
 import { channelRates } from "@/lib/plans";
 
@@ -52,6 +53,7 @@ const questions = [
 export default function IntegrationsPage() {
   return (
     <main>
+      <StructuredData data={breadcrumb([{ name: "Integrations", path: "/integrations" }])} />
       <StructuredData
         data={{
           "@context": "https://schema.org",

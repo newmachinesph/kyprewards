@@ -18,11 +18,14 @@ import {
 import {
   CheckList,
   MarketingCta,
+  AnswerBlock,
   PageHero,
   ReceiptDemo,
   SiteButton,
   SiteEyebrow,
 } from "@/components/MarketingUi";
+import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb, howTo, webPage } from "@/lib/schema";
 import { ProductPreview } from "@/components/ProductPreview";
 import { businessAppUrl } from "@/lib/site";
 
@@ -101,6 +104,40 @@ const modules = [
 export default function ProductPage() {
   return (
     <main>
+      <StructuredData
+        data={[
+          howTo({
+            name: "How a KYPStamping loyalty visit works",
+            description:
+              "The four steps a customer and staff member complete at the counter to record a loyalty visit.",
+            steps: [
+              {
+                name: "Customer shows one QR",
+                text: "The customer opens their KYPStamping wallet and shows a single rotating QR code that works across every business they have joined.",
+              },
+              {
+                name: "Staff confirms the visit",
+                text: "Staff scan the code from a phone, tablet, or browser beside the existing register, and confirm the purchase before anything is recorded.",
+              },
+              {
+                name: "Progress updates instantly",
+                text: "The stamp, points, or reward balance updates in the customer wallet immediately, or queues securely offline if the connection drops.",
+              },
+              {
+                name: "The relationship gets smarter",
+                text: "The visit joins the business's analytics so owners can see patterns and message the right segment when there is something useful to say.",
+              },
+            ],
+          }),
+          webPage({
+            name: "KYPStamping product tour",
+            description:
+              "How the customer wallet, staff counter flow, and owner workspace fit together.",
+            path: "/product",
+          }),
+          breadcrumb([{ name: "Product", path: "/product" }]),
+        ]}
+      />
       <PageHero
         image="/images/hero-product.webp"
         eyebrow="The complete loyalty loop"
@@ -112,6 +149,16 @@ export default function ProductPage() {
           Open business demo
         </SiteButton>
       </PageHero>
+      <AnswerBlock
+        question="How does a digital loyalty stamp card work?"
+        answer="A customer shows one QR code from their phone, staff scan it beside the existing register, and the stamp appears in the customer's wallet straight away. There is no app to install, no plastic card to lose, and no POS to replace — the whole exchange takes about three seconds at the counter."
+        facts={[
+          { label: "Customer installs", value: "Nothing — it is a web app" },
+          { label: "Counter hardware", value: "Any phone, tablet, or browser" },
+          { label: "Time per visit", value: "About 3 seconds" },
+          { label: "Works offline", value: "Yes, queued and signed" },
+        ]}
+      />
 
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">

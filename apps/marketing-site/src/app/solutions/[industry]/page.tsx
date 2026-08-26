@@ -15,6 +15,8 @@ import {
   SiteEyebrow,
 } from "@/components/MarketingUi";
 import { industries } from "@/lib/content";
+import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb, service } from "@/lib/schema";
 
 type Props = { params: Promise<{ industry: string }> };
 
@@ -39,6 +41,21 @@ export default async function IndustryPage({ params }: Props) {
   if (!industry) notFound();
 
   return (
+    <>
+      <StructuredData
+        data={[
+          service({
+            name: `KYPStamping for ${industry.name}`,
+            description: industry.description,
+            path: `/solutions/${industry.slug}`,
+            audience: industry.name,
+          }),
+          breadcrumb([
+            { name: "Solutions", path: "/solutions" },
+            { name: industry.name, path: `/solutions/${industry.slug}` },
+          ]),
+        ]}
+      />
     <main>
       <section className="site-grid overflow-hidden border-b border-[var(--line)]">
         <div className="mx-auto grid min-h-[720px] max-w-[1400px] items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
@@ -204,5 +221,6 @@ export default async function IndustryPage({ params }: Props) {
         description="Tell us how often your best customers return and what they value. We’ll help you turn that rhythm into a clear program."
       />
     </main>
+    </>
   );
 }

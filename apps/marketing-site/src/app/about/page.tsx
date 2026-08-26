@@ -13,6 +13,8 @@ import {
   SiteButton,
   SiteEyebrow,
 } from "@/components/MarketingUi";
+import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb, organizationId } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "About",
@@ -24,6 +26,20 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main>
+      <StructuredData
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "AboutPage",
+            name: "About KYPStamping",
+            description:
+              "Why KYPStamping exists and how it approaches local loyalty in the Philippines.",
+            inLanguage: "en-PH",
+            mainEntity: { "@id": organizationId },
+          },
+          breadcrumb([{ name: "About", path: "/about" }]),
+        ]}
+      />
       <PageHero
         image="/images/hero-about.webp"
         eyebrow="Why KYPStamping exists"

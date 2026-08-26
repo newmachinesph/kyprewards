@@ -272,3 +272,48 @@ export function TextLink({
     </Link>
   );
 }
+
+/**
+ * Answer-first block for answer and generative engines.
+ *
+ * The `aeo-answer` class is what the page's `speakable` selector points at, so
+ * keep the body to two or three self-contained sentences that still make sense
+ * quoted away from this page. Facts become a definition list because a
+ * label/value pair survives extraction better than prose numbers.
+ */
+export function AnswerBlock({
+  question,
+  answer,
+  facts,
+}: {
+  question: string;
+  answer: string;
+  facts?: { label: string; value: string }[];
+}) {
+  return (
+    <section className="px-4 pt-14 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1400px]">
+        <div className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-9">
+          <h2 className="font-display text-xl font-bold tracking-[-0.02em] sm:text-2xl">
+            {question}
+          </h2>
+          <p className="aeo-answer mt-4 max-w-[78ch] text-base leading-relaxed text-[var(--ink-soft)]">
+            {answer}
+          </p>
+          {facts && (
+            <dl className="mt-7 grid gap-px overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-4">
+              {facts.map((fact) => (
+                <div key={fact.label} className="bg-[var(--surface)] p-4">
+                  <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">
+                    {fact.label}
+                  </dt>
+                  <dd className="mt-1.5 text-sm font-bold">{fact.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}

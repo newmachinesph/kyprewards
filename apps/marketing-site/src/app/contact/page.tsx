@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Clock3, Mail, MapPin, MessagesSquare } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
 import { PageHero, SiteEyebrow } from "@/components/MarketingUi";
+import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb, organizationId } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -13,6 +15,20 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <main>
+      <StructuredData
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "ContactPage",
+            name: "Contact KYPStamping",
+            description:
+              "Talk through a loyalty setup for a Philippine local business.",
+            inLanguage: "en-PH",
+            mainEntity: { "@id": organizationId },
+          },
+          breadcrumb([{ name: "Contact", path: "/contact" }]),
+        ]}
+      />
       <PageHero
         image="/images/hero-contact.webp"
         eyebrow="Talk to the team"

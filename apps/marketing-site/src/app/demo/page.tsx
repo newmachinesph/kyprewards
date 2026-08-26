@@ -20,6 +20,8 @@ import {
   SiteButton,
   SiteEyebrow,
 } from "@/components/MarketingUi";
+import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb } from "@/lib/schema";
 import {
   adminAppUrl,
   businessAppUrl,
@@ -85,6 +87,7 @@ const sharedScenario = demoData.sharedScenario;
 export default function DemoPage() {
   return (
     <main>
+      <StructuredData data={breadcrumb([{ name: "Demo", path: "/demo" }])} />
       <PageHero
         image="/images/hero-product.webp"
         eyebrow="Connected frontend demo"

@@ -15,6 +15,8 @@ import {
 } from "@/components/MarketingUi";
 import { PlaybookSignup } from "@/components/PlaybookSignup";
 import { resources } from "@/lib/content";
+import { StructuredData } from "@/components/StructuredData";
+import { breadcrumb, itemList } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "Resources",
@@ -28,6 +30,19 @@ const icons = [Lightbulb, FileText, ShieldCheck];
 export default function ResourcesPage() {
   return (
     <main>
+      <StructuredData
+        data={[
+          itemList({
+            name: "KYPStamping return-visit library",
+            items: resources.map((resource) => ({
+              name: resource.title,
+              path: `/resources/${resource.slug}`,
+              description: resource.summary,
+            })),
+          }),
+          breadcrumb([{ name: "Resources", path: "/resources" }]),
+        ]}
+      />
       <PageHero
         image="/images/hero-resources.webp"
         eyebrow="The return-visit library"

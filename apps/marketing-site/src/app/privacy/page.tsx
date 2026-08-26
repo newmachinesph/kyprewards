@@ -71,6 +71,7 @@ const sections = [
 export default function PrivacyPage() {
   return (
     <LegalPage
+      path="/privacy"
       eyebrow="Your information"
       title="Privacy notice"
       summary="KYPStamping is designed so customers control their personal profile and businesses receive only the information needed to operate a joined loyalty program."
