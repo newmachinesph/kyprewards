@@ -48,6 +48,14 @@ const chartByPeriod: Record<string, { bars: number[]; total: number; peakIndex: 
   "30 days": { bars: [44, 52, 38, 60, 56, 72, 64, 80, 70, 86, 92, 78], total: 2716, peakIndex: 10 },
 };
 
+const SETUP_STEPS = [
+  "Business profile",
+  "Loyalty reward",
+  "Join QR",
+  "Invite staff",
+  "Run a test stamp",
+] as const;
+
 const programTypes = [
   { name: "Stamp card", detail: "8 visits → free pastry", icon: Stamp },
   { name: "Points", detail: "₱1 spent → 1 point", icon: Coins },
@@ -132,6 +140,8 @@ export function BusinessDashboard({
 }) {
   const [period, setPeriod] = useState("7 days");
   const [scanOpen, setScanOpen] = useState(false);
+  const [testStampDone, setTestStampDone] = useState(false);
+  const setupDone = SETUP_STEPS.length - (testStampDone ? 0 : 1);
   const [selectedProgram, setSelectedProgram] = useState("Stamp card");
   const { automations, toggleAutomation } = useDemoState();
   const preview = programPreviews[selectedProgram];
@@ -292,18 +302,18 @@ export function BusinessDashboard({
                 Ready for the first rush
               </h2>
             </div>
-            <span className="text-sm font-extrabold">4/5</span>
+            <span className="text-sm font-extrabold">
+              {setupDone}/{SETUP_STEPS.length}
+            </span>
           </div>
           <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-[var(--surface-2)]">
-            <div className="h-full w-4/5 rounded-full bg-[var(--accent)]" />
+            <div
+              className="h-full rounded-full bg-[var(--accent)] transition-[width]"
+              style={{ width: `${(setupDone / SETUP_STEPS.length) * 100}%` }}
+            />
           </div>
           <div className="mt-5 divide-y divide-[var(--line)]">
-            {[
-              "Business profile",
-              "Loyalty reward",
-              "Join QR",
-              "Invite staff",
-            ].map((item) => (
+            {SETUP_STEPS.slice(0, -1).map((item) => (
               <div
                 key={item}
                 className="flex items-center gap-3 py-3 text-sm font-semibold text-[var(--muted-strong)]"
@@ -316,16 +326,27 @@ export function BusinessDashboard({
                 </span>
               </div>
             ))}
-            <button
-              onClick={() => setScanOpen(true)}
-              className="flex w-full items-center gap-3 py-3 text-left text-sm font-bold"
-            >
-              <span className="grid size-5 place-items-center rounded-full border border-[var(--accent)] bg-[rgb(232_163_61/10%)]">
-                <ScanLine size={12} />
-              </span>
-              Run a test stamp
-              <ChevronRight className="ml-auto" size={16} />
-            </button>
+            {testStampDone ? (
+              <div className="flex items-center gap-3 py-3 text-sm font-semibold text-[var(--muted-strong)]">
+                <span className="grid size-5 place-items-center rounded-full bg-[var(--success)] text-white">
+                  <Check size={12} strokeWidth={3} />
+                </span>
+                <span className="line-through decoration-[var(--line-strong)]">
+                  Run a test stamp
+                </span>
+              </div>
+            ) : (
+              <button
+                onClick={() => setScanOpen(true)}
+                className="flex w-full items-center gap-3 py-3 text-left text-sm font-bold"
+              >
+                <span className="grid size-5 place-items-center rounded-full border border-[var(--accent)] bg-[rgb(232_163_61/10%)]">
+                  <ScanLine size={12} />
+                </span>
+                Run a test stamp
+                <ChevronRight className="ml-auto" size={16} />
+              </button>
+            )}
           </div>
         </article>
 
@@ -695,6 +716,7 @@ export function BusinessDashboard({
             <Button
               className="mt-6 w-full"
               onClick={() => {
+                setTestStampDone(true);
                 setScanOpen(false);
                 onNavigate("scan");
               }}

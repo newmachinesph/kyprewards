@@ -36,7 +36,6 @@ import {
   Printer,
   QrCode,
   Search,
-  Settings2,
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
@@ -49,12 +48,20 @@ import {
 } from "lucide-react";
 
 type Tab = "home" | "wallet" | "discover" | "profile";
+type ProfileScreen =
+  | "personal"
+  | "notifications"
+  | "privacy"
+  | "businesses"
+  | "consent"
+  | "export"
+  | "danger";
 type Sheet =
   | { kind: "notifications" }
   | { kind: "activity" }
   | { kind: "business"; id: string }
   | { kind: "wallet"; id: string }
-  | { kind: "profile"; title: string }
+  | { kind: "profile"; title: string; screen: ProfileScreen }
   | null;
 
 const customerDemo = demoData.customer;
@@ -688,7 +695,11 @@ function DiscoverView({
   );
 }
 
-function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
+function ProfileView({
+  onOpen,
+}: {
+  onOpen: (title: string, screen: ProfileScreen) => void;
+}) {
   return (
     <div className="px-5 pb-32 pt-5">
       <Eyebrow>Your account</Eyebrow>
@@ -712,23 +723,26 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
             label: "Personal information",
             detail: "Name, birthday, mobile",
             icon: UserRound,
+            screen: "personal" as ProfileScreen,
           },
           {
             label: "Notifications",
             detail: "Rewards and local offers",
             icon: Bell,
+            screen: "notifications" as ProfileScreen,
           },
           {
             label: "Privacy center",
             detail: "Control what businesses see",
             icon: LockKeyhole,
+            screen: "privacy" as ProfileScreen,
           },
         ].map((item, index) => {
           const Icon = item.icon;
           return (
             <button
               type="button"
-              onClick={() => onOpen(item.label)}
+              onClick={() => onOpen(item.label, item.screen)}
               key={item.label}
               className={`flex w-full items-center gap-3 p-4 text-left ${index > 0 ? "border-t border-[var(--line)]" : ""}`}
             >
@@ -772,28 +786,32 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
             label: "Joined businesses",
             detail: `${customerDemo.wallet.length} businesses can see your shared profile`,
             icon: Building2,
+            screen: "businesses" as ProfileScreen,
           },
           {
             label: "Consent history",
             detail: "Review every permission and change",
             icon: History,
+            screen: "consent" as ProfileScreen,
           },
           {
             label: "Download my data",
             detail: "Request a portable copy",
             icon: Download,
+            screen: "export" as ProfileScreen,
           },
           {
             label: "Leave or delete",
             detail: "Exit a program or request account deletion",
             icon: Trash2,
+            screen: "danger" as ProfileScreen,
           },
         ].map((item, index) => {
           const Icon = item.icon;
           return (
             <button
               type="button"
-              onClick={() => onOpen(item.label)}
+              onClick={() => onOpen(item.label, item.screen)}
               key={item.label}
               className={`flex w-full items-center gap-3 p-4 text-left ${index > 0 ? "border-t border-[var(--line)]" : ""}`}
             >
@@ -813,13 +831,6 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
           );
         })}
       </section>
-      <button
-        type="button"
-        onClick={() => onOpen("App settings")}
-        className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)] py-3 text-sm font-bold"
-      >
-        <Settings2 size={16} /> App settings
-      </button>
       <button
         type="button"
         onClick={() => signOutDemo("customer")}
@@ -1474,6 +1485,7 @@ type Personal = {
 
 function ProfileSheet({
   title,
+  screen,
   close,
   notify,
   channelSettings,
@@ -1488,6 +1500,7 @@ function ProfileSheet({
   setExportRequested,
 }: {
   title: string;
+  screen: ProfileScreen;
   close: () => void;
   notify: (message: string, tone?: "success" | "error") => void;
   channelSettings: boolean[];
@@ -1501,9 +1514,9 @@ function ProfileSheet({
   exportRequested: boolean;
   setExportRequested: Dispatch<SetStateAction<boolean>>;
 }) {
-  const isPersonal = title === "Personal information";
-  const isNotifications = title === "Notifications" || title === "App settings";
-  const isDanger = title === "Leave or delete";
+  const isPersonal = screen === "personal";
+  const isNotifications = screen === "notifications";
+  const isDanger = screen === "danger";
   const [leaveOpen, setLeaveOpen] = useState(false);
   return (
     <div
@@ -1672,16 +1685,86 @@ function ProfileSheet({
                 : "Request account deletion"}
             </button>
           </div>
+        ) : screen === "consent" ? (
+          <div className="mt-6">
+            <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
+              <History className="text-[var(--accent-strong)]" />
+              <p className="mt-5 text-sm font-extrabold">Every change, in order</p>
+              <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
+                Each entry records what changed, which business it applied to,
+                and when it took effect.
+              </p>
+            </div>
+            <ol className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+              {[
+                ["Joined Sweet Crumbs Bakery", "Shared loyalty ID, name, mobile", "12 Feb 2026"],
+                ["Turned on promotional push", "All joined businesses", "12 Feb 2026"],
+                ["Joined Sage & Steam", "Shared loyalty ID, name", "3 Mar 2026"],
+                ["Turned off SMS promotions", "All joined businesses", "19 Jun 2026"],
+                ["Added birthday", "Sweet Crumbs Bakery", "2 Aug 2026"],
+              ].map(([change, scope, when]) => (
+                <li key={change} className="flex gap-3 py-4">
+                  <span className="mt-1 size-2 shrink-0 rounded-full bg-[var(--accent)]" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-extrabold">{change}</p>
+                    <p className="mt-0.5 text-[10px] text-[var(--muted)]">
+                      {scope} · {when}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : screen === "privacy" ? (
+          <div className="mt-6 space-y-4">
+            <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
+              <ShieldCheck className="text-[var(--success)]" />
+              <p className="mt-5 text-sm font-extrabold">What businesses can see</p>
+              <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
+                Only the fields you approved when joining. A business never sees
+                your activity at another business.
+              </p>
+            </div>
+            <div className="divide-y divide-[var(--line)] rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+              {[
+                ["Loyalty ID", "Always shared", true],
+                ["Name", "Shared with joined businesses", true],
+                ["Mobile number", "Shared with joined businesses", true],
+                ["Email", "Shared when you opt in to email", true],
+                ["Birthday", "Optional, for birthday rewards", true],
+                ["Location", "Never shared. Discovery matches by city only", false],
+              ].map(([field, note, shared]) => (
+                <div key={String(field)} className="flex items-start gap-3 p-4">
+                  <span
+                    className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full ${shared ? "bg-[rgb(15_118_85/14%)] text-[var(--success)]" : "bg-[var(--surface-2)] text-[var(--muted)]"}`}
+                  >
+                    {shared ? <Check size={12} strokeWidth={3} /> : <X size={12} strokeWidth={3} />}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-extrabold">{field}</p>
+                    <p className="mt-0.5 text-[10px] text-[var(--muted)]">{note}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="rounded-2xl border border-dashed border-[var(--line-strong)] p-4 text-[11px] leading-relaxed text-[var(--muted-strong)]">
+              You can withdraw any permission from Consent history, or leave a
+              program entirely from Leave or delete.
+            </p>
+          </div>
         ) : (
           <div className="mt-6">
             <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
               <ShieldCheck className="text-[var(--success)]" />
               <p className="mt-5 text-sm font-extrabold">
-                A complete, readable record
+                {screen === "export"
+                  ? "What a copy includes"
+                  : "Businesses you have joined"}
               </p>
               <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
-                Review joined businesses, fields shared, lawful purpose, channel
-                consent, changes, and the date each choice took effect.
+                {screen === "export"
+                  ? "Your profile, joined businesses, consent history, stamp and reward activity, and message history, in a machine-readable file."
+                  : "Each of these can see the fields you approved when you joined, and nothing else."}
               </p>
             </div>
             <div className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">
@@ -1702,7 +1785,7 @@ function ProfileSheet({
                 </div>
               ))}
             </div>
-            {title === "Download my data" && (
+            {screen === "export" && (
               <button
                 type="button"
                 disabled={exportRequested}
@@ -1809,7 +1892,9 @@ export function CustomerApp() {
       />
     ),
     profile: (
-      <ProfileView onOpen={(title) => setSheet({ kind: "profile", title })} />
+      <ProfileView
+        onOpen={(title, screen) => setSheet({ kind: "profile", title, screen })}
+      />
     ),
   }[tab];
 
@@ -1927,6 +2012,7 @@ export function CustomerApp() {
       {sheet?.kind === "profile" && (
         <ProfileSheet
           title={sheet.title}
+          screen={sheet.screen}
           close={() => setSheet(null)}
           notify={notify}
           channelSettings={channelSettings}

@@ -203,6 +203,7 @@ export function IntegrationsView({
   ]);
   const [deliveries, setDeliveries] = useState<Delivery[]>(initialDeliveries);
   const [testSending, setTestSending] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const keyPrefix = environment === "sandbox" ? "st_test" : "st_live_demo";
   const secretPrefix = environment === "sandbox" ? "sk_test" : "sk_live_demo";
@@ -918,7 +919,21 @@ export function IntegrationsView({
           <Button
             tone="quiet"
             icon={<RefreshCcw size={14} />}
-            onClick={() => notify("Sample delivery log refreshed.")}
+            onClick={() => {
+              setRefreshing(true);
+              window.setTimeout(() => {
+                setDeliveries((current) =>
+                  current.map((delivery, index) =>
+                    index === 0
+                      ? { ...delivery, detail: `${120 + current.length * 7} ms · Just now` }
+                      : delivery,
+                  ),
+                );
+                setRefreshing(false);
+                notify("Delivery log refreshed.");
+              }, 550);
+            }}
+            disabled={refreshing}
           >
             Refresh log
           </Button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { demoData } from "@stampr/demo-data";
 import { Button, Eyebrow, Pill, StampDots, ViewFrame } from "@stampr/ui";
 import {
@@ -74,6 +75,9 @@ type Notify = (message: string, intent?: NotifyIntent) => void;
 
 function ScanView({ notify }: { notify: Notify }) {
   const [step, setStep] = useState<"ready" | "found" | "complete">("ready");
+  const [amount, setAmount] = useState(String(sharedScenario.purchase.amount));
+  const [lastVisit, setLastVisit] = useState<{ stamps: number; amount: number } | null>(null);
+  const stampsBefore = 5;
   return (
     <ViewFrame
       eyebrow="Counter"
@@ -141,10 +145,20 @@ function ScanView({ notify }: { notify: Notify }) {
                 <label className="mt-5 grid gap-2 text-xs font-bold">
                   Purchase amount, optional
                   <input
-                    defaultValue={sharedScenario.purchase.amount}
+                    value={amount}
+                    onChange={(event) =>
+                      setAmount(event.target.value.replace(/[^\d.]/g, ""))
+                    }
                     inputMode="decimal"
+                    aria-describedby="scan-amount-help"
                     className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]"
                   />
+                  <span
+                    id="scan-amount-help"
+                    className="text-[10px] font-semibold text-[var(--muted)]"
+                  >
+                    Recorded with the visit. Leave blank for a visit-only stamp.
+                  </span>
                 </label>
                 <div className="mt-5 grid grid-cols-2 gap-2">
                   <Button tone="quiet" onClick={() => setStep("ready")}>
@@ -152,9 +166,18 @@ function ScanView({ notify }: { notify: Notify }) {
                   </Button>
                   <Button
                     onClick={() => {
+                      const parsed = Number.parseFloat(amount);
+                      if (amount.trim() && (!Number.isFinite(parsed) || parsed < 0)) {
+                        notify("Enter a valid purchase amount, or clear the field.", "error");
+                        return;
+                      }
+                      const recorded = amount.trim() ? parsed : 0;
+                      setLastVisit({ stamps: stampsBefore + 1, amount: recorded });
                       setStep("complete");
                       notify(
-                        "Visit approved and queued to the loyalty ledger.",
+                        recorded
+                          ? `Visit approved. ₱${recorded.toLocaleString()} recorded with the stamp.`
+                          : "Visit approved as a visit-only stamp.",
                       );
                     }}
                   >
@@ -173,15 +196,21 @@ function ScanView({ notify }: { notify: Notify }) {
                 <h2 className="mt-6 text-3xl font-extrabold tracking-[-0.02em]">
                   Stamp added.
                 </h2>
-                <p className="mx-auto mt-3 max-w-[34ch] text-sm leading-relaxed text-white/65">
-                  {sharedScenario.customer} now has 6 of 8 stamps in this local
-                  counter preview. The recorded 5-of-8 visit remains visible in
-                  every app as {sharedScenario.loyaltyEvent.id}.
+                <p className="mx-auto mt-3 max-w-[36ch] text-sm leading-relaxed text-white/65">
+                  {sharedScenario.customer} now has {lastVisit?.stamps ?? stampsBefore + 1} of 8
+                  stamps
+                  {lastVisit?.amount
+                    ? ` from a ₱${lastVisit.amount.toLocaleString()} purchase`
+                    : ""}
+                  . Nothing is written to a server in this demo.
                 </p>
                 <Button
                   tone="accent"
                   className="mt-6"
-                  onClick={() => setStep("ready")}
+                  onClick={() => {
+                    setAmount(String(sharedScenario.purchase.amount));
+                    setStep("ready");
+                  }}
                 >
                   Scan next customer
                 </Button>
@@ -1855,6 +1884,7 @@ function AnalyticsView() {
 }
 
 function StaffView({ notify }: { notify: Notify }) {
+  const router = useRouter();
   return (
     <ViewFrame
       eyebrow="People & permissions"
@@ -1863,7 +1893,7 @@ function StaffView({ notify }: { notify: Notify }) {
       action={
         <Button
           icon={<UserPlus size={16} />}
-          onClick={() => notify("Staff invitation form opened.", "review")}
+          onClick={() => router.push("/accept-invite")}
         >
           Invite staff
         </Button>

@@ -7,7 +7,6 @@ import { demoData } from "@stampr/demo-data";
 import {
   Activity,
   Bell,
-  BookOpenCheck,
   Building2,
   ChevronDown,
   CircleGauge,
@@ -310,14 +309,7 @@ export function AdminShell({
             )}
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Open support queue"
-              onClick={() => navigate("support")}
-              className="hidden size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] transition hover:bg-[var(--surface-2)] sm:grid"
-            >
-              <BookOpenCheck size={17} />
-            </button>
+
             <button
               type="button"
               aria-label="Notifications"
