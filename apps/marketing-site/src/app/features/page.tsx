@@ -224,7 +224,7 @@ export default function FeaturesPage() {
                 program type.
               </p>
             </div>
-            <div className="overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--surface)]">
+            <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)]">
               {programs.map((program, index) => {
                 const Icon = program.icon;
                 return (
@@ -280,7 +280,7 @@ export default function FeaturesPage() {
             </div>
           </div>
 
-          <div className="rounded-[18px] border border-white/12 bg-white/[0.055] p-5 sm:p-7">
+          <div className="rounded-[var(--radius-card)] border border-white/12 bg-white/[0.055] p-5 sm:p-7">
             <div className="flex items-center justify-between border-b border-white/10 pb-5">
               <div>
                 <p className="text-sm font-extrabold">Visit capture</p>
@@ -393,7 +393,7 @@ export default function FeaturesPage() {
       <section className="border-y border-[var(--line)] bg-[var(--surface)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">
           <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--paper)]">
+            <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--paper)]">
               <div className="flex items-center justify-between border-b border-[var(--line)] p-6">
                 <div>
                   <SiteEyebrow>Analytics model</SiteEyebrow>
@@ -415,7 +415,7 @@ export default function FeaturesPage() {
                 </div>
               ))}
             </div>
-            <div className="flex flex-col justify-between rounded-[18px] bg-[var(--accent)] p-7 sm:p-9">
+            <div className="flex flex-col justify-between rounded-[var(--radius-card)] bg-[var(--accent)] p-7 sm:p-9">
               <div>
                 <SiteEyebrow>Explainable actions</SiteEyebrow>
                 <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
@@ -452,7 +452,7 @@ export default function FeaturesPage() {
               Built for the whole business, not one QR poster.
             </h2>
           </div>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2">
+          <div className="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2">
             {operations.map((item, index) => {
               const Icon = item.icon;
               return (
@@ -476,7 +476,7 @@ export default function FeaturesPage() {
             })}
           </div>
 
-          <div className="mt-12 grid gap-5 rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:grid-cols-[auto_1fr] sm:items-start sm:p-9">
+          <div className="mt-12 grid gap-5 rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-7 sm:grid-cols-[auto_1fr] sm:items-start sm:p-9">
             <span className="grid size-13 place-items-center rounded-xl bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]">
               <Fingerprint />
             </span>

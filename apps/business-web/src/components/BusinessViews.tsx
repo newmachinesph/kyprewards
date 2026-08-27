@@ -99,7 +99,7 @@ function ScanView({ notify }: { notify: Notify }) {
           </div>
           {step === "ready" && (
             <div className="mx-auto mt-8 max-w-sm">
-              <div className="relative aspect-square rounded-[18px] border border-white/15 bg-white/[0.04] p-12">
+              <div className="relative aspect-square rounded-[var(--radius-card)] border border-white/15 bg-white/[0.04] p-12">
                 <span className="absolute left-5 top-5 size-16 border-l-2 border-t-2 border-[var(--accent)]" />
                 <span className="absolute right-5 top-5 size-16 border-r-2 border-t-2 border-[var(--accent)]" />
                 <span className="absolute bottom-5 left-5 size-16 border-b-2 border-l-2 border-[var(--accent)]" />

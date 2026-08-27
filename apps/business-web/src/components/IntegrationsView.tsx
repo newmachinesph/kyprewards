@@ -30,30 +30,13 @@ import {
   X,
 } from "lucide-react";
 import type { BusinessView } from "@/components/BusinessShell";
+import { useDemoState } from "@/components/DemoState";
+import type { Credential, Delivery } from "@/components/DemoState";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
 type Environment = "sandbox" | "production";
-type CredentialStatus = "Active" | "Revoked";
-type DeliveryStatus = "Delivered" | "Ignored safely" | "Retrying" | "Failed";
-
-type Credential = {
-  id: string;
-  label: string;
-  clientKey: string;
-  branch: string;
-  scopes: string[];
-  lastUsed: string;
-  status: CredentialStatus;
-};
-
-type Delivery = {
-  id: string;
-  event: string;
-  source: string;
-  status: DeliveryStatus;
-  detail: string;
-  requestId: string;
-};
+type CredentialStatus = Credential["status"];
+type DeliveryStatus = Delivery["status"];
 
 const scopeOptions = [
   { id: "customers:read", label: "Read customers" },
@@ -97,61 +80,7 @@ const connectionOptions = [
   },
 ] as const;
 
-const initialCredentials: Credential[] = [
-  {
-    id: "key_counter_01",
-    label: "Main counter",
-    clientKey: "st_test_sc_7K9P2D4M",
-    branch: "Legazpi Village",
-    scopes: ["customers:read", "transactions:write", "rewards:read"],
-    lastUsed: "18 seconds ago",
-    status: "Active",
-  },
-  {
-    id: "key_staging_02",
-    label: "Developer staging",
-    clientKey: "st_test_sc_1H3F8W6Q",
-    branch: "All sandbox branches",
-    scopes: ["customers:read", "transactions:write", "rewards:read", "redemptions:write"],
-    lastUsed: "Yesterday, 4:18 PM",
-    status: "Active",
-  },
-];
 
-const initialDeliveries: Delivery[] = [
-  {
-    id: "evt_01J7SC10482",
-    event: "loyalty.transaction.completed",
-    source: "POS sandbox",
-    status: "Delivered",
-    detail: "202 ms · Today, 9:42 AM",
-    requestId: "req_7G2K9P",
-  },
-  {
-    id: "evt_01J7SC10481",
-    event: "loyalty.transaction.completed",
-    source: "POS sandbox",
-    status: "Ignored safely",
-    detail: "Duplicate event · Today, 9:41 AM",
-    requestId: "req_6Q1M3A",
-  },
-  {
-    id: "evt_01J7SC10477",
-    event: "reward.redeemed",
-    source: "Sweet Crumbs endpoint",
-    status: "Retrying",
-    detail: "Attempt 2 of 8 · Next retry in 48s",
-    requestId: "req_4D8V2N",
-  },
-  {
-    id: "evt_01J7SC10463",
-    event: "customer.updated",
-    source: "Sweet Crumbs endpoint",
-    status: "Failed",
-    detail: "HTTP 503 · Yesterday, 6:14 PM",
-    requestId: "req_2L5R7C",
-  },
-];
 
 
 function StatusBadge({ status }: { status: DeliveryStatus | CredentialStatus }) {
@@ -183,8 +112,16 @@ export function IntegrationsView({
   const [connection, setConnection] = useState<(typeof connectionOptions)[number]["id"]>(
     "sidecar",
   );
-  const [credentials, setCredentials] =
-    useState<Credential[]>(initialCredentials);
+  const {
+    credentials,
+    setCredentials,
+    deliveries,
+    setDeliveries,
+    webhookUrl,
+    setWebhookUrl,
+    subscribedEvents,
+    setSubscribedEvents,
+  } = useDemoState();
   const [keyLabel, setKeyLabel] = useState("Main counter backup");
   const [branchScope, setBranchScope] = useState("Legazpi Village");
   const [selectedScopes, setSelectedScopes] = useState([
@@ -194,14 +131,6 @@ export function IntegrationsView({
   ]);
   const [oneTimeSecret, setOneTimeSecret] = useState<string | null>(null);
   const [inboundSecret, setInboundSecret] = useState<string | null>(null);
-  const [webhookUrl, setWebhookUrl] = useState(
-    "https://pos.sweetcrumbs.ph/webhooks/stampr",
-  );
-  const [subscribedEvents, setSubscribedEvents] = useState([
-    "loyalty.transaction.completed",
-    "reward.redeemed",
-  ]);
-  const [deliveries, setDeliveries] = useState<Delivery[]>(initialDeliveries);
   const [testSending, setTestSending] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 

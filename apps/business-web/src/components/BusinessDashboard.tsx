@@ -148,7 +148,7 @@ export function BusinessDashboard({
 
   return (
     <main
-      id="overview"
+      id="section-overview"
       className="mx-auto max-w-[1400px] scroll-mt-24 px-4 py-6 sm:px-7 lg:px-10 lg:py-9"
     >
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
@@ -200,7 +200,7 @@ export function BusinessDashboard({
       </section>
 
       <section
-        id="analytics"
+        id="section-analytics"
         className="mt-3 grid scroll-mt-24 gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(340px,0.75fr)]"
       >
         <article className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
@@ -291,7 +291,7 @@ export function BusinessDashboard({
       </section>
 
       <section
-        id="customers"
+        id="section-customers"
         className="mt-3 grid scroll-mt-24 gap-3 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
       >
         <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
@@ -388,7 +388,7 @@ export function BusinessDashboard({
       </section>
 
       <section
-        id="programs"
+        id="section-programs"
         className="mt-3 scroll-mt-24 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]"
       >
         <header className="flex flex-col gap-4 border-b border-[var(--line)] p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
@@ -478,7 +478,7 @@ export function BusinessDashboard({
       </section>
 
       <section
-        id="automations"
+        id="section-automations"
         className="mt-3 grid scroll-mt-24 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.48fr)]"
       >
         <article className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
@@ -489,7 +489,7 @@ export function BusinessDashboard({
                 Helpful moments, already watched
               </h2>
             </div>
-            <span className="hidden rounded-full bg-[rgb(31_168_121/12%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--success)] sm:inline-flex">
+            <span className="hidden rounded-full bg-[rgb(15_118_85/12%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--success)] sm:inline-flex">
               {Object.values(automations).filter(Boolean).length} live
             </span>
           </header>
@@ -568,7 +568,7 @@ export function BusinessDashboard({
       </section>
 
       <section
-        id="counter"
+        id="section-counter"
         className="mt-3 scroll-mt-24 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6"
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -634,7 +634,7 @@ export function BusinessDashboard({
       </section>
 
       <section
-        id="operations"
+        id="section-operations"
         className="mt-3 grid scroll-mt-24 gap-3 pb-2 lg:grid-cols-3"
       >
         {[
@@ -706,7 +706,7 @@ export function BusinessDashboard({
               <div className="absolute bottom-5 right-5 size-12 border-b-2 border-r-2 border-[var(--accent)]" />
               <QrCode className="size-full text-white/70" strokeWidth={1.1} />
             </div>
-            <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full bg-[rgb(31_168_121/12%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--success)]">
+            <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full bg-[rgb(15_118_85/12%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--success)]">
               <WifiOff size={13} /> Offline queue ready
             </div>
             <p className="mx-auto mt-3 max-w-[34ch] text-center text-sm leading-relaxed text-[var(--muted-strong)]">

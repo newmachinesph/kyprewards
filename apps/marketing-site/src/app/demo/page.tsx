@@ -315,7 +315,7 @@ export default function DemoPage() {
 
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto grid max-w-[1400px] gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-9">
+          <div className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-9">
             <SiteEyebrow>What is real today</SiteEyebrow>
             <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.02em]">
               Product decisions are already testable.
@@ -337,7 +337,7 @@ export default function DemoPage() {
               ))}
             </div>
           </div>
-          <div className="rounded-[18px] bg-[var(--accent)] p-7 sm:p-9">
+          <div className="rounded-[var(--radius-card)] bg-[var(--accent)] p-7 sm:p-9">
             <span className="text-[11px] font-extrabold uppercase tracking-[0.17em] text-[var(--ink)]">
               What comes next
             </span>

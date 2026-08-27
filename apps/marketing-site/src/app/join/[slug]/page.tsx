@@ -86,10 +86,10 @@ export default async function JoinPage({
             </p>
           </div>
           <div className="space-y-8">
-            <div className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
+            <div className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <span className="grid size-12 shrink-0 place-items-center rounded-[18px] bg-[var(--accent)]">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-[var(--radius-card)] bg-[var(--accent)]">
                     <Stamp size={20} aria-hidden="true" />
                   </span>
                   <div className="min-w-0">
@@ -113,7 +113,7 @@ export default async function JoinPage({
                   ].map(([label, value]) => (
                     <div
                       key={label}
-                      className="rounded-[18px] bg-[var(--paper)] p-4"
+                      className="rounded-[var(--radius-card)] bg-[var(--paper)] p-4"
                     >
                       <dt className="font-mono text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
                         {label}
@@ -127,20 +127,20 @@ export default async function JoinPage({
               <div className="mt-7 flex flex-wrap gap-3">
                 <a
                   href={joinHref}
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[18px] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--paper)] transition hover:bg-[#2a2018] active:scale-[0.99]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[var(--radius-card)] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--paper)] transition hover:bg-[#2a2018] active:scale-[0.99]"
                 >
                   Continue to join <ArrowRight size={16} aria-hidden="true" />
                 </a>
                 <Link
                   href="/product"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[18px] border border-[var(--line-strong)] px-6 text-sm font-extrabold transition hover:bg-[var(--surface-2)]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[var(--radius-card)] border border-[var(--line-strong)] px-6 text-sm font-extrabold transition hover:bg-[var(--surface-2)]"
                 >
                   What is KYPStamping?
                 </Link>
               </div>
             </div>
 
-            <div className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
+            <div className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
               <h3 className="text-sm font-extrabold">Before you join</h3>
               <ul className="mt-5 divide-y divide-[var(--line)]">
                 {[
@@ -160,7 +160,7 @@ export default async function JoinPage({
                   const Icon = item.icon;
                   return (
                     <li key={item.title} className="flex gap-4 py-5 first:pt-0 last:pb-0">
-                      <span className="grid size-10 shrink-0 place-items-center rounded-[18px] bg-[var(--surface-2)]">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-[var(--radius-card)] bg-[var(--surface-2)]">
                         <Icon size={17} aria-hidden="true" />
                       </span>
                       <div>
@@ -180,7 +180,7 @@ export default async function JoinPage({
               answer="No. KYPStamping opens in your browser and can be added to your home screen if you want quicker access. Your stamps are tied to your mobile number, not to a device."
             />
 
-            <p className="rounded-[18px] border border-dashed border-[var(--line-strong)] bg-[var(--surface-2)] p-5 text-xs leading-relaxed text-[var(--muted-strong)]">
+            <p className="rounded-[var(--radius-card)] border border-dashed border-[var(--line-strong)] bg-[var(--surface-2)] p-5 text-xs leading-relaxed text-[var(--muted-strong)]">
               This is a frontend demonstration. Joining opens the customer demo
               wallet; no account is created and no personal data is collected or
               sent anywhere.

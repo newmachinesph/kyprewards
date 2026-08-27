@@ -94,7 +94,7 @@ export default function IntegrationsPage() {
               redemption, and ledger model.
             </p>
           </div>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2">
+          <div className="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2">
             {[
               {
                 icon: SquareTerminal,
@@ -171,7 +171,7 @@ export default function IntegrationsPage() {
               every channel including the free ones.
             </p>
           </div>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2 xl:grid-cols-3">
             {channelRates.map((rate) => (
               <article
                 key={rate.channel}
@@ -234,7 +234,7 @@ export default function IntegrationsPage() {
               />
             </div>
           </div>
-          <div className="overflow-hidden rounded-[18px] bg-[var(--ink)] text-[var(--paper)]">
+          <div className="overflow-hidden rounded-[var(--radius-card)] bg-[var(--ink)] text-[var(--paper)]">
             <div className="flex items-start justify-between gap-4 border-b border-white/12 p-6 sm:p-7">
               <div>
                 <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent)]">

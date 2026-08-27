@@ -213,7 +213,7 @@ function HomeView({
             {sharedScenario.customer.split(" ")[0]}.
           </h1>
         </div>
-        <span className="mb-1 flex items-center gap-2 rounded-full bg-[rgb(32_169_120/12%)] px-3 py-1.5 text-[11px] font-extrabold text-[var(--success)]">
+        <span className="mb-1 flex items-center gap-2 rounded-full bg-[rgb(15_118_85/12%)] px-3 py-1.5 text-[11px] font-extrabold text-[var(--success)]">
           <Sparkles size={13} /> 5-stamp streak
         </span>
       </div>
@@ -355,7 +355,7 @@ function WalletView({
         type="button"
         onClick={() => setQuickPassAdded(true)}
         disabled={quickPassAdded}
-        className={`mt-5 flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition ${quickPassAdded ? "border-[rgb(32_169_120/28%)] bg-[rgb(32_169_120/9%)]" : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"}`}
+        className={`mt-5 flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition ${quickPassAdded ? "border-[rgb(15_118_85/28%)] bg-[rgb(15_118_85/9%)]" : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"}`}
       >
         <span
           className={`grid size-10 shrink-0 place-items-center rounded-2xl ${quickPassAdded ? "bg-[var(--success)] text-white" : "bg-[var(--ink)] text-[var(--paper)]"}`}
@@ -411,7 +411,7 @@ function WalletView({
           className={`${showSage ? "block" : "hidden"} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition active:scale-[0.98]`}
         >
           <div className="flex items-start justify-between">
-            <span className="grid size-10 place-items-center rounded-2xl bg-[rgb(32_169_120/12%)] text-[var(--success)]">
+            <span className="grid size-10 place-items-center rounded-2xl bg-[rgb(15_118_85/12%)] text-[var(--success)]">
               <Coins size={18} />
             </span>
             <span className="rounded-full bg-[var(--surface-2)] px-2 py-1 text-[8px] font-extrabold uppercase tracking-[0.1em]">
@@ -682,7 +682,7 @@ function DiscoverView({
         )}
       </div>
       <article className="mt-7 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
-        <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(32_169_120/12%)] text-[var(--success)]">
+        <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(15_118_85/12%)] text-[var(--success)]">
           <Dumbbell />
         </span>
         <p className="mt-5 text-base font-extrabold">A new kind of regular</p>
@@ -764,7 +764,7 @@ function ProfileView({
       </section>
       <section className="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
         <div className="flex items-start gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[rgb(32_169_120/12%)] text-[var(--success)]">
+          <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[rgb(15_118_85/12%)] text-[var(--success)]">
             <ShieldCheck size={18} />
           </span>
           <div>
@@ -930,7 +930,7 @@ function QrModal({
           </button>
         </div>
 
-        <div className="mt-5 flex max-w-[34ch] items-start gap-2 rounded-2xl bg-[rgb(32_169_120/10%)] p-3 text-left text-xs leading-relaxed text-[var(--muted-strong)]">
+        <div className="mt-5 flex max-w-[34ch] items-start gap-2 rounded-2xl bg-[rgb(15_118_85/10%)] p-3 text-left text-xs leading-relaxed text-[var(--muted-strong)]">
           <WifiOff size={16} className="mt-0.5 shrink-0 text-[var(--success)]" aria-hidden="true" />{" "}
           Works without data. Save it to your photos, print it, or ask your
           business for a printed KYPStamping card with the same code.
@@ -1326,7 +1326,7 @@ function JoinConsentDialog({
         onClick={onCancel}
         className="absolute inset-0 cursor-default bg-[rgb(20_16_13/55%)] backdrop-blur-sm"
       />
-      <section className="relative w-full rounded-t-[18px] bg-[var(--surface)] p-5 pb-8 sm:max-w-md sm:rounded-[18px] sm:pb-5">
+      <section className="relative w-full rounded-t-[18px] bg-[var(--surface)] p-5 pb-8 sm:max-w-md sm:rounded-[var(--radius-card)] sm:pb-5">
         <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
           Before you join
         </p>
@@ -1623,7 +1623,7 @@ function ProfileSheet({
           </div>
         ) : isDanger ? (
           <div className="mt-6">
-            <div className="rounded-2xl border border-[rgb(217_87_67/30%)] bg-[rgb(217_87_67/8%)] p-5">
+            <div className="rounded-2xl border border-[rgb(178_59_43/30%)] bg-[rgb(178_59_43/8%)] p-5">
               <Trash2 className="text-[var(--danger)]" />
               <p className="mt-5 text-sm font-extrabold">
                 Choose the smallest action that fits.

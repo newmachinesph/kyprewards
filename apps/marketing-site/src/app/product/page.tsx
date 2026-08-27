@@ -260,7 +260,7 @@ export default function ProductPage() {
                 />
               </div>
             </div>
-            <div className="relative min-h-[590px] overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--surface-2)] p-8 sm:p-12">
+            <div className="relative min-h-[590px] overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface-2)] p-8 sm:p-12">
               <div className="absolute -bottom-24 -left-24 size-80 rounded-full border-[60px] border-[var(--accent)]" />
               <div className="relative mx-auto max-w-[360px]">
                 <ReceiptDemo compact />
@@ -307,7 +307,7 @@ export default function ProductPage() {
       </section>
 
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <div className="mx-auto grid max-w-[1400px] gap-12 rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-10 lg:grid-cols-[0.7fr_1.3fr] lg:p-14">
+        <div className="mx-auto grid max-w-[1400px] gap-12 rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-10 lg:grid-cols-[0.7fr_1.3fr] lg:p-14">
           <div>
             <span className="grid size-13 place-items-center rounded-xl bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]">
               <LockKeyhole />

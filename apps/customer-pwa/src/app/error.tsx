@@ -16,7 +16,7 @@ export default function ErrorPage({
   return (
     <main className="mx-auto grid min-h-[100dvh] max-w-[460px] place-items-center bg-[var(--paper)] p-7 text-center phone-shell">
       <div>
-        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[rgb(217_87_67/12%)] text-[var(--danger)]">
+        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[rgb(178_59_43/12%)] text-[var(--danger)]">
           <Heart />
         </span>
         <h1 className="mt-5 text-2xl font-extrabold tracking-[-0.02em]">

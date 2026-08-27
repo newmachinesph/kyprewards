@@ -157,7 +157,7 @@ export function PricingTable() {
 
 export function ChannelRates() {
   return (
-    <div className="overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--surface)]">
+    <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)]">
       <div className="-mx-px overflow-x-auto">
         <table className="w-full min-w-[720px] border-collapse text-left">
           <caption className="sr-only">

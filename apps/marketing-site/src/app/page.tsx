@@ -124,7 +124,7 @@ export default function HomePage() {
           </div>
 
           <div className="mt-16 grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
-            <article className="relative overflow-hidden rounded-[18px] bg-[var(--ink)] p-7 text-[var(--paper)] sm:p-10">
+            <article className="relative overflow-hidden rounded-[var(--radius-card)] bg-[var(--ink)] p-7 text-[var(--paper)] sm:p-10">
               <div className="absolute right-0 top-0 size-64 translate-x-1/3 -translate-y-1/3 rounded-full border-[46px] border-[var(--accent)]" />
               <span className="relative grid size-12 place-items-center rounded-2xl bg-white/10 text-[var(--accent)]">
                 <ScanLine />
@@ -144,7 +144,7 @@ export default function HomePage() {
               </div>
             </article>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <article className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7">
+              <article className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-7">
                 <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(232_163_61/14%)] text-[var(--accent-strong)]">
                   <BellRing />
                 </span>
@@ -156,7 +156,7 @@ export default function HomePage() {
                   private mobile wallet.
                 </p>
               </article>
-              <article className="rounded-[18px] bg-[var(--accent)] p-7">
+              <article className="rounded-[var(--radius-card)] bg-[var(--accent)] p-7">
                 <span className="grid size-11 place-items-center rounded-2xl bg-[var(--surface)]">
                   <ChartNoAxesCombined />
                 </span>

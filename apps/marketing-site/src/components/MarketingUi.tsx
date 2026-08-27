@@ -124,7 +124,7 @@ export function MarketingCta({
 }) {
   return (
     <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-      <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[18px] bg-[var(--ink)] px-6 py-12 text-[var(--paper)] sm:px-10 lg:grid lg:grid-cols-[1fr_auto] lg:items-end lg:px-14 lg:py-16">
+      <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[var(--radius-card)] bg-[var(--ink)] px-6 py-12 text-[var(--paper)] sm:px-10 lg:grid lg:grid-cols-[1fr_auto] lg:items-end lg:px-14 lg:py-16">
         <div className="absolute right-10 top-1/2 hidden size-48 -translate-y-1/2 rounded-full border-[38px] border-[var(--accent)] opacity-80 lg:block" />
         <div className="relative">
           <SiteEyebrow inverse>Start with KYPStamping</SiteEyebrow>
@@ -299,7 +299,7 @@ export function AnswerBlock({
   return (
     <section className="px-4 pt-14 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1400px]">
-        <div className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-9">
+        <div className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-9">
           <h2 className="font-display text-xl font-bold tracking-[-0.02em] sm:text-2xl">
             {question}
           </h2>

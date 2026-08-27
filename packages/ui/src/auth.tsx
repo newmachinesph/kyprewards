@@ -177,7 +177,7 @@ function CustomerAuthShell({
 
   return (
     <main className="customer-auth min-h-[100dvh] bg-[#d9d5ce] sm:px-5 sm:py-6">
-      <section className="phone-shell relative mx-auto flex min-h-[100dvh] max-w-[460px] flex-col overflow-hidden border-x border-[rgb(24_18_12/8%)] bg-[var(--accent)] sm:min-h-[calc(100dvh-3rem)] sm:rounded-[18px] sm:border sm:shadow-[0_28px_90px_rgb(24_18_12/20%)]">
+      <section className="phone-shell relative mx-auto flex min-h-[100dvh] max-w-[460px] flex-col overflow-hidden border-x border-[rgb(24_18_12/8%)] bg-[var(--accent)] sm:min-h-[calc(100dvh-3rem)] sm:rounded-[var(--radius-card)] sm:border sm:shadow-[0_28px_90px_rgb(24_18_12/20%)]">
         <header className="flex items-center justify-between gap-4 px-5 pb-4 pt-[max(1.1rem,env(safe-area-inset-top))]">
           <BrandMark label="Wallet" />
           <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgb(24_18_12/12%)] bg-[rgb(255_254_251/42%)] px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--ink)]">

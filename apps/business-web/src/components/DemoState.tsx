@@ -6,7 +6,9 @@ import {
   useContext,
   useMemo,
   useState,
+  type Dispatch,
   type ReactNode,
+  type SetStateAction,
 } from "react";
 import { demoData } from "@stampr/demo-data";
 
@@ -30,6 +32,25 @@ export type ProgramDraft = {
   liability: number;
 };
 
+export type Credential = {
+  id: string;
+  label: string;
+  clientKey: string;
+  branch: string;
+  scopes: string[];
+  lastUsed: string;
+  status: "Active" | "Revoked";
+};
+
+export type Delivery = {
+  id: string;
+  event: string;
+  source: string;
+  status: "Delivered" | "Ignored safely" | "Retrying" | "Failed";
+  detail: string;
+  requestId: string;
+};
+
 export type ScheduledCampaign = {
   id: string;
   name: string;
@@ -41,6 +62,62 @@ export type ScheduledCampaign = {
   cost: number;
   status: string;
 };
+
+const INITIAL_CREDENTIALS: Credential[] = [
+  {
+    id: "key_counter_01",
+    label: "Main counter",
+    clientKey: "st_test_sc_7K9P2D4M",
+    branch: "Legazpi Village",
+    scopes: ["customers:read", "transactions:write", "rewards:read"],
+    lastUsed: "18 seconds ago",
+    status: "Active",
+  },
+  {
+    id: "key_staging_02",
+    label: "Developer staging",
+    clientKey: "st_test_sc_1H3F8W6Q",
+    branch: "All sandbox branches",
+    scopes: ["customers:read", "transactions:write", "rewards:read", "redemptions:write"],
+    lastUsed: "Yesterday, 4:18 PM",
+    status: "Active",
+  },
+];
+
+const INITIAL_DELIVERIES: Delivery[] = [
+  {
+    id: "evt_01J7SC10482",
+    event: "loyalty.transaction.completed",
+    source: "POS sandbox",
+    status: "Delivered",
+    detail: "202 ms · Today, 9:42 AM",
+    requestId: "req_7G2K9P",
+  },
+  {
+    id: "evt_01J7SC10481",
+    event: "loyalty.transaction.completed",
+    source: "POS sandbox",
+    status: "Ignored safely",
+    detail: "Duplicate event · Today, 9:41 AM",
+    requestId: "req_6Q1M3A",
+  },
+  {
+    id: "evt_01J7SC10477",
+    event: "reward.redeemed",
+    source: "Sweet Crumbs endpoint",
+    status: "Retrying",
+    detail: "Attempt 2 of 8 · Next retry in 48s",
+    requestId: "req_4D8V2N",
+  },
+  {
+    id: "evt_01J7SC10463",
+    event: "customer.updated",
+    source: "Sweet Crumbs endpoint",
+    status: "Failed",
+    detail: "HTTP 503 · Yesterday, 6:14 PM",
+    requestId: "req_2L5R7C",
+  },
+];
 
 type DemoState = {
   automations: Record<string, boolean>;
@@ -58,6 +135,15 @@ type DemoState = {
 
   settings: Record<string, boolean>;
   setSetting: (key: string, value: boolean) => void;
+
+  credentials: Credential[];
+  setCredentials: Dispatch<SetStateAction<Credential[]>>;
+  deliveries: Delivery[];
+  setDeliveries: Dispatch<SetStateAction<Delivery[]>>;
+  webhookUrl: string;
+  setWebhookUrl: Dispatch<SetStateAction<string>>;
+  subscribedEvents: string[];
+  setSubscribedEvents: Dispatch<SetStateAction<string[]>>;
 };
 
 const DemoStateContext = createContext<DemoState | null>(null);
@@ -86,6 +172,15 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
     })),
   );
   const [settings, setSettings] = useState<Record<string, boolean>>({});
+  const [credentials, setCredentials] = useState<Credential[]>(INITIAL_CREDENTIALS);
+  const [deliveries, setDeliveries] = useState<Delivery[]>(INITIAL_DELIVERIES);
+  const [webhookUrl, setWebhookUrl] = useState(
+    "https://pos.sweetcrumbs.ph/webhooks/kypstamping",
+  );
+  const [subscribedEvents, setSubscribedEvents] = useState([
+    "loyalty.transaction.completed",
+    "reward.redeemed",
+  ]);
 
   const toggleAutomation = useCallback((id: string) => {
     let next = false;
@@ -167,6 +262,14 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
       scheduleCampaign,
       settings,
       setSetting,
+      credentials,
+      setCredentials,
+      deliveries,
+      setDeliveries,
+      webhookUrl,
+      setWebhookUrl,
+      subscribedEvents,
+      setSubscribedEvents,
     }),
     [
       automations,
@@ -180,6 +283,10 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
       scheduleCampaign,
       settings,
       setSetting,
+      credentials,
+      deliveries,
+      webhookUrl,
+      subscribedEvents,
     ],
   );
 

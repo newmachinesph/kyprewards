@@ -61,7 +61,7 @@ export default function ComparePage() {
           <h2 className="mt-4 max-w-[16ch] text-4xl font-extrabold leading-[1] tracking-[-0.02em] sm:text-5xl">
             Read the one that matches your shortlist.
           </h2>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2 xl:grid-cols-3">
             {comparisons.map((comparison) => (
               <Link
                 key={comparison.slug}

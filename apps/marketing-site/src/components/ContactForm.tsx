@@ -33,7 +33,7 @@ export function ContactForm() {
   if (state === "sent") {
     return (
       <div
-        className="grid min-h-[580px] place-items-center rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-8 text-center"
+        className="grid min-h-[580px] place-items-center rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-8 text-center"
         aria-live="polite"
       >
         <div>
@@ -61,7 +61,7 @@ export function ContactForm() {
   return (
     <form
       onSubmit={submit}
-      className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8"
+      className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8"
       noValidate
     >
       <div className="grid gap-5 sm:grid-cols-2">

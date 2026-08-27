@@ -349,7 +349,7 @@ export function AdminDashboard({
                   Needs a decision
                 </h2>
               </div>
-              <span className="rounded-full bg-[rgb(216_86_65/12%)] px-3 py-1 text-xs font-extrabold text-[var(--danger)]">
+              <span className="rounded-full bg-[rgb(178_59_43/12%)] px-3 py-1 text-xs font-extrabold text-[var(--danger)]">
                 {openSupportCount} open
               </span>
             </div>
@@ -365,7 +365,7 @@ export function AdminDashboard({
                   className="group grid w-full grid-cols-[auto_1fr_auto] items-center gap-3 py-4 text-left"
                 >
                   <span
-                    className={`grid size-9 place-items-center rounded-xl ${index === 0 ? "bg-[rgb(216_86_65/12%)] text-[var(--danger)]" : "bg-[var(--surface-2)] text-[var(--muted-strong)]"}`}
+                    className={`grid size-9 place-items-center rounded-xl ${index === 0 ? "bg-[rgb(178_59_43/12%)] text-[var(--danger)]" : "bg-[var(--surface-2)] text-[var(--muted-strong)]"}`}
                   >
                     {index === 0 ? (
                       <ShieldAlert size={17} />
@@ -462,7 +462,7 @@ export function AdminDashboard({
             </Button>
           </article>
           <article className="flex items-center gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
-            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[rgb(216_86_65/12%)] text-[var(--danger)]">
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[rgb(178_59_43/12%)] text-[var(--danger)]">
               <CircleAlert />
             </span>
             <div>

@@ -43,7 +43,7 @@ export function PricingCards() {
           return (
             <article
               key={plan.name}
-              className={`relative flex min-h-[590px] flex-col rounded-[18px] p-7 ${plan.featured ? "bg-[var(--ink)] text-[var(--paper)] xl:-my-4 xl:min-h-[622px] xl:py-10" : "border border-[var(--line)] bg-[var(--surface)]"}`}
+              className={`relative flex min-h-[590px] flex-col rounded-[var(--radius-card)] p-7 ${plan.featured ? "bg-[var(--ink)] text-[var(--paper)] xl:-my-4 xl:min-h-[622px] xl:py-10" : "border border-[var(--line)] bg-[var(--surface)]"}`}
             >
               {plan.featured && (
                 <span className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--ink)]">
