@@ -9,7 +9,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
   const core = [
     "",
-    "/demo",
     "/product",
     "/features",
     "/integrations",

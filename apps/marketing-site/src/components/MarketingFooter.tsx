@@ -7,7 +7,6 @@ const groups = [
     title: "Explore",
     links: [
       ["Product", "/product"],
-      ["Guided demo", "/demo"],
       ["Features", "/features"],
       ["Integrations", "/integrations"],
       ["Solutions", "/solutions"],
