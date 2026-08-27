@@ -22,6 +22,10 @@ function branchFor(slug: string) {
   );
 }
 
+// Only the branches that actually exist are routable. Anything else is a
+// real 404 rather than a soft one, so a mistyped poster code fails loudly.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   const prefix = business.profile.shortName.toLowerCase().replaceAll(" ", "-");
   return business.locations.map((location) => ({
