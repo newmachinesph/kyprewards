@@ -13,6 +13,11 @@ import { comparisons, getComparison } from "@/lib/comparisons";
 
 type Props = { params: Promise<{ competitor: string }> };
 
+// Only the slugs in generateStaticParams exist. Without this an unknown
+// slug rendered not-found content with a 200, so search engines index
+// arbitrary URLs as real pages.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return comparisons.map((comparison) => ({ competitor: comparison.slug }));
 }
