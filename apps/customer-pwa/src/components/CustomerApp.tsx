@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { demoData } from "@stampr/demo-data";
 import { BrandMark, Eyebrow, StampDots } from "@stampr/ui";
 import { signOutDemo } from "@stampr/ui/auth";
@@ -360,7 +361,7 @@ function WalletView({
           </span>
           <span className="mt-0.5 block text-[11px] text-[var(--muted)]">
             {quickPassAdded
-              ? "Your KYPStamping QR is ready from your phone wallet."
+              ? "Wallet passes are not issued in this demo. Save or print your code instead."
               : "Use Apple Wallet or Google Wallet without losing the full PWA."}
           </span>
         </span>
@@ -1464,35 +1465,46 @@ function WalletSheet({
   );
 }
 
+type Personal = {
+  name: string;
+  birthday: string;
+  email: string;
+  mobile: string;
+};
+
 function ProfileSheet({
   title,
   close,
   notify,
+  channelSettings,
+  setChannelSettings,
+  personal,
+  setPersonal,
+  leftBusinesses,
+  setLeftBusinesses,
+  deletionRequested,
+  setDeletionRequested,
+  exportRequested,
+  setExportRequested,
 }: {
   title: string;
   close: () => void;
-  notify: (message: string) => void;
+  notify: (message: string, tone?: "success" | "error") => void;
+  channelSettings: boolean[];
+  setChannelSettings: Dispatch<SetStateAction<boolean[]>>;
+  personal: Personal;
+  setPersonal: Dispatch<SetStateAction<Personal>>;
+  leftBusinesses: string[];
+  setLeftBusinesses: Dispatch<SetStateAction<string[]>>;
+  deletionRequested: boolean;
+  setDeletionRequested: Dispatch<SetStateAction<boolean>>;
+  exportRequested: boolean;
+  setExportRequested: Dispatch<SetStateAction<boolean>>;
 }) {
   const isPersonal = title === "Personal information";
   const isNotifications = title === "Notifications" || title === "App settings";
   const isDanger = title === "Leave or delete";
-  const [channelSettings, setChannelSettings] = useState([
-    true,
-    true,
-    true,
-    false,
-    false,
-  ]);
-  const [personal, setPersonal] = useState({
-    name: customerDemo.profile.name,
-    birthday: customerDemo.profile.birthday,
-    email: customerDemo.profile.email,
-    mobile: customerDemo.profile.mobile,
-  });
   const [leaveOpen, setLeaveOpen] = useState(false);
-  const [leftBusinesses, setLeftBusinesses] = useState<string[]>([]);
-  const [deletionRequested, setDeletionRequested] = useState(false);
-  const [exportRequested, setExportRequested] = useState(false);
   return (
     <div
       className="absolute inset-0 z-[55] overflow-y-auto bg-[var(--paper)]"
@@ -1545,7 +1557,7 @@ function ProfileSheet({
             })}
             <button
               type="button"
-              onClick={() => notify("Profile changes saved on this device.")}
+              onClick={() => notify("Profile changes saved for this demo session.")}
               className="min-h-12 w-full rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
             >
               Save changes
@@ -1715,6 +1727,22 @@ export function CustomerApp() {
   const [qrOpen, setQrOpen] = useState(false);
   const { toast, setToast, dismiss } = useToast(3000);
   const [toastTone, setToastTone] = useState<"success" | "error">("success");
+  const [channelSettings, setChannelSettings] = useState([
+    true,
+    true,
+    true,
+    false,
+    false,
+  ]);
+  const [personal, setPersonal] = useState<Personal>({
+    name: customerDemo.profile.name,
+    birthday: customerDemo.profile.birthday,
+    email: customerDemo.profile.email,
+    mobile: customerDemo.profile.mobile,
+  });
+  const [leftBusinesses, setLeftBusinesses] = useState<string[]>([]);
+  const [deletionRequested, setDeletionRequested] = useState(false);
+  const [exportRequested, setExportRequested] = useState(false);
   const notify = (message: string, tone: "success" | "error" = "success") => {
     setToastTone(tone);
     setToast(message);
@@ -1901,6 +1929,16 @@ export function CustomerApp() {
           title={sheet.title}
           close={() => setSheet(null)}
           notify={notify}
+          channelSettings={channelSettings}
+          setChannelSettings={setChannelSettings}
+          personal={personal}
+          setPersonal={setPersonal}
+          leftBusinesses={leftBusinesses}
+          setLeftBusinesses={setLeftBusinesses}
+          deletionRequested={deletionRequested}
+          setDeletionRequested={setDeletionRequested}
+          exportRequested={exportRequested}
+          setExportRequested={setExportRequested}
         />
       )}
       {toast && (

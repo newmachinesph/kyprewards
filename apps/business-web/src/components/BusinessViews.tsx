@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import type { NotifyIntent } from "@stampr/ui/shell";
 import type { BusinessView } from "@/components/BusinessShell";
+import { useDemoState } from "@/components/DemoState";
 import { IntegrationsView } from "@/components/IntegrationsView";
 
 const business = demoData.business;
@@ -768,10 +769,10 @@ const programIcons: Record<string, typeof Stamp> = {
 };
 
 function ProgramsView({ notify }: { notify: Notify }) {
-  const [selectedId, setSelectedId] = useState(business.programs[0].id);
+  const { programs, duplicateProgram } = useDemoState();
+  const [selectedId, setSelectedId] = useState(programs[0].id);
   const selected =
-    business.programs.find((program) => program.id === selectedId) ??
-    business.programs[0];
+    programs.find((program) => program.id === selectedId) ?? programs[0];
   return (
     <ViewFrame
       eyebrow="Loyalty engine"
@@ -789,7 +790,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.25fr)_minmax(340px,0.75fr)]">
         <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="grid sm:grid-cols-2">
-            {business.programs.map((program, index) => {
+            {programs.map((program, index) => {
               const Icon = programIcons[program.type] ?? Gift;
               const active = selected.id === program.id;
               return (
@@ -861,7 +862,15 @@ function ProgramsView({ notify }: { notify: Notify }) {
             <Button
               tone="quiet"
               className="border-white/20 bg-white/5 text-white hover:bg-white/10"
-              onClick={() => notify("Program duplicated as a draft.")}
+              onClick={() => {
+                const draftName = duplicateProgram(selected.id);
+                notify(
+                  draftName
+                    ? `${draftName} added to your programs as a draft.`
+                    : "Could not duplicate this program.",
+                  draftName ? "info" : "error",
+                );
+              }}
             >
               Duplicate
             </Button>
@@ -1179,6 +1188,9 @@ function RedemptionsView({ notify }: { notify: Notify }) {
   );
 }
 
+/** Per-campaign delivery ceiling quoted in the preflight copy. */
+const SMS_CEILING = 1000;
+
 type ChannelStatus = "ready" | "planned";
 
 const channelConfig: {
@@ -1248,6 +1260,8 @@ const channelConfig: {
 ];
 
 function CampaignsView({ notify }: { notify: Notify }) {
+  const { scheduleCampaign, campaigns } = useDemoState();
+  const [campaignName, setCampaignName] = useState("Tuesday treat");
   const [audience, setAudience] = useState(1280);
   const [channels, setChannels] = useState<Record<string, boolean>>({
     "In-app": true,
@@ -1298,7 +1312,26 @@ function CampaignsView({ notify }: { notify: Notify }) {
         <Button
           tone="quiet"
           icon={<ClipboardCheck size={16} />}
-          onClick={() => notify("Campaign checklist passed in demo mode.")}
+          onClick={() => {
+            const problems: string[] = [];
+            if (selectedChannels.length === 0) {
+              problems.push("no channel selected");
+            }
+            if (!message.trim()) problems.push("the message is empty");
+            if (message.length > 320) problems.push("the message is over 320 characters");
+            if (channels.SMS && deliveryCost > SMS_CEILING) {
+              problems.push(
+                `estimated cost ₱${deliveryCost.toFixed(2)} is over the ₱${SMS_CEILING.toLocaleString()} campaign ceiling`,
+              );
+            }
+            if (reachable === 0) problems.push("no reachable customers with consent");
+            notify(
+              problems.length
+                ? `Preflight failed: ${problems.join("; ")}.`
+                : `Preflight passed: ${reachable.toLocaleString()} reachable, estimated ₱${deliveryCost.toFixed(2)}.`,
+              problems.length ? "error" : "info",
+            );
+          }}
         >
           Run preflight
         </Button>
@@ -1310,7 +1343,8 @@ function CampaignsView({ notify }: { notify: Notify }) {
             <label className="grid gap-2 text-xs font-bold">
               Campaign name
               <input
-                defaultValue="Tuesday treat"
+                value={campaignName}
+                onChange={(event) => setCampaignName(event.target.value)}
                 className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]"
               />
             </label>
@@ -1504,11 +1538,25 @@ function CampaignsView({ notify }: { notify: Notify }) {
               Send test
             </Button>
             <Button
-              onClick={() =>
+              onClick={() => {
+                if (selectedChannels.length === 0) {
+                  notify("Choose at least one channel before scheduling.", "error");
+                  return;
+                }
+                scheduleCampaign({
+                  name: campaignName.trim() || "Untitled campaign",
+                  audience: `${audience.toLocaleString()} selected customers`,
+                  channels: selectedChannels.map((channel) => channel.name),
+                  sent: reachable,
+                  visited: 0,
+                  revenue: 0,
+                  cost: Math.round(deliveryCost),
+                  status: "Scheduled",
+                });
                 notify(
-                  `Campaign scheduled for ${reachable.toLocaleString()} reachable customers.`,
-                )
-              }
+                  `${campaignName.trim() || "Untitled campaign"} scheduled for ${reachable.toLocaleString()} reachable customers.`,
+                );
+              }}
               icon={<Send size={15} />}
             >
               Schedule
@@ -1524,7 +1572,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
           </div>
           <button
             type="button"
-            onClick={() => notify("Campaign history is complete — all campaigns are shown here.")}
+            onClick={() => notify("Campaign history opened.", "review")}
             className="text-xs font-bold text-[var(--accent-strong)]"
           >
             View all
@@ -1533,7 +1581,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[780px] text-left">
             <tbody>
-              {business.campaigns.map((campaign) => (
+              {campaigns.map((campaign) => (
                 <tr
                   key={campaign.id}
                   className="border-b border-[var(--line)] last:border-0"
@@ -1909,14 +1957,7 @@ function StaffView({ notify }: { notify: Notify }) {
 }
 
 function SettingsView({ notify }: { notify: Notify }) {
-  const [connected, setConnected] = useState(() =>
-    Object.fromEntries(
-      business.integrations.map((item) => [
-        item.id,
-        item.status === "Connected",
-      ]),
-    ),
-  );
+  const { integrations: connected, toggleIntegration } = useDemoState();
   return (
     <ViewFrame
       eyebrow="Workspace settings"
@@ -1956,12 +1997,9 @@ function SettingsView({ notify }: { notify: Notify }) {
                       disabled={isPlanned}
                       title={isPlanned ? "Not available yet" : undefined}
                       onClick={() => {
-                        setConnected((current) => ({
-                          ...current,
-                          [integration.id]: !isConnected,
-                        }));
+                        const next = toggleIntegration(integration.id);
                         notify(
-                          `${integration.name} ${isConnected ? "disconnected" : "connected"} in demo mode.`,
+                          `${integration.name} ${next ? "connected" : "disconnected"} in this demo.`,
                         );
                       }}
                       className={`relative h-6 w-10 shrink-0 rounded-full before:absolute before:-inset-y-2.5 before:-inset-x-2 before:content-[''] ${isPlanned ? "cursor-not-allowed bg-[var(--line)] opacity-60" : isConnected ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}

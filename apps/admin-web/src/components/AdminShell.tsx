@@ -116,10 +116,59 @@ export function AdminShell({
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const searchResults = search.trim()
-    ? nav.filter((item) =>
-        item.label.toLowerCase().includes(search.trim().toLowerCase()),
-      )
+  const query = search.trim().toLowerCase();
+  const searchResults = query
+    ? [
+        ...nav
+          .filter((item) => item.label.toLowerCase().includes(query))
+          .map((item) => ({
+            key: `view-${item.view}`,
+            label: item.label,
+            hint: "Control-room view",
+            icon: item.icon,
+            view: item.view,
+          })),
+        ...demoData.admin.businesses
+          .filter(
+            (item) =>
+              item.name.toLowerCase().includes(query) ||
+              item.city.toLowerCase().includes(query),
+          )
+          .map((item) => ({
+            key: `biz-${item.id}`,
+            label: item.name,
+            hint: `Tenant · ${item.city} · ${item.plan}`,
+            icon: Building2,
+            view: "businesses" as AdminView,
+          })),
+        ...demoData.admin.support
+          .filter(
+            (item) =>
+              item.title.toLowerCase().includes(query) ||
+              item.business.toLowerCase().includes(query) ||
+              item.id.toLowerCase().includes(query),
+          )
+          .map((item) => ({
+            key: `tix-${item.id}`,
+            label: item.title,
+            hint: `Support · ${item.business} · ${item.priority}`,
+            icon: LifeBuoy,
+            view: "support" as AdminView,
+          })),
+        ...demoData.admin.audit
+          .filter(
+            (item) =>
+              item.action.toLowerCase().includes(query) ||
+              item.actor.toLowerCase().includes(query),
+          )
+          .map((item) => ({
+            key: `aud-${item.id}`,
+            label: item.action,
+            hint: `Audit · ${item.actor} · ${item.time}`,
+            icon: FileClock,
+            view: "audit" as AdminView,
+          })),
+      ].slice(0, 8)
     : [];
 
   const navContent = nav.map((item) => {
@@ -232,18 +281,29 @@ export function AdminShell({
                     const Icon = item.icon;
                     return (
                       <button
-                        key={item.label}
+                        key={item.key}
                         type="button"
-                        onClick={() => navigate(item.view)}
-                        className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-bold hover:bg-[var(--surface-2)]"
+                        onClick={() => {
+                          navigate(item.view);
+                          setSearch("");
+                        }}
+                        className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-[var(--surface-2)]"
                       >
-                        <Icon size={16} aria-hidden="true" /> {item.label}
+                        <Icon size={16} aria-hidden="true" className="shrink-0" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-bold">
+                            {item.label}
+                          </span>
+                          <span className="block truncate text-[10px] font-semibold text-[var(--muted)]">
+                            {item.hint}
+                          </span>
+                        </span>
                       </button>
                     );
                   })
                 ) : (
                   <span className="block px-3 py-2 text-xs font-semibold text-[var(--muted)]">
-                    No matching control-room view.
+                    No matching view, tenant, ticket, or audit event.
                   </span>
                 )}
               </span>

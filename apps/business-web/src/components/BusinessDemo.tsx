@@ -4,6 +4,7 @@ import { useState } from "react";
 import { DemoActionDialog } from "@stampr/ui";
 import { Toast, useHashView, useToast } from "@stampr/ui/shell";
 import type { NotifyIntent } from "@stampr/ui/shell";
+import { DemoStateProvider } from "@/components/DemoState";
 import { BusinessShell, type BusinessView } from "@/components/BusinessShell";
 import { BusinessDashboard } from "@/components/BusinessDashboard";
 import { BusinessViewContent } from "@/components/BusinessViews";
@@ -44,23 +45,31 @@ export function BusinessDemo() {
   }
 
   return (
-    <BusinessShell activeView={view} onNavigate={navigate}>
-      {view === "dashboard" ? (
-        <BusinessDashboard onNavigate={navigate} notify={notify} />
-      ) : (
-        <BusinessViewContent view={view} notify={notify} onNavigate={navigate} />
-      )}
-      {toast && <Toast message={toast} onDismiss={dismiss} tone={toastTone} />}
-      {action && (
-        <DemoActionDialog
-          title={action}
-          onClose={() => setAction(null)}
-          onConfirm={() => {
-            setAction(null);
-            setToast("Demo action confirmed for this browser session.");
-          }}
-        />
-      )}
-    </BusinessShell>
+    <DemoStateProvider>
+      <BusinessShell activeView={view} onNavigate={navigate}>
+        {view === "dashboard" ? (
+          <BusinessDashboard onNavigate={navigate} notify={notify} />
+        ) : (
+          <BusinessViewContent
+            view={view}
+            notify={notify}
+            onNavigate={navigate}
+          />
+        )}
+        {toast && (
+          <Toast message={toast} onDismiss={dismiss} tone={toastTone} />
+        )}
+        {action && (
+          <DemoActionDialog
+            title={action}
+            onClose={() => setAction(null)}
+            onConfirm={() => {
+              setAction(null);
+              setToast("Demo action confirmed for this browser session.");
+            }}
+          />
+        )}
+      </BusinessShell>
+    </DemoStateProvider>
   );
 }

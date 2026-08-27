@@ -87,6 +87,15 @@ export function AdminDashboard({
 }) {
   const [scope, setScope] = useState("Network");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [activityFilter, setActivityFilter] = useState("All activity");
+
+  // Quick views narrow the feed rather than announcing a filter that never ran.
+  const visibleActivity =
+    activityFilter === "Needs action"
+      ? activity.filter((item) => item.tone === "accent")
+      : activityFilter === "Delivery risk"
+        ? activity.filter((item) => item.tone !== "success")
+        : activity;
   const [chartMode, setChartMode] = useState<"volume" | "growth">("volume");
   const chartBars =
     chartMode === "volume"
@@ -143,10 +152,11 @@ export function AdminDashboard({
                 key={filter}
                 type="button"
                 onClick={() => {
-                  notify(`${filter} filter applied.`);
+                  setActivityFilter(filter);
                   setFiltersOpen(false);
                 }}
-                className="min-h-9 rounded-full border border-[var(--line)] bg-[var(--paper)] px-3 text-xs font-bold transition hover:border-[var(--ink)]"
+                aria-pressed={activityFilter === filter}
+                className={`min-h-9 rounded-full border px-3 text-xs font-bold transition ${activityFilter === filter ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]" : "border-[var(--line)] bg-[var(--paper)] hover:border-[var(--ink)]"}`}
               >
                 {filter}
               </button>
@@ -400,7 +410,12 @@ export function AdminDashboard({
               </span>
             </div>
             <div className="mt-5">
-              {activity.map((item, index) => (
+              {visibleActivity.length === 0 && (
+                <p className="rounded-2xl border border-dashed border-[var(--line-strong)] p-6 text-center text-xs font-semibold text-[var(--muted)]">
+                  Nothing matches “{activityFilter}” right now.
+                </p>
+              )}
+              {visibleActivity.map((item, index) => (
                 <div
                   key={`${item.business}-${index}`}
                   className="grid grid-cols-[12px_1fr_auto] gap-3"

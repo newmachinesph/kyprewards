@@ -37,6 +37,7 @@ import {
   X,
 } from "lucide-react";
 import type { NotifyIntent } from "@stampr/ui/shell";
+import { useDemoState } from "@/components/DemoState";
 import { demoData } from "@stampr/demo-data";
 import type { BusinessView } from "@/components/BusinessShell";
 
@@ -114,6 +115,7 @@ const automationIcons: Record<string, typeof Gift> = {
 };
 
 const automationDefaults = demoData.business.automations.map((automation) => ({
+  id: automation.id,
   name: automation.name,
   detail: `${automation.trigger} · ${automation.audience} customers`,
   icon: automationIcons[automation.id] ?? Gift,
@@ -131,11 +133,7 @@ export function BusinessDashboard({
   const [period, setPeriod] = useState("7 days");
   const [scanOpen, setScanOpen] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState("Stamp card");
-  const [automations, setAutomations] = useState(() =>
-    Object.fromEntries(
-      automationDefaults.map((item) => [item.name, item.enabled]),
-    ),
-  );
+  const { automations, toggleAutomation } = useDemoState();
   const preview = programPreviews[selectedProgram];
 
   return (
@@ -477,7 +475,7 @@ export function BusinessDashboard({
           <div className="grid sm:grid-cols-2">
             {automationDefaults.map((automation, index) => {
               const Icon = automation.icon;
-              const enabled = automations[automation.name];
+              const enabled = automations[automation.id];
               return (
                 <div
                   key={automation.name}
@@ -496,13 +494,13 @@ export function BusinessDashboard({
                     type="button"
                     role="switch"
                     aria-checked={enabled}
-                    aria-label={`${enabled ? "Disable" : "Enable"} ${automation.name}`}
-                    onClick={() =>
-                      setAutomations((current) => ({
-                        ...current,
-                        [automation.name]: !current[automation.name],
-                      }))
-                    }
+                    aria-label={automation.name}
+                    onClick={() => {
+                      const next = toggleAutomation(automation.id);
+                      notify(
+                        `${automation.name} ${next ? "switched on" : "paused"}.`,
+                      );
+                    }}
                     className={`relative h-6 w-10 shrink-0 rounded-full transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                   >
                     <span

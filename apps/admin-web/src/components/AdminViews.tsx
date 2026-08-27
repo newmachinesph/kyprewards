@@ -471,6 +471,9 @@ function OperationsView({ notify }: { notify: Notify }) {
 
 function SupportView({ notify }: { notify: Notify }) {
   const [selectedId, setSelectedId] = useState(admin.support[0].id);
+  const [owners, setOwners] = useState<Record<string, string>>({});
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [statuses, setStatuses] = useState<Record<string, string>>({});
   const selected =
     admin.support.find((ticket) => ticket.id === selectedId) ??
     admin.support[0];
@@ -519,7 +522,9 @@ function SupportView({ notify }: { notify: Notify }) {
                     {ticket.title}
                   </span>
                   <span className="mt-1 block text-[10px]">
-                    {ticket.business} · {ticket.category} · {ticket.owner}
+                    {ticket.business} · {ticket.category} ·{" "}
+                    {owners[ticket.id] ?? ticket.owner} ·{" "}
+                    {statuses[ticket.id] ?? ticket.status}
                   </span>
                 </span>
                 <span className="text-xs font-bold">{ticket.age}</span>
@@ -554,8 +559,14 @@ function SupportView({ notify }: { notify: Notify }) {
             Assign to
             <select
               className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3"
-              defaultValue={selected.owner}
-              onChange={(event) => notify(`Ticket assigned to ${event.target.value}.`)}
+              value={owners[selected.id] ?? selected.owner}
+              onChange={(event) => {
+                setOwners((current) => ({
+                  ...current,
+                  [selected.id]: event.target.value,
+                }));
+                notify(`${selected.id} assigned to ${event.target.value}.`);
+              }}
             >
               {[...new Set([selected.owner, "Nica", "Mika", "Paolo"])].map((owner) => (
                 <option key={owner}>{owner}</option>
@@ -568,12 +579,30 @@ function SupportView({ notify }: { notify: Notify }) {
               rows={4}
               className="rounded-xl border border-white/15 bg-[var(--ink-soft)] p-3 outline-none"
               placeholder="Record evidence and the next decision"
+              value={notes[selected.id] ?? ""}
+              onChange={(event) =>
+                setNotes((current) => ({
+                  ...current,
+                  [selected.id]: event.target.value,
+                }))
+              }
             />
           </label>
           <Button
             tone="accent"
             className="mt-5 w-full"
-            onClick={() => notify(`${selected.id} moved to investigating. Internal note saved locally.`)}
+            onClick={() => {
+              const note = notes[selected.id]?.trim();
+              if (!note) {
+                notify("Add an internal note before starting an investigation.", "error");
+                return;
+              }
+              setStatuses((current) => ({
+                ...current,
+                [selected.id]: "Investigating",
+              }));
+              notify(`${selected.id} moved to investigating.`);
+            }}
           >
             Start investigation
           </Button>
