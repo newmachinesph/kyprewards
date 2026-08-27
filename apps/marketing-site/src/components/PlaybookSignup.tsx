@@ -33,7 +33,7 @@ export function PlaybookSignup() {
         <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[var(--accent)]">
           <Check size={14} strokeWidth={3} />
         </span>
-        Demo signup captured locally. No email was sent.
+        Demo signup previewed. Nothing was stored and no email was sent.
       </div>
     );
   }

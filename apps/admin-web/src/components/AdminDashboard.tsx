@@ -21,6 +21,7 @@ import {
   Store,
   Users,
 } from "lucide-react";
+import type { NotifyIntent } from "@stampr/ui/shell";
 import type { AdminView } from "@/components/AdminShell";
 
 const activity = [
@@ -82,7 +83,7 @@ export function AdminDashboard({
   notify,
 }: {
   onNavigate: (view: AdminView) => void;
-  notify: (message: string) => void;
+  notify: (message: string, intent?: NotifyIntent) => void;
 }) {
   const [scope, setScope] = useState("Network");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -348,7 +349,7 @@ export function AdminDashboard({
                   key={item.title}
                   type="button"
                   onClick={() => {
-                    notify(`${item.title} opened in the support queue.`);
+                    notify(`${item.title} opened in the support queue.`, "review");
                     onNavigate("support");
                   }}
                   className="group grid w-full grid-cols-[auto_1fr_auto] items-center gap-3 py-4 text-left"

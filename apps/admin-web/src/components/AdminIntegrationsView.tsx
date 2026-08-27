@@ -22,8 +22,9 @@ import {
   TestTube2,
   Webhook,
 } from "lucide-react";
+import type { NotifyIntent } from "@stampr/ui/shell";
 
-type Notify = (message: string) => void;
+type Notify = (message: string, intent?: NotifyIntent) => void;
 type Environment = "sandbox" | "production";
 type AdapterStatus = "Available" | "Approval" | "Pilot" | "Planned";
 type ConnectionHealth = "Healthy" | "Attention" | "Sandbox";
@@ -194,7 +195,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                   aria-pressed={environment === item}
                   onClick={() => {
                     setEnvironment(item);
-                    notify(`${item === "sandbox" ? "Sandbox" : "Production preview"} integration data selected.`);
+                    notify(`${item === "sandbox" ? "Sandbox" : "Production preview"} integration data selected.`, "review");
                   }}
                   className={`min-h-10 rounded-full px-4 text-xs font-extrabold capitalize ${
                     environment === item
@@ -307,7 +308,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                 <button
                   key={adapter.id}
                   type="button"
-                  onClick={() => notify(`${adapter.name} adapter record opened.`)}
+                  onClick={() => notify(`${adapter.name} adapter record opened.`, "review")}
                   className={`group min-h-64 p-5 text-left transition hover:bg-[var(--surface-2)] ${
                     index > 0 ? "border-t border-[var(--line)] sm:border-l sm:border-t-0" : ""
                   } ${index === 2 || index === 4 ? "sm:border-t xl:border-t-0" : ""}`}
@@ -432,7 +433,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
             {
               icon: BadgeCheck,
               title: "Signed ingress",
-              detail: "Timestamped HMAC, replay window, and stable provider event ID.",
+              detail: "Planned: timestamped HMAC, replay window, and stable provider event ID.",
             },
             {
               icon: RefreshCcw,

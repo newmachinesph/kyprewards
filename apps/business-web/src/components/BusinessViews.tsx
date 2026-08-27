@@ -44,6 +44,7 @@ import {
   WalletCards,
   WifiOff,
 } from "lucide-react";
+import type { NotifyIntent } from "@stampr/ui/shell";
 import type { BusinessView } from "@/components/BusinessShell";
 import { IntegrationsView } from "@/components/IntegrationsView";
 
@@ -67,7 +68,7 @@ const qrPattern = [
   "11111001101111",
 ];
 
-type Notify = (message: string) => void;
+type Notify = (message: string, intent?: NotifyIntent) => void;
 
 
 function ScanView({ notify }: { notify: Notify }) {
@@ -197,7 +198,7 @@ function ScanView({ notify }: { notify: Notify }) {
             </div>
             <button
               type="button"
-              onClick={() => notify("Redemption ledger opened.")}
+              onClick={() => notify("Redemption ledger opened.", "review")}
               className="text-xs font-bold text-[var(--accent-strong)]"
             >
               View ledger
@@ -333,7 +334,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
             <Button
               tone="quiet"
               icon={<Nfc size={15} />}
-              onClick={() => notify("NFC tag setup opened in demo mode.")}
+              onClick={() => notify("NFC tag setup opened in demo mode.", "review")}
             >
               Set up NFC
             </Button>
@@ -376,14 +377,14 @@ function JoinCodeView({ notify }: { notify: Notify }) {
               <Button
                 tone="quiet"
                 icon={<Send size={15} />}
-                onClick={() => notify("Card order request opened in demo mode.")}
+                onClick={() => notify("Card order request opened in demo mode.", "review")}
               >
                 Request a quote
               </Button>
               <Button
                 tone="quiet"
                 icon={<WalletCards size={15} />}
-                onClick={() => notify("Wallet pass preview opened in demo mode.")}
+                onClick={() => notify("Wallet pass preview opened in demo mode.", "review")}
               >
                 Use wallet passes instead
               </Button>
@@ -644,7 +645,7 @@ function CustomersView({ notify }: { notify: Notify }) {
             tone="accent"
             className="mt-8 w-full"
             icon={<MessageCircle size={16} />}
-            onClick={() => notify(`Draft opened for ${selected.name}.`)}
+            onClick={() => notify(`Draft opened for ${selected.name}.`, "review")}
           >
             Create personal note
           </Button>
@@ -663,7 +664,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
       action={
         <Button
           icon={<Plus size={16} />}
-          onClick={() => notify("New location setup opened in demo mode.")}
+          onClick={() => notify("New location setup opened in demo mode.", "review")}
         >
           Add location
         </Button>
@@ -705,7 +706,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
             tone="accent"
             className="mt-6"
             icon={<Pencil size={15} />}
-            onClick={() => notify("Business profile editor opened.")}
+            onClick={() => notify("Business profile editor opened.", "review")}
           >
             Edit public profile
           </Button>
@@ -742,7 +743,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
               <button
                 type="button"
                 aria-label={`Open ${location.name} settings`}
-                onClick={() => notify(`${location.name} settings opened.`)}
+                onClick={() => notify(`${location.name} settings opened.`, "review")}
                 className="grid size-10 place-items-center rounded-full border border-[var(--line)] hover:bg-[var(--surface-2)]"
               >
                 <ChevronRight size={16} />
@@ -779,7 +780,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
       action={
         <Button
           icon={<Plus size={16} />}
-          onClick={() => notify("New program template picker opened.")}
+          onClick={() => notify("New program template picker opened.", "review")}
         >
           New program
         </Button>
@@ -866,7 +867,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
             </Button>
             <Button
               tone="accent"
-              onClick={() => notify(`${selected.name} editor opened.`)}
+              onClick={() => notify(`${selected.name} editor opened.`, "review")}
             >
               Edit rules
             </Button>
@@ -888,7 +889,7 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
         <Button
           tone="quiet"
           icon={<PlugZap size={16} />}
-          onClick={() => notify("POS connection catalog opened.")}
+          onClick={() => notify("POS connection catalog opened.", "review")}
         >
           Connect order data
         </Button>
@@ -1498,7 +1499,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
           <div className="mt-6 grid grid-cols-2 gap-2">
             <Button
               tone="quiet"
-              onClick={() => notify("Test message preview opened.")}
+              onClick={() => notify("Test message preview opened.", "review")}
             >
               Send test
             </Button>
@@ -1814,7 +1815,7 @@ function StaffView({ notify }: { notify: Notify }) {
       action={
         <Button
           icon={<UserPlus size={16} />}
-          onClick={() => notify("Staff invitation form opened.")}
+          onClick={() => notify("Staff invitation form opened.", "review")}
         >
           Invite staff
         </Button>
@@ -1872,7 +1873,7 @@ function StaffView({ notify }: { notify: Notify }) {
                       type="button"
                       aria-label={`Edit ${person.name} access`}
                       onClick={() =>
-                        notify(`${person.name} access editor opened.`)
+                        notify(`${person.name} access editor opened.`, "review")
                       }
                       className="grid size-9 place-items-center rounded-full hover:bg-[var(--surface-2)]"
                     >
@@ -1963,7 +1964,7 @@ function SettingsView({ notify }: { notify: Notify }) {
                           `${integration.name} ${isConnected ? "disconnected" : "connected"} in demo mode.`,
                         );
                       }}
-                      className={`relative h-6 w-10 rounded-full ${isPlanned ? "cursor-not-allowed bg-[var(--line)] opacity-60" : isConnected ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
+                      className={`relative h-6 w-10 shrink-0 rounded-full before:absolute before:-inset-y-2.5 before:-inset-x-2 before:content-[''] ${isPlanned ? "cursor-not-allowed bg-[var(--line)] opacity-60" : isConnected ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                     >
                       <span
                         className={`absolute top-1 size-4 rounded-full bg-white transition ${isConnected ? "left-5" : "left-1"}`}
@@ -2009,7 +2010,7 @@ function SettingsView({ notify }: { notify: Notify }) {
             <Button
               tone="accent"
               className="mt-6"
-              onClick={() => notify("Plan comparison opened.")}
+              onClick={() => notify("Plan comparison opened.", "review")}
             >
               Manage plan
             </Button>
@@ -2024,13 +2025,14 @@ function SettingsView({ notify }: { notify: Notify }) {
                 <p className="text-sm font-extrabold">Privacy defaults</p>
                 <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                   Purpose labels, consent evidence, retention, data export,
-                  correction, and deletion workflows are enabled.
+                  correction, and deletion workflows are specified for the
+                  production service. None are connected in this demo.
                 </p>
               </div>
             </div>
             <button
               type="button"
-              onClick={() => notify("Privacy and retention settings opened.")}
+              onClick={() => notify("Privacy and retention settings opened.", "review")}
               className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-[var(--accent-strong)]"
             >
               Review controls <ArrowRight size={14} />

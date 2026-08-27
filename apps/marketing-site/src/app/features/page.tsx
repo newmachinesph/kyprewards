@@ -260,7 +260,7 @@ export default function FeaturesPage() {
             </h2>
             <p className="mt-5 max-w-[50ch] text-base leading-relaxed text-white/70">
               Customers can join from a poster, social link, NFC tap, or staff
-              scan. A visit takes seconds, and an encrypted offline queue keeps
+              scan. A visit takes seconds, and a planned encrypted offline queue keeps
               the line moving through an internet outage.
             </p>
             <div className="mt-8 flex flex-wrap gap-2">
@@ -336,7 +336,7 @@ export default function FeaturesPage() {
                 <strong className="text-white">
                   Automatic reconciliation.
                 </strong>{" "}
-                Offline visits are signed, checked for duplicates, and synced
+                Offline visits will be signed, checked for duplicates, and synced
                 when the connection returns.
               </p>
             </div>

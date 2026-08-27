@@ -27,6 +27,7 @@ const groups = [
   {
     title: "Compare",
     links: [
+      ["All comparisons", "/compare"],
       ["vs GoBalik", "/compare/gobalik"],
       ["vs Suki Cards", "/compare/suki-cards"],
       ["vs ZAP", "/compare/zap"],

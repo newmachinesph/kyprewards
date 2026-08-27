@@ -32,6 +32,7 @@ import {
   Users,
   Webhook,
 } from "lucide-react";
+import type { NotifyIntent } from "@stampr/ui/shell";
 import type { AdminView } from "@/components/AdminShell";
 import { AdminIntegrationsView } from "@/components/AdminIntegrationsView";
 
@@ -39,7 +40,7 @@ const admin = demoData.admin;
 const openSupportCount = admin.support.filter(
   (ticket) => ticket.status === "Open",
 ).length;
-type Notify = (message: string) => void;
+type Notify = (message: string, intent?: NotifyIntent) => void;
 
 
 
@@ -68,7 +69,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
       action={
         <Button
           icon={<Building2 size={16} />}
-          onClick={() => notify("Business onboarding review opened.")}
+          onClick={() => notify("Business onboarding review opened.", "review")}
         >
           Review applications
         </Button>
@@ -222,7 +223,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
                 className="mt-0.5 shrink-0 text-[var(--accent)]"
               />
               <p className="text-xs leading-relaxed text-white/65">
-                Support access requires a reason, expires after 30 minutes, and
+                Support access will require a reason, expire after 30 minutes, and
                 is written to the audit ledger.
               </p>
             </div>
@@ -334,7 +335,7 @@ function PeopleView({ notify }: { notify: Notify }) {
           </p>
           <button
             type="button"
-            onClick={() => notify("Privacy workflow playbook opened.")}
+            onClick={() => notify("Privacy workflow playbook opened.", "review")}
             className="mt-7 inline-flex items-center gap-2 text-xs font-extrabold"
           >
             Open privacy playbook <ArrowRight size={14} />
@@ -458,7 +459,7 @@ function OperationsView({ notify }: { notify: Notify }) {
             tone="accent"
             className="mt-6"
             icon={<Play size={15} />}
-            onClick={() => notify("Incident runbook opened.")}
+            onClick={() => notify("Incident runbook opened.", "review")}
           >
             Open runbook
           </Button>
@@ -482,7 +483,7 @@ function SupportView({ notify }: { notify: Notify }) {
         <Button
           tone="quiet"
           icon={<SlidersHorizontal size={16} />}
-          onClick={() => notify("Support queue rules opened for review.")}
+          onClick={() => notify("Support queue rules opened for review.", "review")}
         >
           Queue rules
         </Button>
@@ -594,7 +595,7 @@ function AuditView({ notify }: { notify: Notify }) {
           icon={<Download size={16} />}
           onClick={() => notify("Signed audit export prepared.")}
         >
-          Export signed log
+          Export audit log
         </Button>
       }
     >
@@ -651,7 +652,7 @@ function AuditView({ notify }: { notify: Notify }) {
       <div className="mt-3 flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
         <FileClock size={19} className="mt-0.5 text-[var(--accent-strong)]" />
         <div>
-          <p className="text-sm font-extrabold">Append-only by design</p>
+          <p className="text-sm font-extrabold">Append-only by design (planned)</p>
           <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
             Demo records are local JSON. The production API should hash event
             chains, retain actor and request context, and export signed evidence
@@ -964,7 +965,7 @@ function SettingsView({ notify }: { notify: Notify }) {
             </div>
             <button
               type="button"
-              onClick={() => notify("Provider policy editor opened.")}
+              onClick={() => notify("Provider policy editor opened.", "review")}
               className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-[var(--accent)]"
             >
               Edit provider policies <ArrowRight size={14} />
@@ -989,7 +990,7 @@ function SettingsView({ notify }: { notify: Notify }) {
             <Button
               tone="quiet"
               className="mt-5"
-              onClick={() => notify("Administrator access review opened.")}
+              onClick={() => notify("Administrator access review opened.", "review")}
             >
               Review access
             </Button>

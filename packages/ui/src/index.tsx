@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type React from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import {
@@ -81,7 +81,7 @@ export function BrandMark({
   label = "KYPStamping",
 }: BrandMarkProps) {
   return (
-    <div className="flex items-center gap-3" aria-label={label}>
+    <div className="flex items-center gap-3" role="img" aria-label={label}>
       <SealMark size={40} inverse={inverse} />
       {!compact && (
         <span className="leading-none">
@@ -216,17 +216,52 @@ export function DemoActionDialog({
   onClose: () => void;
   onConfirm: () => void;
 }) {
+  const panelRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    const focusables = () =>
+      Array.from(
+        panelRef.current?.querySelectorAll<HTMLElement>(
+          'button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      ).filter((el) => !el.hasAttribute("disabled"));
+
+    focusables()[0]?.focus();
+
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+      // Keep Tab inside the dialog; a modal the user can tab behind is not modal.
+      if (event.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
+
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      opener?.focus?.();
+    };
   }, [onClose]);
+
   return (
     <div className="fixed inset-0 z-[90] grid place-items-center p-4" role="dialog" aria-modal="true" aria-labelledby="demo-action-title">
-      <button type="button" aria-label="Close demo action" onClick={onClose} className="absolute inset-0 cursor-default bg-[rgb(20_16_13/62%)] backdrop-blur-sm" />
-      <section className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-2xl">
+      {/* Scrim is decorative: a focusable element before the content would put
+          "cancel" first in the tab order of a dialog asking for confirmation. */}
+      <div aria-hidden="true" onClick={onClose} className="absolute inset-0 cursor-default bg-[rgb(20_16_13/62%)] backdrop-blur-sm" />
+      <section ref={panelRef} className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-2xl">
         <header className="flex items-start justify-between gap-4 border-b border-[var(--line)] p-5 sm:p-6">
           <div>
             <Eyebrow>Interactive demo action</Eyebrow>
@@ -246,7 +281,7 @@ export function DemoActionDialog({
             </p>
           </div>
           <dl className="mt-5 divide-y divide-[var(--line)] border-y border-[var(--line)]">
-            {[["Mode", "Local preview"], ["Persistence", "Current browser session"], ["Network activity", "None"]].map(([term, description]) => (
+            {[["Mode", "Local preview"], ["Persistence", "None"], ["Network activity", "None"]].map(([term, description]) => (
               <div key={term} className="grid grid-cols-[118px_1fr] gap-3 py-3 text-xs">
                 <dt className="font-extrabold text-[var(--muted-strong)]">{term}</dt>
                 <dd className="font-bold">{description}</dd>

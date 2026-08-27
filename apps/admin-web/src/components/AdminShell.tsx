@@ -76,6 +76,24 @@ export function AdminShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [accountOpen, setAccountOpen] = useState(false);
+
+  useEffect(() => {
+    if (!accountOpen) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setAccountOpen(false);
+    }
+    function onPointer(event: MouseEvent) {
+      const target = event.target as Node;
+      if (!accountRef.current?.contains(target)) setAccountOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("mousedown", onPointer);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("mousedown", onPointer);
+    };
+  }, [accountOpen]);
+  const accountRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -153,7 +171,7 @@ export function AdminShell({
           </div>
           <p className="mt-3 text-sm font-bold">Platform Administrator</p>
           <p className="mt-1 text-xs leading-relaxed text-white/50">
-            Every privileged action is recorded in the audit ledger.
+            Privileged actions will be recorded in the audit ledger.
           </p>
           <button
             type="button"
@@ -249,11 +267,11 @@ export function AdminShell({
               <Bell size={17} />
               <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--accent)]" />
             </button>
-            <div className="relative">
+            <div className="relative" ref={accountRef}>
               <button
                 type="button"
                 aria-label="Open administrator account menu"
-                aria-haspopup="menu"
+                aria-haspopup="true"
                 aria-expanded={accountOpen}
                 aria-controls="admin-account-menu"
                 onClick={() => setAccountOpen((open) => !open)}
@@ -265,14 +283,14 @@ export function AdminShell({
                 <ChevronDown size={14} className={`transition ${accountOpen ? "rotate-180" : ""}`} />
               </button>
               {accountOpen && (
-                <div id="admin-account-menu" role="menu" className="absolute right-0 top-[calc(100%+8px)] z-50 w-64 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-2xl">
+                <div id="admin-account-menu" className="absolute right-0 top-[calc(100%+8px)] z-50 w-64 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-2xl">
                   <div className="border-b border-[var(--line)] px-3 pb-3 pt-2">
                     <p className="text-xs font-extrabold">Platform Administrator</p>
                     <p className="mt-1 text-[10px] text-[var(--muted)]">admin@kypstamping.ph</p>
                   </div>
-                  <button type="button" role="menuitem" onClick={() => navigate("settings")} className="mt-1 flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><Settings2 size={15} /> Administrator settings</button>
-                  <button type="button" role="menuitem" onClick={() => navigate("audit")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><FileClock size={15} /> My audit activity</button>
-                  <button type="button" role="menuitem" onClick={() => signOutDemo("admin")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold text-[var(--danger)] hover:bg-[rgb(178_59_43/8%)]"><LogOut size={15} /> Sign out securely</button>
+                  <button type="button" onClick={() => navigate("settings")} className="mt-1 flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><Settings2 size={15} /> Administrator settings</button>
+                  <button type="button" onClick={() => navigate("audit")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><FileClock size={15} /> My audit activity</button>
+                  <button type="button" onClick={() => signOutDemo("admin")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold text-[var(--danger)] hover:bg-[rgb(178_59_43/8%)]"><LogOut size={15} /> Sign out securely</button>
                 </div>
               )}
             </div>

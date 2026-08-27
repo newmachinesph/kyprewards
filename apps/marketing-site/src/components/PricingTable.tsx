@@ -35,13 +35,13 @@ export function PricingTable() {
   return (
     <div>
       {/* Wide content scrolls inside its own container so the page body never does. */}
-      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <div className="-mx-4 overflow-x-auto px-4 [overflow-y:clip] sm:mx-0 sm:px-0">
         <table className="w-full min-w-[860px] border-collapse text-left">
           <caption className="sr-only">
             Full feature comparison across the Launch, Core, Grow, and Scale
             plans
           </caption>
-          <thead className="sticky top-0 z-20">
+          <thead className="sticky top-[72px] z-20">
             <tr>
               <th
                 scope="col"

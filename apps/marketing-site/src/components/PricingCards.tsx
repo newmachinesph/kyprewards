@@ -13,7 +13,7 @@ export function PricingCards() {
       <div className="flex justify-center">
         <div
           className="inline-flex rounded-xl border border-[var(--line)] bg-[var(--surface)] p-1"
-          aria-label="Billing period"
+          role="group" aria-label="Billing period"
         >
           <button
             type="button"

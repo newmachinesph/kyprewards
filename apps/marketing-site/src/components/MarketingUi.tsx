@@ -180,6 +180,7 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
       </div>
       <div
         className="mt-7 grid grid-cols-8 gap-2"
+        role="img"
         aria-label="Five of eight stamps collected"
       >
         {Array.from({ length: 8 }, (_, index) => (

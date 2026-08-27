@@ -10,9 +10,13 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, TriangleAlert, X } from "lucide-react";
 
 /** One "today" for every app, so a screen-share of all four agrees. */
+/** How a demo notification should surface. "review" opens the confirm dialog
+ *  that discloses nothing is persisted; "info" is a passive toast. */
+export type NotifyIntent = "info" | "review" | "error";
+
 export function todayLabel(date: Date = new Date()) {
   return date.toLocaleDateString("en-PH", {
     weekday: "long",
@@ -37,24 +41,34 @@ export function Toast({
   message,
   onDismiss,
   placement = "corner",
+  tone = "success",
 }: {
   message: string;
   onDismiss: () => void;
   /** `corner` for desktop shells, `sheet` for the phone-width PWA. */
   placement?: "corner" | "sheet";
+  /** `error` swaps the tick for a warning mark and announces assertively. */
+  tone?: "success" | "error";
 }) {
+  const isError = tone === "error";
   return (
     <div
-      role="status"
-      aria-live="polite"
+      role={isError ? "alert" : "status"}
+      aria-live={isError ? "assertive" : "polite"}
       className={`z-[70] flex items-start gap-3 rounded-2xl border border-white/10 bg-[var(--ink)] px-4 py-3 text-sm font-bold text-[var(--paper)] shadow-2xl ${
         placement === "corner"
           ? "fixed bottom-5 right-5 max-w-sm"
           : "absolute bottom-24 left-4 right-4"
       }`}
     >
-      <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-[var(--success)]">
-        <Check size={12} strokeWidth={3} />
+      <span
+        className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full ${isError ? "bg-[var(--danger)]" : "bg-[var(--success)]"}`}
+      >
+        {isError ? (
+          <TriangleAlert size={12} strokeWidth={3} />
+        ) : (
+          <Check size={12} strokeWidth={3} />
+        )}
       </span>
       <span className="min-w-0 flex-1">{message}</span>
       <button
@@ -80,7 +94,14 @@ export function useHashView<T extends string>(views: readonly T[], initial: T) {
     const valid = new Set<string>(views);
     function syncFromHash() {
       const next = window.location.hash.slice(1);
-      if (valid.has(next)) setView(next as T);
+      if (valid.has(next)) {
+        setView(next as T);
+        return;
+      }
+      // No hash means the user navigated back past the first view. Returning
+      // to the initial view is what Back is expected to do; ignoring it left
+      // the UI stranded on the previous view with the URL already reset.
+      if (next === "") setView(initial);
     }
     syncFromHash();
     window.addEventListener("hashchange", syncFromHash);

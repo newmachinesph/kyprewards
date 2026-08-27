@@ -107,13 +107,13 @@ export default async function ComparisonPage({ params }: Props) {
             <table className="w-full min-w-[760px] text-left">
               <thead className="bg-[var(--ink)] text-[var(--paper)]">
                 <tr>
-                  <th className="px-6 py-5 text-xs uppercase tracking-[0.12em]">
+                  <th scope="col" className="px-6 py-5 text-xs uppercase tracking-[0.12em]">
                     Requirement
                   </th>
-                  <th className="px-6 py-5 text-xs uppercase tracking-[0.12em]">
+                  <th scope="col" className="px-6 py-5 text-xs uppercase tracking-[0.12em]">
                     {comparison.competitor}
                   </th>
-                  <th className="px-6 py-5 text-xs uppercase tracking-[0.12em]">
+                  <th scope="col" className="px-6 py-5 text-xs uppercase tracking-[0.12em]">
                     KYPStamping direction
                   </th>
                 </tr>
@@ -124,7 +124,7 @@ export default async function ComparisonPage({ params }: Props) {
                     key={fact.label}
                     className={index > 0 ? "border-t border-[var(--line)]" : ""}
                   >
-                    <th className="bg-[var(--paper)] px-6 py-5 text-sm font-extrabold">
+                    <th scope="row" className="bg-[var(--paper)] px-6 py-5 text-sm font-extrabold">
                       {fact.label}
                     </th>
                     <td className="bg-[var(--surface)] px-6 py-5 text-sm leading-relaxed text-[var(--muted-strong)]">

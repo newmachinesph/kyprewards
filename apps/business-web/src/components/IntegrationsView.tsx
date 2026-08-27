@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { demoData } from "@stampr/demo-data";
 import { Button, DemoBadge, Eyebrow, FieldLabel, Panel } from "@stampr/ui";
 import { PlanTag } from "@stampr/ui/shell";
+import type { NotifyIntent } from "@stampr/ui/shell";
 import {
   ArrowRight,
   BadgeCheck,
@@ -30,7 +31,7 @@ import {
 } from "lucide-react";
 import type { BusinessView } from "@/components/BusinessShell";
 
-type Notify = (message: string) => void;
+type Notify = (message: string, intent?: NotifyIntent) => void;
 type Environment = "sandbox" | "production";
 type CredentialStatus = "Active" | "Revoked";
 type DeliveryStatus = "Delivered" | "Ignored safely" | "Retrying" | "Failed";
@@ -248,11 +249,11 @@ export function IntegrationsView({
 
   function createCredential() {
     if (!keyLabel.trim()) {
-      notify("Add a key name before creating the sample credential.");
+      notify("Add a key name before creating the sample credential.", "error");
       return;
     }
     if (selectedScopes.length === 0) {
-      notify("Choose at least one permission scope.");
+      notify("Choose at least one permission scope.", "error");
       return;
     }
     const suffix = String(credentials.length + 3).padStart(2, "0");
@@ -279,6 +280,14 @@ export function IntegrationsView({
   }
 
   function revokeCredential(id: string, label: string) {
+    // Irreversible: a revoked key cannot be restored, so ask first.
+    if (
+      !window.confirm(
+        `Revoke "${label}"? Any integration using this key stops working immediately, and it cannot be restored.`,
+      )
+    ) {
+      return;
+    }
     setCredentials((current) =>
       current.map((credential) =>
         credential.id === id
@@ -299,11 +308,11 @@ export function IntegrationsView({
 
   function sendTestWebhook() {
     if (!webhookUrl.startsWith("https://")) {
-      notify("Use an HTTPS destination before sending a sample webhook.");
+      notify("Use an HTTPS destination before sending a sample webhook.", "error");
       return;
     }
     if (subscribedEvents.length === 0) {
-      notify("Select at least one outbound event.");
+      notify("Select at least one outbound event.", "error");
       return;
     }
     setTestSending(true);
@@ -583,7 +592,7 @@ export function IntegrationsView({
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-extrabold">Copy this sample secret now</p>
                   <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                    A real secret is shown once. KYPStamping stores only a secure hash after you leave.
+                    A real secret will be shown once, and the API will store only a hash of it. This demo holds a sample value in memory.
                   </p>
                   <div className="mt-3 flex items-center gap-2 rounded-xl border border-[rgb(143_85_16/25%)] bg-[var(--surface)] p-2 pl-3">
                     <code className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-bold">
@@ -952,7 +961,7 @@ export function IntegrationsView({
               ) : (
                 <button
                   type="button"
-                  onClick={() => notify(`${delivery.id} inspection drawer opened.`)}
+                  onClick={() => notify(`${delivery.id} inspection drawer opened.`, "review")}
                   className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-4 text-xs font-extrabold"
                 >
                   Inspect <ArrowRight size={13} />
@@ -984,7 +993,7 @@ export function IntegrationsView({
             title: "Using an unusual POS?",
             detail: "Any register that can post webhooks or expose a read API connects through the same event contract.",
             action: "Review readiness",
-            onClick: () => notify("Integration readiness checklist opened in demo mode."),
+            onClick: () => notify("Integration readiness checklist opened in demo mode.", "review"),
           },
         ].map((item) => {
           const Icon = item.icon;

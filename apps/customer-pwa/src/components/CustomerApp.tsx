@@ -755,7 +755,7 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
           <div>
             <p className="text-sm font-extrabold">Your data stays yours.</p>
             <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-              KYPStamping never sells customer data. Businesses only see the details
+              KYPStamping is designed not to sell customer data. Businesses only see the details
               you choose to share.
             </p>
           </div>
@@ -830,7 +830,13 @@ function ProfileView({ onOpen }: { onOpen: (title: string) => void }) {
   );
 }
 
-function QrModal({ close, notify }: { close: () => void; notify: (message: string) => void }) {
+function QrModal({
+  close,
+  notify,
+}: {
+  close: () => void;
+  notify: (message: string, tone?: "success" | "error") => void;
+}) {
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -849,7 +855,7 @@ function QrModal({ close, notify }: { close: () => void; notify: (message: strin
       aria-modal="true"
       aria-labelledby="qr-title"
     >
-      <header className="flex h-17 items-center justify-between border-b border-[var(--line)] px-5">
+      <header className="flex h-17 items-center justify-between border-b border-[var(--line)] px-5 pt-[env(safe-area-inset-top)]">
         <button
           ref={closeRef}
           onClick={close}
@@ -895,6 +901,7 @@ function QrModal({ close, notify }: { close: () => void; notify: (message: strin
                   saved
                     ? "Code saved to your device. It works with no signal."
                     : "This browser could not save the image. Try printing instead.",
+                  saved ? "success" : "error",
                 ),
               );
             }}
@@ -938,7 +945,7 @@ function SheetHeader({ title, close }: { title: string; close: () => void }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [close]);
   return (
-    <header className="sticky top-0 z-10 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/94%)] px-5 backdrop-blur-xl">
+    <header className="sticky top-0 z-10 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/94%)] px-5 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
       <button
         type="button"
         onClick={close}
@@ -978,7 +985,7 @@ function NotificationSheet({
       aria-labelledby="notifications-title"
     >
       <SheetHeader title="Notifications" close={close} />
-      <div className="px-5 pb-10 pt-6">
+      <div className="px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-6">
         <Eyebrow>Your places</Eyebrow>
         <h2
           id="notifications-title"
@@ -1054,7 +1061,7 @@ function ActivitySheet({ close }: { close: () => void }) {
       aria-labelledby="activity-title"
     >
       <SheetHeader title="Activity" close={close} />
-      <div className="px-5 pb-12 pt-6">
+      <div className="px-5 pb-[max(3rem,env(safe-area-inset-bottom))] pt-6">
         <Eyebrow>Your loyalty ledger</Eyebrow>
         <h2
           id="activity-title"
@@ -1152,7 +1159,7 @@ function BusinessSheet({
       aria-labelledby="business-title"
     >
       <SheetHeader title="Program details" close={close} />
-      <div className="pb-12">
+      <div className="pb-[max(3rem,env(safe-area-inset-bottom))]">
         <section className="bg-[var(--ink)] px-5 py-8 text-[var(--paper)]">
           <div className="flex items-start justify-between">
             <span className="grid size-14 place-items-center rounded-xl bg-[var(--accent)] text-[var(--ink)]">
@@ -1381,7 +1388,7 @@ function WalletSheet({
       aria-labelledby="wallet-card-title"
     >
       <SheetHeader title="Wallet card" close={close} />
-      <div className="px-5 pb-12 pt-6">
+      <div className="px-5 pb-[max(3rem,env(safe-area-inset-bottom))] pt-6">
         <section className="loyalty-ticket rounded-2xl p-6 text-[var(--paper)]">
           <div className="flex items-start justify-between">
             <span className="grid size-12 place-items-center rounded-2xl bg-white/10 text-[var(--accent)]">
@@ -1494,7 +1501,7 @@ function ProfileSheet({
       aria-labelledby="profile-sheet-title"
     >
       <SheetHeader title={title} close={close} />
-      <div className="px-5 pb-12 pt-6">
+      <div className="px-5 pb-[max(3rem,env(safe-area-inset-bottom))] pt-6">
         <Eyebrow>Your control</Eyebrow>
         <h2
           id="profile-sheet-title"
@@ -1636,6 +1643,13 @@ function ProfileSheet({
               type="button"
               disabled={deletionRequested}
               onClick={() => {
+                if (
+                  !window.confirm(
+                    "Request deletion of your KYPStamping account? Your stamps, points, and stored value at every business would be permanently removed once identity is verified.",
+                  )
+                ) {
+                  return;
+                }
                 setDeletionRequested(true);
                 notify("Account deletion request queued for identity review.");
               }}
@@ -1700,6 +1714,11 @@ export function CustomerApp() {
   const [tab, setTab] = useState<Tab>("home");
   const [qrOpen, setQrOpen] = useState(false);
   const { toast, setToast, dismiss } = useToast(3000);
+  const [toastTone, setToastTone] = useState<"success" | "error">("success");
+  const notify = (message: string, tone: "success" | "error" = "success") => {
+    setToastTone(tone);
+    setToast(message);
+  };
   const [sheet, setSheet] = useState<Sheet>(null);
   const [notificationsRead, setNotificationsRead] = useState(false);
   const [joinedIds, setJoinedIds] = useState(() =>
@@ -1786,7 +1805,7 @@ export function CustomerApp() {
         tabIndex={-1}
         className="relative mx-auto min-h-[100dvh] max-w-[460px] overflow-hidden border-x border-[rgb(24_18_12/8%)] bg-[var(--paper)] phone-shell"
       >
-      <header className="sticky top-0 z-30 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/90%)] px-5 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/90%)] px-5 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
         <BrandMark compact />
         <span className="sr-only">{titles[tab]}</span>
         <button
@@ -1804,7 +1823,6 @@ export function CustomerApp() {
 
       <div
         className="customer-scroll max-h-[calc(100dvh-68px)] min-h-[calc(100dvh-68px)] overflow-y-auto"
-        aria-live="polite"
       >
         {content}
       </div>
@@ -1844,7 +1862,7 @@ export function CustomerApp() {
         })}
       </nav>
 
-      {qrOpen && <QrModal close={() => setQrOpen(false)} notify={setToast} />}
+      {qrOpen && <QrModal close={() => setQrOpen(false)} notify={notify} />}
       {sheet?.kind === "notifications" && (
         <NotificationSheet
           close={() => setSheet(null)}
@@ -1882,11 +1900,11 @@ export function CustomerApp() {
         <ProfileSheet
           title={sheet.title}
           close={() => setSheet(null)}
-          notify={setToast}
+          notify={notify}
         />
       )}
       {toast && (
-        <Toast message={toast} onDismiss={dismiss} placement="sheet" />
+        <Toast message={toast} onDismiss={dismiss} placement="sheet" tone={toastTone} />
       )}
       </main>
     </>

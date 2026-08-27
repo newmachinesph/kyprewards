@@ -44,7 +44,7 @@ export default function ContactPage() {
                 {
                   icon: Clock3,
                   title: "Within one business day",
-                  text: "A teammate reads every note and replies with useful next steps.",
+                  text: "Once the contact API is connected, a teammate will read every note and reply with useful next steps. The form below is a preview and sends nothing yet.",
                 },
                 {
                   icon: MessagesSquare,
@@ -60,6 +60,7 @@ export default function ContactPage() {
                   icon: Mail,
                   title: "Prefer email?",
                   text: "hello@kypstamping.ph",
+                  email: "hello@kypstamping.ph",
                 },
               ].map((item) => {
                 const Icon = item.icon;
@@ -71,8 +72,8 @@ export default function ContactPage() {
                     <div>
                       <p className="text-sm font-extrabold">{item.title}</p>
                       <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                        {item.text.includes("@") ? (
-                          <a href={`mailto:${item.text}`} className="font-bold underline underline-offset-2">
+                        {"email" in item && item.email ? (
+                          <a href={`mailto:${item.email}`} className="font-bold underline underline-offset-2">
                             {item.text}
                           </a>
                         ) : (

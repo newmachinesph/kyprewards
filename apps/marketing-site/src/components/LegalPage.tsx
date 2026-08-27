@@ -8,6 +8,23 @@ export type LegalSection = {
   bullets?: string[];
 };
 
+// Rights requests are a legal obligation; the address must be actionable.
+function linkifyEmails(text: string) {
+  return text.split(/([\w.+-]+@[\w-]+\.[\w.]+)/g).map((part, index) =>
+    /^[\w.+-]+@[\w-]+\.[\w.]+$/.test(part) ? (
+      <a
+        key={index}
+        href={`mailto:${part}`}
+        className="font-bold text-[var(--accent-strong)] underline underline-offset-2"
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    ),
+  );
+}
+
 export function LegalPage({
   eyebrow,
   title,
@@ -74,7 +91,7 @@ export function LegalPage({
                     key={paragraph}
                     className="text-sm leading-7 text-[var(--muted-strong)]"
                   >
-                    {paragraph}
+                    {linkifyEmails(paragraph)}
                   </p>
                 ))}
               </div>

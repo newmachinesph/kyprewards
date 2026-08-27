@@ -36,6 +36,7 @@ import {
   WifiOff,
   X,
 } from "lucide-react";
+import type { NotifyIntent } from "@stampr/ui/shell";
 import { demoData } from "@stampr/demo-data";
 import type { BusinessView } from "@/components/BusinessShell";
 
@@ -125,7 +126,7 @@ export function BusinessDashboard({
   notify,
 }: {
   onNavigate: (view: BusinessView) => void;
-  notify: (message: string) => void;
+  notify: (message: string, intent?: NotifyIntent) => void;
 }) {
   const [period, setPeriod] = useState("7 days");
   const [scanOpen, setScanOpen] = useState(false);
@@ -158,7 +159,7 @@ export function BusinessDashboard({
             type="button"
             aria-label="Notifications"
             onClick={() => {
-              notify("Message activity opened.");
+              notify("Message activity opened.", "review");
               onNavigate("message-log");
             }}
             className="hidden size-11 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] transition hover:bg-[var(--surface-2)] sm:grid"
@@ -444,7 +445,7 @@ export function BusinessDashboard({
               <button
                 type="button"
                 onClick={() => {
-                  notify(`${selectedProgram} draft opened in Program studio.`);
+                  notify(`${selectedProgram} draft opened in Program studio.`, "review");
                   onNavigate("programs");
                 }}
                 className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-[var(--accent)] px-4 text-xs font-extrabold text-[var(--ink)]"

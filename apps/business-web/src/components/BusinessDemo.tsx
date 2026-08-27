@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { DemoActionDialog } from "@stampr/ui";
 import { Toast, useHashView, useToast } from "@stampr/ui/shell";
+import type { NotifyIntent } from "@stampr/ui/shell";
 import { BusinessShell, type BusinessView } from "@/components/BusinessShell";
 import { BusinessDashboard } from "@/components/BusinessDashboard";
 import { BusinessViewContent } from "@/components/BusinessViews";
@@ -29,12 +30,16 @@ export function BusinessDemo() {
   const { view, navigate } = useHashView(VIEWS, "dashboard");
   const { toast, setToast, dismiss } = useToast();
   const [action, setAction] = useState<string | null>(null);
+  const [toastTone, setToastTone] = useState<"success" | "error">("success");
 
-  function notify(message: string) {
-    if (/opened|setup|editor|review/i.test(message)) {
+  // Behaviour is chosen by the caller, not by matching words in the copy.
+  // "review" opens the confirm dialog; everything else is a passive toast.
+  function notify(message: string, intent: NotifyIntent = "info") {
+    if (intent === "review") {
       setAction(message);
       return;
     }
+    setToastTone(intent === "error" ? "error" : "success");
     setToast(message);
   }
 
@@ -45,7 +50,7 @@ export function BusinessDemo() {
       ) : (
         <BusinessViewContent view={view} notify={notify} onNavigate={navigate} />
       )}
-      {toast && <Toast message={toast} onDismiss={dismiss} />}
+      {toast && <Toast message={toast} onDismiss={dismiss} tone={toastTone} />}
       {action && (
         <DemoActionDialog
           title={action}

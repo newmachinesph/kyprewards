@@ -229,7 +229,7 @@ export default function IntegrationsPage() {
                   "One-time secrets with rotation and revocation",
                   "Idempotency for sales and redemption commands",
                   "Reserve, commit, and cancel redemption states",
-                  "Immutable adjustments, refunds, and reversals",
+                  "Immutable adjustments, refunds, and reversals (planned)",
                 ]}
               />
             </div>
@@ -261,7 +261,7 @@ X-Merchant-ID: mrc_sweet_crumbs
             <div className="grid gap-px bg-white/12 sm:grid-cols-2">
               {[
                 [KeyRound, "Scoped credentials", "Keys can be limited by branch and action."],
-                [BadgeCheck, "Signed events", "Timestamped HMAC blocks replay outside the allowed window."],
+                [BadgeCheck, "Signed events", "Planned: timestamped HMAC to block replay outside the allowed window."],
                 [RefreshCcw, "Duplicate-safe", "The same idempotency key returns the original result."],
                 [Clock3, "Retry evidence", "Every attempt keeps status, latency, and request context."],
               ].map(([icon, title, detail]) => {
@@ -284,7 +284,7 @@ X-Merchant-ID: mrc_sweet_crumbs
       <section className="border-y border-[var(--line)] bg-[var(--surface)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">
           <div className="max-w-3xl">
-            <SiteEyebrow>Operational guarantees</SiteEyebrow>
+            <SiteEyebrow>Planned operational guarantees</SiteEyebrow>
             <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
               The fallback is part of the product.
             </h2>
