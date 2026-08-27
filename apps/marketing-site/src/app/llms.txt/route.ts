@@ -78,14 +78,14 @@ ${featureMatrix.map(matrixLine).join("\n\n")}
 
 ## Product surfaces
 
-- **Customer**: installable web app (PWA) with one rotating private QR, a multi-business wallet, discovery, notifications, full history, per-channel message preferences, data export, leaving a program, and deletion requests.
+- **Customer**: installable web app (PWA) with one private code that can also be saved or printed for offline use, a multi-business wallet, discovery, notifications, full history, per-channel message preferences, data export, leaving a program, and deletion requests.
 - **Business and staff**: web app for scanning, joining, customer records, eight program formats, favourite orders, birthday journeys, redemptions, campaigns, delivery logs, analytics, staff roles, integrations, billing, and privacy controls.
 - **Platform administration**: web app for tenant health, privacy operations, service queues, support, an audit ledger, unit economics, and network-wide policy.
 - **Planned backend**: one shared FastAPI service plus a background worker.
 
 ## How a loyalty visit works
 
-1. The customer opens their wallet and shows one rotating QR code that works at every business they have joined.
+1. The customer opens their wallet and shows one QR code that works at every business they have joined. The same code can be saved or printed so it still works with no signal.
 2. Staff scan it from a phone, tablet, or browser beside the existing register, and confirm the purchase before anything is recorded.
 3. The stamp, points, or balance updates in the customer's wallet immediately, or queues securely offline if the connection drops.
 4. The visit joins the business's analytics, so owners can see patterns and message the right segment when there is something worth saying.

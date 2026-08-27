@@ -28,6 +28,9 @@ import {
 } from "lucide-react";
 import { BrandMark, StampDots } from "./index";
 
+const DEMO_CODE = "424242";
+const DEMO_PASSWORD = "DemoPass123!";
+
 export type DemoAuthRole = "business" | "admin" | "customer";
 export type DemoAuthMode =
   | "login"
@@ -233,7 +236,8 @@ export function DemoSessionGate({
 
   useEffect(() => {
     const state = window.sessionStorage.getItem(sessionKey(role));
-    if (state === "signed-out") {
+    // Fail closed: only an explicit "signed-in" marker admits the visitor.
+    if (state !== "signed-in") {
       window.location.replace("/login");
       return;
     }
@@ -411,10 +415,10 @@ function DemoBoundary({ compact = false }: { compact?: boolean }) {
 export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAuthMode }) {
   const config = roleConfig[role];
   const [identifier, setIdentifier] = useState<string>(config.identifier);
-  const [password, setPassword] = useState("DemoPass123!");
+  const [password, setPassword] = useState(DEMO_PASSWORD);
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
-  const [code, setCode] = useState("424242");
+  const [code, setCode] = useState(DEMO_CODE);
   const [name, setName] = useState("Jacqueline Daniel");
   const [businessName, setBusinessName] = useState("Sweet Crumbs Bakery");
   const [email, setEmail] = useState("jacqueline.daniel@example.com");
@@ -455,8 +459,8 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
       setNotice(`Enter your ${config.identifierLabel.toLowerCase()}.`);
       return;
     }
-    if (role !== "customer" && password.length < 8) {
-      setNotice("Use at least 8 characters for this demo password.");
+    if (role !== "customer" && password !== DEMO_PASSWORD) {
+      setNotice(`Incorrect password. This demo expects ${DEMO_PASSWORD}.`);
       return;
     }
     if (role === "business") go("/workspaces");
@@ -609,7 +613,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
     }
     return (
       <AuthShell role={role} mode="verify" title={role === "customer" ? "Enter your code." : "Confirm it is you."} description={role === "admin" ? "Enter the six-digit code from your administrator authenticator." : role === "customer" ? "Use the six-digit code prepared for your demo wallet." : "Enter the six-digit code prepared for your demo account."}>
-        <form onSubmit={(event) => { event.preventDefault(); if (code.length !== 6) { setNotice("Enter all six digits."); return; } completeSession(verifyDestination()); }} className="space-y-5">
+        <form onSubmit={(event) => { event.preventDefault(); if (code.length !== 6) { setNotice("Enter all six digits."); return; } if (code !== DEMO_CODE) { setNotice("That code is not correct."); return; } completeSession(verifyDestination()); }} className="space-y-5">
           <label className="grid gap-2 text-xs font-extrabold">
             Six-digit verification code
             <input
@@ -620,11 +624,11 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
               aria-describedby="code-help"
               className="min-h-16 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-center font-mono text-2xl font-extrabold tracking-[0.42em] outline-none focus:border-[var(--accent-strong)]"
             />
-            <span id="code-help" className="text-[10px] font-semibold text-[var(--muted)]">Demo code: 424242</span>
+            <span id="code-help" className="text-[10px] font-semibold text-[var(--muted)]">Demo code: {DEMO_CODE}</span>
           </label>
-          {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
+          {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--muted-strong)]">{notice}</p>}
           <PrimaryButton disabled={code.length !== 6}>Verify and continue</PrimaryButton>
-          <button type="button" onClick={() => setNotice("A new demo code is ready: 424242.")} className="min-h-11 w-full text-xs font-extrabold text-[var(--accent-strong)] hover:underline">Resend demo code</button>
+          <button type="button" onClick={() => setNotice(`A new demo code is ready: ${DEMO_CODE}.`)} className="min-h-11 w-full text-xs font-extrabold text-[var(--accent-strong)] hover:underline">Resend demo code</button>
           <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> Use another account</a>
         </form>
         <DemoBoundary compact={role === "customer"} />

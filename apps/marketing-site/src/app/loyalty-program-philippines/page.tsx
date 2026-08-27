@@ -196,13 +196,13 @@ export default function LoyaltyPhilippinesPage() {
                   icon: MessageSquareText,
                   title: "In-app inbox",
                   detail:
-                    "Durable program news and offers. Included under fair use.",
+                    "Durable program news and offers. Monthly allowance per plan, then ₱8 per 1,000.",
                 },
                 {
                   icon: Smartphone,
                   title: "Web push",
                   detail:
-                    "Timely reminders for opted-in devices. Included under fair use.",
+                    "Timely reminders for opted-in devices. Monthly allowance per plan, then ₱8 per 1,000.",
                 },
                 {
                   icon: BarChart3,

@@ -43,11 +43,11 @@
       "visitsToday": 128,
       "newRegulars": 24,
       "stampsIssued": 216,
-      "redemptions": 18,
+      "redemptions": 5,
       "repeatRate": 43.8,
       "averageOrder": 286,
       "memberRevenue": 482600,
-      "campaignRevenue": 76400
+      "campaignRevenue": 136300
     },
     "locations": [
       {
@@ -930,8 +930,8 @@
     "metrics": {
       "liveBusinesses": 284,
       "customerAccounts": 18492,
-      "monthlyRecurringRevenue": 412680,
-      "grossMargin": 78.4,
+      "monthlyRecurringRevenue": 176568,
+      "grossMargin": 73.3,
       "netRevenueRetention": 112.6,
       "smsLiability": 28640,
       "supportSla": 96.8

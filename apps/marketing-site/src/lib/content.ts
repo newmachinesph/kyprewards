@@ -22,8 +22,8 @@ export const industries: Industry[] = [
     description:
       "Keep the warmth of a neighborhood café while KYPStamping quietly remembers visits, favorite orders, and the moment a reward is ready.",
     reward: "8 visits → a pastry on us",
-    metric: "22%",
-    metricLabel: "stronger four-week retention",
+    metric: "8 visits",
+    metricLabel: "a typical stamp card, live in one afternoon",
     challenge:
       "Paper cards disappear. Names get forgotten during the rush. KYPStamping keeps the relationship without slowing the counter.",
     features: [
@@ -53,8 +53,8 @@ export const industries: Industry[] = [
     description:
       "Give clients a clear path back with visit rewards, timely reminders, and personal offers that never feel like a blast message.",
     reward: "5 visits → signature treatment",
-    metric: "31%",
-    metricLabel: "more repeat bookings",
+    metric: "One tap",
+    metricLabel: "rebooking prompt after every visit",
     challenge:
       "Great service creates loyalty, but busy clients still forget to rebook. KYPStamping makes the next visit visible before they leave.",
     features: [
@@ -84,8 +84,8 @@ export const industries: Industry[] = [
     description:
       "Reward visits across dine-in and takeaway, recognize returning guests, and bring slower service windows back to life.",
     reward: "6 visits → house favorite",
-    metric: "18%",
-    metricLabel: "more returning guests",
+    metric: "No POS change",
+    metricLabel: "runs beside the register you already use",
     challenge:
       "Guests have endless choices. KYPStamping makes progress tangible and keeps your restaurant present between meals.",
     features: [
@@ -115,8 +115,8 @@ export const industries: Industry[] = [
     description:
       "Give independent shops an uncomplicated loyalty program that customers understand immediately and staff can run confidently.",
     reward: "10 visits → member reward",
-    metric: "2.4×",
-    metricLabel: "more identifiable repeat visits",
+    metric: "Consent first",
+    metricLabel: "customers choose what a shop can see",
     challenge:
       "Transactions are easy to count; relationships are harder. KYPStamping connects the two without replacing the tools you already use.",
     features: [

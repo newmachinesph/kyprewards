@@ -101,7 +101,7 @@ function ScanView({ notify }: { notify: Notify }) {
                 <QrCode className="size-full text-white/65" strokeWidth={1} />
               </div>
               <p className="mt-5 text-center text-sm text-white/65">
-                Scan the rotating customer QR or choose the demo customer.
+                Scan the customer QR, saved image, or printed card — or choose the demo customer.
               </p>
               <Button
                 tone="accent"
@@ -1153,7 +1153,11 @@ function RedemptionsView({ notify }: { notify: Notify }) {
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
         {[
           ["Reward value this month", "₱28,400", "Within budget"],
-          ["Approval rate", "98.6%", "12 reversals"],
+          [
+            "Approval rate",
+            "98.6%",
+            `${business.redemptions.filter((r) => r.status === "Reversed").length} reversals`,
+          ],
           ["Average time to redeem", "19 days", "4 days faster"],
         ].map(([label, value, detail]) => (
           <article

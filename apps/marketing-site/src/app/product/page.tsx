@@ -113,7 +113,7 @@ export default function ProductPage() {
             steps: [
               {
                 name: "Customer shows one QR",
-                text: "The customer opens their KYPStamping wallet and shows a single rotating QR code that works across every business they have joined.",
+                text: "The customer opens their KYPStamping wallet and shows a single QR code that works across every business they have joined. It can also be saved or printed for use without a signal.",
               },
               {
                 name: "Staff confirms the visit",

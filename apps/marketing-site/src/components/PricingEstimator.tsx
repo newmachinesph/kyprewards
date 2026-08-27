@@ -10,41 +10,17 @@ import {
   Phone,
   Send,
 } from "lucide-react";
+import { overageRates, planLimits, plans as sourcePlans } from "@/lib/plans";
 
-const plans = [
-  {
-    name: "Launch",
-    monthly: 0,
-    members: 250,
-    locations: 1,
-    email: 1000,
-    sms: 0,
-  },
-  {
-    name: "Core",
-    monthly: 499,
-    members: 1500,
-    locations: 1,
-    email: 5000,
-    sms: 0,
-  },
-  {
-    name: "Grow",
-    monthly: 1290,
-    members: 10000,
-    locations: 3,
-    email: 25000,
-    sms: 100,
-  },
-  {
-    name: "Scale",
-    monthly: 3490,
-    members: 50000,
-    locations: 10,
-    email: 100000,
-    sms: 500,
-  },
-];
+// Single source: the published plan table. A second hand-typed copy here is how
+// the calculator previously came to quote allowances the pricing page denied.
+const plans = sourcePlans.map((plan, index) => ({
+  name: plan.name,
+  monthly: plan.monthly,
+  ...planLimits[index],
+}));
+
+const topPlan = plans[plans.length - 1];
 
 export function PricingEstimator() {
   const [members, setMembers] = useState(1200);
@@ -55,23 +31,21 @@ export function PricingEstimator() {
   const [profitPerVisit, setProfitPerVisit] = useState(120);
 
   const estimate = useMemo(() => {
-    const plan = plans.find(
+    // Beyond the top published plan we quote the top plan and say so, rather
+    // than inventing a tier that appears on no price list.
+    const matched = plans.find(
       (item) => members <= item.members && locations <= item.locations,
-    ) ?? {
-      name: "Enterprise",
-      monthly: 8990,
-      members: Number.POSITIVE_INFINITY,
-      locations: Number.POSITIVE_INFINITY,
-      email: 250000,
-      sms: 1000,
-    };
+    );
+    const plan = matched ?? topPlan;
+    const beyondPublishedPlans = !matched;
     const paidSms = Math.max(0, sms - plan.sms);
-    const smsCost = paidSms * 0.95;
+    const smsCost = paidSms * overageRates.smsPerSegment;
     const emailBuckets = Math.ceil(Math.max(0, email - plan.email) / 1000);
-    const emailCost = emailBuckets * 25;
+    const emailCost = emailBuckets * overageRates.emailPer1000;
     const total = plan.monthly + smsCost + emailCost + connectedBudget;
     return {
       plan,
+      beyondPublishedPlans,
       smsCost,
       emailCost,
       connectedBudget,
@@ -175,8 +149,16 @@ export function PricingEstimator() {
               title: "In-app",
               detail: "Included · fair use",
             },
-            { icon: Send, title: "Push", detail: "Included · fair use" },
-            { icon: Mail, title: "Email", detail: "₱25 / 1,000 overage" },
+            {
+              icon: Send,
+              title: "Push",
+              detail: `₱${overageRates.pushPer1000} / 1,000 overage`,
+            },
+            {
+              icon: Mail,
+              title: "Email",
+              detail: `₱${overageRates.emailPer1000} / 1,000 overage`,
+            },
             {
               icon: MessageCircle,
               title: "Connected",

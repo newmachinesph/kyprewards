@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { demoData } from "@stampr/demo-data";
+
+const openSupportCount = demoData.admin.support.filter(
+  (ticket) => ticket.status === "Open",
+).length;
 import { Button, Eyebrow, TrendBadge } from "@stampr/ui";
 import {
   ArrowRight,
@@ -98,7 +102,7 @@ export function AdminDashboard({
               Network pulse
             </h1>
             <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-              The loyalty network is healthy. Seven items need a human decision.
+              {`The loyalty network is healthy. ${openSupportCount} items need a human decision.`}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -335,7 +339,7 @@ export function AdminDashboard({
                 </h2>
               </div>
               <span className="rounded-full bg-[rgb(216_86_65/12%)] px-3 py-1 text-xs font-extrabold text-[var(--danger)]">
-                7 open
+                {openSupportCount} open
               </span>
             </div>
             <div className="mt-5 divide-y divide-[var(--line)]">
@@ -430,7 +434,7 @@ export function AdminDashboard({
                 <Sparkles size={15} /> Weekly signal
               </div>
               <h2 className="mt-4 max-w-[18ch] text-2xl font-extrabold leading-tight tracking-[-0.02em]">
-                Bakery programs retain customers 22% better after week four.
+                Bakery programs show the strongest week-four return rate in this demo dataset.
               </h2>
             </div>
             <Button

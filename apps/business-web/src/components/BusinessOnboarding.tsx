@@ -45,7 +45,7 @@ const PROGRAMS = [
     id: "stamps",
     name: "Stamp card",
     icon: Stamp,
-    detail: "Buy nine, get the tenth free. The simplest place to start.",
+    detail: "Eight visits, then a reward on the house. The simplest place to start.",
     popular: true,
   },
   {
@@ -101,7 +101,7 @@ export function BusinessOnboarding() {
   const [step, setStep] = useState(0);
   const [businessName, setBusinessName] = useState("Sweet Crumbs Bakery");
   const [category, setCategory] = useState(CATEGORIES[0]);
-  const [city, setCity] = useState(CITIES[0]);
+  const [city, setCity] = useState("Pasig");
   const [locations, setLocations] = useState(1);
   const [program, setProgram] = useState("stamps");
   const [method, setMethod] = useState("terminal");
@@ -124,6 +124,12 @@ export function BusinessOnboarding() {
   }
 
   function finish() {
+    // Carry the answers forward instead of discarding them, so the workspace
+    // the merchant lands in reflects what they just configured.
+    window.sessionStorage.setItem(
+      "stampr-business-profile",
+      JSON.stringify({ businessName, category, city, locations, program, method }),
+    );
     window.sessionStorage.removeItem("stampr-business-signup");
     startDemoSession("business");
     window.location.replace("/#dashboard");

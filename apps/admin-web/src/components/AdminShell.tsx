@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BrandMark } from "@stampr/ui";
 import { signOutDemo } from "@stampr/ui/auth";
+import { demoData } from "@stampr/demo-data";
 import {
   Activity,
   Bell,
@@ -22,6 +23,10 @@ import {
   Users,
   X,
 } from "lucide-react";
+
+const openSupportCount = demoData.admin.support.filter(
+  (ticket) => ticket.status === "Open",
+).length;
 
 export type AdminView =
   | "overview"
@@ -47,7 +52,7 @@ const nav = [
   {
     label: "Support queue",
     icon: LifeBuoy,
-    count: 7,
+    count: openSupportCount,
     view: "support" as AdminView,
   },
   { label: "Audit ledger", icon: FileClock, view: "audit" as AdminView },

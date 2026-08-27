@@ -67,53 +67,70 @@ const categoryIcons: Record<string, typeof Coffee> = {
   Grooming: UserRound,
 };
 
-const qrPattern = [
-  "11111001011111",
-  "10001011010001",
-  "10101001110101",
-  "10001010110001",
-  "11111010111111",
-  "00000011000000",
-  "10111100101101",
-  "01100111110010",
-  "11011001011100",
-  "00101110100111",
-  "11111001110101",
-  "10001011001110",
-  "10101001111011",
-  "10001010100100",
-  "11111001101111",
-];
-
 const memberCode = `KYP-${customerDemo.profile.id.toUpperCase()}`;
 
-// ponytail: paint the same pattern to a canvas on demand instead of shipping a QR
-// library. The saved image is what makes the code work with no signal at all.
-function saveQrImage() {
-  const scale = 16;
-  const quiet = 2;
-  const cols = qrPattern[0].length;
-  const rows = qrPattern.length;
-  const canvas = document.createElement("canvas");
-  canvas.width = (cols + quiet * 2) * scale;
-  canvas.height = (rows + quiet * 2) * scale;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return false;
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#181210";
-  qrPattern.forEach((row, y) =>
-    row.split("").forEach((cell, x) => {
-      if (cell === "1") {
-        ctx.fillRect((x + quiet) * scale, (y + quiet) * scale, scale, scale);
-      }
-    }),
+// The saved or printed image is the offline fallback, so it has to be a real,
+// scannable symbol. A hand-drawn bitmap is not — QR needs finder patterns and
+// Reed-Solomon error correction, which is not worth hand-rolling.
+async function renderQrDataUrl(size: number) {
+  const QRCode = (await import("qrcode")).default;
+  return QRCode.toDataURL(memberCode, {
+    width: size,
+    margin: 2,
+    errorCorrectionLevel: "M",
+    color: { dark: "#181210", light: "#ffffff" },
+  });
+}
+
+async function saveQrImage() {
+  try {
+    const url = await renderQrDataUrl(720);
+    const link = document.createElement("a");
+    link.download = `kypstamping-${customerDemo.profile.id}.png`;
+    link.href = url;
+    link.click();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function QrImage() {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    renderQrDataUrl(560)
+      .then((url) => {
+        if (active) setSrc(url);
+      })
+      .catch(() => {
+        if (active) setSrc(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (!src) {
+    return (
+      <div
+        className="size-[196px] rounded-lg bg-[var(--surface-2)] motion-safe:animate-pulse"
+        aria-hidden="true"
+      />
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- a generated data: URI, not an optimisable asset
+    <img
+      src={src}
+      alt={`Loyalty code ${memberCode}`}
+      width={196}
+      height={196}
+      className="size-[196px]"
+    />
   );
-  const link = document.createElement("a");
-  link.download = `kypstamping-${customerDemo.profile.id}.png`;
-  link.href = canvas.toDataURL("image/png");
-  link.click();
-  return true;
 }
 
 function LoyaltyCard({ compact = false }: { compact?: boolean }) {
@@ -288,7 +305,15 @@ function HomeView({
   );
 }
 
-function WalletView({ onCard }: { onCard: (id: string) => void }) {
+function WalletView({
+  onCard,
+  joinedIds,
+  onBusiness,
+}: {
+  onCard: (id: string) => void;
+  joinedIds: string[];
+  onBusiness: (id: string) => void;
+}) {
   const [quickPassAdded, setQuickPassAdded] = useState(false);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
@@ -299,9 +324,17 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
   const showSage = matchesCard("Sage & Steam", "Cafés");
   const showRooted = matchesCard("Rooted Studio", "Wellness");
   const showCorner = matchesCard("Corner Thread", "Retail");
-  const visibleCount = [showSweet, showSage, showRooted, showCorner].filter(
-    Boolean,
-  ).length;
+  // Businesses joined from Discover that do not already have a fixture card.
+  const newlyJoined = customerDemo.discover.filter(
+    (business) =>
+      joinedIds.includes(business.id) &&
+      !business.joined &&
+      (category === "All" || category === business.category) &&
+      business.name.toLowerCase().includes(query.trim().toLowerCase()),
+  );
+  const visibleCount =
+    [showSweet, showSage, showRooted, showCorner].filter(Boolean).length +
+    newlyJoined.length;
 
   return (
     <div className="px-5 pb-32 pt-5">
@@ -431,6 +464,30 @@ function WalletView({ onCard }: { onCard: (id: string) => void }) {
         </div>
         <p className="text-lg font-extrabold tracking-[-0.02em]">₱740</p>
       </button>
+      {newlyJoined.map((business) => (
+        <button
+          key={business.id}
+          type="button"
+          onClick={() => onBusiness(business.id)}
+          className="mt-3 flex w-full items-center gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition active:scale-[0.99]"
+        >
+          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)]">
+            <Sparkles size={19} aria-hidden="true" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <p className="truncate text-sm font-extrabold">{business.name}</p>
+              <span className="rounded-full bg-[rgb(15_118_85/12%)] px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.1em] text-[var(--success)]">
+                Joined
+              </span>
+            </div>
+            <p className="mt-1 truncate text-[11px] text-[var(--muted)]">
+              {business.reward}
+            </p>
+          </div>
+          <ChevronRight size={16} className="shrink-0 text-[var(--muted)]" aria-hidden="true" />
+        </button>
+      ))}
       {visibleCount === 0 && (
         <div className="mt-5 rounded-2xl border border-dashed border-[var(--line-strong)] p-7 text-center">
           <Search className="mx-auto text-[var(--muted)]" />
@@ -822,22 +879,7 @@ function QrModal({ close, notify }: { close: () => void; notify: (message: strin
           Staff scan this to add a stamp. Redeeming a reward asks you to approve it first.
         </p>
         <div className="qr-printable relative mt-8 overflow-hidden rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_20px_50px_rgb(24_18_12/12%)]">
-          <div
-            className="grid grid-cols-[repeat(14,12px)] gap-[2px]"
-            role="img"
-            aria-label={`Loyalty code ${memberCode}`}
-          >
-            {qrPattern.flatMap((row, y) =>
-              row
-                .split("")
-                .map((cell, x) => (
-                  <span
-                    key={`${x}-${y}`}
-                    className={`aspect-square ${cell === "1" ? "bg-[var(--ink)]" : "bg-transparent"}`}
-                  />
-                )),
-            )}
-          </div>
+          <QrImage />
           <span className="scan-pass absolute inset-x-4 top-8 h-px bg-[var(--accent)] shadow-[0_0_10px_var(--accent)]" />
         </div>
         <span className="qr-printable-code mt-5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 font-mono text-xs font-bold tracking-[0.08em]">
@@ -848,11 +890,12 @@ function QrModal({ close, notify }: { close: () => void; notify: (message: strin
           <button
             type="button"
             onClick={() => {
-              const saved = saveQrImage();
-              notify(
-                saved
-                  ? "Code saved to your device. It works with no signal."
-                  : "This browser could not save the image. Try printing instead.",
+              void saveQrImage().then((saved) =>
+                notify(
+                  saved
+                    ? "Code saved to your device. It works with no signal."
+                    : "This browser could not save the image. Try printing instead.",
+                ),
               );
             }}
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-xs font-extrabold transition active:scale-[0.98]"
@@ -1705,7 +1748,13 @@ export function CustomerApp() {
         onActivity={() => setSheet({ kind: "activity" })}
       />
     ),
-    wallet: <WalletView onCard={(id) => setSheet({ kind: "wallet", id })} />,
+    wallet: (
+      <WalletView
+        onCard={(id) => setSheet({ kind: "wallet", id })}
+        joinedIds={joinedIds}
+        onBusiness={(id) => setSheet({ kind: "business", id })}
+      />
+    ),
     discover: (
       <DiscoverView
         joinedIds={joinedIds}

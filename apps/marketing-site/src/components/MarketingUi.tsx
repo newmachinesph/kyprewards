@@ -210,6 +210,7 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
   );
 }
 
+// These are the demo fixture businesses, not customers. The caption is required.
 export function ProofStrip() {
   return (
     <div className="border-y border-[var(--line)] bg-[var(--surface)]">
@@ -225,6 +226,10 @@ export function ProofStrip() {
           ),
         )}
       </div>
+      <p className="mx-auto max-w-[1400px] px-4 pb-4 text-center text-[11px] font-semibold text-[var(--muted)] sm:px-6 lg:px-8">
+        Example businesses used throughout this demo. KYPStamping has no
+        production customers yet.
+      </p>
     </div>
   );
 }

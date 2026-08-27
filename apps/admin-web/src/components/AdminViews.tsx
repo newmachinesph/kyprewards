@@ -36,6 +36,9 @@ import type { AdminView } from "@/components/AdminShell";
 import { AdminIntegrationsView } from "@/components/AdminIntegrationsView";
 
 const admin = demoData.admin;
+const openSupportCount = admin.support.filter(
+  (ticket) => ticket.status === "Open",
+).length;
 type Notify = (message: string) => void;
 
 
@@ -489,7 +492,7 @@ function SupportView({ notify }: { notify: Notify }) {
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
           <div className="flex items-center justify-between">
             <Eyebrow>Open work</Eyebrow>
-            <Pill tone="danger">7 open</Pill>
+            <Pill tone="danger">{openSupportCount} open</Pill>
           </div>
           <div className="mt-4 divide-y divide-[var(--line)]">
             {admin.support.map((ticket) => (

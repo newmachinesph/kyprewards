@@ -10,6 +10,24 @@
 
 export type PlanKey = "launch" | "core" | "grow" | "scale";
 
+/**
+ * Numeric allowances behind the estimator, in plan order (Launch, Core, Grow,
+ * Scale). These mirror the Limits rows of `featureMatrix` — keep them together.
+ */
+export const planLimits = [
+  { members: 250, locations: 1, email: 500, sms: 0, push: 1000 },
+  { members: 1500, locations: 1, email: 5000, sms: 0, push: 10000 },
+  { members: 10000, locations: 3, email: 25000, sms: 100, push: 50000 },
+  { members: 50000, locations: 10, email: 100000, sms: 500, push: 200000 },
+] as const;
+
+/** Published overage rates. Mirrors `channelRates`. */
+export const overageRates = {
+  smsPerSegment: 0.95,
+  emailPer1000: 25,
+  pushPer1000: 8,
+} as const;
+
 export const plans = [
   {
     key: "launch" as const,
@@ -138,8 +156,8 @@ export const featureMatrix: FeatureGroup[] = [
         cells: [true, true, true, true],
       },
       {
-        label: "Rotating signed customer QR",
-        hint: "The customer's code changes every few seconds, so a screenshot cannot be reused.",
+        label: "Customer code, online and offline",
+        hint: "A saved or printed code identifies the customer so they can earn without a signal. Redeeming a reward asks the customer to approve it in the app.",
         cells: [true, true, true, true],
       },
       {
