@@ -13,7 +13,13 @@ const links = [
   { href: "/pricing", label: "Pricing" },
 ];
 
-export function MarketingHeader({ businessUrl }: { businessUrl: string }) {
+export function MarketingHeader({
+  businessUrl,
+  customerUrl,
+}: {
+  businessUrl: string;
+  customerUrl: string;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -40,6 +46,13 @@ export function MarketingHeader({ businessUrl }: { businessUrl: string }) {
           ))}
         </nav>
         <div className="ml-auto hidden items-center gap-2 lg:flex">
+          {/* The wallet was previously reachable only from a join link. */}
+          <a
+            href={customerUrl}
+            className="focus-ring rounded-full px-4 py-2.5 text-sm font-bold text-[var(--muted-strong)] transition hover:text-[var(--ink)]"
+          >
+            Open my wallet
+          </a>
           <a
             href={businessUrl}
             className="focus-ring rounded-full px-4 py-2.5 text-sm font-bold text-[var(--muted-strong)] transition hover:text-[var(--ink)]"
@@ -87,6 +100,12 @@ export function MarketingHeader({ businessUrl }: { businessUrl: string }) {
               className="focus-ring flex min-h-11 items-center justify-center rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-sm font-bold"
             >
               Business sign in
+            </a>
+            <a
+              href={customerUrl}
+              className="focus-ring flex min-h-11 items-center justify-center rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-sm font-bold"
+            >
+              Open my wallet
             </a>
           </nav>
         </div>

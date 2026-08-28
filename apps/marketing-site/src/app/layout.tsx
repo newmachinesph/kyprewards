@@ -4,7 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import { MarketingFooter } from "@/components/MarketingFooter";
 import { MarketingHeader } from "@/components/MarketingHeader";
 import { StructuredData } from "@/components/StructuredData";
-import { businessAppUrl, siteUrl } from "@/lib/site";
+import { businessAppUrl, customerAppUrl, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 
@@ -139,7 +139,10 @@ export default function RootLayout({
             },
           ]}
         />
-        <MarketingHeader businessUrl={`${businessAppUrl}/login`} />
+        <MarketingHeader
+          businessUrl={`${businessAppUrl}/login`}
+          customerUrl={`${customerAppUrl}/login`}
+        />
         <div id="main-content" tabIndex={-1}>
           {children}
         </div>

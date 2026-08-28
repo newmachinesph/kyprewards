@@ -71,7 +71,7 @@ export default function HomePage() {
               <SiteButton href="/contact" tone="dark">
                 Start your loyalty program
               </SiteButton>
-              <SiteButton href="/demo" tone="outline">
+              <SiteButton href="/product" tone="outline">
                 Take the product tour
               </SiteButton>
             </div>
@@ -214,7 +214,7 @@ export default function HomePage() {
                 })}
               </div>
               <div className="mt-9">
-                <SiteButton href="/demo" tone="accent">
+                <SiteButton href="/product#apps" tone="accent">
                   Tour all four apps
                 </SiteButton>
               </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandMark } from "@stampr/ui";
 import { ArrowUpRight } from "lucide-react";
+import { businessAppUrl, customerAppUrl } from "@/lib/site";
 
 const groups = [
   {
@@ -34,6 +35,14 @@ const groups = [
     ],
   },
   {
+    title: "Open the demo",
+    links: [
+      ["Customer wallet", `${customerAppUrl}/login`],
+      ["Business workspace", `${businessAppUrl}/login`],
+      ["All four apps", "/product#apps"],
+    ],
+  },
+  {
     title: "Company",
     links: [
       ["About", "/about"],
@@ -61,22 +70,32 @@ export function MarketingFooter() {
             Talk to KYPStamping <ArrowUpRight size={15} />
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
           {groups.map((group) => (
             <div key={group.title}>
               <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--muted)]">
                 {group.title}
               </p>
               <div className="mt-4 space-y-3">
-                {group.links.map(([label, href]) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="focus-ring block w-fit rounded-md text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--ink)]"
-                  >
-                    {label}
-                  </Link>
-                ))}
+                {group.links.map(([label, href]) =>
+                  href.startsWith("http") ? (
+                    <a
+                      key={href}
+                      href={href}
+                      className="focus-ring block w-fit rounded-md text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--ink)]"
+                    >
+                      {label}
+                    </a>
+                  ) : (
+                    <Link
+                      key={href}
+                      href={href}
+                      className="focus-ring block w-fit rounded-md text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--ink)]"
+                    >
+                      {label}
+                    </Link>
+                  ),
+                )}
               </div>
             </div>
           ))}

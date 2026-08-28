@@ -59,7 +59,9 @@ export default async function JoinPage({
   if (!branch) notFound();
 
   const program = business.programs.find((item) => item.status === "Live");
-  const joinHref = `${customerAppUrl}/#discover`;
+  // The wallet is behind a demo session gate that drops the hash, so send
+  // the visitor to the door rather than to a link that cannot arrive.
+  const joinHref = `${customerAppUrl}/login`;
 
   return (
     <>
@@ -152,9 +154,15 @@ export default async function JoinPage({
                   {
                     icon: Clock3,
                     title: "Opening hours",
-                    text: branch.status === "Live"
-                      ? "This branch is accepting stamps today."
-                      : "This branch is still being set up, so stamps may not be available yet.",
+                    // The branch carries real hours; this row used to restate
+                    // its setup status under an "opening hours" heading.
+                    text: `${branch.hours
+                      .map((slot) => `${slot.days}: ${slot.time}`)
+                      .join(" · ")}. ${
+                      branch.status === "Live"
+                        ? "This branch is accepting stamps today."
+                        : "This branch is still being set up, so stamps may not be available yet."
+                    }`,
                   },
                 ].map((item) => {
                   const Icon = item.icon;

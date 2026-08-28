@@ -27,7 +27,7 @@ import {
 import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, howTo, webPage } from "@/lib/schema";
 import { ProductPreview } from "@/components/ProductPreview";
-import { businessAppUrl } from "@/lib/site";
+import { adminAppUrl, businessAppUrl, customerAppUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Product",
@@ -145,7 +145,7 @@ export default function ProductPage() {
         description="KYPStamping connects the moment at the counter with the customer wallet, business workspace, and thoughtful follow-up that happen afterward."
       >
         <SiteButton href="/contact">Start your program</SiteButton>
-        <SiteButton href={businessAppUrl} tone="outline">
+        <SiteButton href={`${businessAppUrl}/login`} tone="outline">
           Open business demo
         </SiteButton>
       </PageHero>
@@ -156,7 +156,7 @@ export default function ProductPage() {
           { label: "Customer installs", value: "Nothing — it is a web app" },
           { label: "Counter hardware", value: "Any phone, tablet, or browser" },
           { label: "Time per visit", value: "About 3 seconds" },
-          { label: "Works offline", value: "Yes, queued and signed" },
+          { label: "Works offline", value: "Grow and Scale, queued and signed" },
         ]}
       />
 
@@ -351,6 +351,93 @@ export default function ProductPage() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      <section
+        id="apps"
+        className="scroll-mt-24 border-t border-[var(--line)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+      >
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid gap-8 lg:grid-cols-[0.62fr_1.38fr]">
+            <div>
+              <SiteEyebrow>Open the demo</SiteEyebrow>
+              <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
+                Four apps, one shared visit.
+              </h2>
+              <p className="mt-5 max-w-[46ch] text-sm leading-relaxed text-[var(--muted-strong)]">
+                The same Sweet Crumbs visit — customer, branch, purchase, stamp
+                balance, event ID — appears in each product below. Sign-in is
+                simulated and every credential is on the screen.
+              </p>
+            </div>
+            <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
+              {[
+                {
+                  name: "Customer wallet",
+                  audience: "For the person collecting stamps",
+                  detail:
+                    "One private QR, a multi-business wallet, discovery, and full control over what each business can see.",
+                  href: `${customerAppUrl}/login`,
+                  action: "Open the wallet",
+                },
+                {
+                  name: "Business workspace",
+                  audience: "For the owner and counter staff",
+                  detail:
+                    "Scan, programs, customers, campaigns, analytics, staff roles, billing, and POS integration.",
+                  href: `${businessAppUrl}/login`,
+                  action: "Open the workspace",
+                },
+                {
+                  name: "Public site",
+                  audience: "For someone deciding",
+                  detail:
+                    "Pricing with a working estimator, the feature matrix, integration contract, and Philippine market guidance.",
+                  href: "/pricing",
+                  action: "See pricing",
+                },
+                {
+                  name: "Platform control room",
+                  audience: "Internal, not publicly reachable",
+                  detail:
+                    "Tenant health, privacy operations, service posture, support triage, audit ledger, and unit economics.",
+                  href: null,
+                  action: null,
+                },
+              ].map((app) => (
+                <article key={app.name} className="bg-[var(--surface)] p-6 sm:p-8">
+                  <p className="font-mono text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--accent-strong)]">
+                    {app.audience}
+                  </p>
+                  <h3 className="mt-2 text-xl font-extrabold tracking-[-0.02em]">
+                    {app.name}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-[var(--muted-strong)]">
+                    {app.detail}
+                  </p>
+                  {app.href ? (
+                    <div className="mt-6">
+                      <SiteButton href={app.href} tone="outline">
+                        {app.action}
+                      </SiteButton>
+                    </div>
+                  ) : (
+                    <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-dashed border-[var(--line-strong)] px-3 py-2 text-[11px] font-bold text-[var(--muted)]">
+                      <LockKeyhole size={13} aria-hidden="true" /> Staff access only
+                    </p>
+                  )}
+                </article>
+              ))}
+            </div>
+          </div>
+          <p className="mx-auto mt-8 max-w-[70ch] rounded-[var(--radius-card)] border border-dashed border-[var(--line-strong)] bg-[var(--surface-2)] p-5 text-xs leading-relaxed text-[var(--muted-strong)]">
+            Every app is a frontend demonstration backed by one local JSON
+            dataset. Nothing is saved to a server, no message is sent, and the
+            platform control room at{" "}
+            <code className="font-mono">{adminAppUrl}</code> is not part of the
+            public demo.
+          </p>
         </div>
       </section>
 

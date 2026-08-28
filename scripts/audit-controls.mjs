@@ -17,7 +17,65 @@ function walk(directory) {
 
 walk(appsDirectory);
 
+/**
+ * Every route each app can actually serve.
+ *
+ * The audit previously checked only that a link *had* an href, which is how
+ * two homepage CTAs kept pointing at a `/demo` route that had been deleted.
+ * A destination that 404s is a broken control, so it is checked here too.
+ */
+function routesFor(appDirectory) {
+  const routes = new Set();
+  const appRoot = path.join(appDirectory, "src", "app");
+  if (!fs.existsSync(appRoot)) return routes;
+
+  function collect(directory, urlPath) {
+    if (fs.existsSync(path.join(directory, "page.tsx"))) {
+      routes.add(urlPath || "/");
+    }
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const segment = entry.name;
+      // Route groups do not appear in the URL.
+      const nextPath = segment.startsWith("(")
+        ? urlPath
+        : `${urlPath}/${segment}`;
+      collect(path.join(directory, segment), nextPath);
+    }
+  }
+
+  collect(appRoot, "");
+  return routes;
+}
+
+const routesByApp = new Map(
+  fs
+    .readdirSync(appsDirectory, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => [
+      entry.name,
+      routesFor(path.join(appsDirectory, entry.name)),
+    ]),
+);
+
+/** Does `href` match a route, allowing for `[slug]` segments? */
+function resolves(routes, href) {
+  const target = href.split("#")[0].split("?")[0].replace(/\/$/, "") || "/";
+  for (const route of routes) {
+    const pattern = new RegExp(
+      `^${route.replace(/\[[^\]]+\]/g, "[^/]+")}$`,
+    );
+    if (pattern.test(target)) return true;
+  }
+  return false;
+}
+
 const findings = [];
+
+/** `apps/marketing-site/src/...` -> `marketing-site`, on either separator. */
+function appOf(relativePath) {
+  return relativePath.split(path.sep).join("/").split("/")[1] ?? "";
+}
 
 function attributesOf(node) {
   return new Map(
@@ -55,11 +113,26 @@ for (const file of files) {
         }
       }
 
+      const href = attributes.get("href")?.initializer?.getText(source) ?? "";
+
       if (tag === "a" || tag === "Link") {
-        const href = attributes.get("href")?.initializer?.getText(source) ?? "";
         if (!href) findings.push(`${relative}:${line} ${tag} has no href`);
         if (/^["']#(["'])?$/.test(href) || /javascript:/i.test(href)) {
           findings.push(`${relative}:${line} ${tag} uses a placeholder href`);
+        }
+      }
+
+      // Any element carrying an href, not just `a` and `Link`. The dead
+      // `/demo` links this check was added for lived on a `SiteButton`.
+      // Only plain string literals resolve statically; template literals point
+      // at another app's origin and are out of scope here.
+      const literal = /^["'](\/[^"']*)["']$/.exec(href);
+      if (literal) {
+        const routes = routesByApp.get(appOf(relative));
+        if (routes && routes.size && !resolves(routes, literal[1])) {
+          findings.push(
+            `${relative}:${line} ${tag} links to ${literal[1]}, which is not a route in this app`,
+          );
         }
       }
     }
@@ -74,5 +147,11 @@ if (findings.length) {
   for (const finding of findings) console.error(`- ${finding}`);
   process.exitCode = 1;
 } else {
-  console.log(`Control audit passed across ${files.length} frontend source files.`);
+  const routeCount = [...routesByApp.values()].reduce(
+    (sum, routes) => sum + routes.size,
+    0,
+  );
+  console.log(
+    `Control audit passed across ${files.length} frontend source files and ${routeCount} routes.`,
+  );
 }

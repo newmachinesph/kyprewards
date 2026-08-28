@@ -71,7 +71,7 @@ export default function IntegrationsPage() {
         title="Keep loyalty portable when checkout tools change."
         description="Start beside the register without replacing it. Move to a direct API, signed webhooks, or an approved POS adapter when the business is ready. The loyalty ledger and customer experience stay the same."
       >
-        <SiteButton href={`${businessAppUrl}/#integrations`}>
+        <SiteButton href={`${businessAppUrl}/login`}>
           Explore integration setup
         </SiteButton>
         <SiteButton href="/contact" tone="outline">

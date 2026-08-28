@@ -194,8 +194,8 @@ export default function FeaturesPage() {
         title="Every way to reward. One local relationship."
         description="Run simple stamps today, then add points, memberships, gift value, referrals, and automations without making customers juggle another account for every shop."
       >
-        <SiteButton href={businessAppUrl}>Explore the business demo</SiteButton>
-        <SiteButton href={customerAppUrl} tone="outline">
+        <SiteButton href={`${businessAppUrl}/login`}>Explore the business demo</SiteButton>
+        <SiteButton href={`${customerAppUrl}/login`} tone="outline">
           Open the customer wallet
         </SiteButton>
       </PageHero>
