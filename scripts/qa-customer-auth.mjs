@@ -5,6 +5,8 @@ import { join } from "node:path";
 import { chromium } from "playwright";
 
 const baseUrl = process.env.CUSTOMER_APP_URL ?? "http://localhost:3002";
+/** Mirrors DEMO_CODE in packages/ui/src/auth.tsx and the README. */
+const DEMO_CODE = "424242";
 const artifactDirectory = join(tmpdir(), "stampr-customer-auth-qa");
 await mkdir(artifactDirectory, { recursive: true });
 
@@ -94,7 +96,13 @@ try {
     await mobilePage.getByRole("button", { name: "Verify and continue" }).isDisabled(),
     true,
   );
-  await codeField.fill("123456");
+  // Must match DEMO_CODE in packages/ui/src/auth.tsx, which the README also
+  // documents. This previously read "123456" and the journey never completed.
+  await codeField.fill("999999");
+  await mobilePage.getByRole("button", { name: "Verify and continue" }).click();
+  await mobilePage.getByText("That code is not correct.").waitFor();
+
+  await codeField.fill(DEMO_CODE);
   await mobilePage.getByRole("button", { name: "Verify and continue" }).click();
   await mobilePage.waitForURL(/#home$/);
 
