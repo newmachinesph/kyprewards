@@ -6,6 +6,7 @@ import { Toast, useHashView, useToast } from "@stampr/ui/shell";
 import type { NotifyIntent } from "@stampr/ui/shell";
 import { AdminDashboard } from "@/components/AdminDashboard";
 import { AdminShell, type AdminView } from "@/components/AdminShell";
+import { AdminStateProvider } from "@/components/AdminState";
 import { AdminViewContent } from "@/components/AdminViews";
 
 const VIEWS: readonly AdminView[] = [
@@ -37,7 +38,8 @@ export function AdminDemo() {
   }
 
   return (
-    <AdminShell activeView={view} onNavigate={navigate}>
+    <AdminStateProvider>
+      <AdminShell activeView={view} onNavigate={navigate}>
       {view === "overview" ? (
         <AdminDashboard onNavigate={navigate} notify={notify} />
       ) : (
@@ -54,6 +56,7 @@ export function AdminDemo() {
           }}
         />
       )}
-    </AdminShell>
+      </AdminShell>
+    </AdminStateProvider>
   );
 }

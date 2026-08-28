@@ -3,6 +3,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { BrandMark } from "@stampr/ui";
 import { signOutDemo } from "@stampr/ui/auth";
+import { business } from "@stampr/demo-data";
+import { useDemoState } from "@/components/DemoState";
 import {
   BarChart3,
   Bell,
@@ -64,6 +66,7 @@ const navigation = [
         label: "Integrations",
         icon: PlugZap,
         view: "integrations" as BusinessView,
+        plan: "Scale",
       },
     ],
   },
@@ -117,6 +120,16 @@ export function BusinessShell({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  // Whatever onboarding configured, falling back to the fixture workspace when
+  // the merchant signed in instead of signing up.
+  const { workspace } = useDemoState();
+  const workspaceName = workspace?.businessName ?? business.profile.shortName;
+  const workspaceInitials = workspaceName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? "")
+    .join("");
   useEffect(() => {
     if (!accountOpen) return;
     const onKey = (event: KeyboardEvent) => {
@@ -157,7 +170,15 @@ export function BusinessShell({
                     strokeWidth={active ? 2.2 : 1.8}
                     aria-hidden="true"
                   />
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {"plan" in item && item.plan && (
+                    <span
+                      title={`${item.plan} plan feature, switched on as a preview`}
+                      className={`rounded-full px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.1em] ${active ? "bg-white/15 text-[var(--accent)]" : "bg-[rgb(232_163_61/18%)] text-[var(--accent-strong)]"}`}
+                    >
+                      {item.plan}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -229,11 +250,11 @@ export function BusinessShell({
               className="flex w-full items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 text-left transition hover:bg-[var(--surface-2)]"
             >
               <span className="grid size-9 place-items-center rounded-xl bg-[var(--accent)] text-xs font-extrabold">
-                SC
+                {workspaceInitials}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-xs font-bold">
-                  Sweet Crumbs
+                  {workspaceName}
                 </span>
                 <span className="block truncate text-[10px] text-[var(--muted)]">
                   Owner workspace
@@ -271,7 +292,7 @@ export function BusinessShell({
               aria-label="Switch workspace"
               className="grid size-10 place-items-center rounded-full bg-[var(--accent)] text-xs font-extrabold"
             >
-              SC
+              {workspaceInitials}
             </a>
           </div>
         </header>

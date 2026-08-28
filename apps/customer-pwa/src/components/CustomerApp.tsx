@@ -1,11 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Dispatch, SetStateAction } from "react";
-import { demoData } from "@stampr/demo-data";
-import { BrandMark, Eyebrow, StampDots } from "@stampr/ui";
+import { customer as customerDemo, sharedScenario } from "@stampr/demo-data";
+import { BrandMark, DemoBadge, Eyebrow, StampDots } from "@stampr/ui";
 import { signOutDemo } from "@stampr/ui/auth";
-import { Toast, todayLabel, useToast } from "@stampr/ui/shell";
+import { Toast, useToast } from "@stampr/ui/shell";
+import { greeting, todayLabel } from "@stampr/ui/format";
+import {
+  CHANNELS,
+  CustomerStateProvider,
+  useCustomerState,
+} from "@/components/CustomerState";
 import {
   ArrowLeft,
   ArrowRight,
@@ -64,8 +69,6 @@ type Sheet =
   | { kind: "profile"; title: string; screen: ProfileScreen }
   | null;
 
-const customerDemo = demoData.customer;
-const sharedScenario = demoData.sharedScenario;
 const categoryIcons: Record<string, typeof Coffee> = {
   Bakery: Croissant,
   Café: Coffee,
@@ -103,24 +106,40 @@ async function saveQrImage() {
   }
 }
 
+/**
+ * Pull the `qrcode` chunk down while the wallet is still online.
+ *
+ * The codec is a dynamic import, and the service worker only caches assets
+ * once they have been fetched. Without this, a customer who installs the PWA
+ * and never opens their code while online gets nothing at the counter — the
+ * one moment the product promises works with no signal.
+ */
+function usePrefetchQrCodec() {
+  useEffect(() => {
+    void import("qrcode").catch(() => undefined);
+  }, []);
+}
+
 function QrImage() {
-  const [src, setSrc] = useState<string | null>(null);
+  const [state, setState] = useState<
+    { kind: "loading" } | { kind: "ready"; src: string } | { kind: "failed" }
+  >({ kind: "loading" });
 
   useEffect(() => {
     let active = true;
     renderQrDataUrl(560)
       .then((url) => {
-        if (active) setSrc(url);
+        if (active) setState({ kind: "ready", src: url });
       })
       .catch(() => {
-        if (active) setSrc(null);
+        if (active) setState({ kind: "failed" });
       });
     return () => {
       active = false;
     };
   }, []);
 
-  if (!src) {
+  if (state.kind === "loading") {
     return (
       <div
         className="size-[196px] rounded-lg bg-[var(--surface-2)] motion-safe:animate-pulse"
@@ -129,6 +148,28 @@ function QrImage() {
     );
   }
 
+  // Silence here would look like a slow load forever. Staff can still key in
+  // the member code below, so say that rather than showing an empty box.
+  if (state.kind === "failed") {
+    return (
+      <div className="grid size-[196px] place-items-center rounded-lg border border-dashed border-[var(--line-strong)] bg-[var(--surface-2)] p-4 text-center">
+        <div>
+          <WifiOff
+            size={22}
+            className="mx-auto text-[var(--muted-strong)]"
+            aria-hidden="true"
+          />
+          <p className="mt-3 text-xs font-extrabold">Code image unavailable</p>
+          <p className="mt-1 text-[10px] leading-relaxed text-[var(--muted)]">
+            Read the member code below to staff, or reconnect to load the
+            scannable image.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const src = state.src;
   return (
     // eslint-disable-next-line @next/next/no-img-element -- a generated data: URI, not an optimisable asset
     <img
@@ -164,12 +205,17 @@ function LoyaltyCard({ compact = false }: { compact?: boolean }) {
       </div>
       {!compact && (
         <p className="mt-7 max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em]">
-          Three more visits, then pastry.
+          {sharedScenario.loyaltyEvent.target - sharedScenario.loyaltyEvent.afterStamps}{" "}
+          more visits, then pastry.
         </p>
       )}
       <div className={compact ? "mt-5" : "mt-7"}>
         <div className="overflow-x-auto pb-1">
-          <StampDots filled={5} total={8} dark />
+          <StampDots
+            filled={sharedScenario.loyaltyEvent.afterStamps}
+            total={sharedScenario.loyaltyEvent.target}
+            dark
+          />
         </div>
         <div className="mt-3 flex items-center justify-between text-[11px] font-semibold">
           <span className="text-white/50">
@@ -201,6 +247,7 @@ function HomeView({
   onDiscover: () => void;
   onActivity: () => void;
 }) {
+  const { profile } = useCustomerState();
   return (
     <div className="px-5 pb-32 pt-5">
       <Eyebrow>
@@ -208,13 +255,13 @@ function HomeView({
           </Eyebrow>
       <div className="mt-2 flex items-end justify-between gap-3">
         <div>
-          <p className="text-sm text-[var(--muted-strong)]">Good morning,</p>
+          <p className="text-sm text-[var(--muted-strong)]">{greeting()},</p>
           <h1 className="text-3xl font-extrabold tracking-[-0.03em]">
-            {sharedScenario.customer.split(" ")[0]}.
+            {profile.name.split(" ")[0]}.
           </h1>
         </div>
         <span className="mb-1 flex items-center gap-2 rounded-full bg-[rgb(15_118_85/12%)] px-3 py-1.5 text-[11px] font-extrabold text-[var(--success)]">
-          <Sparkles size={13} /> 5-stamp streak
+          <Sparkles size={13} /> {sharedScenario.loyaltyEvent.afterStamps}-stamp streak
         </span>
       </div>
 
@@ -313,36 +360,53 @@ function HomeView({
   );
 }
 
+/** Chips come from the data, so a "Cafés" chip cannot fail to match a "Café"
+ *  card the way the hand-written list did. */
+const walletCategories = [
+  "All",
+  ...Array.from(
+    new Set([
+      ...customerDemo.wallet.map((card) => card.category),
+      ...customerDemo.discover.map((place) => place.category),
+    ]),
+  ),
+];
+
+const walletIcons: Record<string, typeof Coins> = {
+  Stamps: Croissant,
+  Points: Coins,
+  Membership: Crown,
+  "Gift card": Gift,
+};
+
 function WalletView({
   onCard,
-  joinedIds,
   onBusiness,
 }: {
   onCard: (id: string) => void;
-  joinedIds: string[];
   onBusiness: (id: string) => void;
 }) {
+  const { wallet, joinedIds } = useCustomerState();
   const [quickPassAdded, setQuickPassAdded] = useState(false);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
-  const matchesCard = (name: string, group: string) =>
+  const term = query.trim().toLowerCase();
+  const matches = (name: string, group: string) =>
     (category === "All" || category === group) &&
-    name.toLowerCase().includes(query.trim().toLowerCase());
-  const showSweet = matchesCard("Sweet Crumbs Bakery", "Food");
-  const showSage = matchesCard("Sage & Steam", "Cafés");
-  const showRooted = matchesCard("Rooted Studio", "Wellness");
-  const showCorner = matchesCard("Corner Thread", "Retail");
-  // Businesses joined from Discover that do not already have a fixture card.
+    name.toLowerCase().includes(term);
+
+  // The four cards used to be hand-written JSX with their own hardcoded
+  // balances, drifting from the card sheet that read the same records.
+  const visibleCards = wallet.filter((card) => matches(card.business, card.category));
+  // Businesses joined from Discover that do not already have a wallet card.
+  const walletBusinessIds = new Set(wallet.map((card) => card.businessId));
   const newlyJoined = customerDemo.discover.filter(
-    (business) =>
-      joinedIds.includes(business.id) &&
-      !business.joined &&
-      (category === "All" || category === business.category) &&
-      business.name.toLowerCase().includes(query.trim().toLowerCase()),
+    (place) =>
+      joinedIds.includes(place.id) &&
+      !walletBusinessIds.has(place.businessId) &&
+      matches(place.name, place.category),
   );
-  const visibleCount =
-    [showSweet, showSage, showRooted, showCorner].filter(Boolean).length +
-    newlyJoined.length;
+  const visibleCount = visibleCards.length + newlyJoined.length;
 
   return (
     <div className="px-5 pb-32 pt-5">
@@ -385,7 +449,7 @@ function WalletView({
         />
       </label>
       <div className="customer-scroll mt-3 flex gap-2 overflow-x-auto pb-1">
-        {["All", "Cafés", "Food", "Wellness", "Retail"].map((item) => (
+        {walletCategories.map((item) => (
           <button
             key={item}
             type="button"
@@ -397,81 +461,51 @@ function WalletView({
           </button>
         ))}
       </div>
-      <button
-        type="button"
-        onClick={() => onCard("wallet_1")}
-        className={`${showSweet ? "mt-5 block" : "hidden"} w-full text-left transition active:scale-[0.99]`}
-      >
-        <LoyaltyCard compact />
-      </button>
-      <div className={`${showSage || showRooted ? "mt-3 grid" : "hidden"} grid-cols-2 gap-3`}>
-        <button
-          type="button"
-          onClick={() => onCard("wallet_2")}
-          className={`${showSage ? "block" : "hidden"} rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition active:scale-[0.98]`}
-        >
-          <div className="flex items-start justify-between">
-            <span className="grid size-10 place-items-center rounded-2xl bg-[rgb(15_118_85/12%)] text-[var(--success)]">
-              <Coins size={18} />
-            </span>
-            <span className="rounded-full bg-[var(--surface-2)] px-2 py-1 text-[8px] font-extrabold uppercase tracking-[0.1em]">
-              Points
-            </span>
-          </div>
-          <p className="mt-7 text-sm font-extrabold">Sage & Steam</p>
-          <p className="mt-2 text-2xl font-extrabold tracking-[-0.02em]">
-            640 <span className="text-xs text-[var(--muted)]">pts</span>
-          </p>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--surface-2)]">
-            <div className="h-full w-[64%] rounded-full bg-[var(--success)]" />
-          </div>
-          <p className="mt-2 text-[10px] leading-relaxed text-[var(--muted)]">
-            360 to a signature drink
-          </p>
-        </button>
-        <button
-          type="button"
-          onClick={() => onCard("wallet_3")}
-          className={`${showRooted ? "block" : "hidden"} rounded-2xl bg-[var(--accent)] p-4 text-left transition active:scale-[0.98]`}
-        >
-          <div className="flex items-start justify-between">
-            <span className="grid size-10 place-items-center rounded-2xl bg-[var(--surface)]">
-              <Crown size={18} />
-            </span>
-            <span className="rounded-full border border-[rgb(24_18_12/15%)] px-2 py-1 text-[8px] font-extrabold uppercase tracking-[0.1em]">
-              Member
-            </span>
-          </div>
-          <p className="mt-7 text-sm font-extrabold">Rooted Studio</p>
-          <p className="mt-2 text-2xl font-extrabold tracking-[-0.02em]">
-            3 <span className="text-xs text-[var(--ink)]/80">of 5</span>
-          </p>
-          <p className="mt-3 text-[10px] leading-relaxed text-[var(--ink)]/80">
-            Monthly class visits left
-          </p>
-        </button>
+      <div className="mt-5 space-y-3">
+        {visibleCards.map((card) => {
+          const Icon = walletIcons[card.kind] ?? WalletCards;
+          const pct = Math.min(100, Math.round((card.progress / card.target) * 100));
+          const isFeature = card.id === "wallet_1";
+          return (
+            <button
+              key={card.id}
+              type="button"
+              onClick={() => onCard(card.id)}
+              className="block w-full text-left transition active:scale-[0.99]"
+            >
+              {isFeature ? (
+                <LoyaltyCard compact />
+              ) : (
+                <span className="flex items-center gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)]">
+                    <Icon size={19} aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span className="truncate text-sm font-extrabold">
+                        {card.business}
+                      </span>
+                      <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.1em]">
+                        {card.kind}
+                      </span>
+                    </span>
+                    <span className="mt-1 block text-[11px] text-[var(--muted)]">
+                      {card.balance} · {card.reward}
+                    </span>
+                    <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-[var(--surface-2)]">
+                      <span
+                        className="block h-full rounded-full bg-[var(--success)]"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </span>
+                  </span>
+                  <ChevronRight size={16} className="shrink-0 text-[var(--muted)]" />
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
-      <button
-        type="button"
-        onClick={() => onCard("wallet_4")}
-        className={`${showCorner ? "mt-3 flex" : "hidden"} w-full items-center gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition active:scale-[0.99]`}
-      >
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[var(--ink)] text-[var(--accent)]">
-          <Gift size={19} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <p className="truncate text-sm font-extrabold">Corner Thread</p>
-            <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.1em]">
-              Gift
-            </span>
-          </div>
-          <p className="mt-1 text-[11px] text-[var(--muted)]">
-            Stored balance · partial use allowed
-          </p>
-        </div>
-        <p className="text-lg font-extrabold tracking-[-0.02em]">₱740</p>
-      </button>
       {newlyJoined.map((business) => (
         <button
           key={business.id}
@@ -521,13 +555,8 @@ function WalletView({
   );
 }
 
-function DiscoverView({
-  onBusiness,
-  joinedIds,
-}: {
-  onBusiness: (id: string) => void;
-  joinedIds: string[];
-}) {
+function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
+  const { joinedIds } = useCustomerState();
   const [category, setCategory] = useState("All");
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -595,15 +624,7 @@ function DiscoverView({
         </div>
       )}
       <div className="customer-scroll mt-3 flex gap-2 overflow-x-auto pb-1">
-        {[
-          "All",
-          "Bakery",
-          "Café",
-          "Wellness",
-          "Fitness",
-          "Retail",
-          "Grooming",
-        ].map((item) => (
+        {walletCategories.map((item) => (
           <button
             key={item}
             type="button"
@@ -700,20 +721,20 @@ function ProfileView({
 }: {
   onOpen: (title: string, screen: ProfileScreen) => void;
 }) {
+  const { profile, wallet, deletionRequested, exportRequested } =
+    useCustomerState();
   return (
     <div className="px-5 pb-32 pt-5">
       <Eyebrow>Your account</Eyebrow>
       <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em]">Profile</h1>
       <div className="mt-6 flex items-center gap-4">
         <span className="grid size-16 place-items-center rounded-2xl bg-[var(--accent)] text-xl font-extrabold">
-          {customerDemo.profile.initials}
+          {profile.initials}
         </span>
         <div>
-          <p className="text-base font-extrabold">
-            {customerDemo.profile.name}
-          </p>
+          <p className="text-base font-extrabold">{profile.name}</p>
           <p className="mt-1 text-xs text-[var(--muted)]">
-            Member since {customerDemo.profile.memberSince}
+            Member since {profile.memberSince}
           </p>
         </div>
       </div>
@@ -784,7 +805,7 @@ function ProfileView({
         {[
           {
             label: "Joined businesses",
-            detail: `${customerDemo.wallet.length} businesses can see your shared profile`,
+            detail: `${wallet.length} business${wallet.length === 1 ? "" : "es"} can see your shared profile`,
             icon: Building2,
             screen: "businesses" as ProfileScreen,
           },
@@ -831,6 +852,32 @@ function ProfileView({
           );
         })}
       </section>
+      {(deletionRequested || exportRequested) && (
+        <section className="mt-4 rounded-2xl border border-[rgb(143_85_16/28%)] bg-[rgb(232_163_61/12%)] p-4">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+            In progress
+          </p>
+          <ul className="mt-2 space-y-1.5">
+            {exportRequested && (
+              <li className="flex items-start gap-2 text-xs leading-relaxed">
+                <Download size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
+                Portable export is being prepared. You will be notified when it
+                is ready to download.
+              </li>
+            )}
+            {deletionRequested && (
+              <li className="flex items-start gap-2 text-xs leading-relaxed">
+                <Trash2 size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
+                Account deletion is queued for identity review. You can still use
+                your wallet until it completes.
+              </li>
+            )}
+          </ul>
+        </section>
+      )}
+      <div className="mt-5 flex justify-center">
+        <DemoBadge label="Frontend demo only" />
+      </div>
       <button
         type="button"
         onClick={() => signOutDemo("customer")}
@@ -979,16 +1026,9 @@ function SheetHeader({ title, close }: { title: string; close: () => void }) {
   );
 }
 
-function NotificationSheet({
-  close,
-  allRead,
-  onMarkRead,
-}: {
-  close: () => void;
-  allRead: boolean;
-  onMarkRead: () => void;
-}) {
-
+function NotificationSheet({ close }: { close: () => void }) {
+  const { notificationsRead: allRead, markNotificationsRead: onMarkRead } =
+    useCustomerState();
   return (
     <div
       className="absolute inset-0 z-[55] overflow-y-auto bg-[var(--paper)]"
@@ -1150,17 +1190,17 @@ function ActivitySheet({ close }: { close: () => void }) {
 function BusinessSheet({
   id,
   close,
-  joined,
   onJoin,
 }: {
   id: string;
   close: () => void;
-  joined: boolean;
   onJoin: () => void;
 }) {
+  const { joinedIds } = useCustomerState();
   const business =
     customerDemo.discover.find((item) => item.id === id) ??
     customerDemo.discover[0];
+  const joined = joinedIds.includes(business.id);
   const Icon = categoryIcons[business.category] ?? Store;
   const [consentOpen, setConsentOpen] = useState(false);
   return (
@@ -1306,12 +1346,15 @@ function JoinConsentDialog({
   onCancel: () => void;
   onConfirm: () => void;
 }) {
+  // Reads the edited profile, so what the customer just changed is what the
+  // dialog says will be shared.
+  const { profile } = useCustomerState();
   const shared = [
-    { label: "Loyalty ID", value: customerDemo.profile.id, icon: QrCode },
-    { label: "Name", value: customerDemo.profile.name, icon: UserRound },
-    { label: "Mobile number", value: customerDemo.profile.mobile, icon: Phone },
-    { label: "Email", value: customerDemo.profile.email, icon: Mail },
-    { label: "Birthday", value: customerDemo.profile.birthday, icon: CakeSlice },
+    { label: "Loyalty ID", value: profile.id, icon: QrCode },
+    { label: "Name", value: profile.name, icon: UserRound },
+    { label: "Mobile number", value: profile.mobile, icon: Phone },
+    { label: "Email", value: profile.email, icon: Mail },
+    { label: "Birthday", value: profile.birthday, icon: CakeSlice },
   ];
   return (
     <div
@@ -1385,9 +1428,8 @@ function WalletSheet({
   close: () => void;
   onShowQr: () => void;
 }) {
-  const card =
-    customerDemo.wallet.find((item) => item.id === id) ??
-    customerDemo.wallet[0];
+  const { wallet } = useCustomerState();
+  const card = wallet.find((item) => item.id === id) ?? wallet[0];
   const progress = Math.min(
     100,
     Math.round((card.progress / card.target) * 100),
@@ -1476,44 +1518,29 @@ function WalletSheet({
   );
 }
 
-type Personal = {
-  name: string;
-  birthday: string;
-  email: string;
-  mobile: string;
-};
-
 function ProfileSheet({
   title,
   screen,
   close,
   notify,
-  channelSettings,
-  setChannelSettings,
-  personal,
-  setPersonal,
-  leftBusinesses,
-  setLeftBusinesses,
-  deletionRequested,
-  setDeletionRequested,
-  exportRequested,
-  setExportRequested,
 }: {
   title: string;
   screen: ProfileScreen;
   close: () => void;
   notify: (message: string, tone?: "success" | "error") => void;
-  channelSettings: boolean[];
-  setChannelSettings: Dispatch<SetStateAction<boolean[]>>;
-  personal: Personal;
-  setPersonal: Dispatch<SetStateAction<Personal>>;
-  leftBusinesses: string[];
-  setLeftBusinesses: Dispatch<SetStateAction<string[]>>;
-  deletionRequested: boolean;
-  setDeletionRequested: Dispatch<SetStateAction<boolean>>;
-  exportRequested: boolean;
-  setExportRequested: Dispatch<SetStateAction<boolean>>;
 }) {
+  const {
+    profile,
+    updateProfile,
+    channels,
+    toggleChannel,
+    wallet,
+    leaveBusiness,
+    deletionRequested,
+    requestDeletion,
+    exportRequested,
+    requestExport,
+  } = useCustomerState();
   const isPersonal = screen === "personal";
   const isNotifications = screen === "notifications";
   const isDanger = screen === "danger";
@@ -1544,6 +1571,8 @@ function ProfileSheet({
                 ["Mobile", "mobile", Phone, "tel"],
               ] as const
             ).map(([label, field, icon, type]) => {
+              // Writes to the shared profile, so the header, the join-consent
+              // dialog, and the privacy centre all show the change.
               const Icon = icon;
               return (
                 <label
@@ -1555,12 +1584,9 @@ function ProfileSheet({
                     <Icon size={16} className="text-[var(--muted)]" />
                     <input
                       type={type}
-                      value={personal[field]}
+                      value={profile[field]}
                       onChange={(event) =>
-                        setPersonal((current) => ({
-                          ...current,
-                          [field]: event.target.value,
-                        }))
+                        updateProfile({ [field]: event.target.value })
                       }
                       className="min-w-0 flex-1 bg-transparent outline-none"
                     />
@@ -1570,7 +1596,9 @@ function ProfileSheet({
             })}
             <button
               type="button"
-              onClick={() => notify("Profile changes saved for this demo session.")}
+              onClick={() =>
+                notify(`Saved. ${profile.name.split(" ")[0]}'s details are updated across the wallet.`)
+              }
               className="min-h-12 w-full rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
             >
               Save changes
@@ -1578,44 +1606,32 @@ function ProfileSheet({
           </div>
         ) : isNotifications ? (
           <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
-            {(
-              [
-                [
-                  "Reward and service updates",
-                  "Needed to keep balances and visits clear",
-                ],
-                ["Promotional push", "Offers from businesses you joined"],
-                ["Email promotions", "Longer news and birthday offers"],
-                ["SMS promotions", "Paid channel, used sparingly"],
-                ["Nearby reminders", "Uses location only while enabled"],
-              ] as const
-            ).map(([label, detail], index) => (
+            {CHANNELS.map((channel, index) => (
               <div
-                key={String(label)}
+                key={channel.key}
                 className={`flex items-start gap-3 p-4 ${index > 0 ? "border-t border-[var(--line)]" : ""}`}
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-extrabold">{label}</p>
+                  <p className="text-sm font-extrabold">{channel.label}</p>
                   <p className="mt-1 text-[10px] leading-relaxed text-[var(--muted)]">
-                    {detail}
+                    {channel.detail}
+                    {channel.locked ? " · always on" : ""}
                   </p>
                 </div>
                 <button
                   type="button"
                   role="switch"
-                  aria-checked={channelSettings[index]}
-                  aria-label={`Toggle ${label}`}
-                  onClick={() =>
-                    setChannelSettings((current) =>
-                      current.map((value, settingIndex) =>
-                        settingIndex === index ? !value : value,
-                      ),
-                    )
-                  }
-                  className={`relative h-6 w-10 shrink-0 rounded-full ${channelSettings[index] ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
+                  disabled={channel.locked}
+                  aria-checked={channels[channel.key]}
+                  aria-label={`Toggle ${channel.label}`}
+                  onClick={() => {
+                    const next = toggleChannel(channel.key);
+                    notify(`${channel.label} ${next ? "turned on" : "turned off"}.`);
+                  }}
+                  className={`relative h-6 w-10 shrink-0 rounded-full ${channel.locked ? "cursor-not-allowed opacity-60" : ""} ${channels[channel.key] ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                 >
                   <span
-                    className={`absolute top-1 size-4 rounded-full bg-white transition-all ${channelSettings[index] ? "left-5" : "left-1"}`}
+                    className={`absolute top-1 size-4 rounded-full bg-white transition-all ${channels[channel.key] ? "left-5" : "left-1"}`}
                   />
                 </button>
               </div>
@@ -1644,24 +1660,27 @@ function ProfileSheet({
             </button>
             {leaveOpen && (
               <div className="mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
-                {customerDemo.wallet.map((card) => {
-                  const left = leftBusinesses.includes(card.id);
-                  return (
-                    <button
-                      key={card.id}
-                      type="button"
-                      disabled={left}
-                      onClick={() => {
-                        setLeftBusinesses((current) => [...current, card.id]);
-                        notify(`You left ${card.business} in this demo.`);
-                      }}
-                      className="flex min-h-12 w-full items-center justify-between border-b border-[var(--line)] px-4 text-left text-xs font-bold last:border-0 disabled:text-[var(--muted)]"
-                    >
-                      {card.business}
-                      <span>{left ? "Left" : "Leave"}</span>
-                    </button>
-                  );
-                })}
+                {wallet.map((card) => (
+                  <button
+                    key={card.id}
+                    type="button"
+                    onClick={() => {
+                      // Removes the card from the wallet, the joined-businesses
+                      // list, and the count on the profile — not just this row.
+                      leaveBusiness(card.id);
+                      notify(`You left ${card.business}. The card is out of your wallet.`);
+                    }}
+                    className="flex min-h-12 w-full items-center justify-between border-b border-[var(--line)] px-4 text-left text-xs font-bold last:border-0"
+                  >
+                    {card.business}
+                    <span>Leave</span>
+                  </button>
+                ))}
+                {wallet.length === 0 && (
+                  <p className="px-4 py-4 text-xs text-[var(--muted)]">
+                    You have left every program.
+                  </p>
+                )}
               </div>
             )}
             <button
@@ -1675,7 +1694,7 @@ function ProfileSheet({
                 ) {
                   return;
                 }
-                setDeletionRequested(true);
+                requestDeletion();
                 notify("Account deletion request queued for identity review.");
               }}
               className="mt-2 min-h-12 w-full rounded-xl bg-[var(--danger)] text-sm font-extrabold text-white disabled:opacity-65"
@@ -1696,19 +1715,13 @@ function ProfileSheet({
               </p>
             </div>
             <ol className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">
-              {[
-                ["Joined Sweet Crumbs Bakery", "Shared loyalty ID, name, mobile", "12 Feb 2026"],
-                ["Turned on promotional push", "All joined businesses", "12 Feb 2026"],
-                ["Joined Sage & Steam", "Shared loyalty ID, name", "3 Mar 2026"],
-                ["Turned off SMS promotions", "All joined businesses", "19 Jun 2026"],
-                ["Added birthday", "Sweet Crumbs Bakery", "2 Aug 2026"],
-              ].map(([change, scope, when]) => (
-                <li key={change} className="flex gap-3 py-4">
+              {customerDemo.consentHistory.map((entry) => (
+                <li key={entry.id} className="flex gap-3 py-4">
                   <span className="mt-1 size-2 shrink-0 rounded-full bg-[var(--accent)]" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-extrabold">{change}</p>
+                    <p className="text-sm font-extrabold">{entry.change}</p>
                     <p className="mt-0.5 text-[10px] text-[var(--muted)]">
-                      {scope} · {when}
+                      {entry.scope} · {entry.when}
                     </p>
                   </div>
                 </li>
@@ -1729,10 +1742,28 @@ function ProfileSheet({
               {[
                 ["Loyalty ID", "Always shared", true],
                 ["Name", "Shared with joined businesses", true],
-                ["Mobile number", "Shared with joined businesses", true],
-                ["Email", "Shared when you opt in to email", true],
+                [
+                  "Mobile number",
+                  channels.promoSms
+                    ? "Shared, and used for SMS promotions"
+                    : "Shared for service messages only",
+                  true,
+                ],
+                [
+                  "Email",
+                  channels.promoEmail
+                    ? "Shared, and used for email promotions"
+                    : "Shared for service messages only",
+                  true,
+                ],
                 ["Birthday", "Optional, for birthday rewards", true],
-                ["Location", "Never shared. Discovery matches by city only", false],
+                [
+                  "Location",
+                  channels.nearby
+                    ? "Used for nearby reminders while that is on"
+                    : "Never shared. Discovery matches by city only",
+                  channels.nearby,
+                ],
               ].map(([field, note, shared]) => (
                 <div key={String(field)} className="flex items-start gap-3 p-4">
                   <span
@@ -1768,7 +1799,7 @@ function ProfileSheet({
               </p>
             </div>
             <div className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">
-              {customerDemo.wallet.map((card) => (
+              {wallet.map((card) => (
                 <div key={card.id} className="flex items-center gap-3 py-4">
                   <span className="grid size-9 place-items-center rounded-xl bg-[var(--surface-2)]">
                     <Building2 size={15} />
@@ -1790,7 +1821,7 @@ function ProfileSheet({
                 type="button"
                 disabled={exportRequested}
                 onClick={() => {
-                  setExportRequested(true);
+                  requestExport();
                   notify("Portable data export is being prepared.");
                 }}
                 className="mt-5 min-h-12 w-full rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-65"
@@ -1806,37 +1837,26 @@ function ProfileSheet({
 }
 
 export function CustomerApp() {
+  return (
+    <CustomerStateProvider>
+      <CustomerWallet />
+    </CustomerStateProvider>
+  );
+}
+
+function CustomerWallet() {
   const [tab, setTab] = useState<Tab>("home");
   const [qrOpen, setQrOpen] = useState(false);
   const { toast, setToast, dismiss } = useToast(3000);
   const [toastTone, setToastTone] = useState<"success" | "error">("success");
-  const [channelSettings, setChannelSettings] = useState([
-    true,
-    true,
-    true,
-    false,
-    false,
-  ]);
-  const [personal, setPersonal] = useState<Personal>({
-    name: customerDemo.profile.name,
-    birthday: customerDemo.profile.birthday,
-    email: customerDemo.profile.email,
-    mobile: customerDemo.profile.mobile,
-  });
-  const [leftBusinesses, setLeftBusinesses] = useState<string[]>([]);
-  const [deletionRequested, setDeletionRequested] = useState(false);
-  const [exportRequested, setExportRequested] = useState(false);
+  const { joinBusiness, notificationsRead } = useCustomerState();
+  // Warm the QR codec while there is still a connection to warm it with.
+  usePrefetchQrCodec();
   const notify = (message: string, tone: "success" | "error" = "success") => {
     setToastTone(tone);
     setToast(message);
   };
   const [sheet, setSheet] = useState<Sheet>(null);
-  const [notificationsRead, setNotificationsRead] = useState(false);
-  const [joinedIds, setJoinedIds] = useState(() =>
-    customerDemo.discover
-      .filter((business) => business.joined)
-      .map((business) => business.id),
-  );
 
   useEffect(() => {
     const validTabs = new Set<Tab>(["home", "wallet", "discover", "profile"]);
@@ -1881,15 +1901,11 @@ export function CustomerApp() {
     wallet: (
       <WalletView
         onCard={(id) => setSheet({ kind: "wallet", id })}
-        joinedIds={joinedIds}
         onBusiness={(id) => setSheet({ kind: "business", id })}
       />
     ),
     discover: (
-      <DiscoverView
-        joinedIds={joinedIds}
-        onBusiness={(id) => setSheet({ kind: "business", id })}
-      />
+      <DiscoverView onBusiness={(id) => setSheet({ kind: "business", id })} />
     ),
     profile: (
       <ProfileView
@@ -1977,11 +1993,7 @@ export function CustomerApp() {
 
       {qrOpen && <QrModal close={() => setQrOpen(false)} notify={notify} />}
       {sheet?.kind === "notifications" && (
-        <NotificationSheet
-          close={() => setSheet(null)}
-          allRead={notificationsRead}
-          onMarkRead={() => setNotificationsRead(true)}
-        />
+        <NotificationSheet close={() => setSheet(null)} />
       )}
       {sheet?.kind === "activity" && (
         <ActivitySheet close={() => setSheet(null)} />
@@ -2000,11 +2012,8 @@ export function CustomerApp() {
         <BusinessSheet
           id={sheet.id}
           close={() => setSheet(null)}
-          joined={joinedIds.includes(sheet.id)}
           onJoin={() => {
-            setJoinedIds((current) =>
-              current.includes(sheet.id) ? current : [...current, sheet.id],
-            );
+            joinBusiness(sheet.id);
             setToast("Business added to your wallet.");
           }}
         />
@@ -2015,16 +2024,6 @@ export function CustomerApp() {
           screen={sheet.screen}
           close={() => setSheet(null)}
           notify={notify}
-          channelSettings={channelSettings}
-          setChannelSettings={setChannelSettings}
-          personal={personal}
-          setPersonal={setPersonal}
-          leftBusinesses={leftBusinesses}
-          setLeftBusinesses={setLeftBusinesses}
-          deletionRequested={deletionRequested}
-          setDeletionRequested={setDeletionRequested}
-          exportRequested={exportRequested}
-          setExportRequested={setExportRequested}
         />
       )}
       {toast && (

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button, Eyebrow, StampDots, StatCard } from "@stampr/ui";
-import { todayLabel } from "@stampr/ui/shell";
+import { greeting, todayLabel } from "@stampr/ui/shell";
 import {
   ArrowRight,
   BadgePercent,
@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import type { NotifyIntent } from "@stampr/ui/shell";
 import { useDemoState } from "@/components/DemoState";
-import { demoData } from "@stampr/demo-data";
+import { business, sharedScenario } from "@stampr/demo-data";
 import type { BusinessView } from "@/components/BusinessShell";
 
 const periods = ["Today", "7 days", "30 days"];
@@ -56,61 +56,26 @@ const SETUP_STEPS = [
   "Run a test stamp",
 ] as const;
 
-const programTypes = [
-  { name: "Stamp card", detail: "8 visits → free pastry", icon: Stamp },
-  { name: "Points", detail: "₱1 spent → 1 point", icon: Coins },
-  { name: "Discount", detail: "Member and tier rates", icon: BadgePercent },
-  { name: "Membership", detail: "VIP access and limits", icon: Crown },
-  { name: "Coupon", detail: "Single-use offers", icon: TicketPercent },
-  { name: "Rewards", detail: "A choice of perks", icon: Gift },
-  { name: "Multipass", detail: "Prepaid visit bundle", icon: CalendarCheck2 },
-  { name: "Gift card", detail: "Stored value and balance", icon: CreditCard },
-];
-
-const programPreviews: Record<
+/**
+ * Icon and headline rule per program type.
+ *
+ * This used to be a third parallel list of programs with names the fixture did
+ * not use ("Stamp card" against "Stamps"), so picking one here and opening the
+ * Programs view landed on a different program. Now the list is the workspace's
+ * own programs and only the presentation lives here.
+ */
+const programPresentation: Record<
   string,
-  { label: string; value: string; note: string }
+  { icon: typeof Stamp; rule: string; suggestion: string }
 > = {
-  "Stamp card": {
-    label: "Active rule",
-    value: "8 visits",
-    note: "Free pastry · 63% average completion",
-  },
-  Points: {
-    label: "Suggested rule",
-    value: "₱1 = 1 pt",
-    note: "Start with a 250-point first reward",
-  },
-  Discount: {
-    label: "Suggested tiers",
-    value: "5% → 10%",
-    note: "Regular and VIP member rates",
-  },
-  Membership: {
-    label: "Suggested plan",
-    value: "₱399 / month",
-    note: "Four monthly drinks plus VIP perks",
-  },
-  Coupon: {
-    label: "Suggested offer",
-    value: "Double stamp",
-    note: "One use · Tuesdays before 4 PM",
-  },
-  Rewards: {
-    label: "Suggested catalog",
-    value: "3 choices",
-    note: "Pastry, drink upgrade, or tote",
-  },
-  Multipass: {
-    label: "Suggested bundle",
-    value: "10 for 9",
-    note: "Prepaid visits with a 90-day window",
-  },
-  "Gift card": {
-    label: "Suggested value",
-    value: "₱500",
-    note: "Partial redemption and live balance",
-  },
+  Stamps: { icon: Stamp, rule: "8 visits", suggestion: "Free pastry on the eighth visit" },
+  Points: { icon: Coins, rule: "₱1 = 1 pt", suggestion: "Start with a 250-point first reward" },
+  Discount: { icon: BadgePercent, rule: "5% → 10%", suggestion: "Regular and VIP member rates" },
+  Membership: { icon: Crown, rule: "₱399 / month", suggestion: "Four monthly drinks plus VIP perks" },
+  Coupon: { icon: TicketPercent, rule: "Double stamp", suggestion: "One use · Tuesdays before 4 PM" },
+  Rewards: { icon: Gift, rule: "3 choices", suggestion: "Pastry, drink upgrade, or tote" },
+  Multipass: { icon: CalendarCheck2, rule: "10 for 9", suggestion: "Prepaid visits, 90-day window" },
+  "Gift card": { icon: CreditCard, rule: "₱500", suggestion: "Partial redemption and live balance" },
 };
 
 const automationIcons: Record<string, typeof Gift> = {
@@ -122,7 +87,7 @@ const automationIcons: Record<string, typeof Gift> = {
   auto_referral: UserPlus,
 };
 
-const automationDefaults = demoData.business.automations.map((automation) => ({
+const automationDefaults = business.automations.map((automation) => ({
   id: automation.id,
   name: automation.name,
   detail: `${automation.trigger} · ${automation.audience} customers`,
@@ -140,11 +105,25 @@ export function BusinessDashboard({
 }) {
   const [period, setPeriod] = useState("7 days");
   const [scanOpen, setScanOpen] = useState(false);
-  const [testStampDone, setTestStampDone] = useState(false);
+  const {
+    automations,
+    toggleAutomation,
+    programs,
+    testStampDone,
+    completeTestStamp,
+    startScanHandoff,
+    workspace,
+  } = useDemoState();
   const setupDone = SETUP_STEPS.length - (testStampDone ? 0 : 1);
-  const [selectedProgram, setSelectedProgram] = useState("Stamp card");
-  const { automations, toggleAutomation } = useDemoState();
-  const preview = programPreviews[selectedProgram];
+  const [selectedProgramId, setSelectedProgramId] = useState(programs[0].id);
+  const selectedProgram =
+    programs.find((program) => program.id === selectedProgramId) ?? programs[0];
+  const presentation =
+    programPresentation[selectedProgram.type] ?? programPresentation.Stamps;
+  /** The onboarding wizard's answers if the merchant came through it. */
+  const workspaceName = workspace?.businessName ?? business.profile.shortName;
+  const locationCount = workspace?.locations ?? business.locations.length;
+  const livePrograms = programs.filter((program) => program.status === "Live");
 
   return (
     <main
@@ -155,7 +134,7 @@ export function BusinessDashboard({
         <div>
           <Eyebrow>{todayLabel()}</Eyebrow>
           <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
-            Good morning, Sweet Crumbs.
+            {greeting()}, {workspaceName}.
           </h1>
           <p className="mt-2 max-w-[58ch] text-sm leading-relaxed text-[var(--muted-strong)]">
             Your regulars are picking up. Here is what is moving in the shop
@@ -187,16 +166,16 @@ export function BusinessDashboard({
         className="metric-grid mt-8 grid gap-3"
         aria-label="Business overview"
       >
-        <StatCard className="col-span-6 lg:col-span-3" label="Visits" value={String(demoData.business.metrics.visitsToday)} detail="18%" icon={Repeat2} accent />
+        <StatCard className="col-span-6 lg:col-span-3" label="Visits" value={String(business.metrics.visitsToday)} detail="18%" icon={Repeat2} accent />
         <StatCard
           className="col-span-6 lg:col-span-3"
           label="New regulars"
-          value={String(demoData.business.metrics.newRegulars)}
+          value={String(business.metrics.newRegulars)}
           detail="6 this week"
           icon={UserPlus}
         />
-        <StatCard className="col-span-6 lg:col-span-3" label="Stamps issued" value={String(demoData.business.metrics.stampsIssued)} detail="31%" icon={Stamp} />
-        <StatCard className="col-span-6 lg:col-span-3" label="Redemptions" value={String(demoData.business.metrics.redemptions)} detail="On pace" icon={Gift} trend="flat" />
+        <StatCard className="col-span-6 lg:col-span-3" label="Stamps issued" value={String(business.metrics.stampsIssued)} detail="31%" icon={Stamp} />
+        <StatCard className="col-span-6 lg:col-span-3" label="Redemptions" value={String(business.metrics.redemptions)} detail="On pace" icon={Gift} trend="flat" />
       </section>
 
       <section
@@ -246,7 +225,7 @@ export function BusinessDashboard({
                   className="group relative flex h-full flex-1 items-end"
                 >
                   <span
-                    className={`w-full origin-bottom rounded-t-lg transition-transform duration-300 group-hover:scale-y-[1.04] ${index === 10 ? "bg-[var(--accent)]" : "bg-[var(--ink)]"}`}
+                    className={`w-full origin-bottom rounded-t-lg transition-transform duration-300 group-hover:scale-y-[1.04] ${index === chartByPeriod[period].peakIndex ? "bg-[var(--accent)]" : "bg-[var(--ink)]"}`}
                     style={{ height: `${height}%` }}
                   />
                 </div>
@@ -264,17 +243,23 @@ export function BusinessDashboard({
               </span>
             </div>
             <h2 className="mt-8 max-w-[10ch] text-3xl font-extrabold leading-[1.02] tracking-[-0.03em]">
-              Eight visits. One pastry on us.
+              {livePrograms[0]?.name ?? "No live program yet"}
             </h2>
             <p className="mt-3 max-w-[34ch] text-sm leading-relaxed text-white/60">
               Your simplest reward is also your strongest performer this month.
             </p>
             <div className="mt-8 overflow-x-auto pb-1">
-              <StampDots filled={5} total={8} dark />
+              <StampDots
+                filled={sharedScenario.loyaltyEvent.afterStamps}
+                total={sharedScenario.loyaltyEvent.target}
+                dark
+              />
             </div>
             <div className="mt-8 flex items-end justify-between border-t border-dashed border-white/20 pt-5">
               <div>
-                <p className="text-2xl font-extrabold">63%</p>
+                <p className="text-2xl font-extrabold">
+                  {livePrograms[0]?.completion ?? 0}%
+                </p>
                 <p className="text-[11px] text-white/50">average completion</p>
               </div>
               <button
@@ -412,27 +397,28 @@ export function BusinessDashboard({
         </header>
         <div className="grid lg:grid-cols-[minmax(0,1.55fr)_minmax(310px,0.7fr)]">
           <div className="grid gap-px bg-[var(--line)] sm:grid-cols-2 xl:grid-cols-4">
-            {programTypes.map((program) => {
-              const Icon = program.icon;
-              const active = selectedProgram === program.name;
+            {programs.slice(0, 8).map((program) => {
+              const look = programPresentation[program.type] ?? programPresentation.Stamps;
+              const Icon = look.icon;
+              const active = selectedProgram.id === program.id;
               return (
                 <button
-                  key={program.name}
+                  key={program.id}
                   type="button"
                   aria-pressed={active}
-                  onClick={() => setSelectedProgram(program.name)}
+                  onClick={() => setSelectedProgramId(program.id)}
                   className={`min-h-40 bg-[var(--surface)] p-5 text-left transition focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-[var(--accent)] ${active ? "bg-[var(--accent)]" : "hover:bg-[var(--surface-2)]"}`}
                 >
                   <span className="grid size-10 place-items-center rounded-xl bg-[var(--paper)]">
                     <Icon size={18} />
                   </span>
                   <span className="mt-7 block text-sm font-extrabold">
-                    {program.name}
+                    {program.type}
                   </span>
                   <span
                     className={`mt-1 block text-xs ${active ? "text-[var(--ink)]/80" : "text-[var(--muted)]"}`}
                   >
-                    {program.detail}
+                    {program.name}
                   </span>
                 </button>
               );
@@ -443,17 +429,20 @@ export function BusinessDashboard({
               <div className="flex items-center justify-between">
                 <Eyebrow>Rule preview</Eyebrow>
                 <span className="rounded-full border border-white/15 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/60">
-                  Draft
+                  {selectedProgram.status}
                 </span>
               </div>
               <p className="mt-9 text-xs font-bold uppercase tracking-[0.12em] text-white/50">
-                {preview.label}
+                {selectedProgram.status === "Live" ? "Active rule" : "Suggested rule"}
               </p>
               <p className="mt-2 text-4xl font-extrabold tracking-[-0.03em]">
-                {preview.value}
+                {presentation.rule}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-white/65">
-                {preview.note}
+                {presentation.suggestion}
+                {selectedProgram.members > 0
+                  ? ` · ${selectedProgram.completion}% average completion`
+                  : ""}
               </p>
             </div>
             <div className="mt-10 border-t border-dashed border-white/20 pt-5">
@@ -464,12 +453,12 @@ export function BusinessDashboard({
               <button
                 type="button"
                 onClick={() => {
-                  notify(`${selectedProgram} draft opened in Program studio.`, "review");
+                  notify(`${selectedProgram.name} opened in Program studio.`, "review");
                   onNavigate("programs");
                 }}
                 className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-[var(--accent)] px-4 text-xs font-extrabold text-[var(--ink)]"
               >
-                Configure {selectedProgram.toLowerCase()}{" "}
+                Configure {selectedProgram.type.toLowerCase()}{" "}
                 <ArrowRight size={14} />
               </button>
             </div>
@@ -640,14 +629,14 @@ export function BusinessDashboard({
         {[
           {
             icon: Store,
-            title: "3 locations",
+            title: `${locationCount} location${locationCount === 1 ? "" : "s"}`,
             detail:
               "Shared programs with branch-level performance and controls.",
           },
           {
             icon: Users,
-            title: "6 staff accounts",
-            detail: "Owner, manager, cashier, analyst, and campaign roles across 12 branch seats.",
+            title: `${business.staff.length} staff accounts`,
+            detail: `Owner, manager, cashier, analyst, and campaign roles across ${business.locations.reduce((sum, location) => sum + location.staff, 0)} branch seats.`,
           },
           {
             icon: ShieldCheck,
@@ -716,7 +705,10 @@ export function BusinessDashboard({
             <Button
               className="mt-6 w-full"
               onClick={() => {
-                setTestStampDone(true);
+                completeTestStamp();
+                // Hands the counter view a customer, so the merchant is not
+                // asked to pick the demo customer a second time.
+                startScanHandoff();
                 setScanOpen(false);
                 onNavigate("scan");
               }}

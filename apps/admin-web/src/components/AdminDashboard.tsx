@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { demoData } from "@stampr/demo-data";
-
-const openSupportCount = demoData.admin.support.filter(
-  (ticket) => ticket.status === "Open",
-).length;
+import { admin } from "@stampr/demo-data";
 import { Button, Eyebrow, TrendBadge } from "@stampr/ui";
+import { pesoCompact } from "@stampr/ui/format";
+import { useAdminState } from "@/components/AdminState";
 import {
   ArrowRight,
   CheckCircle2,
@@ -57,26 +55,7 @@ const activity = [
   },
 ];
 
-const queue = [
-  {
-    title: "Duplicate business report",
-    meta: "Sweet Crumbs Bakery · Pasig",
-    priority: "High",
-    age: "18m",
-  },
-  {
-    title: "Owner access recovery",
-    meta: "Aster Wellness · Makati",
-    priority: "Normal",
-    age: "43m",
-  },
-  {
-    title: "Campaign delivery question",
-    meta: "Northline Coffee · Cebu",
-    priority: "Normal",
-    age: "1h",
-  },
-];
+
 
 export function AdminDashboard({
   onNavigate,
@@ -88,6 +67,18 @@ export function AdminDashboard({
   const [scope, setScope] = useState("Network");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [activityFilter, setActivityFilter] = useState("All activity");
+  const { tickets, openTicketCount, recoveryQueue } = useAdminState();
+  // Was a hardcoded copy of the first three tickets, with its own age format.
+  const queue = tickets
+    .filter((ticket) => ticket.status !== "Resolved")
+    .sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority === "High" ? -1 : 1;
+      return a.ageMinutes - b.ageMinutes;
+    })
+    .slice(0, 3);
+  const degradedServices = admin.services.filter(
+    (service) => service.status !== "Operational",
+  );
 
   // Quick views narrow the feed rather than announcing a filter that never ran.
   const visibleActivity =
@@ -112,7 +103,9 @@ export function AdminDashboard({
               Network pulse
             </h1>
             <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-              {`The loyalty network is healthy. ${openSupportCount} items need a human decision.`}
+              {openTicketCount === 0
+                ? "The loyalty network is healthy. Nothing is waiting on a human decision."
+                : `The loyalty network is healthy. ${openTicketCount} item${openTicketCount === 1 ? "" : "s"} need a human decision.`}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -175,7 +168,7 @@ export function AdminDashboard({
                 Live businesses
               </p>
               <p className="mt-5 text-5xl font-extrabold tracking-[-0.03em]">
-                {demoData.admin.metrics.liveBusinesses}
+                {admin.metrics.liveBusinesses}
               </p>
               <div className="mt-7 flex items-center justify-between border-t border-white/12 pt-4">
                 <span className="text-xs text-white/55">
@@ -189,7 +182,7 @@ export function AdminDashboard({
             ? [
                 {
                   label: "Customer accounts",
-                  value: demoData.admin.metrics.customerAccounts.toLocaleString("en-PH"),
+                  value: admin.metrics.customerAccounts.toLocaleString("en-PH"),
                   detail: "+824",
                   icon: Users,
                 },
@@ -201,7 +194,7 @@ export function AdminDashboard({
                 },
                 {
                   label: "Rewards funded",
-                  value: "₱318k",
+                  value: pesoCompact(318000),
                   detail: "On pace",
                   icon: Coins,
                 },
@@ -221,7 +214,7 @@ export function AdminDashboard({
                 },
                 {
                   label: "Rewards funded today",
-                  value: "₱46k",
+                  value: pesoCompact(46000),
                   detail: "On pace",
                   icon: Coins,
                 },
@@ -300,42 +293,50 @@ export function AdminDashboard({
               <div>
                 <Eyebrow>System posture</Eyebrow>
                 <h2 className="mt-1 text-lg font-extrabold tracking-[-0.03em]">
-                  {(() => {
-                    const degraded = demoData.admin.services.filter(
-                      (service) => service.status !== "Operational",
-                    ).length;
-                    return degraded === 0
-                      ? "All core services normal"
-                      : `${demoData.admin.services.length - degraded} of ${demoData.admin.services.length} services normal`;
-                  })()}
+                  {degradedServices.length === 0
+                    ? "All core services normal"
+                    : `${admin.services.length - degradedServices.length} of ${admin.services.length} services normal`}
                 </h2>
               </div>
-              <span className="grid size-10 place-items-center rounded-full bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]">
-                <CheckCircle2 size={19} />
+              {/* The tick used to stay green while a service was degraded, and
+                  the list below excluded the degraded one entirely. */}
+              <span
+                className={`grid size-10 place-items-center rounded-full ${
+                  degradedServices.length
+                    ? "bg-[rgb(178_59_43/12%)] text-[var(--danger)]"
+                    : "bg-[rgb(15_118_85/12%)] text-[var(--success)]"
+                }`}
+              >
+                {degradedServices.length ? (
+                  <CircleAlert size={19} />
+                ) : (
+                  <CheckCircle2 size={19} />
+                )}
               </span>
             </div>
             <div className="mt-6 divide-y divide-[var(--line)]">
-              {[
-                { name: "API gateway", value: "99.99%", label: "Operational" },
-                { name: "Campaign delivery", value: "1.2s", label: "Healthy" },
-                { name: "Queue depth", value: "38", label: "Normal" },
-                { name: "QR verification", value: "84ms", label: "Healthy" },
-              ].map((item) => (
-                <div
-                  key={item.name}
-                  className="grid grid-cols-[1fr_auto] items-center gap-4 py-3.5"
-                >
-                  <div>
-                    <p className="text-sm font-bold">{item.name}</p>
-                    <p className="mt-0.5 text-[11px] text-[var(--muted)]">
-                      {item.label}
-                    </p>
+              {[...admin.services]
+                .sort((a, b) =>
+                  a.status === b.status ? 0 : a.status === "Degraded" ? -1 : 1,
+                )
+                .map((service) => (
+                  <div
+                    key={service.name}
+                    className="grid grid-cols-[1fr_auto] items-center gap-4 py-3.5"
+                  >
+                    <div>
+                      <p className="text-sm font-bold">{service.name}</p>
+                      <p
+                        className={`mt-0.5 text-[11px] ${service.status === "Degraded" ? "font-bold text-[var(--danger)]" : "text-[var(--muted)]"}`}
+                      >
+                        {service.status} · {service.latency}
+                      </p>
+                    </div>
+                    <span className="font-mono text-sm font-bold">
+                      {service.uptime}
+                    </span>
                   </div>
-                  <span className="font-mono text-sm font-bold">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
+                ))}
             </div>
           </article>
         </section>
@@ -349,25 +350,27 @@ export function AdminDashboard({
                   Needs a decision
                 </h2>
               </div>
-              <span className="rounded-full bg-[rgb(178_59_43/12%)] px-3 py-1 text-xs font-extrabold text-[var(--danger)]">
-                {openSupportCount} open
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-extrabold ${openTicketCount ? "bg-[rgb(178_59_43/12%)] text-[var(--danger)]" : "bg-[rgb(15_118_85/12%)] text-[var(--success)]"}`}
+              >
+                {openTicketCount} open
               </span>
             </div>
             <div className="mt-5 divide-y divide-[var(--line)]">
-              {queue.map((item, index) => (
+              {queue.map((ticket) => (
                 <button
-                  key={item.title}
+                  key={ticket.id}
                   type="button"
                   onClick={() => {
-                    notify(`${item.title} opened in the support queue.`, "review");
+                    notify(`${ticket.title} opened in the support queue.`, "review");
                     onNavigate("support");
                   }}
                   className="group grid w-full grid-cols-[auto_1fr_auto] items-center gap-3 py-4 text-left"
                 >
                   <span
-                    className={`grid size-9 place-items-center rounded-xl ${index === 0 ? "bg-[rgb(178_59_43/12%)] text-[var(--danger)]" : "bg-[var(--surface-2)] text-[var(--muted-strong)]"}`}
+                    className={`grid size-9 place-items-center rounded-xl ${ticket.priority === "High" ? "bg-[rgb(178_59_43/12%)] text-[var(--danger)]" : "bg-[var(--surface-2)] text-[var(--muted-strong)]"}`}
                   >
-                    {index === 0 ? (
+                    {ticket.priority === "High" ? (
                       <ShieldAlert size={17} />
                     ) : (
                       <Clock3 size={17} />
@@ -375,17 +378,22 @@ export function AdminDashboard({
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-bold">
-                      {item.title}
+                      {ticket.title}
                     </span>
                     <span className="mt-0.5 block truncate text-[11px] text-[var(--muted)]">
-                      {item.meta}
+                      {ticket.business} · {ticket.owner} · {ticket.status}
                     </span>
                   </span>
                   <span className="text-[11px] font-bold text-[var(--muted)] group-hover:text-[var(--ink)]">
-                    {item.age}
+                    {ticket.age}
                   </span>
                 </button>
               ))}
+              {queue.length === 0 && (
+                <p className="py-6 text-center text-xs font-semibold text-[var(--muted)]">
+                  Nothing is waiting on a decision.
+                </p>
+              )}
             </div>
             <button
               type="button"
@@ -453,22 +461,31 @@ export function AdminDashboard({
                 Bakery programs show the strongest week-four return rate in this demo dataset.
               </h2>
             </div>
+            {/* Labelled "View cohort" while opening Revenue & margin, which has
+                no cohort view. The plan contribution table is what it shows. */}
             <Button
               className="mt-6 shrink-0 sm:mt-0"
               icon={<Store size={16} />}
               onClick={() => onNavigate("economics")}
             >
-              View cohort
+              View plan margins
             </Button>
           </article>
           <article className="flex items-center gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
-            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[rgb(178_59_43/12%)] text-[var(--danger)]">
-              <CircleAlert />
+            <span
+              className={`grid size-12 shrink-0 place-items-center rounded-2xl ${recoveryQueue.length ? "bg-[rgb(178_59_43/12%)] text-[var(--danger)]" : "bg-[rgb(15_118_85/12%)] text-[var(--success)]"}`}
+            >
+              {recoveryQueue.length ? <CircleAlert /> : <CheckCircle2 />}
             </span>
             <div>
-              <p className="text-sm font-extrabold">2 delivery anomalies</p>
+              <p className="text-sm font-extrabold">
+                {recoveryQueue.length} deliver
+                {recoveryQueue.length === 1 ? "y" : "ies"} awaiting replay
+              </p>
               <p className="mt-1 text-xs leading-relaxed text-[var(--muted)]">
-                Retries are running. No action needed yet.
+                {recoveryQueue.length
+                  ? "Retries are exhausted. Replay them from Integrations."
+                  : "Everything has been replayed."}
               </p>
             </div>
           </article>

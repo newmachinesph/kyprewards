@@ -10,7 +10,8 @@
     "purchase": {
       "amount": 286,
       "currency": "PHP",
-      "display": "\u20b1286"
+      "display": "₱286",
+      "amountCentavos": 28600
     },
     "loyaltyEvent": {
       "id": "evt_SC_10482",
@@ -19,12 +20,20 @@
       "before": "4 of 8",
       "after": "5 of 8",
       "occurredAt": "Today, 9:42 AM",
-      "status": "Delivered"
+      "status": "Delivered",
+      "beforeStamps": 4,
+      "afterStamps": 5,
+      "target": 8,
+      "occurredAtIso": "2026-08-28T09:42:00+08:00"
     },
     "delivery": {
       "requestId": "req_SC_10482",
       "idempotencyKey": "visit_SC_10482"
-    }
+    },
+    "organizationId": "org_santos_foods",
+    "merchantId": "mrc_sweet_crumbs",
+    "branchId": "branch_pasig",
+    "externalTransactionId": "SC-10482"
   },
   "business": {
     "profile": {
@@ -37,7 +46,11 @@
       "billing": "Annual",
       "renewal": "15 September 2026",
       "timezone": "Asia/Manila",
-      "currency": "PHP"
+      "currency": "PHP",
+      "organizationId": "org_santos_foods",
+      "merchantId": "mrc_sweet_crumbs",
+      "adminTenantId": "biz_1",
+      "renewalIso": "2026-09-15"
     },
     "metrics": {
       "visitsToday": 128,
@@ -57,7 +70,17 @@
         "address": "12 East Capitol Drive, Kapitolyo",
         "staff": 6,
         "members": 2840,
-        "status": "Live"
+        "status": "Live",
+        "hours": [
+          {
+            "days": "Mon – Fri",
+            "time": "7:00 AM – 8:00 PM"
+          },
+          {
+            "days": "Sat – Sun",
+            "time": "8:00 AM – 9:00 PM"
+          }
+        ]
       },
       {
         "id": "branch_bgc",
@@ -66,7 +89,17 @@
         "address": "High Street South, BGC",
         "staff": 4,
         "members": 1724,
-        "status": "Live"
+        "status": "Live",
+        "hours": [
+          {
+            "days": "Mon – Fri",
+            "time": "7:30 AM – 9:00 PM"
+          },
+          {
+            "days": "Sat – Sun",
+            "time": "8:00 AM – 10:00 PM"
+          }
+        ]
       },
       {
         "id": "branch_makati",
@@ -75,7 +108,17 @@
         "address": "Rada Street, Legazpi Village",
         "staff": 2,
         "members": 638,
-        "status": "Setup"
+        "status": "Setup",
+        "hours": [
+          {
+            "days": "Mon – Fri",
+            "time": "8:00 AM – 6:00 PM"
+          },
+          {
+            "days": "Sat – Sun",
+            "time": "Closed while in setup"
+          }
+        ]
       }
     ],
     "customers": [
@@ -330,7 +373,7 @@
       {
         "id": "auto_geo",
         "name": "Nearby on a quiet afternoon",
-        "trigger": "100 m, Tue\u2013Thu, 1\u20134 PM",
+        "trigger": "100 m, Tue–Thu, 1–4 PM",
         "audience": 108,
         "channel": "Push",
         "status": "Draft",
@@ -388,7 +431,7 @@
         "visited": 188,
         "revenue": 61200,
         "cost": 1880,
-        "status": "Scheduled"
+        "status": "Completed"
       },
       {
         "id": "cmp_204",
@@ -423,6 +466,15 @@
         "status": "Opened",
         "sentAt": "10:41 AM",
         "cost": 0.03
+      },
+      {
+        "id": "msg_507",
+        "campaign": "Tuesday treat",
+        "customer": "Camille Lim",
+        "channel": "Viber",
+        "status": "Delivered",
+        "sentAt": "10:38 AM",
+        "cost": 0.42
       },
       {
         "id": "msg_503",
@@ -607,14 +659,14 @@
         "name": "Semaphore SMS",
         "category": "Messaging",
         "status": "Connected",
-        "detail": "\u20b10.95 customer price per SMS segment"
+        "detail": "₱0.95 customer price per SMS segment"
       },
       {
         "id": "int_ses",
         "name": "Amazon SES",
         "category": "Email",
         "status": "Connected",
-        "detail": "Domain verified \u00b7 healthy reputation"
+        "detail": "Domain verified · healthy reputation"
       },
       {
         "id": "int_fcm",
@@ -649,7 +701,7 @@
         "name": "Viber business messages",
         "category": "Messaging",
         "status": "Available",
-        "detail": "\u20b10.42 per message \u00b7 used ahead of SMS when reachable"
+        "detail": "₱0.42 per message · used ahead of SMS when reachable"
       },
       {
         "id": "int_meta",
@@ -665,7 +717,76 @@
         "status": "Planned",
         "detail": "Join links and reward updates from your Page inbox"
       }
-    ]
+    ],
+    "billing": {
+      "plan": "Grow",
+      "monthly": 1290,
+      "cycle": "Annual",
+      "nextInvoice": "15 September 2026",
+      "nextInvoiceIso": "2026-09-15",
+      "method": {
+        "kind": "Card",
+        "brand": "Visa",
+        "last4": "4218",
+        "expiry": "09 / 2028"
+      },
+      "allowances": [
+        {
+          "label": "Active members",
+          "used": 5202,
+          "included": 10000,
+          "unit": "members"
+        },
+        {
+          "label": "Email",
+          "used": 18420,
+          "included": 25000,
+          "unit": "messages"
+        },
+        {
+          "label": "Push",
+          "used": 31900,
+          "included": 50000,
+          "unit": "messages"
+        },
+        {
+          "label": "SMS credits",
+          "used": 58,
+          "included": 100,
+          "unit": "credits"
+        },
+        {
+          "label": "Locations",
+          "used": 3,
+          "included": 3,
+          "unit": "locations"
+        }
+      ],
+      "smsCreditBalance": 1842,
+      "invoices": [
+        {
+          "id": "inv_2026_08",
+          "period": "August 2026",
+          "issued": "15 August 2026",
+          "amount": 1290,
+          "status": "Paid"
+        },
+        {
+          "id": "inv_2026_07",
+          "period": "July 2026",
+          "issued": "15 July 2026",
+          "amount": 1497,
+          "status": "Paid"
+        },
+        {
+          "id": "inv_2026_06",
+          "period": "June 2026",
+          "issued": "15 June 2026",
+          "amount": 1290,
+          "status": "Paid"
+        }
+      ]
+    }
   },
   "customer": {
     "profile": {
@@ -673,10 +794,11 @@
       "name": "Jacqueline Daniel",
       "initials": "JD",
       "city": "Pasig",
-      "memberSince": "August 2026",
+      "memberSince": "February 2026",
       "birthday": "8 September",
       "email": "jacqueline.daniel@example.com",
-      "mobile": "+63 917 555 0182"
+      "mobile": "+63 917 555 0182",
+      "memberSinceIso": "2026-02-12"
     },
     "wallet": [
       {
@@ -690,20 +812,22 @@
         "reward": "Free pastry",
         "status": "Regular",
         "color": "ink",
-        "distance": "450 m"
+        "distance": "450 m",
+        "businessId": "biz_sweet_crumbs"
       },
       {
         "id": "wallet_2",
         "business": "Sage & Steam",
         "kind": "Points",
-        "category": "Caf\u00e9",
+        "category": "Café",
         "progress": 640,
         "target": 1000,
         "balance": "640 points",
         "reward": "Signature drink",
         "status": "Member",
         "color": "green",
-        "distance": "1.2 km"
+        "distance": "1.2 km",
+        "businessId": "biz_sage_steam"
       },
       {
         "id": "wallet_3",
@@ -716,7 +840,8 @@
         "reward": "Monthly class access",
         "status": "VIP",
         "color": "accent",
-        "distance": "1.7 km"
+        "distance": "1.7 km",
+        "businessId": "biz_rooted_studio"
       },
       {
         "id": "wallet_4",
@@ -725,11 +850,12 @@
         "category": "Retail",
         "progress": 740,
         "target": 1000,
-        "balance": "\u20b1740 balance",
+        "balance": "₱740 balance",
         "reward": "Stored gift value",
         "status": "Gift",
         "color": "paper",
-        "distance": "2.1 km"
+        "distance": "2.1 km",
+        "businessId": "biz_4"
       }
     ],
     "discover": [
@@ -740,38 +866,40 @@
         "category": "Bakery",
         "neighborhood": "Kapitolyo",
         "distance": "450 m",
-        "reward": "8 visits \u2192 free pastry",
+        "reward": "8 visits → free pastry",
         "address": "12 East Capitol Drive, Kapitolyo, Pasig",
         "hours": [
           {
-            "days": "Mon \u2013 Fri",
-            "time": "7:00 AM \u2013 8:00 PM"
+            "days": "Mon – Fri",
+            "time": "7:00 AM – 8:00 PM"
           },
           {
-            "days": "Sat \u2013 Sun",
-            "time": "8:00 AM \u2013 9:00 PM"
+            "days": "Sat – Sun",
+            "time": "8:00 AM – 9:00 PM"
           }
         ],
         "joined": true,
-        "open": true
+        "open": true,
+        "businessId": "biz_sweet_crumbs"
       },
       {
         "id": "discover_2",
         "image": "/images/discover/sage-steam.webp",
         "name": "Sage & Steam",
-        "category": "Caf\u00e9",
+        "category": "Café",
         "neighborhood": "Brixton",
         "distance": "1.2 km",
-        "reward": "\u20b11 \u2192 1 point",
+        "reward": "₱1 → 1 point",
         "address": "48 Brixton Street, Kapitolyo, Pasig",
         "hours": [
           {
-            "days": "Mon \u2013 Sun",
-            "time": "6:30 AM \u2013 10:00 PM"
+            "days": "Mon – Sun",
+            "time": "6:30 AM – 10:00 PM"
           }
         ],
         "joined": true,
-        "open": true
+        "open": true,
+        "businessId": "biz_sage_steam"
       },
       {
         "id": "discover_3",
@@ -784,8 +912,8 @@
         "address": "5F Estancia Mall, Capitol Commons, Pasig",
         "hours": [
           {
-            "days": "Tue \u2013 Sun",
-            "time": "9:00 AM \u2013 7:00 PM"
+            "days": "Tue – Sun",
+            "time": "9:00 AM – 7:00 PM"
           },
           {
             "days": "Mon",
@@ -793,7 +921,8 @@
           }
         ],
         "joined": true,
-        "open": false
+        "open": false,
+        "businessId": "biz_rooted_studio"
       },
       {
         "id": "discover_4",
@@ -802,20 +931,21 @@
         "category": "Grooming",
         "neighborhood": "Ortigas",
         "distance": "1.8 km",
-        "reward": "5 cuts \u2192 signature treatment",
+        "reward": "5 cuts → signature treatment",
         "address": "G/F Emerald Avenue, Ortigas Center, Pasig",
         "hours": [
           {
-            "days": "Mon \u2013 Sat",
-            "time": "10:00 AM \u2013 9:00 PM"
+            "days": "Mon – Sat",
+            "time": "10:00 AM – 9:00 PM"
           },
           {
             "days": "Sun",
-            "time": "11:00 AM \u2013 6:00 PM"
+            "time": "11:00 AM – 6:00 PM"
           }
         ],
         "joined": false,
-        "open": true
+        "open": true,
+        "businessId": "biz_common_ground"
       },
       {
         "id": "discover_5",
@@ -828,12 +958,13 @@
         "address": "2F Shaw Boulevard, Mandaluyong",
         "hours": [
           {
-            "days": "Mon \u2013 Sun",
-            "time": "10:00 AM \u2013 9:00 PM"
+            "days": "Mon – Sun",
+            "time": "10:00 AM – 9:00 PM"
           }
         ],
         "joined": true,
-        "open": true
+        "open": true,
+        "businessId": "biz_4"
       },
       {
         "id": "discover_6",
@@ -846,16 +977,17 @@
         "address": "Mayflower Street, Greenfield District, Mandaluyong",
         "hours": [
           {
-            "days": "Mon \u2013 Fri",
-            "time": "6:00 AM \u2013 10:00 PM"
+            "days": "Mon – Fri",
+            "time": "6:00 AM – 10:00 PM"
           },
           {
-            "days": "Sat \u2013 Sun",
-            "time": "7:00 AM \u2013 6:00 PM"
+            "days": "Sat – Sun",
+            "time": "7:00 AM – 6:00 PM"
           }
         ],
         "joined": false,
-        "open": true
+        "open": true,
+        "businessId": "biz_6"
       }
     ],
     "notifications": [
@@ -866,7 +998,9 @@
         "body": "Your latest stamp is in. Three visits until a pastry is on us.",
         "time": "18 min ago",
         "kind": "Reward",
-        "read": false
+        "read": false,
+        "businessId": "biz_sweet_crumbs",
+        "receivedAtIso": "2026-08-28T09:44:00+08:00"
       },
       {
         "id": "note_2",
@@ -875,7 +1009,9 @@
         "body": "You have three member visits remaining this month.",
         "time": "Yesterday",
         "kind": "Service",
-        "read": true
+        "read": true,
+        "businessId": "biz_rooted_studio",
+        "receivedAtIso": "2026-08-27T18:10:00+08:00"
       },
       {
         "id": "note_3",
@@ -884,7 +1020,9 @@
         "body": "Your signature drink reward is getting close.",
         "time": "Monday",
         "kind": "Reward",
-        "read": true
+        "read": true,
+        "businessId": "biz_sage_steam",
+        "receivedAtIso": "2026-08-24T08:15:00+08:00"
       }
     ],
     "activity": [
@@ -892,28 +1030,34 @@
         "id": "act_1",
         "business": "Sweet Crumbs",
         "action": "+1 stamp",
-        "detail": "Kapitolyo \u00b7 approved by Jan",
+        "detail": "Kapitolyo · approved by Jan",
         "date": "Today",
         "value": "+1",
-        "reference": "evt_SC_10482"
+        "reference": "evt_SC_10482",
+        "businessId": "biz_sweet_crumbs",
+        "occurredAtIso": "2026-08-28T09:42:00+08:00"
       },
       {
         "id": "act_2",
         "business": "Sage & Steam",
         "action": "+286 points",
-        "detail": "Brixton \u00b7 \u20b1286 purchase",
+        "detail": "Brixton · ₱286 purchase",
         "date": "Yesterday",
         "value": "+286",
-        "reference": "evt_SS_8431"
+        "reference": "evt_SS_8431",
+        "businessId": "biz_sage_steam",
+        "occurredAtIso": "2026-08-27T16:05:00+08:00"
       },
       {
         "id": "act_3",
         "business": "Rooted Studio",
         "action": "Member visit used",
-        "detail": "Capitol Commons \u00b7 yoga flow",
+        "detail": "Capitol Commons · yoga flow",
         "date": "Sunday",
-        "value": "\u22121",
-        "reference": "evt_RS_2287"
+        "value": "−1",
+        "reference": "evt_RS_2287",
+        "businessId": "biz_rooted_studio",
+        "occurredAtIso": "2026-08-23T10:30:00+08:00"
       },
       {
         "id": "act_4",
@@ -921,8 +1065,54 @@
         "action": "Birthday pastry redeemed",
         "detail": "BGC High Street",
         "date": "22 August",
-        "value": "\u20b1185",
-        "reference": "evt_SC_9821"
+        "value": "₱185",
+        "reference": "evt_SC_9821",
+        "businessId": "biz_sweet_crumbs",
+        "occurredAtIso": "2026-08-22T11:22:00+08:00"
+      }
+    ],
+    "consentHistory": [
+      {
+        "id": "con_1",
+        "change": "Created a KYPStamping wallet",
+        "scope": "Account",
+        "when": "12 February 2026",
+        "whenIso": "2026-02-12"
+      },
+      {
+        "id": "con_2",
+        "change": "Joined Sweet Crumbs Bakery",
+        "scope": "Shared loyalty ID, name, mobile",
+        "when": "12 February 2026",
+        "whenIso": "2026-02-12"
+      },
+      {
+        "id": "con_3",
+        "change": "Turned on promotional push",
+        "scope": "All joined businesses",
+        "when": "12 February 2026",
+        "whenIso": "2026-02-12"
+      },
+      {
+        "id": "con_4",
+        "change": "Joined Sage & Steam",
+        "scope": "Shared loyalty ID, name",
+        "when": "3 March 2026",
+        "whenIso": "2026-03-03"
+      },
+      {
+        "id": "con_5",
+        "change": "Turned off SMS promotions",
+        "scope": "All joined businesses",
+        "when": "19 June 2026",
+        "whenIso": "2026-06-19"
+      },
+      {
+        "id": "con_6",
+        "change": "Added birthday",
+        "scope": "Sweet Crumbs Bakery",
+        "when": "2 August 2026",
+        "whenIso": "2026-08-02"
       }
     ]
   },
@@ -947,7 +1137,8 @@
         "mrr": 1290,
         "health": 94,
         "risk": "Healthy",
-        "joined": "12 Feb 2026"
+        "joined": "12 Feb 2026",
+        "businessId": "biz_sweet_crumbs"
       },
       {
         "id": "biz_2",
@@ -987,7 +1178,7 @@
       },
       {
         "id": "biz_5",
-        "name": "Field Notes Caf\u00e9",
+        "name": "Field Notes Café",
         "owner": "Luis Tan",
         "city": "Davao",
         "plan": "Core",
@@ -1019,7 +1210,8 @@
         "priority": "High",
         "age": "18 min",
         "owner": "Unassigned",
-        "status": "Open"
+        "status": "Open",
+        "ageMinutes": 18
       },
       {
         "id": "sup_2",
@@ -1029,7 +1221,8 @@
         "priority": "Normal",
         "age": "43 min",
         "owner": "Nica",
-        "status": "Investigating"
+        "status": "Investigating",
+        "ageMinutes": 43
       },
       {
         "id": "sup_3",
@@ -1039,17 +1232,19 @@
         "priority": "Normal",
         "age": "1 hr",
         "owner": "Paolo",
-        "status": "Waiting"
+        "status": "Waiting",
+        "ageMinutes": 60
       },
       {
         "id": "sup_4",
         "title": "Suspicious redemption cluster",
-        "business": "Field Notes Caf\u00e9",
+        "business": "Field Notes Café",
         "category": "Fraud",
         "priority": "High",
         "age": "2 hr",
         "owner": "Mika",
-        "status": "Investigating"
+        "status": "Investigating",
+        "ageMinutes": 120
       },
       {
         "id": "sup_5",
@@ -1059,7 +1254,8 @@
         "priority": "Normal",
         "age": "3 hr",
         "owner": "Nica",
-        "status": "Open"
+        "status": "Open",
+        "ageMinutes": 180
       },
       {
         "id": "sup_6",
@@ -1067,19 +1263,21 @@
         "business": "Harbor Grind Coffee",
         "category": "Delivery",
         "priority": "High",
-        "age": "2 h",
+        "age": "2 hr",
         "owner": "Nica",
-        "status": "Investigating"
+        "status": "Investigating",
+        "ageMinutes": 120
       },
       {
         "id": "sup_7",
         "title": "Export request for closed account",
         "business": "Platform (customer)",
         "category": "Privacy",
-        "priority": "Medium",
-        "age": "5 h",
+        "priority": "Normal",
+        "age": "5 hr",
         "owner": "Unassigned",
-        "status": "Open"
+        "status": "Open",
+        "ageMinutes": 300
       }
     ],
     "audit": [
@@ -1088,7 +1286,7 @@
         "actor": "Mika Lim",
         "role": "Trust admin",
         "action": "Reversed 12 suspicious redemptions",
-        "target": "Field Notes Caf\u00e9",
+        "target": "Field Notes Café",
         "time": "10:42 AM",
         "ip": "10.24.x.x",
         "severity": "Elevated"
@@ -1193,7 +1391,7 @@
           "accounts": 58,
           "mrr": 74820,
           "monthlyCost": 16440,
-          "margin": 78.0
+          "margin": 78
         },
         {
           "name": "Scale",
@@ -1240,6 +1438,170 @@
           "model": "Provider pass-through + fee"
         }
       ]
-    }
+    },
+    "adapters": [
+      {
+        "id": "sidecar",
+        "name": "KYPStamping terminal",
+        "category": "POS-independent",
+        "status": "Available",
+        "connected": 42,
+        "connectedSandbox": 7,
+        "detail": "Browser-based counter flow with signed offline reconciliation."
+      },
+      {
+        "id": "custom-api",
+        "name": "Custom API",
+        "category": "Direct commerce",
+        "status": "Available",
+        "connected": 14,
+        "connectedSandbox": 3,
+        "detail": "Versioned REST contract for sales, customers, rewards, and refunds."
+      },
+      {
+        "id": "pos-webhook",
+        "name": "POS webhook adapter",
+        "category": "Any register",
+        "status": "Pilot",
+        "connected": 3,
+        "connectedSandbox": 2,
+        "detail": "Normalized sale, refund, and customer events from any POS that can post webhooks."
+      },
+      {
+        "id": "pos-pull",
+        "name": "Scheduled pull adapter",
+        "category": "Any register",
+        "status": "Approval",
+        "connected": 0,
+        "connectedSandbox": 0,
+        "detail": "Scheduled sale retrieval for registers without outbound webhooks, enabled after conformance review."
+      },
+      {
+        "id": "ecommerce-webhook",
+        "name": "Ecommerce webhook adapter",
+        "category": "Ecommerce",
+        "status": "Planned",
+        "connected": 0,
+        "connectedSandbox": 0,
+        "detail": "Order, refund, customer, and SKU mapping through the same shared event contract."
+      }
+    ],
+    "tenantConnections": [
+      {
+        "businessId": "biz_sweet_crumbs",
+        "business": "Sweet Crumbs Bakery",
+        "adapter": "Custom API",
+        "branches": "3 / 3",
+        "credential": "Rotated 12 days ago",
+        "events": 18402,
+        "health": "Healthy"
+      },
+      {
+        "businessId": "biz_2",
+        "business": "Northline Coffee",
+        "adapter": "POS webhook adapter",
+        "branches": "2 / 2",
+        "credential": "Rotated 31 days ago",
+        "events": 9184,
+        "health": "Sandbox"
+      },
+      {
+        "businessId": "biz_3",
+        "business": "Aster Wellness",
+        "adapter": "KYPStamping terminal",
+        "branches": "4 / 4",
+        "credential": "Device keys managed",
+        "events": 6392,
+        "health": "Healthy"
+      },
+      {
+        "businessId": "biz_4",
+        "business": "Corner Thread",
+        "adapter": "Custom API",
+        "branches": "1 / 2",
+        "credential": "Rotation due in 4 days",
+        "events": 2058,
+        "health": "Attention"
+      }
+    ],
+    "recoveryQueue": [
+      {
+        "id": "evt_NC_44190",
+        "event": "reward.redeemed",
+        "direction": "outbound",
+        "tenant": "Northline Coffee",
+        "detail": "HTTP 503 · attempt 8 of 8"
+      },
+      {
+        "id": "evt_CT_20871",
+        "event": "balance.adjusted",
+        "direction": "outbound",
+        "tenant": "Corner Thread",
+        "detail": "Signature window expired"
+      },
+      {
+        "id": "evt_AW_10233",
+        "event": "customer.updated",
+        "direction": "outbound",
+        "tenant": "Aster Wellness",
+        "detail": "Endpoint timeout after 30s"
+      }
+    ]
+  },
+  "contract": {
+    "apiBase": "https://api.kypstamping.ph/api/v1",
+    "version": "v1",
+    "currency": "PHP",
+    "amountUnit": "centavos",
+    "idPrefixes": {
+      "organization": "org_",
+      "merchant": "mrc_",
+      "branch": "branch_",
+      "customer": "cus_",
+      "event": "evt_",
+      "request": "req_",
+      "apiKey": "key_"
+    },
+    "idempotency": {
+      "header": "Idempotency-Key",
+      "format": "<event-type>_<external-reference>",
+      "example": "visit_SC_10482"
+    },
+    "inboundEvents": [
+      {
+        "name": "sale.completed",
+        "detail": "A completed sale that may earn value"
+      },
+      {
+        "name": "sale.voided",
+        "detail": "A sale cancelled before settlement"
+      },
+      {
+        "name": "sale.refunded",
+        "detail": "A settled sale returned to the customer"
+      },
+      {
+        "name": "customer.linked",
+        "detail": "A POS customer record matched to a loyalty ID"
+      }
+    ],
+    "outboundEvents": [
+      {
+        "name": "visit.recorded",
+        "detail": "A staff-approved visit added stamps or points"
+      },
+      {
+        "name": "reward.redeemed",
+        "detail": "A reward was claimed and approved"
+      },
+      {
+        "name": "balance.adjusted",
+        "detail": "A correction, reversal, or expiry changed a balance"
+      },
+      {
+        "name": "customer.updated",
+        "detail": "A customer changed shared profile fields or consent"
+      }
+    ]
   }
 }

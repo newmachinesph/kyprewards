@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BrandMark } from "@stampr/ui";
 import { signOutDemo } from "@stampr/ui/auth";
-import { demoData } from "@stampr/demo-data";
+import { admin } from "@stampr/demo-data";
+import { useAdminState } from "@/components/AdminState";
 import {
   Activity,
   Bell,
@@ -22,10 +23,6 @@ import {
   Users,
   X,
 } from "lucide-react";
-
-const openSupportCount = demoData.admin.support.filter(
-  (ticket) => ticket.status === "Open",
-).length;
 
 export type AdminView =
   | "overview"
@@ -51,7 +48,7 @@ const nav = [
   {
     label: "Support queue",
     icon: LifeBuoy,
-    count: openSupportCount,
+    countsOpenTickets: true,
     view: "support" as AdminView,
   },
   { label: "Audit ledger", icon: FileClock, view: "audit" as AdminView },
@@ -75,6 +72,8 @@ export function AdminShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [accountOpen, setAccountOpen] = useState(false);
+  // Live count, so resolving a ticket actually clears the badge.
+  const { openTicketCount } = useAdminState();
 
   useEffect(() => {
     if (!accountOpen) return;
@@ -127,7 +126,7 @@ export function AdminShell({
             icon: item.icon,
             view: item.view,
           })),
-        ...demoData.admin.businesses
+        ...admin.businesses
           .filter(
             (item) =>
               item.name.toLowerCase().includes(query) ||
@@ -140,7 +139,7 @@ export function AdminShell({
             icon: Building2,
             view: "businesses" as AdminView,
           })),
-        ...demoData.admin.support
+        ...admin.support
           .filter(
             (item) =>
               item.title.toLowerCase().includes(query) ||
@@ -154,7 +153,7 @@ export function AdminShell({
             icon: LifeBuoy,
             view: "support" as AdminView,
           })),
-        ...demoData.admin.audit
+        ...admin.audit
           .filter(
             (item) =>
               item.action.toLowerCase().includes(query) ||
@@ -173,6 +172,7 @@ export function AdminShell({
   const navContent = nav.map((item) => {
     const Icon = item.icon;
     const active = activeView === item.view;
+    const count = "countsOpenTickets" in item ? openTicketCount : 0;
     return (
       <button
         type="button"
@@ -183,9 +183,9 @@ export function AdminShell({
       >
         <Icon size={17} aria-hidden="true" />
         <span className="flex-1">{item.label}</span>
-        {item.count && (
+        {count > 0 && (
           <span className="grid min-w-6 place-items-center rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-[10px] font-extrabold text-[var(--ink)]">
-            {item.count}
+            {count}
           </span>
         )}
       </button>

@@ -6,50 +6,32 @@ import {
   useContext,
   useMemo,
   useState,
+  useSyncExternalStore,
   type Dispatch,
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { demoData } from "@stampr/demo-data";
+import { business, sharedScenario } from "@stampr/demo-data";
+import type {
+  Credential,
+  Delivery,
+  Program,
+  StaffMember,
+} from "@stampr/demo-data";
 
 /**
  * Views are unmounted when the merchant navigates, so anything they own is
  * destroyed on the next click. In a real workspace this state lives on the
  * server; here it lives above the view switch so a toggle, a draft, or a new
  * credential survives navigation the way a merchant would expect.
+ *
+ * Seed values come from `@stampr/demo-data`'s synchronous mirrors. When the
+ * FastAPI service lands, this provider awaits the async accessors in
+ * `api.ts` instead — the view contracts below do not change.
  */
 
-const business = demoData.business;
-
-export type ProgramDraft = {
-  id: string;
-  name: string;
-  type: string;
-  status: string;
-  members: number;
-  completion: number;
-  redemption: number;
-  liability: number;
-};
-
-export type Credential = {
-  id: string;
-  label: string;
-  clientKey: string;
-  branch: string;
-  scopes: string[];
-  lastUsed: string;
-  status: "Active" | "Revoked";
-};
-
-export type Delivery = {
-  id: string;
-  event: string;
-  source: string;
-  status: "Delivered" | "Ignored safely" | "Retrying" | "Failed";
-  detail: string;
-  requestId: string;
-};
+export type ProgramDraft = Program;
+export type { Credential, Delivery };
 
 export type ScheduledCampaign = {
   id: string;
@@ -61,6 +43,19 @@ export type ScheduledCampaign = {
   revenue: number;
   cost: number;
   status: string;
+  /** Carried from the composer so the history row can explain itself. */
+  sendTime?: string;
+  frequencyPolicy?: string;
+};
+
+/** What the onboarding wizard wrote to session storage before handing over. */
+export type WorkspaceProfile = {
+  businessName: string;
+  category: string;
+  city: string;
+  locations: number;
+  program: string;
+  method: string;
 };
 
 const INITIAL_CREDENTIALS: Credential[] = [
@@ -68,10 +63,13 @@ const INITIAL_CREDENTIALS: Credential[] = [
     id: "key_counter_01",
     label: "Main counter",
     clientKey: "st_test_sc_7K9P2D4M",
-    branch: "Legazpi Village",
+    // The live counter in the shared scenario. Legazpi Village is still in
+    // setup, so scoping the main counter key there made no sense.
+    branch: "Kapitolyo",
     scopes: ["customers:read", "transactions:write", "rewards:read"],
     lastUsed: "18 seconds ago",
     status: "Active",
+    environment: "sandbox",
   },
   {
     id: "key_staging_02",
@@ -81,43 +79,92 @@ const INITIAL_CREDENTIALS: Credential[] = [
     scopes: ["customers:read", "transactions:write", "rewards:read", "redemptions:write"],
     lastUsed: "Yesterday, 4:18 PM",
     status: "Active",
+    environment: "sandbox",
+  },
+  {
+    id: "key_live_03",
+    label: "Production counter (preview)",
+    clientKey: "st_live_demo_sc_3B7T1Y5E",
+    branch: "Kapitolyo",
+    scopes: ["customers:read", "transactions:write"],
+    lastUsed: "Never used",
+    status: "Active",
+    environment: "production",
   },
 ];
 
+/**
+ * The first row is the shared scenario's own delivery. It previously carried
+ * an unrelated ID scheme, which broke the one claim the demo makes about all
+ * four apps showing the same event.
+ */
 const INITIAL_DELIVERIES: Delivery[] = [
   {
-    id: "evt_01J7SC10482",
-    event: "loyalty.transaction.completed",
+    id: sharedScenario.loyaltyEvent.id,
+    event: sharedScenario.loyaltyEvent.type,
     source: "POS sandbox",
-    status: "Delivered",
-    detail: "202 ms · Today, 9:42 AM",
-    requestId: "req_7G2K9P",
+    status: sharedScenario.loyaltyEvent.status,
+    detail: `202 ms · ${sharedScenario.loyaltyEvent.occurredAt}`,
+    requestId: sharedScenario.delivery.requestId,
   },
   {
-    id: "evt_01J7SC10481",
-    event: "loyalty.transaction.completed",
+    id: "evt_SC_10481",
+    event: "visit.recorded",
     source: "POS sandbox",
     status: "Ignored safely",
-    detail: "Duplicate event · Today, 9:41 AM",
-    requestId: "req_6Q1M3A",
+    detail: "Duplicate idempotency key · Today, 9:41 AM",
+    requestId: "req_SC_10481",
   },
   {
-    id: "evt_01J7SC10477",
+    id: "evt_SC_10477",
     event: "reward.redeemed",
     source: "Sweet Crumbs endpoint",
     status: "Retrying",
     detail: "Attempt 2 of 8 · Next retry in 48s",
-    requestId: "req_4D8V2N",
+    requestId: "req_SC_10477",
   },
   {
-    id: "evt_01J7SC10463",
+    id: "evt_SC_10463",
     event: "customer.updated",
     source: "Sweet Crumbs endpoint",
     status: "Failed",
     detail: "HTTP 503 · Yesterday, 6:14 PM",
-    requestId: "req_2L5R7C",
+    requestId: "req_SC_10463",
   },
 ];
+
+const DEFAULT_WEBHOOK_URL = "https://pos.sweetcrumbs.ph/webhooks/kypstamping";
+
+/**
+ * The onboarding wizard writes the merchant's answers to session storage
+ * before handing over. Reading them is what makes that wizard mean something.
+ *
+ * Session storage is an external store, so it is read through
+ * `useSyncExternalStore` rather than an effect: the server snapshot is `null`,
+ * the client snapshot is cached so the value stays referentially stable, and
+ * there is no hydration mismatch to paper over.
+ */
+const WORKSPACE_KEY = "stampr-business-profile";
+let workspaceCache: WorkspaceProfile | null | undefined;
+
+function subscribeToWorkspace() {
+  // Written once, before this app mounts. Nothing to unsubscribe from.
+  return () => {};
+}
+
+function readWorkspace(): WorkspaceProfile | null {
+  if (workspaceCache !== undefined) return workspaceCache;
+  try {
+    const saved = window.sessionStorage.getItem(WORKSPACE_KEY);
+    workspaceCache = saved ? (JSON.parse(saved) as WorkspaceProfile) : null;
+  } catch {
+    // A malformed or blocked store just means the fixture workspace.
+    workspaceCache = null;
+  }
+  return workspaceCache;
+}
+
+const noWorkspaceOnServer = () => null;
 
 type DemoState = {
   automations: Record<string, boolean>;
@@ -133,6 +180,9 @@ type DemoState = {
   campaigns: ScheduledCampaign[];
   scheduleCampaign: (campaign: Omit<ScheduledCampaign, "id">) => void;
 
+  staff: StaffMember[];
+  inviteStaff: (invite: { name: string; role: string; location: string }) => void;
+
   settings: Record<string, boolean>;
   setSetting: (key: string, value: boolean) => void;
 
@@ -140,10 +190,30 @@ type DemoState = {
   setCredentials: Dispatch<SetStateAction<Credential[]>>;
   deliveries: Delivery[];
   setDeliveries: Dispatch<SetStateAction<Delivery[]>>;
+
+  /** The input the merchant is editing. */
   webhookUrl: string;
   setWebhookUrl: Dispatch<SetStateAction<string>>;
+  /** The last value they committed with Save, so the button means something. */
+  savedWebhookUrl: string;
+  saveWebhookUrl: () => void;
+
   subscribedEvents: string[];
   setSubscribedEvents: Dispatch<SetStateAction<string[]>>;
+
+  /** Dashboard setup ledger — owned here so it survives navigation. */
+  testStampDone: boolean;
+  completeTestStamp: () => void;
+
+  /** Set when the dashboard scanner hands off to the counter view, so the
+   *  merchant is not asked to pick the demo customer a second time. */
+  scanHandoff: boolean;
+  startScanHandoff: () => void;
+  consumeScanHandoff: () => void;
+
+  /** Whatever the onboarding wizard configured, or null when the merchant
+   *  entered through the login screen instead. */
+  workspace: WorkspaceProfile | null;
 };
 
 const DemoStateContext = createContext<DemoState | null>(null);
@@ -171,16 +241,28 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
       channels: [...item.channels],
     })),
   );
-  const [settings, setSettings] = useState<Record<string, boolean>>({});
+  const [staff, setStaff] = useState<StaffMember[]>(() =>
+    business.staff.map((item) => ({ ...item })),
+  );
+  const [settings, setSettings] = useState<Record<string, boolean>>({
+    autoTopUpSms: true,
+    invoiceEmails: true,
+  });
   const [credentials, setCredentials] = useState<Credential[]>(INITIAL_CREDENTIALS);
   const [deliveries, setDeliveries] = useState<Delivery[]>(INITIAL_DELIVERIES);
-  const [webhookUrl, setWebhookUrl] = useState(
-    "https://pos.sweetcrumbs.ph/webhooks/kypstamping",
-  );
+  const [webhookUrl, setWebhookUrl] = useState(DEFAULT_WEBHOOK_URL);
+  const [savedWebhookUrl, setSavedWebhookUrl] = useState(DEFAULT_WEBHOOK_URL);
   const [subscribedEvents, setSubscribedEvents] = useState([
-    "loyalty.transaction.completed",
+    "visit.recorded",
     "reward.redeemed",
   ]);
+  const [testStampDone, setTestStampDone] = useState(false);
+  const [scanHandoff, setScanHandoff] = useState(false);
+  const workspace = useSyncExternalStore(
+    subscribeToWorkspace,
+    readWorkspace,
+    noWorkspaceOnServer,
+  );
 
   const toggleAutomation = useCallback((id: string) => {
     let next = false;
@@ -245,9 +327,43 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const inviteStaff = useCallback(
+    ({ name, role, location }: { name: string; role: string; location: string }) => {
+      setStaff((current) => [
+        ...current,
+        {
+          id: `staff_invite_${current.length + 1}`,
+          name,
+          initials: name
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((word) => word[0]?.toUpperCase() ?? "")
+            .join(""),
+          role,
+          location,
+          lastActive: "Invitation sent",
+          status: "Invited",
+        },
+      ]);
+    },
+    [],
+  );
+
   const setSetting = useCallback((key: string, value: boolean) => {
     setSettings((current) => ({ ...current, [key]: value }));
   }, []);
+
+  const saveWebhookUrl = useCallback(() => {
+    setWebhookUrl((current) => {
+      setSavedWebhookUrl(current);
+      return current;
+    });
+  }, []);
+
+  const completeTestStamp = useCallback(() => setTestStampDone(true), []);
+  const startScanHandoff = useCallback(() => setScanHandoff(true), []);
+  const consumeScanHandoff = useCallback(() => setScanHandoff(false), []);
 
   const value = useMemo<DemoState>(
     () => ({
@@ -260,6 +376,8 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
       updateProgramRule,
       campaigns,
       scheduleCampaign,
+      staff,
+      inviteStaff,
       settings,
       setSetting,
       credentials,
@@ -268,8 +386,16 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
       setDeliveries,
       webhookUrl,
       setWebhookUrl,
+      savedWebhookUrl,
+      saveWebhookUrl,
       subscribedEvents,
       setSubscribedEvents,
+      testStampDone,
+      completeTestStamp,
+      scanHandoff,
+      startScanHandoff,
+      consumeScanHandoff,
+      workspace,
     }),
     [
       automations,
@@ -281,12 +407,22 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
       updateProgramRule,
       campaigns,
       scheduleCampaign,
+      staff,
+      inviteStaff,
       settings,
       setSetting,
       credentials,
       deliveries,
       webhookUrl,
+      savedWebhookUrl,
+      saveWebhookUrl,
       subscribedEvents,
+      testStampDone,
+      completeTestStamp,
+      scanHandoff,
+      startScanHandoff,
+      consumeScanHandoff,
+      workspace,
     ],
   );
 

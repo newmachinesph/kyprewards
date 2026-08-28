@@ -12,18 +12,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { Check, TriangleAlert, X } from "lucide-react";
 
-/** One "today" for every app, so a screen-share of all four agrees. */
 /** How a demo notification should surface. "review" opens the confirm dialog
  *  that discloses nothing is persisted; "info" is a passive toast. */
 export type NotifyIntent = "info" | "review" | "error";
 
-export function todayLabel(date: Date = new Date()) {
-  return date.toLocaleDateString("en-PH", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
-}
+/** Date and money formatting live in `./format`. Re-exported here because
+ *  every shell already imports from this module. */
+export { greeting, peso, pesoCompact, pesoFromCentavos, relativeTime, todayLabel } from "./format";
 
 export function useToast(timeoutMs = 2800) {
   const [toast, setToast] = useState<string | null>(null);

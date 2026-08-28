@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { demoData } from "@stampr/demo-data";
+import { useEffect, useState, type ReactNode } from "react";
+import { business, sharedScenario } from "@stampr/demo-data";
 import { Button, Eyebrow, Pill, StampDots, ViewFrame } from "@stampr/ui";
+import { daysUntilBirthday, peso, pesoCompact } from "@stampr/ui/format";
 import {
   ArrowRight,
   BadgeCheck,
@@ -50,8 +50,6 @@ import type { BusinessView } from "@/components/BusinessShell";
 import { useDemoState } from "@/components/DemoState";
 import { IntegrationsView } from "@/components/IntegrationsView";
 
-const business = demoData.business;
-const sharedScenario = demoData.sharedScenario;
 const qrPattern = [
   "11111001011111",
   "10001011010001",
@@ -74,10 +72,22 @@ type Notify = (message: string, intent?: NotifyIntent) => void;
 
 
 function ScanView({ notify }: { notify: Notify }) {
-  const [step, setStep] = useState<"ready" | "found" | "complete">("ready");
+  // The dashboard scanner already picked the demo customer; arriving here and
+  // being asked to pick again broke the flow.
+  const { scanHandoff, consumeScanHandoff } = useDemoState();
+  const [step, setStep] = useState<"ready" | "found" | "complete">(
+    scanHandoff ? "found" : "ready",
+  );
+  useEffect(() => {
+    if (scanHandoff) consumeScanHandoff();
+  }, [scanHandoff, consumeScanHandoff]);
   const [amount, setAmount] = useState(String(sharedScenario.purchase.amount));
   const [lastVisit, setLastVisit] = useState<{ stamps: number; amount: number } | null>(null);
-  const stampsBefore = 5;
+  // The counter re-enacts the shared visit, so it has to start where that
+  // event started. Beginning at the *result* produced a stamp count no other
+  // app agreed with.
+  const stampsBefore = sharedScenario.loyaltyEvent.beforeStamps;
+  const stampTarget = sharedScenario.loyaltyEvent.target;
   return (
     <ViewFrame
       eyebrow="Counter"
@@ -128,7 +138,8 @@ function ScanView({ notify }: { notify: Notify }) {
                   <div className="min-w-0 flex-1">
                     <p className="font-extrabold">{sharedScenario.customer}</p>
                     <p className="mt-1 text-xs text-[var(--muted)]">
-                      Regular · 14 visits · healthy
+                      {business.customers[0].segment} · {business.customers[0].visits} visits ·{" "}
+                      {business.customers[0].risk.toLowerCase()}
                     </p>
                   </div>
                   <BadgeCheck className="text-[var(--success)]" />
@@ -139,7 +150,7 @@ function ScanView({ notify }: { notify: Notify }) {
                   </p>
                   <p className="mt-1 font-extrabold">Eight visits, pastry on us</p>
                   <div className="mt-4 overflow-x-auto">
-                    <StampDots filled={5} total={8} />
+                    <StampDots filled={stampsBefore} total={stampTarget} />
                   </div>
                 </div>
                 <label className="mt-5 grid gap-2 text-xs font-bold">
@@ -176,7 +187,7 @@ function ScanView({ notify }: { notify: Notify }) {
                       setStep("complete");
                       notify(
                         recorded
-                          ? `Visit approved. ₱${recorded.toLocaleString()} recorded with the stamp.`
+                          ? `Visit approved. ${peso(recorded)} recorded with the stamp.`
                           : "Visit approved as a visit-only stamp.",
                       );
                     }}
@@ -197,10 +208,10 @@ function ScanView({ notify }: { notify: Notify }) {
                   Stamp added.
                 </h2>
                 <p className="mx-auto mt-3 max-w-[36ch] text-sm leading-relaxed text-white/65">
-                  {sharedScenario.customer} now has {lastVisit?.stamps ?? stampsBefore + 1} of 8
-                  stamps
+                  {sharedScenario.customer} now has{" "}
+                  {lastVisit?.stamps ?? stampsBefore + 1} of {stampTarget} stamps
                   {lastVisit?.amount
-                    ? ` from a ₱${lastVisit.amount.toLocaleString()} purchase`
+                    ? ` from a ${peso(lastVisit.amount)} purchase`
                     : ""}
                   . Nothing is written to a server in this demo.
                 </p>
@@ -594,7 +605,7 @@ function CustomersView({ notify }: { notify: Notify }) {
                       {customer.visits}
                     </td>
                     <td className="px-4 py-4 text-sm font-bold">
-                      ₱{customer.lifetimeValue.toLocaleString()}
+                      {peso(customer.lifetimeValue)}
                     </td>
                     <td className="px-4 py-4 text-xs text-[var(--muted-strong)]">
                       {customer.lastVisit}
@@ -634,7 +645,7 @@ function CustomersView({ notify }: { notify: Notify }) {
           <div className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10">
             {[
               ["Visits", selected.visits],
-              ["Lifetime value", `₱${selected.lifetimeValue.toLocaleString()}`],
+              ["Lifetime value", peso(selected.lifetimeValue)],
               ["Progress", selected.progress],
               ["Birthday", selected.birthday],
             ].map(([label, value]) => (
@@ -797,9 +808,12 @@ const programIcons: Record<string, typeof Stamp> = {
   "Gift card": CreditCard,
 };
 
+const PROGRAM_STATUSES = ["Live", "Ready", "Draft"] as const;
+
 function ProgramsView({ notify }: { notify: Notify }) {
-  const { programs, duplicateProgram } = useDemoState();
+  const { programs, duplicateProgram, updateProgramRule } = useDemoState();
   const [selectedId, setSelectedId] = useState(programs[0].id);
+  const [editing, setEditing] = useState(false);
   const selected =
     programs.find((program) => program.id === selectedId) ?? programs[0];
   return (
@@ -867,7 +881,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
               ["Members", selected.members.toLocaleString()],
               ["Completion", `${selected.completion}%`],
               ["Redemption", `${selected.redemption}%`],
-              ["Liability", `₱${selected.liability.toLocaleString()}`],
+              ["Liability", peso(selected.liability)],
             ].map(([label, value]) => (
               <div key={label} className="bg-[var(--ink-soft)] p-4">
                 <p className="text-[10px] text-white/50">{label}</p>
@@ -905,11 +919,72 @@ function ProgramsView({ notify }: { notify: Notify }) {
             </Button>
             <Button
               tone="accent"
-              onClick={() => notify(`${selected.name} editor opened.`, "review")}
+              aria-expanded={editing}
+              onClick={() => setEditing((open) => !open)}
             >
-              Edit rules
+              {editing ? "Close editor" : "Edit rules"}
             </Button>
           </div>
+          {editing && (
+            <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
+              <Eyebrow>Rule editor</Eyebrow>
+              <label className="mt-4 grid gap-2 text-xs font-bold">
+                Program name
+                <input
+                  value={selected.name}
+                  onChange={(event) =>
+                    updateProgramRule(selected.id, { name: event.target.value })
+                  }
+                  className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+                />
+              </label>
+              <fieldset className="mt-4">
+                <legend className="text-xs font-bold">Status</legend>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {PROGRAM_STATUSES.map((status) => (
+                    <button
+                      type="button"
+                      key={status}
+                      aria-pressed={selected.status === status}
+                      onClick={() => updateProgramRule(selected.id, { status })}
+                      className={`min-h-10 rounded-full px-3 text-xs font-bold ${
+                        selected.status === status
+                          ? "bg-[var(--accent)] text-[var(--ink)]"
+                          : "border border-white/15 text-white/60"
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+              <label className="mt-4 grid gap-2 text-xs font-bold">
+                Reward liability ceiling
+                <input
+                  type="number"
+                  min={0}
+                  step={100}
+                  value={selected.liability}
+                  onChange={(event) =>
+                    updateProgramRule(selected.id, {
+                      liability: Math.max(0, Number(event.target.value) || 0),
+                    })
+                  }
+                  className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+                />
+              </label>
+              <Button
+                tone="accent"
+                className="mt-5 w-full"
+                onClick={() => {
+                  setEditing(false);
+                  notify(`${selected.name} saved as a new version in this demo.`);
+                }}
+              >
+                Publish new version
+              </Button>
+            </div>
+          )}
         </aside>
       </div>
     </ViewFrame>
@@ -1005,9 +1080,14 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
 }
 
 function BirthdayView({ notify }: { notify: Notify }) {
-  const upcoming = business.customers.filter((customer) =>
-    ["29 August", "30 August", "8 September"].includes(customer.birthday),
-  );
+  // Was a literal list of three dates under a "next 30 days" heading, so it
+  // was only ever correct on the day it was written.
+  const upcoming = business.customers
+    .map((customer) => ({ customer, inDays: daysUntilBirthday(customer.birthday) }))
+    .filter((entry): entry is { customer: typeof entry.customer; inDays: number } =>
+      entry.inDays !== null,
+    )
+    .sort((a, b) => a.inDays - b.inDays);
   const [channels, setChannels] = useState({
     Push: true,
     Email: true,
@@ -1032,22 +1112,37 @@ function BirthdayView({ notify }: { notify: Notify }) {
             <CakeSlice className="text-[var(--accent-strong)]" />
           </div>
           <div className="mt-5 divide-y divide-[var(--line)]">
-            {upcoming.map((customer) => (
-              <div key={customer.id} className="flex items-center gap-3 py-4">
-                <span className="grid size-10 place-items-center rounded-xl bg-[var(--surface-2)] text-xs font-extrabold">
-                  {customer.initials}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-extrabold">{customer.name}</p>
-                  <p className="mt-0.5 text-xs text-[var(--muted)]">
-                    {customer.birthday} · {customer.favorite}
-                  </p>
+            {upcoming.map(({ customer, inDays }) => {
+              // Every consented channel counts, not just SMS.
+              const reachable = [
+                customer.pushConsent,
+                customer.emailConsent,
+                customer.smsConsent,
+              ].filter(Boolean).length;
+              return (
+                <div key={customer.id} className="flex items-center gap-3 py-4">
+                  <span className="grid size-10 place-items-center rounded-xl bg-[var(--surface-2)] text-xs font-extrabold">
+                    {customer.initials}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-extrabold">{customer.name}</p>
+                    <p className="mt-0.5 text-xs text-[var(--muted)]">
+                      {customer.birthday} ·{" "}
+                      {inDays === 0 ? "today" : `in ${inDays} day${inDays === 1 ? "" : "s"}`} ·{" "}
+                      {customer.favorite}
+                    </p>
+                  </div>
+                  <Pill tone={reachable > 1 ? "success" : "neutral"}>
+                    {reachable} channel{reachable === 1 ? "" : "s"}
+                  </Pill>
                 </div>
-                <Pill tone={customer.smsConsent ? "success" : "neutral"}>
-                  {customer.smsConsent ? "3 channels" : "2 channels"}
-                </Pill>
-              </div>
-            ))}
+              );
+            })}
+            {upcoming.length === 0 && (
+              <p className="py-6 text-xs text-[var(--muted)]">
+                No known birthdays in the next 30 days.
+              </p>
+            )}
           </div>
         </section>
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
@@ -1125,6 +1220,14 @@ function BirthdayView({ notify }: { notify: Notify }) {
 }
 
 function RedemptionsView({ notify }: { notify: Notify }) {
+  // These were three hardcoded figures, one of which quoted the stamp-card
+  // liability under a "reward value" label. All three now say what they count.
+  const approved = business.redemptions.filter((item) => item.status === "Approved");
+  const reversals = business.redemptions.length - approved.length;
+  const rewardValue = approved.reduce((sum, item) => sum + item.value, 0);
+  const approvalRate = (approved.length / business.redemptions.length) * 100;
+  const stampLiability =
+    business.programs.find((program) => program.type === "Stamps")?.liability ?? 0;
   return (
     <ViewFrame
       eyebrow="Value ledger"
@@ -1171,7 +1274,7 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                     {item.staff}
                   </td>
                   <td className="px-4 py-4 text-sm font-bold">
-                    {item.value ? `₱${item.value}` : "—"}
+                    {item.value ? peso(item.value) : "—"}
                   </td>
                   <td className="px-4 py-4">
                     <Pill
@@ -1191,13 +1294,21 @@ function RedemptionsView({ notify }: { notify: Notify }) {
       </section>
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
         {[
-          ["Reward value this month", "₱28,400", "Within budget"],
+          [
+            "Reward value in this ledger",
+            peso(rewardValue),
+            `${approved.length} approved redemption${approved.length === 1 ? "" : "s"}`,
+          ],
           [
             "Approval rate",
-            "98.6%",
-            `${business.redemptions.filter((r) => r.status === "Reversed").length} reversals`,
+            `${approvalRate.toFixed(1)}%`,
+            `${reversals} reversal${reversals === 1 ? "" : "s"}`,
           ],
-          ["Average time to redeem", "19 days", "4 days faster"],
+          [
+            "Outstanding stamp-card liability",
+            peso(stampLiability),
+            "What unredeemed stamps would cost",
+          ],
         ].map(([label, value, detail]) => (
           <article
             key={label}
@@ -1219,6 +1330,29 @@ function RedemptionsView({ notify }: { notify: Notify }) {
 
 /** Per-campaign delivery ceiling quoted in the preflight copy. */
 const SMS_CEILING = 1000;
+
+/**
+ * What is left of this month's plan allowance, per channel.
+ *
+ * Email was billed at the overage rate from the first message while its own
+ * label read "Uses allowance". A channel with allowance left costs nothing
+ * until that allowance runs out.
+ */
+const allowanceRemaining: Record<string, number> = Object.fromEntries(
+  business.billing.allowances
+    .filter((item) => item.unit === "messages" || item.unit === "credits")
+    .map((item) => [
+      item.label === "SMS credits" ? "SMS" : item.label,
+      Math.max(0, item.included - item.used),
+    ]),
+);
+
+/** Cost of sending to `count` recipients on one channel, allowance first. */
+function channelCost(name: string, unit: number, count: number) {
+  if (unit === 0) return 0;
+  const free = Math.min(count, allowanceRemaining[name] ?? 0);
+  return (count - free) * unit;
+}
 
 type ChannelStatus = "ready" | "planned";
 
@@ -1251,7 +1385,7 @@ const channelConfig: {
     icon: Mail,
     eligible: 1060,
     unit: 0.025,
-    note: "Uses allowance",
+    note: "₱0.025 / email",
     status: "ready",
   },
   {
@@ -1292,6 +1426,11 @@ function CampaignsView({ notify }: { notify: Notify }) {
   const { scheduleCampaign, campaigns } = useDemoState();
   const [campaignName, setCampaignName] = useState("Tuesday treat");
   const [audience, setAudience] = useState(1280);
+  // These three were uncontrolled selects, so the composer showed choices that
+  // never reached the scheduled campaign.
+  const [audienceSegment, setAudienceSegment] = useState("Almost regulars");
+  const [sendTime, setSendTime] = useState("Tuesday, 1:30 PM");
+  const [frequencyPolicy, setFrequencyPolicy] = useState("Respect 2 promos / week");
   const [channels, setChannels] = useState<Record<string, boolean>>({
     "In-app": true,
     Push: true,
@@ -1321,7 +1460,8 @@ function CampaignsView({ notify }: { notify: Notify }) {
   const deliveryCost = Math.max(
     0,
     selectedChannels.reduce(
-      (sum, channel) => sum + Math.min(audience, channel.eligible) * channel.unit,
+      (sum, channel) =>
+        sum + channelCost(channel.name, channel.unit, Math.min(audience, channel.eligible)),
       0,
     ) - routingSavings,
   );
@@ -1350,14 +1490,14 @@ function CampaignsView({ notify }: { notify: Notify }) {
             if (message.length > 320) problems.push("the message is over 320 characters");
             if (channels.SMS && deliveryCost > SMS_CEILING) {
               problems.push(
-                `estimated cost ₱${deliveryCost.toFixed(2)} is over the ₱${SMS_CEILING.toLocaleString()} campaign ceiling`,
+                `estimated cost ${peso(deliveryCost, { decimals: true })} is over the ${peso(SMS_CEILING)} campaign ceiling`,
               );
             }
             if (reachable === 0) problems.push("no reachable customers with consent");
             notify(
               problems.length
                 ? `Preflight failed: ${problems.join("; ")}.`
-                : `Preflight passed: ${reachable.toLocaleString()} reachable, estimated ₱${deliveryCost.toFixed(2)}.`,
+                : `Preflight passed: ${reachable.toLocaleString()} reachable, estimated ${peso(deliveryCost, { decimals: true })}.`,
               problems.length ? "error" : "info",
             );
           }}
@@ -1379,7 +1519,11 @@ function CampaignsView({ notify }: { notify: Notify }) {
             </label>
             <label className="grid gap-2 text-xs font-bold">
               Audience
-              <select className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm">
+              <select
+                value={audienceSegment}
+                onChange={(event) => setAudienceSegment(event.target.value)}
+                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
+              >
                 <option>Almost regulars</option>
                 <option>At-risk regulars</option>
                 <option>One action from reward</option>
@@ -1447,7 +1591,9 @@ function CampaignsView({ notify }: { notify: Notify }) {
                         className={`mt-0.5 block text-[10px] ${active ? "text-white/60" : "text-[var(--muted)]"}`}
                       >
                         {channel.eligible.toLocaleString()} reachable ·{" "}
-                        {channel.note}
+                        {allowanceRemaining[channel.name]
+                          ? `${allowanceRemaining[channel.name].toLocaleString()} left in plan, then ${channel.note.toLowerCase()}`
+                          : channel.note}
                       </span>
                     </span>
                     {active && <Check size={16} />}
@@ -1500,7 +1646,11 @@ function CampaignsView({ notify }: { notify: Notify }) {
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <label className="grid gap-2 text-xs font-bold">
               Send time
-              <select className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm">
+              <select
+                value={sendTime}
+                onChange={(event) => setSendTime(event.target.value)}
+                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
+              >
                 <option>Tuesday, 1:30 PM</option>
                 <option>Now after preflight</option>
                 <option>At each customer’s usual time</option>
@@ -1508,7 +1658,11 @@ function CampaignsView({ notify }: { notify: Notify }) {
             </label>
             <label className="grid gap-2 text-xs font-bold">
               Frequency policy
-              <select className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm">
+              <select
+                value={frequencyPolicy}
+                onChange={(event) => setFrequencyPolicy(event.target.value)}
+                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
+              >
                 <option>Respect 2 promos / week</option>
                 <option>Service message only</option>
               </select>
@@ -1523,11 +1677,11 @@ function CampaignsView({ notify }: { notify: Notify }) {
           <div className="mt-7 divide-y divide-[rgb(24_18_12/16%)] border-y border-[rgb(24_18_12/16%)]">
             {[
               ["Reachable with consent", reachable.toLocaleString()],
-              ["Estimated delivery cost", `₱${deliveryCost.toFixed(2)}`],
+              ["Estimated delivery cost", peso(deliveryCost, { decimals: true })],
               ["Predicted visits", predictedVisits],
               [
                 "Predicted visit revenue",
-                `₱${predictedRevenue.toLocaleString()}`,
+                peso(predictedRevenue),
               ],
               [
                 "Revenue / delivery cost",
@@ -1574,16 +1728,18 @@ function CampaignsView({ notify }: { notify: Notify }) {
                 }
                 scheduleCampaign({
                   name: campaignName.trim() || "Untitled campaign",
-                  audience: `${audience.toLocaleString()} selected customers`,
+                  audience: `${audienceSegment} · ${audience.toLocaleString()} selected`,
                   channels: selectedChannels.map((channel) => channel.name),
                   sent: reachable,
                   visited: 0,
                   revenue: 0,
                   cost: Math.round(deliveryCost),
                   status: "Scheduled",
+                  sendTime,
+                  frequencyPolicy,
                 });
                 notify(
-                  `${campaignName.trim() || "Untitled campaign"} scheduled for ${reachable.toLocaleString()} reachable customers.`,
+                  `${campaignName.trim() || "Untitled campaign"} scheduled for ${sendTime.toLowerCase()} · ${reachable.toLocaleString()} reachable customers.`,
                 );
               }}
               icon={<Send size={15} />}
@@ -1619,6 +1775,8 @@ function CampaignsView({ notify }: { notify: Notify }) {
                     <p className="text-sm font-extrabold">{campaign.name}</p>
                     <p className="mt-0.5 text-[10px] text-[var(--muted)]">
                       {campaign.audience}
+                      {campaign.sendTime ? ` · ${campaign.sendTime}` : ""}
+                      {campaign.frequencyPolicy ? ` · ${campaign.frequencyPolicy}` : ""}
                     </p>
                   </td>
                   <td className="px-4 py-4 text-xs font-bold">
@@ -1631,7 +1789,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
                     {campaign.visited} visits
                   </td>
                   <td className="px-4 py-4 text-sm font-extrabold">
-                    ₱{campaign.revenue.toLocaleString()}
+                    {peso(campaign.revenue)}
                   </td>
                   <td className="px-4 py-4">
                     <Pill
@@ -1651,6 +1809,12 @@ function CampaignsView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
+
+/** Derived so a channel that exists in the ledger is always filterable. */
+const messageChannels = [
+  "All",
+  ...Array.from(new Set(business.messages.map((message) => message.channel))),
+];
 
 function MessageLogView({ notify }: { notify: Notify }) {
   const [channel, setChannel] = useState("All");
@@ -1680,7 +1844,7 @@ function MessageLogView({ notify }: { notify: Notify }) {
       <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="flex flex-col gap-3 border-b border-[var(--line)] p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
-            {["All", "In-app", "Push", "Email", "SMS"].map((item) => (
+            {messageChannels.map((item) => (
               <button
                 type="button"
                 key={item}
@@ -1737,7 +1901,7 @@ function MessageLogView({ notify }: { notify: Notify }) {
                     </Pill>
                   </td>
                   <td className="px-4 py-4 font-mono text-xs">
-                    {message.cost ? `₱${message.cost.toFixed(2)}` : "Included"}
+                    {message.cost ? peso(message.cost, { decimals: true }) : "Included"}
                   </td>
                   <td className="px-4 py-4 text-xs text-[var(--muted)]">
                     {message.sentAt}
@@ -1763,6 +1927,13 @@ function MessageLogView({ notify }: { notify: Notify }) {
 }
 
 function AnalyticsView() {
+  // "Campaign-attributed" was hardcoded at ₱76.4k while the fixture's own
+  // campaign revenue summed to ₱136.3k. Both now come from the same number.
+  const metrics = business.metrics;
+  const rewardIssued = business.programs.reduce(
+    (sum, program) => sum + program.liability,
+    0,
+  );
   const retention = [100, 68, 54, 47, 44, 42];
   const cohorts = [
     [100, 71, 58, 49, 45, 43],
@@ -1807,16 +1978,22 @@ function AnalyticsView() {
         </section>
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <Eyebrow>Member economics</Eyebrow>
-          <p className="mt-7 text-4xl font-extrabold tracking-[-0.03em]">₱482.6k</p>
+          <p className="mt-7 text-4xl font-extrabold tracking-[-0.03em]">
+            {pesoCompact(metrics.memberRevenue)}
+          </p>
           <p className="mt-1 text-xs text-white/55">
             member-attributed revenue this month
           </p>
           <div className="mt-8 divide-y divide-white/12 border-y border-white/12">
             {[
-              ["Campaign-attributed", "₱76.4k"],
-              ["Reward value issued", "₱28.4k"],
-              ["Revenue / reward cost", "17.0×"],
-              ["Average member order", "₱286"],
+              ["Campaign-attributed", pesoCompact(metrics.campaignRevenue)],
+              ["Outstanding reward liability", pesoCompact(rewardIssued)],
+              [
+                "Revenue / reward liability",
+                `${(metrics.memberRevenue / rewardIssued).toFixed(1)}×`,
+              ],
+              ["Average member order", peso(metrics.averageOrder)],
+              ["Repeat visit rate", `${metrics.repeatRate}%`],
             ].map(([label, value]) => (
               <div
                 key={label}
@@ -1883,8 +2060,35 @@ function AnalyticsView() {
   );
 }
 
+const STAFF_ROLES = [
+  ["Owner", "Everything, including billing and deletion"],
+  ["Manager", "Programs, customers, campaigns, and staff"],
+  ["Cashier", "Scan, earn, redeem, and reverse window"],
+  ["Analyst", "Read-only customers and analytics"],
+] as const;
+
 function StaffView({ notify }: { notify: Notify }) {
-  const router = useRouter();
+  // "Invite staff" used to open /accept-invite — the recipient's screen. An
+  // owner needs a composer, so this is one.
+  const { staff, inviteStaff } = useDemoState();
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [inviteName, setInviteName] = useState("");
+  const [inviteRole, setInviteRole] = useState<string>("Cashier");
+  const [inviteLocation, setInviteLocation] = useState(business.locations[0].name);
+
+  function sendInvite() {
+    if (!inviteName.trim()) {
+      notify("Add the name the invitation should be addressed to.", "error");
+      return;
+    }
+    inviteStaff({ name: inviteName.trim(), role: inviteRole, location: inviteLocation });
+    notify(
+      `Invitation prepared for ${inviteName.trim()} as ${inviteRole} at ${inviteLocation}.`,
+    );
+    setInviteName("");
+    setComposerOpen(false);
+  }
+
   return (
     <ViewFrame
       eyebrow="People & permissions"
@@ -1893,12 +2097,74 @@ function StaffView({ notify }: { notify: Notify }) {
       action={
         <Button
           icon={<UserPlus size={16} />}
-          onClick={() => router.push("/accept-invite")}
+          aria-expanded={composerOpen}
+          aria-controls="staff-invite"
+          onClick={() => setComposerOpen((open) => !open)}
         >
           Invite staff
         </Button>
       }
     >
+      {composerOpen && (
+        <section
+          id="staff-invite"
+          className="mb-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6"
+        >
+          <Eyebrow>New invitation</Eyebrow>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <label className="grid gap-2 text-xs font-bold">
+              Name
+              <input
+                value={inviteName}
+                onChange={(event) => setInviteName(event.target.value)}
+                placeholder="Who are you inviting?"
+                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]"
+              />
+            </label>
+            <label className="grid gap-2 text-xs font-bold">
+              Role
+              <select
+                value={inviteRole}
+                onChange={(event) => setInviteRole(event.target.value)}
+                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
+              >
+                {STAFF_ROLES.map(([role]) => (
+                  <option key={role}>{role}</option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-2 text-xs font-bold">
+              Location
+              <select
+                value={inviteLocation}
+                onChange={(event) => setInviteLocation(event.target.value)}
+                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
+              >
+                {business.locations.map((location) => (
+                  <option key={location.id}>{location.name}</option>
+                ))}
+                <option>All locations</option>
+              </select>
+            </label>
+          </div>
+          <p className="mt-3 text-xs leading-relaxed text-[var(--muted-strong)]">
+            {STAFF_ROLES.find(([role]) => role === inviteRole)?.[1]}
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Button icon={<Send size={15} />} onClick={sendInvite}>
+              Send invitation
+            </Button>
+            <Button tone="quiet" onClick={() => setComposerOpen(false)}>
+              Cancel
+            </Button>
+          </div>
+          <p className="mt-4 text-[11px] leading-relaxed text-[var(--muted)]">
+            No email leaves the browser. The invited person would open{" "}
+            <code className="font-mono">/accept-invite</code> to review the role
+            before joining.
+          </p>
+        </section>
+      )}
       <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[780px] text-left">
@@ -1915,7 +2181,7 @@ function StaffView({ notify }: { notify: Notify }) {
               </tr>
             </thead>
             <tbody>
-              {business.staff.map((person) => (
+              {staff.map((person) => (
                 <tr
                   key={person.id}
                   className="border-b border-[var(--line)] last:border-0"
@@ -1965,12 +2231,7 @@ function StaffView({ notify }: { notify: Notify }) {
         </div>
       </section>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          ["Owner", "Everything, including billing and deletion"],
-          ["Manager", "Programs, customers, campaigns, and staff"],
-          ["Cashier", "Scan, earn, redeem, and reverse window"],
-          ["Analyst", "Read-only customers and analytics"],
-        ].map(([role, detail]) => (
+        {STAFF_ROLES.map(([role, detail]) => (
           <article
             key={role}
             className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
@@ -1986,8 +2247,29 @@ function StaffView({ notify }: { notify: Notify }) {
   );
 }
 
+/** Preferences that write through `setSetting`, which previously had no
+ *  callers at all. */
+const BILLING_PREFERENCES = [
+  [
+    "autoTopUpSms",
+    "Top up SMS credits automatically",
+    "Buy 500 more whenever the balance drops under 200",
+  ],
+  [
+    "invoiceEmails",
+    "Email invoices to the owner",
+    `Sent to ${business.profile.owner}`,
+  ],
+] as const;
+
 function SettingsView({ notify }: { notify: Notify }) {
-  const { integrations: connected, toggleIntegration } = useDemoState();
+  const {
+    integrations: connected,
+    toggleIntegration,
+    settings,
+    setSetting,
+  } = useDemoState();
+  const billing = business.billing;
   return (
     <ViewFrame
       eyebrow="Workspace settings"
@@ -2057,31 +2339,121 @@ function SettingsView({ notify }: { notify: Notify }) {
               <Eyebrow>Current plan</Eyebrow>
               <Pill tone="success">Active</Pill>
             </div>
-            <p className="mt-7 text-3xl font-extrabold">Grow · ₱1,290</p>
+            <p className="mt-7 text-3xl font-extrabold">
+              {billing.plan} · {peso(billing.monthly)}
+            </p>
             <p className="mt-1 text-xs text-white/55">
-              Annual billing · renews {business.profile.renewal}
+              {billing.cycle} billing · renews {business.profile.renewal}
             </p>
             <div className="mt-6 divide-y divide-white/12 border-y border-white/12">
-              {[
-                ["SMS balance", "1,842 credits"],
-                ["Push allowance", "31,900 / 50,000"],
-                ["Email allowance", "18,420 / 25,000"],
-                ["Active members", "5,202 / 10,000"],
-                ["Locations", "3 / 3"],
-              ].map(([label, value]) => (
-                <div key={label} className="flex justify-between py-3 text-xs">
-                  <span className="text-white/55">{label}</span>
-                  <strong>{value}</strong>
-                </div>
-              ))}
+              {billing.allowances.map((item) => {
+                const pct = Math.min(100, Math.round((item.used / item.included) * 100));
+                return (
+                  <div key={item.label} className="py-3">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-white/55">{item.label}</span>
+                      <strong>
+                        {item.used.toLocaleString()} / {item.included.toLocaleString()}
+                      </strong>
+                    </div>
+                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/12">
+                      <div
+                        className={`h-full rounded-full ${pct >= 90 ? "bg-[var(--danger)]" : "bg-[var(--accent)]"}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+            <p className="mt-4 text-[11px] leading-relaxed text-white/55">
+              Plus {billing.smsCreditBalance.toLocaleString()} prepaid SMS credits.
+              Credits are bought separately from the monthly allowance and do not
+              expire.
+            </p>
             <Button
               tone="accent"
-              className="mt-6"
+              className="mt-5"
               onClick={() => notify("Plan comparison opened.", "review")}
             >
               Manage plan
             </Button>
+          </article>
+
+          <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+            <div className="flex items-center justify-between">
+              <Eyebrow>Billing</Eyebrow>
+              <CreditCard size={18} className="text-[var(--accent-strong)]" />
+            </div>
+            <div className="mt-5 flex items-center gap-3 rounded-2xl bg-[var(--paper)] p-4">
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--surface-2)]">
+                <CreditCard size={17} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-extrabold">
+                  {billing.method.brand} ending {billing.method.last4}
+                </p>
+                <p className="mt-0.5 text-[11px] text-[var(--muted)]">
+                  Expires {billing.method.expiry} · next charge {billing.nextInvoice}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => notify("Payment method editor opened.", "review")}
+                className="shrink-0 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]"
+              >
+                Update
+              </button>
+            </div>
+            <div className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+              {billing.invoices.map((invoice) => (
+                <div key={invoice.id} className="flex items-center gap-3 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-extrabold">{invoice.period}</p>
+                    <p className="mt-0.5 text-[10px] text-[var(--muted)]">
+                      Issued {invoice.issued}
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold">{peso(invoice.amount)}</span>
+                  <Pill tone="success">{invoice.status}</Pill>
+                  <button
+                    type="button"
+                    aria-label={`Download the ${invoice.period} invoice`}
+                    onClick={() => notify(`${invoice.period} invoice prepared.`)}
+                    className="grid size-9 shrink-0 place-items-center rounded-full hover:bg-[var(--surface-2)]"
+                  >
+                    <Download size={15} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 space-y-1">
+              {BILLING_PREFERENCES.map(([key, label, detail]) => (
+                <div key={key} className="flex items-start gap-3 py-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-extrabold">{label}</p>
+                    <p className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">
+                      {detail}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={Boolean(settings[key])}
+                    aria-label={label}
+                    onClick={() => {
+                      setSetting(key, !settings[key]);
+                      notify(`${label} ${settings[key] ? "turned off" : "turned on"}.`);
+                    }}
+                    className={`relative h-6 w-10 shrink-0 rounded-full ${settings[key] ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
+                  >
+                    <span
+                      className={`absolute top-1 size-4 rounded-full bg-white transition ${settings[key] ? "left-5" : "left-1"}`}
+                    />
+                  </button>
+                </div>
+              ))}
+            </div>
           </article>
           <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
             <div className="flex items-start gap-3">

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { demoData } from "@stampr/demo-data";
+import { useState } from "react";
+import { admin, sharedScenario } from "@stampr/demo-data";
+import type { AdapterStatus, ConnectionHealth } from "@stampr/demo-data";
 import { Button, Eyebrow, Panel } from "@stampr/ui";
+import { useAdminState } from "@/components/AdminState";
 import {
   Activity,
   BadgeCheck,
@@ -25,95 +27,16 @@ import {
 import type { NotifyIntent } from "@stampr/ui/shell";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
-type Environment = "sandbox" | "production";
-type AdapterStatus = "Available" | "Approval" | "Pilot" | "Planned";
-type ConnectionHealth = "Healthy" | "Attention" | "Sandbox";
 
-const sharedScenario = demoData.sharedScenario;
-
-const adapters = [
-  {
-    id: "sidecar",
-    name: "KYPStamping terminal",
-    category: "POS-independent",
-    status: "Available" as AdapterStatus,
-    icon: SquareTerminal,
-    connected: 42,
-    detail: "Browser-based counter flow with signed offline reconciliation.",
-  },
-  {
-    id: "custom-api",
-    name: "Custom API",
-    category: "Direct commerce",
-    status: "Available" as AdapterStatus,
-    icon: Code2,
-    connected: 14,
-    detail: "Versioned REST contract for sales, customers, rewards, and refunds.",
-  },
-  {
-    id: "pos-webhook",
-    name: "POS webhook adapter",
-    category: "Any register",
-    status: "Pilot" as AdapterStatus,
-    icon: Store,
-    connected: 3,
-    detail: "Normalized sale, refund, and customer events from any POS that can post webhooks.",
-  },
-  {
-    id: "pos-pull",
-    name: "Scheduled pull adapter",
-    category: "Any register",
-    status: "Approval" as AdapterStatus,
-    icon: PlugZap,
-    connected: 0,
-    detail: "Scheduled sale retrieval for registers without outbound webhooks, enabled after conformance review.",
-  },
-  {
-    id: "ecommerce-webhook",
-    name: "Ecommerce webhook adapter",
-    category: "Ecommerce",
-    status: "Planned" as AdapterStatus,
-    icon: Building2,
-    connected: 0,
-    detail: "Order, refund, customer, and SKU mapping through the same shared event contract.",
-  },
-];
-
-const tenantConnections = [
-  {
-    business: "Sweet Crumbs",
-    adapter: "Custom API",
-    branches: "3 / 3",
-    credential: "Rotated 12 days ago",
-    events: "18,402",
-    health: "Healthy" as ConnectionHealth,
-  },
-  {
-    business: "Northline Coffee",
-    adapter: "POS webhook adapter",
-    branches: "2 / 2",
-    credential: "Rotated 31 days ago",
-    events: "9,184",
-    health: "Sandbox" as ConnectionHealth,
-  },
-  {
-    business: "Aster Wellness",
-    adapter: "KYPStamping terminal",
-    branches: "4 / 4",
-    credential: "Device keys managed",
-    events: "6,392",
-    health: "Healthy" as ConnectionHealth,
-  },
-  {
-    business: "Corner Thread",
-    adapter: "Custom API",
-    branches: "1 / 2",
-    credential: "Rotation due in 4 days",
-    events: "2,058",
-    health: "Attention" as ConnectionHealth,
-  },
-];
-
+/** Icon per adapter id. Everything else about an adapter is fixture data now,
+ *  so the connection counts and the environment switch agree. */
+const adapterIcons: Record<string, typeof SquareTerminal> = {
+  sidecar: SquareTerminal,
+  "custom-api": Code2,
+  "pos-webhook": Store,
+  "pos-pull": PlugZap,
+  "ecommerce-webhook": Building2,
+};
 
 function Status({ value }: { value: AdapterStatus | ConnectionHealth }) {
   const classes: Record<AdapterStatus | ConnectionHealth, string> = {
@@ -135,16 +58,34 @@ function Status({ value }: { value: AdapterStatus | ConnectionHealth }) {
 }
 
 export function AdminIntegrationsView({ notify }: { notify: Notify }) {
-  const [environment, setEnvironment] = useState<Environment>("production");
+  const { environment, setEnvironment, recoveryQueue, replayRecovery } =
+    useAdminState();
   const [statusFilter, setStatusFilter] = useState<"All" | AdapterStatus>("All");
   const [replaying, setReplaying] = useState(false);
-  const visibleAdapters = adapters.filter(
+  const visibleAdapters = admin.adapters.filter(
     (adapter) => statusFilter === "All" || adapter.status === statusFilter,
   );
 
+  /** The environment switch used to change two headline numbers while the
+   *  adapter registry and tenant table stayed on production data. */
+  const isSandbox = environment === "sandbox";
+  const connectionsFor = (adapter: (typeof admin.adapters)[number]) =>
+    isSandbox ? adapter.connectedSandbox : adapter.connected;
+  const activeConnections = admin.adapters.reduce(
+    (sum, adapter) => sum + connectionsFor(adapter),
+    0,
+  );
+  const visibleConnections = isSandbox
+    ? admin.tenantConnections.filter((row) => row.health === "Sandbox")
+    : admin.tenantConnections;
+
   function replayFailed() {
+    if (recoveryQueue.length === 0) return;
     setReplaying(true);
-    notify("Three sample webhook deliveries moved into the replay queue.");
+    const queued = replayRecovery();
+    notify(
+      `${queued} webhook deliver${queued === 1 ? "y" : "ies"} moved into the replay queue.`,
+    );
     window.setTimeout(() => setReplaying(false), 800);
   }
 
@@ -195,7 +136,9 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                   aria-pressed={environment === item}
                   onClick={() => {
                     setEnvironment(item);
-                    notify(`${item === "sandbox" ? "Sandbox" : "Production preview"} integration data selected.`, "review");
+                    notify(
+                      `${item === "sandbox" ? "Sandbox" : "Production preview"} integration data selected.`,
+                    );
                   }}
                   className={`min-h-10 rounded-full px-4 text-xs font-extrabold capitalize ${
                     environment === item
@@ -210,8 +153,11 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
           </div>
           <div className="mt-7 grid gap-px overflow-hidden rounded-2xl bg-white/12 sm:grid-cols-2 xl:grid-cols-4">
             {[
-              ["Active connections", environment === "production" ? "59" : "12"],
-              ["Events · 24 hours", environment === "production" ? "36,036" : "4,218"],
+              ["Active connections", activeConnections.toLocaleString("en-PH")],
+              [
+                "Events · 24 hours",
+                (isSandbox ? 4218 : 36036).toLocaleString("en-PH"),
+              ],
               ["Duplicate-safe", "99.98%"],
               ["Delivery p95", "284 ms"],
             ].map(([label, value]) => (
@@ -303,7 +249,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
           </div>
           <div className="grid sm:grid-cols-2 xl:grid-cols-5">
             {visibleAdapters.map((adapter, index) => {
-              const Icon = adapter.icon;
+              const Icon = adapterIcons[adapter.id] ?? PlugZap;
               return (
                 <button
                   key={adapter.id}
@@ -327,7 +273,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                     {adapter.detail}
                   </p>
                   <span className="mt-5 inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.09em]">
-                    {adapter.connected} connections <ChevronRight size={13} />
+                    {connectionsFor(adapter)} connections <ChevronRight size={13} />
                   </span>
                 </button>
               );
@@ -363,9 +309,9 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {tenantConnections.map((connection) => (
+                  {visibleConnections.map((connection) => (
                     <tr
-                      key={connection.business}
+                      key={connection.businessId}
                       className="border-b border-[var(--line)] last:border-0"
                     >
                       <td className="px-5 py-4 text-sm font-extrabold">{connection.business}</td>
@@ -374,13 +320,23 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                       <td className="px-4 py-4 text-xs text-[var(--muted-strong)]">
                         {connection.credential}
                       </td>
-                      <td className="px-4 py-4 text-xs font-bold">{connection.events}</td>
+                      <td className="px-4 py-4 text-xs font-bold">
+                        {connection.events.toLocaleString("en-PH")}
+                      </td>
                       <td className="px-4 py-4"><Status value={connection.health} /></td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              {visibleConnections.length === 0 && (
+                <p className="p-8 text-center text-xs font-semibold text-[var(--muted)]">
+                  No tenant is connected in the sandbox right now.
+                </p>
+              )}
             </div>
+            <p className="border-t border-[var(--line)] px-5 py-3 text-[10px] font-semibold text-[var(--muted)] sm:px-6">
+              Showing {visibleConnections.length} of {activeConnections} connections.
+            </p>
           </Panel>
 
           <div className="space-y-3">
@@ -389,27 +345,38 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                 <Eyebrow>Recovery queue</Eyebrow>
                 <Webhook size={20} />
               </div>
-              <p className="mt-7 text-4xl font-extrabold tracking-[-0.03em]">3</p>
-              <p className="mt-1 text-sm font-extrabold">deliveries need replay</p>
+              <p className="mt-7 text-4xl font-extrabold tracking-[-0.03em]">
+                {recoveryQueue.length}
+              </p>
+              <p className="mt-1 text-sm font-extrabold">
+                {recoveryQueue.length === 1 ? "delivery needs" : "deliveries need"} replay
+              </p>
               <div className="mt-5 divide-y divide-[rgb(24_18_12/14%)] border-y border-[rgb(24_18_12/14%)]">
-                {[
-                  ["reward.redeemed", "HTTP 503 · attempt 8"],
-                  ["sale.refunded", "Signature window expired"],
-                  ["balance.adjusted", "Endpoint timeout"],
-                ].map(([event, detail]) => (
-                  <div key={event} className="py-3">
-                    <code className="text-[10px] font-extrabold">{event}</code>
-                    <p className="mt-1 text-[10px] text-[var(--ink)]/85">{detail}</p>
+                {recoveryQueue.map((item) => (
+                  <div key={item.id} className="py-3">
+                    <code className="text-[10px] font-extrabold">{item.event}</code>
+                    <p className="mt-1 text-[10px] text-[var(--ink)]/85">
+                      {item.tenant} · {item.detail}
+                    </p>
                   </div>
                 ))}
+                {recoveryQueue.length === 0 && (
+                  <p className="py-4 text-[11px] font-bold text-[var(--ink)]/80">
+                    Everything has been queued for replay.
+                  </p>
+                )}
               </div>
               <Button
                 className="mt-5"
                 icon={replaying ? <RefreshCcw size={15} className="animate-spin" /> : <RotateCcw size={15} />}
-                disabled={replaying}
+                disabled={replaying || recoveryQueue.length === 0}
                 onClick={replayFailed}
               >
-                {replaying ? "Queueing replay…" : "Replay failed events"}
+                {replaying
+                  ? "Queueing replay…"
+                  : recoveryQueue.length === 0
+                    ? "Nothing to replay"
+                    : "Replay failed events"}
               </Button>
             </section>
 

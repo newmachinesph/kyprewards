@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { demoData } from "@stampr/demo-data";
+import { useState } from "react";
+import { business, contract, sharedScenario } from "@stampr/demo-data";
+import type { Environment } from "@stampr/demo-data";
 import { Button, DemoBadge, Eyebrow, FieldLabel, Panel } from "@stampr/ui";
 import { PlanTag } from "@stampr/ui/shell";
 import type { NotifyIntent } from "@stampr/ui/shell";
@@ -34,7 +35,6 @@ import { useDemoState } from "@/components/DemoState";
 import type { Credential, Delivery } from "@/components/DemoState";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
-type Environment = "sandbox" | "production";
 type CredentialStatus = Credential["status"];
 type DeliveryStatus = Delivery["status"];
 
@@ -109,8 +109,9 @@ export function IntegrationsView({
   onNavigate: (view: BusinessView) => void;
 }) {
   const [environment, setEnvironment] = useState<Environment>("sandbox");
+  // Matches the adapter the platform control room reports for this tenant.
   const [connection, setConnection] = useState<(typeof connectionOptions)[number]["id"]>(
-    "sidecar",
+    "custom",
   );
   const {
     credentials,
@@ -119,11 +120,13 @@ export function IntegrationsView({
     setDeliveries,
     webhookUrl,
     setWebhookUrl,
+    savedWebhookUrl,
+    saveWebhookUrl,
     subscribedEvents,
     setSubscribedEvents,
   } = useDemoState();
   const [keyLabel, setKeyLabel] = useState("Main counter backup");
-  const [branchScope, setBranchScope] = useState("Legazpi Village");
+  const [branchScope, setBranchScope] = useState(sharedScenario.branch);
   const [selectedScopes, setSelectedScopes] = useState([
     "customers:read",
     "transactions:write",
@@ -137,19 +140,27 @@ export function IntegrationsView({
   const keyPrefix = environment === "sandbox" ? "st_test" : "st_live_demo";
   const secretPrefix = environment === "sandbox" ? "sk_test" : "sk_live_demo";
   const providerSlug = connection === "sidecar" ? "terminal" : connection;
-  const inboundUrl = `https://api.kypstamping.ph/api/v1/integrations/${providerSlug}/webhook`;
+  const inboundUrl = `${contract.apiBase}/integrations/${providerSlug}/webhook`;
+  // Every value below is the shared scenario's own visit, so the request the
+  // merchant copies matches the event the wallet and the control room show.
   const quickstart = `curl --request POST \\
-  --url https://api.kypstamping.ph/api/v1/transactions \\
+  --url ${contract.apiBase}/transactions \\
   --header 'Authorization: Bearer ${secretPrefix}_••••••••' \\
-  --header 'Idempotency-Key: sale_sc_10482' \\
-  --header 'X-Merchant-ID: mrc_sweet_crumbs' \\
+  --header '${contract.idempotency.header}: ${sharedScenario.delivery.idempotencyKey}' \\
+  --header 'X-Merchant-ID: ${sharedScenario.merchantId}' \\
   --data '{
-    "external_transaction_id": "SC-10482",
+    "external_transaction_id": "${sharedScenario.externalTransactionId}",
     "customer_phone": "+639171234567",
-    "branch_id": "br_legazpi",
-    "amount": 48500,
-    "currency": "PHP"
+    "branch_id": "${sharedScenario.branchId}",
+    "amount": ${sharedScenario.purchase.amountCentavos},
+    "currency": "${sharedScenario.purchase.currency}"
   }'`;
+
+  // A production preview must not list sandbox keys as if they worked there.
+  const visibleCredentials = credentials.filter(
+    (credential) => credential.environment === environment,
+  );
+  const webhookDirty = webhookUrl.trim() !== savedWebhookUrl;
 
   async function copyValue(value: string, label: string) {
     try {
@@ -197,6 +208,7 @@ export function IntegrationsView({
         scopes: selectedScopes,
         lastUsed: "Never used",
         status: "Active",
+        environment,
       },
       ...current,
     ]);
@@ -248,14 +260,15 @@ export function IntegrationsView({
     setTestSending(true);
     notify("Sending a signed sample delivery…");
     window.setTimeout(() => {
+      const stamp = Date.now().toString().slice(-6);
       setDeliveries((current) => [
         {
-          id: `evt_demo_test_${Date.now().toString().slice(-6)}`,
+          id: `evt_test_${stamp}`,
           event: "endpoint.test",
           source: "Sweet Crumbs endpoint",
           status: "Delivered",
           detail: "184 ms · Just now",
-          requestId: "req_demo_9P4K2M",
+          requestId: `req_test_${stamp}`,
         },
         ...current,
       ]);
@@ -309,7 +322,7 @@ export function IntegrationsView({
                 <CircleDot size={12} className="text-[var(--accent)]" /> Sweet Crumbs
               </span>
               <span className="text-xs font-semibold text-white/60">
-                Planned API base · /api/v1
+                Planned API base · /{contract.version}
               </span>
             </div>
             <h2 className="mt-6 max-w-2xl text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">
@@ -343,9 +356,9 @@ export function IntegrationsView({
         </div>
         <dl className="mt-7 grid gap-px overflow-hidden rounded-2xl bg-white/12 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            ["Organization", "org_santos_foods"],
-            ["Merchant", "mrc_sweet_crumbs"],
-            ["Branch access", "3 branches"],
+            ["Organization", business.profile.organizationId],
+            ["Merchant", business.profile.merchantId],
+            ["Branch access", `${business.locations.length} branches`],
             ["Environment", environment === "sandbox" ? "Sandbox · test data" : "Preview only · not live"],
           ].map(([term, detail]) => (
             <div key={term} className="bg-[var(--ink)] px-4 py-4">
@@ -459,7 +472,7 @@ export function IntegrationsView({
                 onChange={(event) => setBranchScope(event.target.value)}
                 className="min-h-11 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-semibold"
               >
-                {demoData.business.locations.map((location) => (
+                {business.locations.map((location) => (
                   <option key={location.id}>{location.name}</option>
                 ))}
                 <option>All sandbox branches</option>
@@ -551,7 +564,14 @@ export function IntegrationsView({
           )}
 
           <div className="divide-y divide-[var(--line)]">
-            {credentials.map((credential) => (
+            {visibleCredentials.length === 0 && (
+              <p className="p-6 text-xs leading-relaxed text-[var(--muted-strong)]">
+                No {environment === "sandbox" ? "sandbox" : "production preview"} keys
+                yet. Create one above — keys issued in one environment never work
+                in the other.
+              </p>
+            )}
+            {visibleCredentials.map((credential) => (
               <article key={credential.id} className="p-5 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
@@ -729,16 +749,15 @@ export function IntegrationsView({
             <div>
               <FieldLabel>Accepted POS events</FieldLabel>
               <div className="flex flex-wrap gap-2">
-                {["sale.completed", "sale.voided", "sale.refunded", "customer.linked"].map(
-                  (eventName) => (
-                    <span
-                      key={eventName}
-                      className="rounded-full border border-[var(--line)] bg-[var(--paper)] px-3 py-1.5 font-mono text-[10px] font-bold"
-                    >
-                      {eventName}
-                    </span>
-                  ),
-                )}
+                {contract.inboundEvents.map((event) => (
+                  <span
+                    key={event.name}
+                    title={event.detail}
+                    className="rounded-full border border-[var(--line)] bg-[var(--paper)] px-3 py-1.5 font-mono text-[10px] font-bold"
+                  >
+                    {event.name}
+                  </span>
+                ))}
               </div>
             </div>
             <div className="flex items-start gap-3 rounded-2xl bg-[rgb(15_118_85/9%)] p-4">
@@ -784,26 +803,22 @@ export function IntegrationsView({
                 Send these events
               </legend>
               <div className="grid gap-2 sm:grid-cols-2">
-                {[
-                  "loyalty.transaction.completed",
-                  "reward.redeemed",
-                  "customer.updated",
-                  "balance.adjusted",
-                ].map((eventName) => {
-                  const checked = subscribedEvents.includes(eventName);
+                {contract.outboundEvents.map((event) => {
+                  const checked = subscribedEvents.includes(event.name);
                   return (
                     <label
-                      key={eventName}
+                      key={event.name}
+                      title={event.detail}
                       className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3"
                     >
                       <input
                         type="checkbox"
                         checked={checked}
-                        onChange={() => toggleEvent(eventName)}
+                        onChange={() => toggleEvent(event.name)}
                         className="accent-[var(--ink)]"
                       />
                       <span className="min-w-0 break-all font-mono text-[9px] font-bold">
-                        {eventName}
+                        {event.name}
                       </span>
                     </label>
                   );
@@ -821,11 +836,24 @@ export function IntegrationsView({
               <Button
                 tone="quiet"
                 icon={<Check size={15} />}
-                onClick={() => notify("Outbound endpoint saved in demo mode.")}
+                disabled={!webhookDirty}
+                onClick={() => {
+                  if (!webhookUrl.trim().startsWith("https://")) {
+                    notify("An outbound endpoint has to be HTTPS.", "error");
+                    return;
+                  }
+                  saveWebhookUrl();
+                  notify("Outbound endpoint saved for this demo session.");
+                }}
               >
-                Save endpoint
+                {webhookDirty ? "Save endpoint" : "Endpoint saved"}
               </Button>
             </div>
+            {webhookDirty && (
+              <p className="text-[10px] font-bold text-[var(--accent-strong)]">
+                Unsaved change. Deliveries still go to {savedWebhookUrl}.
+              </p>
+            )}
             <p className="flex items-start gap-2 text-[10px] leading-relaxed text-[var(--muted)]">
               <Clock3 size={13} className="mt-0.5 shrink-0" /> Failed live deliveries will
               retry with exponential backoff and move to a recoverable dead-letter state.
@@ -930,7 +958,7 @@ export function IntegrationsView({
             title: "Sandbox contract",
             detail: "Customer lookup, sale, refund, void, balance, reward, and redemption flows share /api/v1.",
             action: "Copy API base",
-            onClick: () => copyValue("https://api.kypstamping.ph/api/v1", "Planned API base"),
+            onClick: () => copyValue(contract.apiBase, "Planned API base"),
           },
           {
             icon: TriangleAlert,

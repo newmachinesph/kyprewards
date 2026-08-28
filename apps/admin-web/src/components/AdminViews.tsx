@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { demoData } from "@stampr/demo-data";
+import { admin } from "@stampr/demo-data";
 import {
   Button,
   Eyebrow,
@@ -35,11 +35,9 @@ import {
 import type { NotifyIntent } from "@stampr/ui/shell";
 import type { AdminView } from "@/components/AdminShell";
 import { AdminIntegrationsView } from "@/components/AdminIntegrationsView";
+import { useAdminState } from "@/components/AdminState";
+import { peso } from "@stampr/ui/format";
 
-const admin = demoData.admin;
-const openSupportCount = admin.support.filter(
-  (ticket) => ticket.status === "Open",
-).length;
 type Notify = (message: string, intent?: NotifyIntent) => void;
 
 
@@ -65,7 +63,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
     <ViewFrame
       eyebrow="Tenant directory"
       title="Businesses"
-      description="Review tenant health, subscription, member growth, risk signals, and operational access without crossing customer-data boundaries."
+      description={`Review tenant health, subscription, member growth, risk signals, and operational access without crossing customer-data boundaries. This demo carries ${admin.businesses.length} of ${admin.metrics.liveBusinesses} live tenants.`}
       action={
         <Button
           icon={<Building2 size={16} />}
@@ -142,7 +140,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
                       {business.members.toLocaleString()}
                     </td>
                     <td className="px-4 py-4 text-sm font-extrabold">
-                      ₱{business.mrr.toLocaleString()}
+                      {peso(business.mrr)}
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
@@ -206,7 +204,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
           <div className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10">
             {[
               ["Plan", selected.plan],
-              ["MRR", `₱${selected.mrr.toLocaleString()}`],
+              ["MRR", peso(selected.mrr)],
               ["Members", selected.members.toLocaleString()],
               ["Joined", selected.joined],
             ].map(([label, value]) => (
@@ -264,7 +262,12 @@ function PeopleView({ notify }: { notify: Notify }) {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {(
           [
-            ["Customer accounts", "18,492", "+824 this month", Users],
+            [
+              "Customer accounts",
+              admin.metrics.customerAccounts.toLocaleString("en-PH"),
+              "One person, many memberships",
+              Users,
+            ],
             ["Consent withdrawals", "184", "0.99% of accounts", Eye],
             ["Exports in SLA", "100%", "12 completed", Download],
             ["Deletion queue", "9", "Oldest is 3 hours", LockKeyhole],
@@ -469,14 +472,18 @@ function OperationsView({ notify }: { notify: Notify }) {
   );
 }
 
+const TICKET_STATUSES = ["Open", "Investigating", "Waiting", "Resolved"];
+
 function SupportView({ notify }: { notify: Notify }) {
-  const [selectedId, setSelectedId] = useState(admin.support[0].id);
-  const [owners, setOwners] = useState<Record<string, string>>({});
-  const [notes, setNotes] = useState<Record<string, string>>({});
-  const [statuses, setStatuses] = useState<Record<string, string>>({});
-  const selected =
-    admin.support.find((ticket) => ticket.id === selectedId) ??
-    admin.support[0];
+  const {
+    tickets,
+    openTicketCount,
+    assignTicket,
+    setTicketNote,
+    setTicketStatus,
+  } = useAdminState();
+  const [selectedId, setSelectedId] = useState(tickets[0].id);
+  const selected = tickets.find((ticket) => ticket.id === selectedId) ?? tickets[0];
   return (
     <ViewFrame
       eyebrow="Human support"
@@ -496,10 +503,12 @@ function SupportView({ notify }: { notify: Notify }) {
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
           <div className="flex items-center justify-between">
             <Eyebrow>Open work</Eyebrow>
-            <Pill tone="danger">{openSupportCount} open</Pill>
+            <Pill tone={openTicketCount ? "danger" : "success"}>
+              {openTicketCount} open
+            </Pill>
           </div>
           <div className="mt-4 divide-y divide-[var(--line)]">
-            {admin.support.map((ticket) => (
+            {tickets.map((ticket) => (
               <button
                 type="button"
                 key={ticket.id}
@@ -522,9 +531,8 @@ function SupportView({ notify }: { notify: Notify }) {
                     {ticket.title}
                   </span>
                   <span className="mt-1 block text-[10px]">
-                    {ticket.business} · {ticket.category} ·{" "}
-                    {owners[ticket.id] ?? ticket.owner} ·{" "}
-                    {statuses[ticket.id] ?? ticket.status}
+                    {ticket.business} · {ticket.category} · {ticket.owner} ·{" "}
+                    {ticket.status}
                   </span>
                 </span>
                 <span className="text-xs font-bold">{ticket.age}</span>
@@ -559,17 +567,31 @@ function SupportView({ notify }: { notify: Notify }) {
             Assign to
             <select
               className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3"
-              value={owners[selected.id] ?? selected.owner}
+              value={selected.owner}
               onChange={(event) => {
-                setOwners((current) => ({
-                  ...current,
-                  [selected.id]: event.target.value,
-                }));
+                assignTicket(selected.id, event.target.value);
                 notify(`${selected.id} assigned to ${event.target.value}.`);
               }}
             >
-              {[...new Set([selected.owner, "Nica", "Mika", "Paolo"])].map((owner) => (
-                <option key={owner}>{owner}</option>
+              {[...new Set([selected.owner, "Unassigned", "Nica", "Mika", "Paolo"])].map(
+                (owner) => (
+                  <option key={owner}>{owner}</option>
+                ),
+              )}
+            </select>
+          </label>
+          <label className="mt-4 grid gap-2 text-xs font-bold">
+            Status
+            <select
+              className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3"
+              value={selected.status}
+              onChange={(event) => {
+                setTicketStatus(selected.id, event.target.value);
+                notify(`${selected.id} moved to ${event.target.value.toLowerCase()}.`);
+              }}
+            >
+              {[...new Set([selected.status, ...TICKET_STATUSES])].map((status) => (
+                <option key={status}>{status}</option>
               ))}
             </select>
           </label>
@@ -579,28 +601,19 @@ function SupportView({ notify }: { notify: Notify }) {
               rows={4}
               className="rounded-xl border border-white/15 bg-[var(--ink-soft)] p-3 outline-none"
               placeholder="Record evidence and the next decision"
-              value={notes[selected.id] ?? ""}
-              onChange={(event) =>
-                setNotes((current) => ({
-                  ...current,
-                  [selected.id]: event.target.value,
-                }))
-              }
+              value={selected.note}
+              onChange={(event) => setTicketNote(selected.id, event.target.value)}
             />
           </label>
           <Button
             tone="accent"
             className="mt-5 w-full"
             onClick={() => {
-              const note = notes[selected.id]?.trim();
-              if (!note) {
+              if (!selected.note.trim()) {
                 notify("Add an internal note before starting an investigation.", "error");
                 return;
               }
-              setStatuses((current) => ({
-                ...current,
-                [selected.id]: "Investigating",
-              }));
+              setTicketStatus(selected.id, "Investigating");
               notify(`${selected.id} moved to investigating.`);
             }}
           >
@@ -713,7 +726,7 @@ function EconomicsView() {
         {[
           [
             "Subscription MRR",
-            `₱${admin.metrics.monthlyRecurringRevenue.toLocaleString()}`,
+            peso(admin.metrics.monthlyRecurringRevenue),
             "+8.4%",
           ],
           [
@@ -728,7 +741,7 @@ function EconomicsView() {
           ],
           [
             "SMS credit liability",
-            `₱${admin.metrics.smsLiability.toLocaleString()}`,
+            peso(admin.metrics.smsLiability),
             "Prepaid reserve",
           ],
         ].map(([label, value, detail]) => (
@@ -776,10 +789,10 @@ function EconomicsView() {
                     </td>
                     <td className="px-4 py-4 text-sm">{plan.accounts}</td>
                     <td className="px-4 py-4 text-sm font-bold">
-                      ₱{plan.mrr.toLocaleString()}
+                      {peso(plan.mrr)}
                     </td>
                     <td className="px-4 py-4 text-sm">
-                      ₱{plan.monthlyCost.toLocaleString()}
+                      {peso(plan.monthlyCost)}
                     </td>
                     <td className="px-4 py-4">
                       <Pill
@@ -855,16 +868,16 @@ function EconomicsView() {
                       {channel.model}
                     </td>
                     <td className="px-4 py-4 text-sm">
-                      ₱{channel.revenue.toLocaleString()} revenue
+                      {peso(channel.revenue)} revenue
                     </td>
                     <td className="px-4 py-4 text-sm">
-                      ₱{channel.cost.toLocaleString()} cost
+                      {peso(channel.cost)} cost
                     </td>
                     <td
                       className={`px-4 py-4 text-sm font-extrabold ${contribution >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
                     >
-                      {contribution >= 0 ? "+" : ""}₱
-                      {contribution.toLocaleString()}
+                      {contribution >= 0 ? "+" : ""}
+                      {peso(contribution)}
                     </td>
                   </tr>
                 );
@@ -878,12 +891,7 @@ function EconomicsView() {
 }
 
 function SettingsView({ notify }: { notify: Notify }) {
-  const [flags, setFlags] = useState({
-    automaticPausing: true,
-    publicStatus: true,
-    newTenantReview: true,
-    adminMfa: true,
-  });
+  const { flags, toggleFlag } = useAdminState();
   return (
     <ViewFrame
       eyebrow="Platform configuration"
@@ -956,9 +964,10 @@ function SettingsView({ notify }: { notify: Notify }) {
                   role="switch"
                   aria-label={`Toggle ${title}`}
                   aria-checked={enabled}
-                  onClick={() =>
-                    setFlags((current) => ({ ...current, [key]: !enabled }))
-                  }
+                  onClick={() => {
+                    const next = toggleFlag(key);
+                    notify(`${title} ${next ? "enabled" : "disabled"} network-wide.`);
+                  }}
                   className={`relative h-6 w-10 shrink-0 rounded-full ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                 >
                   <span
