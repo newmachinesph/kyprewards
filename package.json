@@ -13,7 +13,9 @@
     "dev:marketing": "npm run dev --workspace @stampr/marketing-site",
     "build": "npm run build --workspaces --if-present",
     "audit:controls": "node scripts/audit-controls.mjs",
+    "test:format": "node scripts/test-format.mjs",
     "qa:customer-auth": "node scripts/qa-customer-auth.mjs",
+    "qa:private-apps": "node scripts/qa-private-apps.mjs",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint apps packages"
   },
