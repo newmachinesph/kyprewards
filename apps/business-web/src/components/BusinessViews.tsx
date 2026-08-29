@@ -3,7 +3,16 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { business, sharedScenario } from "@kypstamping/demo-data";
 import { Button, Eyebrow, Pill, StampDots, ViewFrame } from "@kypstamping/ui";
-import { daysUntilBirthday, peso, pesoCompact } from "@kypstamping/ui/format";
+import {
+  daysUntilBirthday,
+  longDate,
+  peso,
+  pesoCompact,
+  pesoCompactFromCentavos,
+  pesoFromCentavos,
+  relativeTime,
+  timeOfDay,
+} from "@kypstamping/ui/format";
 import {
   ArrowRight,
   BadgeCheck,
@@ -285,7 +294,7 @@ function ScanView({ notify }: { notify: Notify }) {
                     {item.status}
                   </Pill>
                   <p className="mt-1 text-[10px] text-[var(--muted)]">
-                    {item.time.split(", ")[1]}
+                    {timeOfDay(item.occurredAt)}
                   </p>
                 </div>
               </div>
@@ -605,10 +614,10 @@ function CustomersView({ notify }: { notify: Notify }) {
                       {customer.visits}
                     </td>
                     <td className="px-4 py-4 text-sm font-bold">
-                      {peso(customer.lifetimeValue)}
+                      {pesoFromCentavos(customer.lifetimeValueCentavos)}
                     </td>
                     <td className="px-4 py-4 text-xs text-[var(--muted-strong)]">
-                      {customer.lastVisit}
+                      {relativeTime(customer.lastVisitAt)}
                     </td>
                     <td className="px-4 py-4">
                       <ChevronRight size={16} />
@@ -645,7 +654,7 @@ function CustomersView({ notify }: { notify: Notify }) {
           <div className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10">
             {[
               ["Visits", selected.visits],
-              ["Lifetime value", peso(selected.lifetimeValue)],
+              ["Lifetime value", pesoFromCentavos(selected.lifetimeValueCentavos)],
               ["Progress", selected.progress],
               ["Birthday", selected.birthday],
             ].map(([label, value]) => (
@@ -731,7 +740,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
             {[
               ["Plan", business.profile.plan],
               ["Billing", business.profile.billing],
-              ["Renewal", business.profile.renewal],
+              ["Renewal", longDate(business.profile.renewalOn)],
               ["Timezone", business.profile.timezone],
             ].map(([label, value]) => (
               <div
@@ -881,7 +890,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
               ["Members", selected.members.toLocaleString()],
               ["Completion", `${selected.completion}%`],
               ["Redemption", `${selected.redemption}%`],
-              ["Liability", peso(selected.liability)],
+              ["Liability", pesoFromCentavos(selected.liabilityCentavos)],
             ].map(([label, value]) => (
               <div key={label} className="bg-[var(--ink-soft)] p-4">
                 <p className="text-[10px] text-white/50">{label}</p>
@@ -964,10 +973,10 @@ function ProgramsView({ notify }: { notify: Notify }) {
                   type="number"
                   min={0}
                   step={100}
-                  value={selected.liability}
+                  value={selected.liabilityCentavos}
                   onChange={(event) =>
                     updateProgramRule(selected.id, {
-                      liability: Math.max(0, Number(event.target.value) || 0),
+                      liabilityCentavos: Math.max(0, Number(event.target.value) || 0),
                     })
                   }
                   className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
@@ -1224,10 +1233,10 @@ function RedemptionsView({ notify }: { notify: Notify }) {
   // liability under a "reward value" label. All three now say what they count.
   const approved = business.redemptions.filter((item) => item.status === "Approved");
   const reversals = business.redemptions.length - approved.length;
-  const rewardValue = approved.reduce((sum, item) => sum + item.value, 0);
+  const rewardValue = approved.reduce((sum, item) => sum + item.valueCentavos, 0);
   const approvalRate = (approved.length / business.redemptions.length) * 100;
   const stampLiability =
-    business.programs.find((program) => program.type === "Stamps")?.liability ?? 0;
+    business.programs.find((program) => program.type === "Stamps")?.liabilityCentavos ?? 0;
   return (
     <ViewFrame
       eyebrow="Value ledger"
@@ -1274,7 +1283,7 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                     {item.staff}
                   </td>
                   <td className="px-4 py-4 text-sm font-bold">
-                    {item.value ? peso(item.value) : "—"}
+                    {item.valueCentavos ? pesoFromCentavos(item.valueCentavos) : "—"}
                   </td>
                   <td className="px-4 py-4">
                     <Pill
@@ -1284,7 +1293,7 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                     </Pill>
                   </td>
                   <td className="px-4 py-4 text-xs text-[var(--muted)]">
-                    {item.time}
+                    {relativeTime(item.occurredAt)}
                   </td>
                 </tr>
               ))}
@@ -1470,8 +1479,11 @@ function CampaignsView({ notify }: { notify: Notify }) {
     Math.max(...selectedChannels.map((channel) => channel.eligible), 0),
   );
   const predictedVisits = Math.round(reachable * 0.118);
-  const predictedRevenue = predictedVisits * business.metrics.averageOrder;
-  const roi = deliveryCost ? predictedRevenue / deliveryCost : predictedRevenue;
+  // deliveryCost is pesos, from the published channel rates in plans.ts; the
+  // API sends the average order in centavos. Both are named for their unit
+  // because dividing one by the other silently put the ROI out by 100x.
+  const predictedRevenuePesos = (predictedVisits * business.metrics.averageOrderCentavos) / 100;
+  const roi = deliveryCost ? predictedRevenuePesos / deliveryCost : predictedRevenuePesos;
   return (
     <ViewFrame
       eyebrow="Campaign studio"
@@ -1681,7 +1693,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
               ["Predicted visits", predictedVisits],
               [
                 "Predicted visit revenue",
-                peso(predictedRevenue),
+                peso(predictedRevenuePesos),
               ],
               [
                 "Revenue / delivery cost",
@@ -1732,8 +1744,8 @@ function CampaignsView({ notify }: { notify: Notify }) {
                   channels: selectedChannels.map((channel) => channel.name),
                   sent: reachable,
                   visited: 0,
-                  revenue: 0,
-                  cost: Math.round(deliveryCost),
+                  revenueCentavos: 0,
+                  costCentavos: Math.round(deliveryCost * 100),
                   status: "Scheduled",
                   sendTime,
                   frequencyPolicy,
@@ -1789,7 +1801,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
                     {campaign.visited} visits
                   </td>
                   <td className="px-4 py-4 text-sm font-extrabold">
-                    {peso(campaign.revenue)}
+                    {pesoFromCentavos(campaign.revenueCentavos)}
                   </td>
                   <td className="px-4 py-4">
                     <Pill
@@ -1901,7 +1913,7 @@ function MessageLogView({ notify }: { notify: Notify }) {
                     </Pill>
                   </td>
                   <td className="px-4 py-4 font-mono text-xs">
-                    {message.cost ? peso(message.cost, { decimals: true }) : "Included"}
+                    {message.costCentavos ? pesoFromCentavos(message.costCentavos) : "Included"}
                   </td>
                   <td className="px-4 py-4 text-xs text-[var(--muted)]">
                     {message.sentAt}
@@ -1931,7 +1943,7 @@ function AnalyticsView() {
   // campaign revenue summed to ₱136.3k. Both now come from the same number.
   const metrics = business.metrics;
   const rewardIssued = business.programs.reduce(
-    (sum, program) => sum + program.liability,
+    (sum, program) => sum + program.liabilityCentavos,
     0,
   );
   const retention = [100, 68, 54, 47, 44, 42];
@@ -1979,20 +1991,20 @@ function AnalyticsView() {
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <Eyebrow>Member economics</Eyebrow>
           <p className="mt-7 text-4xl font-extrabold tracking-[-0.03em]">
-            {pesoCompact(metrics.memberRevenue)}
+            {pesoCompactFromCentavos(metrics.memberRevenueCentavos)}
           </p>
           <p className="mt-1 text-xs text-white/55">
             member-attributed revenue this month
           </p>
           <div className="mt-8 divide-y divide-white/12 border-y border-white/12">
             {[
-              ["Campaign-attributed", pesoCompact(metrics.campaignRevenue)],
-              ["Outstanding reward liability", pesoCompact(rewardIssued)],
+              ["Campaign-attributed", pesoCompactFromCentavos(metrics.campaignRevenueCentavos)],
+              ["Outstanding reward liability", pesoCompactFromCentavos(rewardIssued)],
               [
                 "Revenue / reward liability",
-                `${(metrics.memberRevenue / rewardIssued).toFixed(1)}×`,
+                `${(metrics.memberRevenueCentavos / rewardIssued).toFixed(1)}×`,
               ],
-              ["Average member order", peso(metrics.averageOrder)],
+              ["Average member order", pesoFromCentavos(metrics.averageOrderCentavos)],
               ["Repeat visit rate", `${metrics.repeatRate}%`],
             ].map(([label, value]) => (
               <div
@@ -2203,7 +2215,7 @@ function StaffView({ notify }: { notify: Notify }) {
                   </td>
                   <td className="px-4 py-4 text-xs">{person.location}</td>
                   <td className="px-4 py-4 text-xs text-[var(--muted)]">
-                    {person.lastActive}
+                    {relativeTime(person.lastActiveAt)}
                   </td>
                   <td className="px-4 py-4">
                     <Pill
@@ -2340,10 +2352,10 @@ function SettingsView({ notify }: { notify: Notify }) {
               <Pill tone="success">Active</Pill>
             </div>
             <p className="mt-7 text-3xl font-extrabold">
-              {billing.plan} · {peso(billing.monthly)}
+              {billing.plan} · {peso(billing.monthlyCentavos)}
             </p>
             <p className="mt-1 text-xs text-white/55">
-              {billing.cycle} billing · renews {business.profile.renewal}
+              {billing.cycle} billing · renews {longDate(business.profile.renewalOn)}
             </p>
             <div className="mt-6 divide-y divide-white/12 border-y border-white/12">
               {billing.allowances.map((item) => {
@@ -2394,7 +2406,7 @@ function SettingsView({ notify }: { notify: Notify }) {
                   {billing.method.brand} ending {billing.method.last4}
                 </p>
                 <p className="mt-0.5 text-[11px] text-[var(--muted)]">
-                  Expires {billing.method.expiry} · next charge {billing.nextInvoice}
+                  Expires {billing.method.expiry} · next charge {longDate(billing.nextInvoiceOn)}
                 </p>
               </div>
               <button
@@ -2411,10 +2423,10 @@ function SettingsView({ notify }: { notify: Notify }) {
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-extrabold">{invoice.period}</p>
                     <p className="mt-0.5 text-[10px] text-[var(--muted)]">
-                      Issued {invoice.issued}
+                      Issued {longDate(invoice.issuedOn)}
                     </p>
                   </div>
-                  <span className="text-xs font-bold">{peso(invoice.amount)}</span>
+                  <span className="text-xs font-bold">{peso(invoice.amountCentavos)}</span>
                   <Pill tone="success">{invoice.status}</Pill>
                   <button
                     type="button"

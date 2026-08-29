@@ -253,7 +253,8 @@ export type StaffMember = {
   initials: string;
   role: StaffRole | string;
   location: string;
-  lastActiveAt: string;
+  /** Null for a member who was invited and has never signed in. */
+  lastActiveAt: string | null;
   status: string;
 };
 

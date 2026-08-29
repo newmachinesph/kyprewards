@@ -10,6 +10,9 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    // @kypstamping/api's client chain carries explicit .ts extensions so bare
+    // Node can load it for the contract tests. Bundlers resolve them fine.
+    "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,

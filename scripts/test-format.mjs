@@ -13,8 +13,11 @@ import {
   greeting,
   peso,
   pesoCompact,
+  pesoCompactFromCentavos,
   pesoFromCentavos,
   relativeTime,
+  longDate,
+  timeOfDay,
 } from "../packages/ui/src/format.ts";
 
 /* ── Money ────────────────────────────────────────────────────────── */
@@ -73,5 +76,48 @@ assert.equal(daysUntilBirthday("3 January", 30, december), 6);
 
 assert.equal(daysUntilBirthday("not a date", 30, today), null);
 assert.equal(daysUntilBirthday("8 Septembre", 30, today), null);
+
+
+/* ── Dates the API sends ──────────────────────────────────────────────
+   The API answers with `2026-09-15` and ISO instants, never display copy.
+   These are what turn one into the other, so the twin fields the fixture
+   used to carry - renewal beside renewalIso - are not needed. */
+
+assert.equal(longDate("2026-09-15"), "15 September 2026");
+
+// A bare date must not shift a day. `new Date("2026-09-15")` parses as UTC
+// midnight, which in any timezone behind UTC prints as the 14th.
+assert.equal(longDate("2026-01-01"), "1 January 2026");
+assert.equal(longDate("2026-12-31"), "31 December 2026");
+
+// A full instant is accepted too, so a caller does not have to know which
+// of the two shapes a field carries.
+assert.equal(longDate("2026-09-15T09:42:00+08:00"), "15 September 2026");
+
+// Unparseable input is returned untouched rather than rendered "Invalid Date".
+assert.equal(longDate("not a date"), "not a date");
+assert.equal(longDate(""), "");
+
+assert.equal(timeOfDay("2026-08-28T09:42:00+08:00", "Asia/Manila"), "9:42 AM");
+assert.equal(timeOfDay("2026-08-28T21:05:00+08:00", "Asia/Manila"), "9:05 PM");
+assert.equal(timeOfDay("nope"), "nope");
+
+/* ── Compact money, from the wire unit ────────────────────────────── */
+
+// Every money field the API sends is centavos, so the compact form needs the
+// same counterpart pesoFromCentavos already has - otherwise a headline stat
+// reads 100x too high and nothing catches it.
+assert.equal(pesoCompactFromCentavos(48260000), "₱482.6k");
+assert.equal(pesoCompactFromCentavos(31800000), "₱318k");
+// Under a thousand it stays whole. The compact form is for headline stats,
+// where two decimal places are noise — that is the difference from
+// pesoFromCentavos, which is exact because a line item has to add up.
+assert.equal(pesoCompactFromCentavos(28600), "₱286");
+
+// A staff member who was invited and never signed in has no last-active
+// instant. The API sends null; one answer here beats a guard at every caller.
+assert.equal(relativeTime(null), "Never");
+assert.equal(relativeTime(undefined), "Never");
+assert.equal(relativeTime(""), "Never");
 
 console.log("format checks passed");

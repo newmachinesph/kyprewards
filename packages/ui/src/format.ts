@@ -38,6 +38,11 @@ export function pesoCompact(amount: number) {
   })}k`;
 }
 
+/** `48260000` → `₱482.6k`. The compact form of the unit the API sends. */
+export function pesoCompactFromCentavos(centavos: number) {
+  return pesoCompact(centavos / 100);
+}
+
 /* ── Time ───────────────────────────────────────────────────────── */
 
 /** One "today" for every app, so a screen-share of all four agrees. */
@@ -61,7 +66,8 @@ export function greeting(date: Date = new Date()) {
 /** ISO timestamp → "18 minutes ago" / "Yesterday" / "22 August". Relative
  *  strings in the fixture are display copy; this derives them instead so they
  *  do not age into a lie. */
-export function relativeTime(iso: string, now: Date = new Date()) {
+export function relativeTime(iso: string | null | undefined, now: Date = new Date()) {
+  if (!iso) return "Never";
   const then = new Date(iso);
   if (Number.isNaN(then.getTime())) return iso;
   const minutes = Math.round((now.getTime() - then.getTime()) / 60000);
@@ -73,6 +79,48 @@ export function relativeTime(iso: string, now: Date = new Date()) {
   if (days === 1) return "Yesterday";
   if (days < 7) return `${days} days ago`;
   return then.toLocaleDateString("en-PH", { day: "numeric", month: "long" });
+}
+
+/**
+ * `"2026-09-15"` → `"15 September 2026"`.
+ *
+ * The API sends one date field where the fixture used to send a display
+ * string beside an ISO twin. This is the half that was living in the JSON.
+ *
+ * A bare `YYYY-MM-DD` is parsed as UTC midnight by `new Date`, so formatting
+ * it in Manila - or any zone behind UTC - printed the day before. The date
+ * parts are read literally instead, which is what a calendar date means:
+ * a renewal on the 15th is the 15th wherever you are standing.
+ */
+export function longDate(value: string) {
+  const parts = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (!parts) return value;
+  const [, year, month, day] = parts;
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+  if (Number.isNaN(date.getTime())) return value;
+  // en-GB, not en-PH: the Philippine locale renders "September 15, 2026" and
+  // this product writes dates day-first everywhere it writes them.
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+/**
+ * ISO instant → `"9:42 AM"`, in the merchant's timezone rather than the
+ * viewer's. A branch manager in another zone reading "2:42 AM" for a morning
+ * visit is a support ticket.
+ */
+export function timeOfDay(iso: string, timeZone = "Asia/Manila") {
+  const at = new Date(iso);
+  if (Number.isNaN(at.getTime())) return iso;
+  return at.toLocaleTimeString("en-PH", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone,
+  });
 }
 
 const MONTHS = [

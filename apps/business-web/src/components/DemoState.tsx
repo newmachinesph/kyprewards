@@ -13,6 +13,7 @@ import {
 } from "react";
 import { business, sharedScenario } from "@kypstamping/demo-data";
 import type {
+  Campaign,
   Credential,
   Delivery,
   Program,
@@ -33,20 +34,8 @@ import type {
 export type ProgramDraft = Program;
 export type { Credential, Delivery };
 
-export type ScheduledCampaign = {
-  id: string;
-  name: string;
-  audience: string;
-  channels: string[];
-  sent: number;
-  visited: number;
-  revenue: number;
-  cost: number;
-  status: string;
-  /** Carried from the composer so the history row can explain itself. */
-  sendTime?: string;
-  frequencyPolicy?: string;
-};
+/** The API's Campaign, which already carries the composer's two fields. */
+export type ScheduledCampaign = Campaign;
 
 /** What the onboarding wizard wrote to session storage before handing over. */
 export type WorkspaceProfile = {
@@ -342,7 +331,10 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
             .join(""),
           role,
           location,
-          lastActive: "Invitation sent",
+          // An invited member has never been active. The API sends the
+          // instant or nothing; "Invitation sent" in a timestamp field was a
+          // display string masquerading as data.
+          lastActiveAt: null,
           status: "Invited",
         },
       ]);
