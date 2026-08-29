@@ -92,9 +92,15 @@ export const keys = {
 
   integrations: {
     all: ["integrations"] as const,
-    credentials: () => [...keys.integrations.all, "credentials"] as const,
-    webhookEndpoints: () => [...keys.integrations.all, "webhook-endpoints"] as const,
-    webhookDeliveries: () => [...keys.integrations.all, "webhook-deliveries"] as const,
+    // Environment is in the key: sandbox and production are different
+    // answers, and sharing one key between them showed live keys under a
+    // screen labelled Sandbox.
+    credentials: (environment: string) =>
+      [...keys.integrations.all, "credentials", environment] as const,
+    webhookEndpoints: (environment: string) =>
+      [...keys.integrations.all, "webhook-endpoints", environment] as const,
+    webhookDeliveries: (environment: string) =>
+      [...keys.integrations.all, "webhook-deliveries", environment] as const,
   },
 
   /** Unauthenticated. Read by the marketing site's poster route. */

@@ -30,6 +30,7 @@ import type {
   ChannelEconomics,
   ConsentEntry,
   ChannelPreferences,
+  Environment,
   CustomerNotification,
   CustomerProfile,
   DiscoverPlace,
@@ -50,7 +51,12 @@ import type {
 } from "./types";
 
 import { keys, type Coordinates, type CustomerFilters } from "./keys";
-import type { CustomerBalance } from "./endpoints";
+import type {
+  Credential,
+  CustomerBalance,
+  Delivery,
+  WebhookEndpoint,
+} from "./endpoints";
 
 /**
  * What a caller may override per hook: everything except the two things that
@@ -202,6 +208,40 @@ export const useConsentHistory = (options?: Options<ConsentEntry[]>): Query<Cons
   useQuery({
     queryKey: keys.customer.consentHistory(),
     queryFn: api.getConsentHistory,
+    ...options,
+  });
+
+/* ── Integrations ─────────────────────────────────────────────────── */
+
+export const useCredentials = (
+  environment: Environment,
+  options?: Options<Credential[]>,
+): Query<Credential[]> =>
+  useQuery({
+    queryKey: keys.integrations.credentials(environment),
+    queryFn: () => api.getCredentials(environment),
+    ...options,
+  });
+
+export const useWebhookEndpoints = (
+  environment: Environment,
+  options?: Options<WebhookEndpoint[]>,
+): Query<WebhookEndpoint[]> =>
+  useQuery({
+    queryKey: keys.integrations.webhookEndpoints(environment),
+    queryFn: () => api.getWebhookEndpoints(environment),
+    ...options,
+  });
+
+/** Deliveries retry on their own, so a stale list misrepresents the queue. */
+export const useWebhookDeliveries = (
+  environment: Environment,
+  options?: Options<Delivery[]>,
+): Query<Delivery[]> =>
+  useQuery({
+    queryKey: keys.integrations.webhookDeliveries(environment),
+    queryFn: () => api.getWebhookDeliveries(environment),
+    staleTime: 10_000,
     ...options,
   });
 

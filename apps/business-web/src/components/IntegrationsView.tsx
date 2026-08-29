@@ -31,9 +31,30 @@ import {
   X,
 } from "lucide-react";
 import type { BusinessView } from "@/components/BusinessShell";
-import { useBusinessProfile, useContract, useLocations } from "@kypstamping/api";
+import {
+  createCredential as createCredential_,
+  keys,
+  rotateCredential as rotateCredential_,
+  revokeCredential as revokeCredential_,
+  retryDelivery as retryDelivery_,
+  revealWebhookSecret,
+  rotateWebhookSecret,
+  saveWebhookEndpoint,
+  sendTestDelivery,
+  useApiMutation,
+  useBusinessProfile,
+  useContract,
+  useCredentials,
+  useLocations,
+  useWebhookDeliveries,
+  useWebhookEndpoints,
+  type Credential,
+  type CredentialCreated,
+  type Delivery,
+  type WebhookEndpoint,
+} from "@kypstamping/api";
+import { relativeTime } from "@kypstamping/ui/format";
 import { useDemoState } from "@/components/DemoState";
-import type { Credential, Delivery } from "@/components/DemoState";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
 type CredentialStatus = Credential["status"];
@@ -93,9 +114,12 @@ function StatusBadge({ status }: { status: DeliveryStatus | CredentialStatus }) 
     Retrying: "bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]",
     Failed: "bg-[rgb(178_59_43/12%)] text-[var(--danger)]",
   } as const;
+  const tone =
+    classes[status as keyof typeof classes] ??
+    "bg-[var(--surface-2)] text-[var(--muted-strong)]";
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.1em] ${classes[status]}`}
+      className={`inline-flex rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.1em] ${tone}`}
     >
       {status}
     </span>
@@ -115,10 +139,6 @@ export function IntegrationsView({
     "custom",
   );
   const {
-    credentials,
-    setCredentials,
-    deliveries,
-    setDeliveries,
     webhookUrl,
     setWebhookUrl,
     savedWebhookUrl,
@@ -126,6 +146,47 @@ export function IntegrationsView({
     subscribedEvents,
     setSubscribedEvents,
   } = useDemoState();
+
+  const { data: credentials = [] } = useCredentials(environment);
+  const { data: deliveries = [], refetch: refetchDeliveries } =
+    useWebhookDeliveries(environment);
+  const { data: endpoints = [] } = useWebhookEndpoints(environment);
+  // The merchant has one outbound endpoint per environment. Its signing
+  // secret is separate from the client keys and has its own rotation.
+  const outbound = endpoints[0];
+  const revealSecret = useApiMutation<{ secret: string }, string>(revealWebhookSecret);
+  const rotateEndpointSecret = useApiMutation<{ secret: string }, string>(
+    rotateWebhookSecret,
+    { invalidates: [keys.integrations.webhookEndpoints(environment)] },
+  );
+  // One endpoint per environment, and one key is "the active secret".
+  const activeCredential = credentials.find(
+    (credential) => credential.status === "Active" && credential.environment === environment,
+  );
+
+  const credentialKeys = [keys.integrations.credentials(environment)];
+  const create = useApiMutation<CredentialCreated, Parameters<typeof createCredential_>[0]>(
+    createCredential_,
+    { invalidates: credentialKeys },
+  );
+  const rotate = useApiMutation<CredentialCreated, string>(rotateCredential_, {
+    invalidates: credentialKeys,
+  });
+  const revoke = useApiMutation<void, string>(revokeCredential_, {
+    invalidates: credentialKeys,
+  });
+  const saveEndpoint = useApiMutation<
+    WebhookEndpoint,
+    Parameters<typeof saveWebhookEndpoint>[0]
+  >((body) => saveWebhookEndpoint(body, environment), {
+    invalidates: [keys.integrations.webhookEndpoints(environment)],
+  });
+  const sendTest = useApiMutation<Delivery, string>(sendTestDelivery, {
+    invalidates: [keys.integrations.webhookDeliveries(environment)],
+  });
+  const retry = useApiMutation<Delivery, string>(retryDelivery_, {
+    invalidates: [keys.integrations.webhookDeliveries(environment)],
+  });
   const { data: contract } = useContract();
   const { data: profile } = useBusinessProfile();
   const { data: locations = [] } = useLocations();
@@ -141,7 +202,6 @@ export function IntegrationsView({
   const [testSending, setTestSending] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const keyPrefix = environment === "sandbox" ? "st_test" : "st_live_demo";
   const secretPrefix = environment === "sandbox" ? "sk_test" : "sk_live_demo";
   const providerSlug = connection === "sidecar" ? "terminal" : connection;
   const inboundUrl = `${(contract?.apiBase ?? "")}/integrations/${providerSlug}/webhook`;
@@ -201,28 +261,33 @@ export function IntegrationsView({
       notify("Choose at least one permission scope.", "error");
       return;
     }
-    const suffix = String(credentials.length + 3).padStart(2, "0");
-    const clientKey = `${keyPrefix}_sc_9N4C6X${suffix}`;
-    setCredentials((current) => [
+    create.mutate(
       {
-        id: `key_demo_${suffix}`,
         label: keyLabel.trim(),
-        clientKey,
-        branch: branchScope,
         scopes: selectedScopes,
-        lastUsed: "Never used",
-        status: "Active",
+        branch: branchScope,
         environment,
       },
-      ...current,
-    ]);
-    setOneTimeSecret(`${secretPrefix}_sample_4K8P2M7Q${suffix}`);
-    notify("Sample credential created. Copy the demo secret from the one-time panel.");
+      {
+        onSuccess: (credential) => {
+          // The only moment the secret exists in readable form. The list
+          // afterwards carries a preview and nothing more.
+          setOneTimeSecret(credential.secret);
+          notify("Credential created. Copy the secret now - it is not shown again.");
+        },
+        onError: (failure) => notify(failure.message, "error"),
+      },
+    );
   }
 
-  function rotateCredential() {
-    setOneTimeSecret(`${secretPrefix}_rotated_8R2N6V4C`);
-    notify("Sample secret rotated. The previous demo secret is now treated as invalid.");
+  function rotateCredential(id: string) {
+    rotate.mutate(id, {
+      onSuccess: (credential) => {
+        setOneTimeSecret(credential.secret);
+        notify("Secret rotated. The previous one stopped working immediately.");
+      },
+      onError: (failure) => notify(failure.message, "error"),
+    });
   }
 
   function revokeCredential(id: string, label: string) {
@@ -234,14 +299,10 @@ export function IntegrationsView({
     ) {
       return;
     }
-    setCredentials((current) =>
-      current.map((credential) =>
-        credential.id === id
-          ? { ...credential, status: "Revoked" as const }
-          : credential,
-      ),
-    );
-    notify(`${label} revoked in this demo.`);
+    revoke.mutate(id, {
+      onSuccess: () => notify(`${label} revoked. Anything using it stops now.`),
+      onError: (failure) => notify(failure.message, "error"),
+    });
   }
 
   function toggleEvent(eventName: string) {
@@ -262,38 +323,43 @@ export function IntegrationsView({
       return;
     }
     setTestSending(true);
-    notify("Sending a signed sample delivery…");
-    window.setTimeout(() => {
-      const stamp = Date.now().toString().slice(-6);
-      setDeliveries((current) => [
-        {
-          id: `evt_test_${stamp}`,
-          event: "endpoint.test",
-          source: "Sweet Crumbs endpoint",
-          status: "Delivered",
-          detail: "184 ms · Just now",
-          requestId: `req_test_${stamp}`,
+    notify("Saving the endpoint and sending a signed delivery\u2026");
+    // Saved first: a test against an endpoint the server has not been told
+    // about would report on the previous URL.
+    saveEndpoint.mutate(
+      { url: webhookUrl, events: subscribedEvents },
+      {
+        onSuccess: (endpoint) => {
+          saveWebhookUrl();
+          sendTest.mutate(endpoint.id, {
+            onSuccess: (delivery) => {
+              setTestSending(false);
+              notify(
+                delivery.status === "Delivered"
+                  ? "Signed delivery accepted by your endpoint."
+                  : `Delivery ${delivery.status.toLowerCase()}: ${delivery.detail}`,
+                delivery.status === "Delivered" ? "info" : "error",
+              );
+            },
+            onError: (failure) => {
+              setTestSending(false);
+              notify(failure.message, "error");
+            },
+          });
         },
-        ...current,
-      ]);
-      setTestSending(false);
-      notify("Sample webhook delivered successfully in demo mode.");
-    }, 650);
+        onError: (failure) => {
+          setTestSending(false);
+          notify(failure.message, "error");
+        },
+      },
+    );
   }
 
   function retryDelivery(id: string) {
-    setDeliveries((current) =>
-      current.map((delivery) =>
-        delivery.id === id
-          ? {
-              ...delivery,
-              status: "Retrying" as const,
-              detail: "Manual retry queued · Just now",
-            }
-          : delivery,
-      ),
-    );
-    notify("Sample delivery moved to the retry queue.");
+    retry.mutate(id, {
+      onSuccess: () => notify("Delivery moved to the retry queue."),
+      onError: (failure) => notify(failure.message, "error"),
+    });
   }
 
   return (
@@ -333,8 +399,9 @@ export function IntegrationsView({
               Your integration boundary, visible at a glance.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/65">
-              Demo values below are safe placeholders. Real client secrets will be
-              created once, hashed by the API, and never returned again.
+              Client secrets are shown once, at creation or rotation. The API
+              stores only a hash, so a lost secret is rotated rather than
+              recovered.
             </p>
           </div>
           <div
@@ -524,10 +591,15 @@ export function IntegrationsView({
             </fieldset>
             <div className="flex flex-wrap gap-2 sm:col-span-2">
               <Button icon={<KeyRound size={15} />} onClick={createCredential}>
-                Create sample key
+                Create key
               </Button>
-              <Button tone="quiet" icon={<RotateCcw size={15} />} onClick={rotateCredential}>
-                Rotate active secret
+              <Button
+                tone="quiet"
+                icon={<RotateCcw size={15} />}
+                disabled={!activeCredential || rotate.isPending}
+                onClick={() => activeCredential && rotateCredential(activeCredential.id)}
+              >
+                {rotate.isPending ? "Rotating…" : "Rotate active secret"}
               </Button>
             </div>
           </div>
@@ -537,9 +609,10 @@ export function IntegrationsView({
               <div className="flex items-start gap-3">
                 <KeyRound size={18} className="mt-0.5 shrink-0 text-[var(--accent-strong)]" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-extrabold">Copy this sample secret now</p>
+                  <p className="text-sm font-extrabold">Copy this secret now</p>
                   <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                    A real secret will be shown once, and the API will store only a hash of it. This demo holds a sample value in memory.
+                    This is the only time it is shown. The API keeps a hash, so
+                    it cannot be retrieved - only rotated.
                   </p>
                   <div className="mt-3 flex items-center gap-2 rounded-xl border border-[rgb(143_85_16/25%)] bg-[var(--surface)] p-2 pl-3">
                     <code className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-bold">
@@ -584,7 +657,7 @@ export function IntegrationsView({
                       <StatusBadge status={credential.status} />
                     </div>
                     <p className="mt-1 text-xs text-[var(--muted)]">
-                      {credential.branch} · Last used {credential.lastUsed}
+                      {credential.branch} · Last used {relativeTime(credential.lastUsedAt)}
                     </p>
                   </div>
                   {credential.status === "Active" && (
@@ -846,12 +919,60 @@ export function IntegrationsView({
                     notify("An outbound endpoint has to be HTTPS.", "error");
                     return;
                   }
-                  saveWebhookUrl();
-                  notify("Outbound endpoint saved for this demo session.");
+                  saveEndpoint.mutate(
+                    { url: webhookUrl.trim(), events: subscribedEvents },
+                    {
+                      onSuccess: () => {
+                        saveWebhookUrl();
+                        notify("Outbound endpoint saved.");
+                      },
+                      onError: (failure) => notify(failure.message, "error"),
+                    },
+                  );
                 }}
               >
                 {webhookDirty ? "Save endpoint" : "Endpoint saved"}
               </Button>
+              {outbound && (
+                <>
+                  <Button
+                    tone="quiet"
+                    icon={<KeyRound size={15} />}
+                    disabled={revealSecret.isPending}
+                    onClick={() =>
+                      revealSecret.mutate(outbound.id, {
+                        onSuccess: ({ secret }) => setOneTimeSecret(secret),
+                        onError: (failure) => notify(failure.message, "error"),
+                      })
+                    }
+                  >
+                    Show signing secret
+                  </Button>
+                  <Button
+                    tone="quiet"
+                    icon={<RotateCcw size={15} />}
+                    disabled={rotateEndpointSecret.isPending}
+                    onClick={() => {
+                      if (
+                        !window.confirm(
+                          "Rotate the signing secret? Your endpoint will reject deliveries until it is updated with the new one.",
+                        )
+                      ) {
+                        return;
+                      }
+                      rotateEndpointSecret.mutate(outbound.id, {
+                        onSuccess: ({ secret }) => {
+                          setOneTimeSecret(secret);
+                          notify("Signing secret rotated. Update your endpoint now.");
+                        },
+                        onError: (failure) => notify(failure.message, "error"),
+                      });
+                    }}
+                  >
+                    Rotate signing secret
+                  </Button>
+                </>
+              )}
             </div>
             {webhookDirty && (
               <p className="text-[10px] font-bold text-[var(--accent-strong)]">
@@ -882,17 +1003,10 @@ export function IntegrationsView({
             icon={<RefreshCcw size={14} />}
             onClick={() => {
               setRefreshing(true);
-              window.setTimeout(() => {
-                setDeliveries((current) =>
-                  current.map((delivery, index) =>
-                    index === 0
-                      ? { ...delivery, detail: `${120 + current.length * 7} ms · Just now` }
-                      : delivery,
-                  ),
-                );
+              void refetchDeliveries().finally(() => {
                 setRefreshing(false);
                 notify("Delivery log refreshed.");
-              }, 550);
+              });
             }}
             disabled={refreshing}
           >

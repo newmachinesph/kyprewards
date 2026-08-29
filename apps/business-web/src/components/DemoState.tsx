@@ -11,9 +11,6 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { sharedScenario } from "@kypstamping/demo-data";
-import type { Credential, Delivery } from "@kypstamping/api";
-
 /**
  * Client state, and only client state.
  *
@@ -27,12 +24,11 @@ import type { Credential, Delivery } from "@kypstamping/api";
  * the merchant navigates, so anything they own is destroyed on the next
  * click; these five things have to outlive that.
  *
- * The integration credentials and webhook deliveries below are still local.
- * They have endpoints — `/integration-credentials` and `/webhook-deliveries` —
- * and moving them is the next piece of this migration, not a different one.
+ * The integration credentials and webhook deliveries that used to live here
+ * moved out with the rest: both are the API's, and holding a copy of a
+ * credential list beside the one the server keeps is how a revoked key goes
+ * on looking active.
  */
-
-export type { Credential, Delivery };
 
 /** What the onboarding wizard wrote to session storage before handing over. */
 export type WorkspaceProfile = {
@@ -43,81 +39,6 @@ export type WorkspaceProfile = {
   program: string;
   method: string;
 };
-
-const INITIAL_CREDENTIALS: Credential[] = [
-  {
-    id: "key_counter_01",
-    label: "Main counter",
-    clientKey: "st_test_sc_7K9P2D4M",
-    // The live counter in the shared scenario. Legazpi Village is still in
-    // setup, so scoping the main counter key there made no sense.
-    branch: "Kapitolyo",
-    scopes: ["customers:read", "transactions:write", "rewards:read"],
-    lastUsed: "18 seconds ago",
-    status: "Active",
-    environment: "sandbox",
-  },
-  {
-    id: "key_staging_02",
-    label: "Developer staging",
-    clientKey: "st_test_sc_1H3F8W6Q",
-    branch: "All sandbox branches",
-    scopes: ["customers:read", "transactions:write", "rewards:read", "redemptions:write"],
-    lastUsed: "Yesterday, 4:18 PM",
-    status: "Active",
-    environment: "sandbox",
-  },
-  {
-    id: "key_live_03",
-    label: "Production counter (preview)",
-    clientKey: "st_live_demo_sc_3B7T1Y5E",
-    branch: "Kapitolyo",
-    scopes: ["customers:read", "transactions:write"],
-    lastUsed: "Never used",
-    status: "Active",
-    environment: "production",
-  },
-];
-
-/**
- * The first row is the shared scenario's own delivery. It previously carried
- * an unrelated ID scheme, which broke the one claim the demo makes about all
- * four apps showing the same event.
- */
-const INITIAL_DELIVERIES: Delivery[] = [
-  {
-    id: sharedScenario.loyaltyEvent.id,
-    event: sharedScenario.loyaltyEvent.type,
-    source: "POS sandbox",
-    status: sharedScenario.loyaltyEvent.status,
-    detail: `202 ms · ${sharedScenario.loyaltyEvent.occurredAt}`,
-    requestId: sharedScenario.delivery.requestId,
-  },
-  {
-    id: "evt_SC_10481",
-    event: "visit.recorded",
-    source: "POS sandbox",
-    status: "Ignored safely",
-    detail: "Duplicate idempotency key · Today, 9:41 AM",
-    requestId: "req_SC_10481",
-  },
-  {
-    id: "evt_SC_10477",
-    event: "reward.redeemed",
-    source: "Sweet Crumbs endpoint",
-    status: "Retrying",
-    detail: "Attempt 2 of 8 · Next retry in 48s",
-    requestId: "req_SC_10477",
-  },
-  {
-    id: "evt_SC_10463",
-    event: "customer.updated",
-    source: "Sweet Crumbs endpoint",
-    status: "Failed",
-    detail: "HTTP 503 · Yesterday, 6:14 PM",
-    requestId: "req_SC_10463",
-  },
-];
 
 const DEFAULT_WEBHOOK_URL = "https://pos.sweetcrumbs.ph/webhooks/kypstamping";
 
@@ -156,11 +77,6 @@ type DemoState = {
   settings: Record<string, boolean>;
   setSetting: (key: string, value: boolean) => void;
 
-  credentials: Credential[];
-  setCredentials: Dispatch<SetStateAction<Credential[]>>;
-  deliveries: Delivery[];
-  setDeliveries: Dispatch<SetStateAction<Delivery[]>>;
-
   /** The input the merchant is editing. */
   webhookUrl: string;
   setWebhookUrl: Dispatch<SetStateAction<string>>;
@@ -193,8 +109,6 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
     autoTopUpSms: true,
     invoiceEmails: true,
   });
-  const [credentials, setCredentials] = useState<Credential[]>(INITIAL_CREDENTIALS);
-  const [deliveries, setDeliveries] = useState<Delivery[]>(INITIAL_DELIVERIES);
   const [webhookUrl, setWebhookUrl] = useState(DEFAULT_WEBHOOK_URL);
   const [savedWebhookUrl, setSavedWebhookUrl] = useState(DEFAULT_WEBHOOK_URL);
   const [subscribedEvents, setSubscribedEvents] = useState([
@@ -228,10 +142,6 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
     () => ({
       settings,
       setSetting,
-      credentials,
-      setCredentials,
-      deliveries,
-      setDeliveries,
       webhookUrl,
       setWebhookUrl,
       savedWebhookUrl,
@@ -248,8 +158,6 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
     [
       settings,
       setSetting,
-      credentials,
-      deliveries,
       webhookUrl,
       savedWebhookUrl,
       saveWebhookUrl,

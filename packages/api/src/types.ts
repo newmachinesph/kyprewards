@@ -314,28 +314,9 @@ export type Billing = {
   invoices: Invoice[];
 };
 
-/* ── Merchant-owned integration state ─────────────────────────────── */
-
-export type Credential = {
-  id: string;
-  label: string;
-  clientKey: string;
-  branch: string;
-  scopes: string[];
-  lastUsed: string;
-  status: CredentialStatus;
-  /** Sandbox keys are hidden while the production preview is selected. */
-  environment: Environment;
-};
-
-export type Delivery = {
-  id: string;
-  event: string;
-  source: string;
-  status: DeliveryStatus;
-  detail: string;
-  requestId: string;
-};
+/* ── Merchant-owned integration state ─────────────────────────────────
+   Credential and Delivery live in `endpoints.ts`, beside the calls that
+   produce them: both carry secrets, and their shapes are the API's. */
 
 /* ── Customer ─────────────────────────────────────────────────────── */
 

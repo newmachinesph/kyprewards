@@ -30,7 +30,10 @@ import {
   getSession,
   login,
   logout,
+  registerBusiness,
+  registerCustomer,
   requestOtp,
+  requestPasswordReset,
   selectWorkspace,
   getWorkspaces,
   verifyMfa,
@@ -715,18 +718,41 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
 
   if (mode === "forgot") {
     return (
-      <AuthShell role={role} mode="forgot" title="Reset your access." description="Enter the work email attached to your demo account. The recovery state is simulated locally.">
+      <AuthShell role={role} mode="forgot" title="Reset your access." description="Enter the work email attached to your account.">
         {sent ? (
           <div aria-live="polite" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-7">
             <span className="grid size-12 place-items-center rounded-2xl bg-[rgb(15_118_85/10%)] text-[var(--success)]"><Mail size={20} /></span>
             <h2 className="mt-6 text-xl font-extrabold">Recovery instructions prepared.</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">A demo recovery link for <strong>{identifier}</strong> is ready. No email was actually sent.</p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
+              If <strong>{identifier}</strong> has an account, a reset link is on
+              its way. The answer is the same either way, so this page cannot be
+              used to find out which addresses are registered.
+            </p>
             <a href="/login" className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)]">Return to sign in <ArrowRight size={15} /></a>
           </div>
         ) : (
-          <form onSubmit={(event) => { event.preventDefault(); setSent(true); }} className="space-y-5">
+          <form
+            onSubmit={async (event) => {
+              event.preventDefault();
+              if (!identifier.trim()) { setNotice("Enter your work email."); return; }
+              setBusy(true);
+              try {
+                await requestPasswordReset(identifier.trim());
+              } catch {
+                // Deliberately swallowed. Telling the caller this failed would
+                // distinguish a known address from an unknown one, which is
+                // exactly what the endpoint refuses to do.
+              }
+              setSent(true);
+              setBusy(false);
+            }}
+            className="space-y-5"
+          >
             <Field label="Work email" type="email" value={identifier} onChange={setIdentifier} autoComplete="email" />
-            <PrimaryButton>Prepare recovery link</PrimaryButton>
+            {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
+            <PrimaryButton disabled={busy}>
+              {busy ? "Sending\u2026" : "Send reset link"}
+            </PrimaryButton>
             <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)] hover:text-[var(--ink)]"><ArrowLeft size={14} /> Back to sign in</a>
           </form>
         )}
@@ -794,14 +820,35 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
     return (
       <AuthShell role="business" mode="create" title="Start your loyalty program." description="Create the workspace for your business. You can add locations, staff, and your first program right after.">
         <form
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
             if (!businessName.trim()) { setNotice("Enter your business name."); return; }
+            if (!name.trim()) { setNotice("Enter your full name."); return; }
             if (!identifier.trim()) { setNotice("Enter your work email."); return; }
-            if (password.length < 8) { setNotice("Use at least 8 characters for this demo password."); return; }
             if (!accepted) { setNotice("Accept the terms to continue."); return; }
-            window.sessionStorage.setItem("kypstamping-business-signup", businessName);
-            go("/verify");
+
+            setBusy(true);
+            setNotice("");
+            try {
+              // Creates the account and signs it in. The workspace itself
+              // comes next, in the wizard - which is why the API answers
+              // needsWorkspace here.
+              await registerBusiness({
+                name: name.trim(),
+                email: identifier.trim(),
+                password,
+              });
+              // Carried so the wizard can open with the name already typed.
+              window.sessionStorage.setItem("kypstamping-business-signup", businessName);
+              go("/onboarding");
+            } catch (failure) {
+              setNotice(
+                failure instanceof ApiError
+                  ? failure.message
+                  : "Could not create that account.",
+              );
+              setBusy(false);
+            }
           }}
           className="space-y-5"
         >
@@ -828,14 +875,18 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </span>
-            <span className="text-[10px] font-semibold text-[var(--muted)]">At least 8 characters.</span>
+            <span className="text-[10px] font-semibold text-[var(--muted)]">
+              At least 12 characters, with an uppercase letter and a number.
+            </span>
           </label>
           <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">
             <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-0.5 size-4 accent-[var(--ink)]" />
-            <span>I agree to the demo terms and understand no real workspace is created.</span>
+            <span>I agree to the terms and the privacy notice.</span>
           </label>
           {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
-          <PrimaryButton>Create demo workspace</PrimaryButton>
+          <PrimaryButton disabled={busy}>
+            {busy ? "Creating\u2026" : "Create workspace"}
+          </PrimaryButton>
           <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> I already have an account</a>
         </form>
         <DemoBoundary />
@@ -846,16 +897,47 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   if (mode === "create") {
     return (
       <AuthShell role="customer" mode="create" title="Set up your wallet." description="Keep rewards from nearby businesses together, with permissions you can change anytime.">
-        <form onSubmit={(event) => { event.preventDefault(); if (!accepted) { setNotice("Accept the terms to continue."); return; } window.sessionStorage.setItem("kypstamping-customer-signup-name", name); go("/verify"); }} className="space-y-5">
+        <form
+          onSubmit={async (event) => {
+            event.preventDefault();
+            if (!name.trim()) { setNotice("Enter your name."); return; }
+            if (!identifier.trim()) { setNotice("Enter your mobile number."); return; }
+            if (!accepted) { setNotice("Accept the terms to continue."); return; }
+
+            setBusy(true);
+            setNotice("");
+            try {
+              // Answers the same whether or not the number is already
+              // registered, so this cannot be used to discover who has a
+              // wallet. Either way a code is on its way.
+              await registerCustomer({
+                name: name.trim(),
+                mobile: identifier.trim(),
+                email: email.trim() || undefined,
+              });
+              window.sessionStorage.setItem("kypstamping-customer-signup-name", name);
+              window.sessionStorage.setItem(OTP_IDENTIFIER_KEY, identifier.trim());
+              go("/verify");
+            } catch (failure) {
+              setNotice(
+                failure instanceof ApiError ? failure.message : "Could not set that up.",
+              );
+              setBusy(false);
+            }
+          }}
+          className="space-y-5"
+        >
           <Field label="Full name" value={name} onChange={setName} autoComplete="name" />
           <Field label="Mobile number" type="tel" value={identifier} onChange={setIdentifier} autoComplete="tel" />
           <Field label="Email, optional" type="email" value={email} onChange={setEmail} autoComplete="email" required={false} />
           <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">
             <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-0.5 size-4 accent-[var(--ink)]" />
-            <span>I agree to the demo terms and understand no real account is created.</span>
+            <span>I agree to the terms and the privacy notice.</span>
           </label>
           {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
-          <PrimaryButton>Create demo wallet</PrimaryButton>
+          <PrimaryButton disabled={busy}>
+            {busy ? "Setting up\u2026" : "Create wallet"}
+          </PrimaryButton>
           <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> I already have a wallet</a>
         </form>
       </AuthShell>

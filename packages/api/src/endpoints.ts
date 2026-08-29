@@ -30,6 +30,7 @@ import type {
   Campaign,
   ChannelEconomics,
   ChannelPreferences,
+  Environment,
   ConsentEntry,
   CustomerNotification,
   CustomerProfile,
@@ -410,6 +411,97 @@ export const recordVisit = (
 /** The onboarding wizard's "prove it works" step. */
 export const recordTestStamp = (): Promise<VisitResult> =>
   http("/business/onboarding/test-stamp", { method: "POST" });
+
+/* ── Integrations ─────────────────────────────────────────────────────
+   API keys and the outbound webhook. Both carry secrets, and the API only
+   ever reveals one at the moment it is created or rotated - the lists carry
+   a preview and nothing more. */
+
+export type Credential = {
+  id: string;
+  label: string;
+  clientKey: string;
+  branch: string;
+  scopes: string[];
+  lastUsedAt: string | null;
+  status: string;
+  environment: Environment;
+  /** Last few characters, so a key can be recognised without being readable. */
+  secretPreview: string;
+};
+
+/** Carries the secret itself. Shown once and never retrievable again. */
+export type CredentialCreated = Credential & { secret: string };
+
+/**
+ * Scoped to one environment, and it has to be passed.
+ *
+ * The API defaults to production, so a caller that omits it shows a merchant
+ * their live keys while the screen says Sandbox.
+ */
+export const getCredentials = (environment: Environment): Promise<Credential[]> =>
+  http("/integration-credentials", { query: { environment } });
+
+export const createCredential = (body: {
+  label: string;
+  scopes: string[];
+  branch?: string;
+  environment?: Environment;
+}): Promise<CredentialCreated> =>
+  http("/integration-credentials", { method: "POST", body });
+
+export const rotateCredential = (credentialId: string): Promise<CredentialCreated> =>
+  http(`/integration-credentials/${credentialId}/rotate`, { method: "POST" });
+
+export const revokeCredential = (credentialId: string): Promise<void> =>
+  http(`/integration-credentials/${credentialId}`, { method: "DELETE" });
+
+export type WebhookEndpoint = {
+  id: string;
+  url: string;
+  events: string[];
+  status: string;
+  secretPreview: string;
+};
+
+export const getWebhookEndpoints = (environment: Environment): Promise<WebhookEndpoint[]> =>
+  http("/webhook-endpoints", { query: { environment } });
+
+/**
+ * PUT, not POST: a merchant has one outbound endpoint per environment, so
+ * saving is the same call whether or not one already exists.
+ */
+export const saveWebhookEndpoint = (
+  body: { url: string; events: string[] },
+  environment: Environment,
+): Promise<WebhookEndpoint> =>
+  http("/webhook-endpoints", { method: "PUT", body, query: { environment } });
+
+export const rotateWebhookSecret = (endpointId: string): Promise<{ secret: string }> =>
+  http(`/webhook-endpoints/${endpointId}/rotate-secret`, { method: "POST" });
+
+export const revealWebhookSecret = (endpointId: string): Promise<{ secret: string }> =>
+  http(`/webhook-endpoints/${endpointId}/secret`);
+
+export const sendTestDelivery = (endpointId: string): Promise<Delivery> =>
+  http(`/webhook-endpoints/${endpointId}/test`, { method: "POST" });
+
+export type Delivery = {
+  id: string;
+  event: string;
+  source: string;
+  status: string;
+  detail: string;
+  requestId: string;
+  attempts: number;
+  createdAt: string;
+};
+
+export const getWebhookDeliveries = (environment: Environment): Promise<Delivery[]> =>
+  http("/webhook-deliveries", { query: { environment } });
+
+export const retryDelivery = (deliveryId: string): Promise<Delivery> =>
+  http(`/webhook-deliveries/${deliveryId}/retry`, { method: "POST" });
 
 /* ── Platform writes ──────────────────────────────────────────────── */
 
