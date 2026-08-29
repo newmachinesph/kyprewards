@@ -186,6 +186,82 @@ export const getBusinessMetrics = (): Promise<BusinessMetrics> => http("/busines
 
 export const getBilling = (): Promise<Billing> => http("/business/billing");
 
+/* ── Analytics ────────────────────────────────────────────────────────
+   Measured, not estimated. Every one of these was a hardcoded array in the
+   analytics view before it had an endpoint to ask. */
+
+export type Retention = {
+  /** Percentage still returning in each of six weeks, week 0 being 100. */
+  weeks: number[];
+  cohorts: { week: number; active: number }[];
+};
+
+export type VisitTrend = {
+  period: string;
+  total: number;
+  /** Index of the busiest bar, so the chart can mark it without recomputing. */
+  peakIndex: number;
+  bars: { label: string; visits: number }[];
+};
+
+export type SegmentShare = { segment: string; members: number; share: number };
+
+export type StaffPerformance = {
+  staffId: string;
+  name: string;
+  role: string;
+  visits: number;
+  valueCentavos: number;
+};
+
+export type BranchPerformance = {
+  branchId: string;
+  name: string;
+  city: string;
+  visits: number;
+  valueCentavos: number;
+  members: number;
+};
+
+export type CampaignAttribution = {
+  id: string;
+  name: string;
+  sent: number;
+  visited: number;
+  conversionRate: number;
+  revenueCentavos: number;
+  costCentavos: number;
+  returnOnSpend: number;
+  /** "attributed", never "incremental" - the API is careful about the claim. */
+  basis: string;
+};
+
+export type TimeToSecondVisit = {
+  members: number;
+  averageDays: number;
+  medianDays: number;
+};
+
+export const getRetention = (): Promise<Retention> => http("/business/analytics/retention");
+
+export const getVisitTrend = (period = "week"): Promise<VisitTrend> =>
+  http("/business/analytics/visits", { query: { period } });
+
+export const getSegments = (): Promise<SegmentShare[]> =>
+  http("/business/analytics/segments");
+
+export const getStaffPerformance = (): Promise<StaffPerformance[]> =>
+  http("/business/analytics/staff");
+
+export const getBranchPerformance = (): Promise<BranchPerformance[]> =>
+  http("/business/analytics/branches");
+
+export const getCampaignAttribution = (): Promise<CampaignAttribution[]> =>
+  http("/business/analytics/campaigns");
+
+export const getTimeToSecondVisit = (): Promise<TimeToSecondVisit> =>
+  http("/business/analytics/time-to-second-visit");
+
 /* ── Customer wallet ──────────────────────────────────────────────── */
 
 export const getCustomerProfile = (): Promise<CustomerProfile> => http("/customer/profile");

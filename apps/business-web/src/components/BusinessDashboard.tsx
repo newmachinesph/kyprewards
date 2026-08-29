@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button, Eyebrow, StampDots, StatCard } from "@kypstamping/ui";
 import { greeting, todayLabel } from "@kypstamping/ui/shell";
+import { pesoCompactFromCentavos } from "@kypstamping/ui/format";
 import {
   ArrowRight,
   BadgePercent,
@@ -47,17 +48,22 @@ import {
   useLocations,
   usePrograms,
   useStaff,
+  useVisitTrend,
   EMPTY_BUSINESS_METRICS,
 } from "@kypstamping/api";
 import { useRecordTestStamp, useToggleAutomation } from "@/components/mutations";
 import type { BusinessView } from "@/components/BusinessShell";
 
-const periods = ["Today", "7 days", "30 days"];
-const chartByPeriod: Record<string, { bars: number[]; total: number; peakIndex: number }> = {
-  Today: { bars: [12, 22, 18, 34, 52, 46, 30, 24, 38, 62, 88, 54], total: 128, peakIndex: 10 },
-  "7 days": { bars: [28, 42, 34, 58, 48, 68, 78, 55, 82, 72, 88, 76], total: 642, peakIndex: 10 },
-  "30 days": { bars: [44, 52, 38, 60, 56, 72, 64, 80, 70, 86, 92, 78], total: 2716, peakIndex: 10 },
-};
+/**
+ * The periods the API buckets by. The labels used to be "Today / 7 days /
+ * 30 days" over a fixed set of bars, so the switcher relabelled the axis
+ * without changing a single number.
+ */
+const periods = [
+  { id: "week", label: "7 days" },
+  { id: "month", label: "30 days" },
+  { id: "quarter", label: "13 weeks" },
+] as const;
 
 const SETUP_STEPS = [
   "Business profile",
@@ -120,7 +126,7 @@ export function BusinessDashboard({
   onNavigate: (view: BusinessView) => void;
   notify: (message: string, intent?: NotifyIntent) => void;
 }) {
-  const [period, setPeriod] = useState("7 days");
+  const [period, setPeriod] = useState<(typeof periods)[number]["id"]>("week");
   const [scanOpen, setScanOpen] = useState(false);
   const { testStampDone, completeTestStamp, startScanHandoff, workspace } = useDemoState();
 
@@ -134,6 +140,9 @@ export function BusinessDashboard({
   const { data: staff = [] } = useStaff();
   const { data: programs = [], isPending: programsPending } = usePrograms();
   const { data: automationRows = [] } = useAutomations();
+  const { data: visits } = useVisitTrend(period);
+  // Never zero: dividing by it would make every bar NaN tall.
+  const busiest = Math.max(1, ...(visits?.bars ?? []).map((bar) => bar.visits));
 
   const automations = useMemo(
     () =>
@@ -203,16 +212,40 @@ export function BusinessDashboard({
         className="metric-grid mt-8 grid gap-3"
         aria-label="Business overview"
       >
-        <StatCard className="col-span-6 lg:col-span-3" label="Visits" value={String(metrics.visitsToday)} detail="18%" icon={Repeat2} accent />
+        {/* The details beside these were "18%", "6 this week", "31%" and
+            "On pace" - four numbers with nothing behind them, sitting next to
+            four that are measured. A real figure loses its meaning next to an
+            invented one, so each now says what it counts. */}
+        <StatCard
+          className="col-span-6 lg:col-span-3"
+          label="Visits"
+          value={String(metrics.visitsToday)}
+          detail="today"
+          icon={Repeat2}
+          accent
+        />
         <StatCard
           className="col-span-6 lg:col-span-3"
           label="New regulars"
           value={String(metrics.newRegulars)}
-          detail="6 this week"
+          detail={`${metrics.repeatRate}% repeat rate`}
           icon={UserPlus}
         />
-        <StatCard className="col-span-6 lg:col-span-3" label="Stamps issued" value={String(metrics.stampsIssued)} detail="31%" icon={Stamp} />
-        <StatCard className="col-span-6 lg:col-span-3" label="Redemptions" value={String(metrics.redemptions)} detail="On pace" icon={Gift} trend="flat" />
+        <StatCard
+          className="col-span-6 lg:col-span-3"
+          label="Stamps issued"
+          value={String(metrics.stampsIssued)}
+          detail="all time"
+          icon={Stamp}
+        />
+        <StatCard
+          className="col-span-6 lg:col-span-3"
+          label="Redemptions"
+          value={String(metrics.redemptions)}
+          detail={`${pesoCompactFromCentavos(metrics.memberRevenueCentavos)} member revenue`}
+          icon={Gift}
+          trend="flat"
+        />
       </section>
 
       <section
@@ -233,11 +266,12 @@ export function BusinessDashboard({
             >
               {periods.map((item) => (
                 <button
-                  key={item}
-                  onClick={() => setPeriod(item)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${period === item ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm" : "text-[var(--muted)] hover:text-[var(--ink)]"}`}
+                  key={item.id}
+                  onClick={() => setPeriod(item.id)}
+                  aria-pressed={period === item.id}
+                  className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${period === item.id ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm" : "text-[var(--muted)] hover:text-[var(--ink)]"}`}
                 >
-                  {item}
+                  {item.label}
                 </button>
               ))}
             </div>
@@ -245,25 +279,29 @@ export function BusinessDashboard({
           <div className="stamp-grid relative min-h-72 p-5 sm:p-7">
             <div className="absolute left-7 top-7">
               <p className="text-4xl font-extrabold tracking-[-0.03em]">
-                {chartByPeriod[period].total.toLocaleString("en-PH")}
+                {(visits?.total ?? 0).toLocaleString("en-PH")}
               </p>
               <p className="mt-1 text-xs font-semibold text-[var(--muted)]">
-                visits {period === "Today" ? "so far today" : `in the last ${period.toLowerCase()}`}
+                visits in the last{" "}
+                {periods.find((item) => item.id === period)?.label}
               </p>
             </div>
             <div
               className="absolute inset-x-5 bottom-7 top-24 flex items-end gap-2 sm:inset-x-7 sm:gap-3"
               role="img"
-              aria-label={`Visits bar chart for ${period.toLowerCase()}: ${chartByPeriod[period].total} visits`}
+              aria-label={`Visits bar chart: ${visits?.total ?? 0} visits`}
             >
-              {chartByPeriod[period].bars.map((height, index) => (
+              {(visits?.bars ?? []).map((bar, index) => (
                 <div
-                  key={index}
+                  key={bar.label}
+                  title={`${bar.label}: ${bar.visits}`}
                   className="group relative flex h-full flex-1 items-end"
                 >
                   <span
-                    className={`w-full origin-bottom rounded-t-lg transition-transform duration-300 group-hover:scale-y-[1.04] ${index === chartByPeriod[period].peakIndex ? "bg-[var(--accent)]" : "bg-[var(--ink)]"}`}
-                    style={{ height: `${height}%` }}
+                    className={`w-full origin-bottom rounded-t-lg transition-transform duration-300 group-hover:scale-y-[1.04] ${index === visits?.peakIndex ? "bg-[var(--accent)]" : "bg-[var(--ink)]"}`}
+                    // Scaled against the tallest bar, so a quiet week still
+                    // fills the chart rather than sitting flat at the bottom.
+                    style={{ height: `${Math.round((bar.visits / busiest) * 100)}%` }}
                   />
                 </div>
               ))}

@@ -15,6 +15,8 @@ import {
   usePrograms,
   useRedemptions,
   useStaff,
+  useRetention,
+  useTimeToSecondVisit,
   useCustomerBalance,
   lookupCustomer,
   idempotencyKey,
@@ -2267,13 +2269,18 @@ function AnalyticsView() {
     (sum, program) => sum + program.liabilityCentavos,
     0,
   );
-  const retention = [100, 68, 54, 47, 44, 42];
-  const cohorts = [
-    [100, 71, 58, 49, 45, 43],
-    [100, 69, 55, 48, 44, 0],
-    [100, 74, 61, 53, 0, 0],
-    [100, 78, 66, 0, 0, 0],
-  ];
+  /*
+   * These six numbers and the cohort grid under them were written by hand:
+   * 100, 68, 54, 47, 44, 42, and four rows labelled May through August. They
+   * were the same for every merchant and moved for none of them.
+   *
+   * The API measures both from the ledger, so a merchant reading "54% return
+   * in week two" is reading their own customers.
+   */
+  const { data: retentionData } = useRetention();
+  const { data: secondVisit } = useTimeToSecondVisit();
+  const retention = retentionData?.weeks ?? [];
+  const cohorts = retentionData?.cohorts ?? [];
   return (
     <ViewFrame
       eyebrow="Retention intelligence"
@@ -2287,7 +2294,11 @@ function AnalyticsView() {
               <Eyebrow>Six-week retention</Eyebrow>
               <h2 className="mt-1 text-lg font-extrabold">Customers who return</h2>
             </div>
-            <Pill tone="success">+7.4% vs prior</Pill>
+            {secondVisit && secondVisit.members > 0 ? (
+              <Pill tone="success">
+                {secondVisit.medianDays}d median to a second visit
+              </Pill>
+            ) : null}
           </div>
           <div className="mt-10 flex h-64 items-end gap-3">
             {retention.map((value, index) => (
@@ -2362,30 +2373,38 @@ function AnalyticsView() {
               <span>W4</span>
               <span>W5</span>
             </div>
-            {cohorts.map((row, rowIndex) => (
-              <div
-                key={rowIndex}
-                className="mt-1 grid grid-cols-[120px_repeat(6,1fr)] gap-1"
-              >
+            {cohorts.length === 0 ? (
+              <p className="mt-4 text-xs text-[var(--muted-strong)]">
+                Not enough history yet. A cohort needs a few weeks of visits
+                before it says anything.
+              </p>
+            ) : (
+              <div className="mt-1 grid grid-cols-[120px_repeat(6,1fr)] gap-1">
                 <span className="flex items-center text-xs font-bold">
-                  {["May", "June", "July", "August"][rowIndex]} 2026
+                  Active members
                 </span>
-                {row.map((value, colIndex) => (
-                  <span
-                    key={colIndex}
-                    className="grid min-h-12 place-items-center rounded-lg text-xs font-extrabold"
-                    style={{
-                      backgroundColor: value
-                        ? `rgb(232 163 61 / ${0.12 + value / 130})`
-                        : "var(--surface-2)",
-                      color: value > 55 ? "var(--ink)" : "var(--muted-strong)",
-                    }}
-                  >
-                    {value ? `${value}%` : "—"}
-                  </span>
-                ))}
+                {cohorts.map((cell) => {
+                  // Shaded against the widest week, so the grid reads as a
+                  // comparison rather than an absolute scale.
+                  const peak = Math.max(...cohorts.map((item) => item.active), 1);
+                  const share = Math.round((cell.active / peak) * 100);
+                  return (
+                    <span
+                      key={cell.week}
+                      className="grid min-h-12 place-items-center rounded-lg text-xs font-extrabold"
+                      style={{
+                        backgroundColor: cell.active
+                          ? `rgb(232 163 61 / ${0.12 + share / 130})`
+                          : "var(--surface-2)",
+                        color: share > 55 ? "var(--ink)" : "var(--muted-strong)",
+                      }}
+                    >
+                      {cell.active || "—"}
+                    </span>
+                  );
+                })}
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>

@@ -52,9 +52,16 @@ import type {
 
 import { keys, type Coordinates, type CustomerFilters } from "./keys";
 import type {
+  BranchPerformance,
+  CampaignAttribution,
   Credential,
   CustomerBalance,
   Delivery,
+  Retention,
+  SegmentShare,
+  StaffPerformance,
+  TimeToSecondVisit,
+  VisitTrend,
   WebhookEndpoint,
 } from "./endpoints";
 
@@ -141,6 +148,68 @@ export const useBusinessMetrics = (options?: Options<BusinessMetrics>): Query<Bu
 
 export const useBilling = (options?: Options<Billing>): Query<Billing> =>
   useQuery({ queryKey: keys.business.billing(), queryFn: api.getBilling, ...options });
+
+/* ── Analytics ────────────────────────────────────────────────────── */
+
+export const useRetention = (options?: Options<Retention>): Query<Retention> =>
+  useQuery({
+    queryKey: keys.business.analytics.retention(),
+    queryFn: api.getRetention,
+    ...options,
+  });
+
+export const useVisitTrend = (
+  period = "week",
+  options?: Options<VisitTrend>,
+): Query<VisitTrend> =>
+  useQuery({
+    queryKey: keys.business.analytics.visits(period),
+    queryFn: () => api.getVisitTrend(period),
+    ...options,
+  });
+
+export const useSegments = (options?: Options<SegmentShare[]>): Query<SegmentShare[]> =>
+  useQuery({
+    queryKey: keys.business.analytics.segments(),
+    queryFn: api.getSegments,
+    ...options,
+  });
+
+export const useStaffPerformance = (
+  options?: Options<StaffPerformance[]>,
+): Query<StaffPerformance[]> =>
+  useQuery({
+    queryKey: keys.business.analytics.staff(),
+    queryFn: api.getStaffPerformance,
+    ...options,
+  });
+
+export const useBranchPerformance = (
+  options?: Options<BranchPerformance[]>,
+): Query<BranchPerformance[]> =>
+  useQuery({
+    queryKey: keys.business.analytics.branches(),
+    queryFn: api.getBranchPerformance,
+    ...options,
+  });
+
+export const useCampaignAttribution = (
+  options?: Options<CampaignAttribution[]>,
+): Query<CampaignAttribution[]> =>
+  useQuery({
+    queryKey: keys.business.analytics.campaigns(),
+    queryFn: api.getCampaignAttribution,
+    ...options,
+  });
+
+export const useTimeToSecondVisit = (
+  options?: Options<TimeToSecondVisit>,
+): Query<TimeToSecondVisit> =>
+  useQuery({
+    queryKey: keys.business.analytics.timeToSecondVisit(),
+    queryFn: api.getTimeToSecondVisit,
+    ...options,
+  });
 
 /* ── Counter ──────────────────────────────────────────────────────── */
 
