@@ -259,7 +259,10 @@
         "members": 5128,
         "completion": 63,
         "redemption": 38,
-        "liabilityCentavos": 2840000
+        "liabilityCentavos": 2840000,
+        "target": 8,
+        "rewardName": "Free pastry",
+        "rewardValueCentavos": 16500
       },
       {
         "id": "prog_points",
@@ -269,7 +272,10 @@
         "members": 0,
         "completion": 0,
         "redemption": 0,
-        "liabilityCentavos": 0
+        "liabilityCentavos": 0,
+        "target": 0,
+        "rewardName": "",
+        "rewardValueCentavos": 0
       },
       {
         "id": "prog_discount",
@@ -279,7 +285,10 @@
         "members": 860,
         "completion": 72,
         "redemption": 54,
-        "liabilityCentavos": 1210000
+        "liabilityCentavos": 1210000,
+        "target": 0,
+        "rewardName": "",
+        "rewardValueCentavos": 0
       },
       {
         "id": "prog_membership",
@@ -289,7 +298,10 @@
         "members": 0,
         "completion": 0,
         "redemption": 0,
-        "liabilityCentavos": 0
+        "liabilityCentavos": 0,
+        "target": 0,
+        "rewardName": "",
+        "rewardValueCentavos": 0
       },
       {
         "id": "prog_coupon",
@@ -299,7 +311,10 @@
         "members": 1240,
         "completion": 31,
         "redemption": 18,
-        "liabilityCentavos": 680000
+        "liabilityCentavos": 680000,
+        "target": 0,
+        "rewardName": "",
+        "rewardValueCentavos": 0
       },
       {
         "id": "prog_rewards",
@@ -309,7 +324,10 @@
         "members": 486,
         "completion": 48,
         "redemption": 22,
-        "liabilityCentavos": 910000
+        "liabilityCentavos": 910000,
+        "target": 0,
+        "rewardName": "",
+        "rewardValueCentavos": 0
       },
       {
         "id": "prog_multipass",
@@ -319,7 +337,10 @@
         "members": 0,
         "completion": 0,
         "redemption": 0,
-        "liabilityCentavos": 0
+        "liabilityCentavos": 0,
+        "target": 0,
+        "rewardName": "",
+        "rewardValueCentavos": 0
       },
       {
         "id": "prog_gift",
@@ -329,7 +350,10 @@
         "members": 112,
         "completion": 67,
         "redemption": 41,
-        "liabilityCentavos": 5340000
+        "liabilityCentavos": 5340000,
+        "target": 0,
+        "rewardName": "",
+        "rewardValueCentavos": 0
       }
     ],
     "automations": [

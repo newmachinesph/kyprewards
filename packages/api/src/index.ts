@@ -19,6 +19,8 @@ export { ApiProvider } from "./provider";
 export { getQueryClient, makeQueryClient } from "./query-client";
 export { keys, type CustomerFilters, type Coordinates } from "./keys";
 export * from "./queries";
+export * from "./endpoints";
+export * from "./types";
 export { useApiMutation, idempotencyKey, type ApiMutationOptions } from "./mutations";
 export {
   ApiError,

@@ -1,6 +1,32 @@
 "use client";
-import { useEffect, useState, type ReactNode } from "react";
-import { business, sharedScenario } from "@kypstamping/demo-data";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { QueryBoundary } from "@kypstamping/ui";
+import { sharedScenario } from "@kypstamping/demo-data";
+import {
+  useBilling,
+  useBusinessCustomers,
+  useBusinessMetrics,
+  useBusinessProfile,
+  useCampaigns,
+  useFavoriteOrders,
+  useIntegrations,
+  useLocations,
+  useMessages,
+  usePrograms,
+  useRedemptions,
+  useStaff,
+  type Allowance,
+  type BusinessMetrics,
+  type MessageRecord,
+  type ProgramDraft,
+} from "@kypstamping/api";
+import {
+  useCreateCampaign,
+  useDuplicateProgram,
+  useInviteStaff,
+  useToggleIntegration,
+  useUpdateProgram,
+} from "@/components/mutations";
 import { Button, Eyebrow, Pill, StampDots, ViewFrame } from "@kypstamping/ui";
 import {
   daysUntilBirthday,
@@ -75,6 +101,8 @@ const qrPattern = [
 ];
 type Notify = (message: string, intent?: NotifyIntent) => void;
 function ScanView({ notify }: { notify: Notify }) {
+  const { data: customers = [] } = useBusinessCustomers();
+  const { data: redemptions = [] } = useRedemptions();
   // The dashboard scanner already picked the demo customer; arriving here and
   // being asked to pick again broke the flow.
   const { scanHandoff, consumeScanHandoff } = useDemoState();
@@ -136,13 +164,13 @@ function ScanView({ notify }: { notify: Notify }) {
               <div className="rounded-2xl bg-[var(--surface)] p-5 text-[var(--ink)]">
                 <div className="flex items-center gap-4">
                   <span className="grid size-14 place-items-center rounded-xl bg-[var(--accent)] text-lg font-extrabold">
-                    {business.customers[0].initials}
+                    {customers[0].initials}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="font-extrabold">{sharedScenario.customer}</p>
                     <p className="mt-1 text-xs text-[var(--muted)]">
-                      {business.customers[0].segment} · {business.customers[0].visits} visits ·{" "}
-                      {business.customers[0].risk.toLowerCase()}
+                      {customers[0].segment} · {customers[0].visits} visits ·{" "}
+                      {customers[0].risk.toLowerCase()}
                     </p>
                   </div>
                   <BadgeCheck className="text-[var(--success)]" />
@@ -267,7 +295,7 @@ function ScanView({ notify }: { notify: Notify }) {
             </div>
           </article>
           <div className="mt-5 divide-y divide-[var(--line)]">
-            {business.redemptions.slice(0, 4).map((item) => (
+            {redemptions.slice(0, 4).map((item) => (
               <div
                 key={item.id}
                 className="grid grid-cols-[auto_1fr_auto] items-center gap-3 py-4"
@@ -312,7 +340,8 @@ function ScanView({ notify }: { notify: Notify }) {
   );
 }
 function JoinCodeView({ notify }: { notify: Notify }) {
-  const [branch, setBranch] = useState(business.locations[0].name);
+  const { data: locations = [] } = useLocations();
+  const [branch, setBranch] = useState(locations[0].name);
   return (
     <ViewFrame
       eyebrow="Enrollment"
@@ -336,7 +365,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
               onChange={(event) => setBranch(event.target.value)}
               className="min-h-12 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 text-sm outline-none"
             >
-              {business.locations.map((location) => (
+              {locations.map((location) => (
                 <option key={location.id}>{location.name}</option>
               ))}
             </select>
@@ -488,17 +517,18 @@ function JoinCodeView({ notify }: { notify: Notify }) {
   );
 }
 function CustomersView({ notify }: { notify: Notify }) {
+  const { data: customers = [] } = useBusinessCustomers();
   const [query, setQuery] = useState("");
   const [segment, setSegment] = useState("All");
-  const [selectedId, setSelectedId] = useState(business.customers[0].id);
-  const filtered = business.customers.filter(
+  const [selectedId, setSelectedId] = useState(customers[0].id);
+  const filtered = customers.filter(
     (customer) =>
       (segment === "All" || customer.segment === segment) &&
       customer.name.toLowerCase().includes(query.toLowerCase()),
   );
   const selected =
-    business.customers.find((customer) => customer.id === selectedId) ??
-    business.customers[0];
+    customers.find((customer) => customer.id === selectedId) ??
+    customers[0];
   return (
     <ViewFrame
       eyebrow="Customer CRM"
@@ -696,6 +726,29 @@ function CustomersView({ notify }: { notify: Notify }) {
   );
 }
 function BusinessProfileView({ notify }: { notify: Notify }) {
+  const { data: locations = [] } = useLocations();
+  const { data: profile, isPending, error, refetch } = useBusinessProfile();
+
+  if (!profile) {
+    return (
+      <ViewFrame
+        eyebrow="Workspace"
+        title="Business profile"
+        description="The record every customer-facing surface reads from."
+      >
+        <QueryBoundary
+          isPending={isPending}
+          error={error}
+          onRetry={refetch}
+          label="the business profile"
+          rows={3}
+        >
+          <p className="text-sm text-[var(--muted-strong)]">No profile found.</p>
+        </QueryBoundary>
+      </ViewFrame>
+    );
+  }
+
   return (
     <ViewFrame
       eyebrow="Business profile"
@@ -722,16 +775,16 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
             />
           </div>
           <div className="p-6">
-          <h2 className="mt-2 text-2xl font-extrabold">{business.profile.name}</h2>
+          <h2 className="mt-2 text-2xl font-extrabold">{profile.name}</h2>
           <p className="mt-2 text-sm text-white/60">
-            {business.profile.category} · owned by {business.profile.owner}
+            {profile.category} · owned by {profile.owner}
           </p>
           <div className="mt-8 divide-y divide-white/12 border-y border-white/12">
             {[
-              ["Plan", business.profile.plan],
-              ["Billing", business.profile.billing],
-              ["Renewal", longDate(business.profile.renewalOn)],
-              ["Timezone", business.profile.timezone],
+              ["Plan", profile.plan],
+              ["Billing", profile.billing],
+              ["Renewal", longDate(profile.renewalOn)],
+              ["Timezone", profile.timezone],
             ].map(([label, value]) => (
               <div
                 key={label}
@@ -753,7 +806,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
         </div>
         </article>
         <div className="space-y-3">
-          {business.locations.map((location, index) => (
+          {locations.map((location, index) => (
             <article
               key={location.id}
               className="grid gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:grid-cols-[auto_1fr_auto] sm:items-center"
@@ -807,11 +860,54 @@ const programIcons: Record<string, typeof Stamp> = {
 };
 const PROGRAM_STATUSES = ["Live", "Ready", "Draft"] as const;
 function ProgramsView({ notify }: { notify: Notify }) {
-  const { programs, duplicateProgram, updateProgramRule } = useDemoState();
-  const [selectedId, setSelectedId] = useState(programs[0].id);
+  const { data: programs = [], isPending, error, refetch } = usePrograms();
+  const duplicate = useDuplicateProgram();
+  const update = useUpdateProgram();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
-  const selected =
-    programs.find((program) => program.id === selectedId) ?? programs[0];
+  const selected = programs.find((program) => program.id === selectedId) ?? programs[0];
+
+  /**
+   * The rule editor holds a draft rather than writing through.
+   *
+   * It used to call updateProgramRule on every keystroke, which against a
+   * fixture was free and against the API is one PATCH per character. The
+   * draft is keyed by program id, so changing selection re-seeds it.
+   */
+  const [draft, setDraft] = useState<Partial<ProgramDraft>>({});
+  const [draftFor, setDraftFor] = useState<string | null>(null);
+  if (selected && draftFor !== selected.id) {
+    setDraftFor(selected.id);
+    setDraft({
+      name: selected.name,
+      status: selected.status,
+      target: selected.target,
+      rewardName: selected.rewardName,
+      rewardValueCentavos: selected.rewardValueCentavos,
+    });
+  }
+
+  if (isPending || error || !selected) {
+    return (
+      <ViewFrame
+        eyebrow="Loyalty engine"
+        title="Programs"
+        description="Run all eight proven loyalty mechanics from one rules engine."
+      >
+        <QueryBoundary
+          isPending={isPending}
+          error={error}
+          onRetry={refetch}
+          label="programs"
+        >
+          <p className="text-sm text-[var(--muted-strong)]">
+            No programs yet. Create one to start earning.
+          </p>
+        </QueryBoundary>
+      </ViewFrame>
+    );
+  }
+
   return (
     <ViewFrame
       eyebrow="Loyalty engine"
@@ -901,15 +997,14 @@ function ProgramsView({ notify }: { notify: Notify }) {
             <Button
               tone="quiet"
               className="border-white/20 bg-white/5 text-white hover:bg-white/10"
-              onClick={() => {
-                const draftName = duplicateProgram(selected.id);
-                notify(
-                  draftName
-                    ? `${draftName} added to your programs as a draft.`
-                    : "Could not duplicate this program.",
-                  draftName ? "info" : "error",
-                );
-              }}
+              disabled={duplicate.isPending}
+              onClick={() =>
+                duplicate.mutate(selected.id, {
+                  onSuccess: (copy) =>
+                    notify(`${copy.name} added to your programs as a draft.`),
+                  onError: (failure) => notify(failure.message, "error"),
+                })
+              }
             >
               Duplicate
             </Button>
@@ -927,9 +1022,9 @@ function ProgramsView({ notify }: { notify: Notify }) {
               <label className="mt-4 grid gap-2 text-xs font-bold">
                 Program name
                 <input
-                  value={selected.name}
+                  value={draft.name ?? ""}
                   onChange={(event) =>
-                    updateProgramRule(selected.id, { name: event.target.value })
+                    setDraft((current) => ({ ...current, name: event.target.value }))
                   }
                   className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
                 />
@@ -941,10 +1036,10 @@ function ProgramsView({ notify }: { notify: Notify }) {
                     <button
                       type="button"
                       key={status}
-                      aria-pressed={selected.status === status}
-                      onClick={() => updateProgramRule(selected.id, { status })}
+                      aria-pressed={draft.status === status}
+                      onClick={() => setDraft((current) => ({ ...current, status }))}
                       className={`min-h-10 rounded-full px-3 text-xs font-bold ${
-                        selected.status === status
+                        draft.status === status
                           ? "bg-[var(--accent)] text-[var(--ink)]"
                           : "border border-white/15 text-white/60"
                       }`}
@@ -955,29 +1050,60 @@ function ProgramsView({ notify }: { notify: Notify }) {
                 </div>
               </fieldset>
               <label className="mt-4 grid gap-2 text-xs font-bold">
-                Reward liability ceiling
+                Reward
                 <input
-                  type="number"
-                  min={0}
-                  step={100}
-                  value={selected.liabilityCentavos}
+                  value={draft.rewardName ?? ""}
                   onChange={(event) =>
-                    updateProgramRule(selected.id, {
-                      liabilityCentavos: Math.max(0, Number(event.target.value) || 0),
-                    })
+                    setDraft((current) => ({ ...current, rewardName: event.target.value }))
                   }
                   className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
                 />
               </label>
+              <label className="mt-4 grid gap-2 text-xs font-bold">
+                Visits to earn it
+                <input
+                  type="number"
+                  min={1}
+                  max={30}
+                  value={draft.target ?? 1}
+                  onChange={(event) =>
+                    setDraft((current) => ({
+                      ...current,
+                      target: Number(event.target.value) || 1,
+                    }))
+                  }
+                  className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+                />
+              </label>
+              {/* Derived from the ledger, so it is shown rather than edited.
+                  It used to be an input, which could never have saved. */}
+              <p className="mt-4 text-xs text-white/55">
+                Outstanding reward liability{" "}
+                <span className="font-extrabold text-white">
+                  {pesoFromCentavos(selected.liabilityCentavos)}
+                </span>
+              </p>
               <Button
                 tone="accent"
                 className="mt-5 w-full"
-                onClick={() => {
-                  setEditing(false);
-                  notify(`${selected.name} saved as a new version in this demo.`);
-                }}
+                disabled={update.isPending}
+                onClick={() =>
+                  update.mutate(
+                    { id: selected.id, patch: draft },
+                    {
+                      onSuccess: (saved) => {
+                        setEditing(false);
+                        notify(`${saved.name} saved.`);
+                      },
+                      // The API refuses a target outside 1-30 and names the
+                      // field. There is one editor on this screen, so the
+                      // message carries enough on its own.
+                      onError: (failure) => notify(failure.message, "error"),
+                    },
+                  )
+                }
               >
-                Publish new version
+                {update.isPending ? "Saving\u2026" : "Publish new version"}
               </Button>
             </div>
           )}
@@ -987,7 +1113,9 @@ function ProgramsView({ notify }: { notify: Notify }) {
   );
 }
 function FavoriteOrdersView({ notify }: { notify: Notify }) {
-  const max = Math.max(...business.favoriteOrders.map((item) => item.orders));
+  const { data: favoriteOrders = [] } = useFavoriteOrders();
+  // Math.max of nothing is -Infinity, which would make every bar NaN wide.
+  const max = Math.max(1, ...favoriteOrders.map((item) => item.orders));
   return (
     <ViewFrame
       eyebrow="Customer context"
@@ -1007,7 +1135,7 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
           <Eyebrow>Top regular choices</Eyebrow>
           <div className="mt-6 space-y-5">
-            {business.favoriteOrders.map((item, index) => (
+            {favoriteOrders.map((item, index) => (
               <div key={item.item}>
                 <div className="flex items-end justify-between gap-4">
                   <div>
@@ -1074,9 +1202,10 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
   );
 }
 function BirthdayView({ notify }: { notify: Notify }) {
+  const { data: customers = [] } = useBusinessCustomers();
   // Was a literal list of three dates under a "next 30 days" heading, so it
   // was only ever correct on the day it was written.
-  const upcoming = business.customers
+  const upcoming = customers
     .map((customer) => ({ customer, inDays: daysUntilBirthday(customer.birthday) }))
     .filter((entry): entry is { customer: typeof entry.customer; inDays: number } =>
       entry.inDays !== null,
@@ -1213,14 +1342,16 @@ function BirthdayView({ notify }: { notify: Notify }) {
   );
 }
 function RedemptionsView({ notify }: { notify: Notify }) {
+  const { data: redemptions = [] } = useRedemptions();
+  const { data: programs = [] } = usePrograms();
   // These were three hardcoded figures, one of which quoted the stamp-card
   // liability under a "reward value" label. All three now say what they count.
-  const approved = business.redemptions.filter((item) => item.status === "Approved");
-  const reversals = business.redemptions.length - approved.length;
+  const approved = redemptions.filter((item) => item.status === "Approved");
+  const reversals = redemptions.length - approved.length;
   const rewardValue = approved.reduce((sum, item) => sum + item.valueCentavos, 0);
-  const approvalRate = (approved.length / business.redemptions.length) * 100;
+  const approvalRate = (approved.length / redemptions.length) * 100;
   const stampLiability =
-    business.programs.find((program) => program.type === "Stamps")?.liabilityCentavos ?? 0;
+    programs.find((program) => program.type === "Stamps")?.liabilityCentavos ?? 0;
   return (
     <ViewFrame
       eyebrow="Value ledger"
@@ -1251,7 +1382,7 @@ function RedemptionsView({ notify }: { notify: Notify }) {
               </tr>
             </thead>
             <tbody>
-              {business.redemptions.map((item) => (
+              {redemptions.map((item) => (
                 <tr
                   key={item.id}
                   className="border-b border-[var(--line)] last:border-0"
@@ -1329,20 +1460,50 @@ const SMS_CEILING = 1000;
  * label read "Uses allowance". A channel with allowance left costs nothing
  * until that allowance runs out.
  */
-const allowanceRemaining: Record<string, number> = Object.fromEntries(
-  business.billing.allowances
-    .filter((item) => item.unit === "messages" || item.unit === "credits")
-    .map((item) => [
-      item.label === "SMS credits" ? "SMS" : item.label,
-      Math.max(0, item.included - item.used),
-    ]),
+const allowanceRemainingFrom = (allowances: Allowance[]): Record<string, number> =>
+  Object.fromEntries(
+    allowances
+      .filter((item) => item.unit === "messages" || item.unit === "credits")
+      .map((item) => [
+        item.label === "SMS credits" ? "SMS" : item.label,
+        Math.max(0, item.included - item.used),
+      ]),
 );
-/** Cost of sending to `count` recipients on one channel, allowance first. */
-function channelCost(name: string, unit: number, count: number) {
+/**
+ * Cost of sending to `count` recipients on one channel, allowance first.
+ *
+ * The remaining allowance is passed in rather than read from a module
+ * constant: it comes from the billing request now, so it is only known once
+ * that has answered.
+ */
+function channelCost(
+  name: string,
+  unit: number,
+  count: number,
+  allowanceRemaining: Record<string, number>,
+) {
   if (unit === 0) return 0;
   const free = Math.min(count, allowanceRemaining[name] ?? 0);
   return (count - free) * unit;
 }
+/**
+ * Zeroes while the request is in flight.
+ *
+ * Every counter on these screens reads from one object, so the alternative is
+ * seven guards or a blank page. A number that fills in reads better than
+ * either, and a zero is honest about what is known so far.
+ */
+const EMPTY_METRICS: BusinessMetrics = {
+  visitsToday: 0,
+  newRegulars: 0,
+  stampsIssued: 0,
+  redemptions: 0,
+  repeatRate: 0,
+  averageOrderCentavos: 0,
+  memberRevenueCentavos: 0,
+  campaignRevenueCentavos: 0,
+};
+
 type ChannelStatus = "ready" | "planned";
 const channelConfig: {
   name: string;
@@ -1410,7 +1571,14 @@ const channelConfig: {
   },
 ];
 function CampaignsView({ notify }: { notify: Notify }) {
-  const { scheduleCampaign, campaigns } = useDemoState();
+  const { data: metrics = EMPTY_METRICS } = useBusinessMetrics();
+  const { data: campaigns = [] } = useCampaigns();
+  const schedule = useCreateCampaign();
+  const { data: billing } = useBilling();
+  const allowanceRemaining = useMemo(
+    () => allowanceRemainingFrom(billing?.allowances ?? []),
+    [billing],
+  );
   const [campaignName, setCampaignName] = useState("Tuesday treat");
   const [audience, setAudience] = useState(1280);
   // These three were uncontrolled selects, so the composer showed choices that
@@ -1448,7 +1616,13 @@ function CampaignsView({ notify }: { notify: Notify }) {
     0,
     selectedChannels.reduce(
       (sum, channel) =>
-        sum + channelCost(channel.name, channel.unit, Math.min(audience, channel.eligible)),
+        sum +
+        channelCost(
+          channel.name,
+          channel.unit,
+          Math.min(audience, channel.eligible),
+          allowanceRemaining,
+        ),
       0,
     ) - routingSavings,
   );
@@ -1460,7 +1634,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
   // deliveryCost is pesos, from the published channel rates in plans.ts; the
   // API sends the average order in centavos. Both are named for their unit
   // because dividing one by the other silently put the ROI out by 100x.
-  const predictedRevenuePesos = (predictedVisits * business.metrics.averageOrderCentavos) / 100;
+  const predictedRevenuePesos = (predictedVisits * metrics.averageOrderCentavos) / 100;
   const roi = deliveryCost ? predictedRevenuePesos / deliveryCost : predictedRevenuePesos;
   return (
     <ViewFrame
@@ -1716,18 +1890,16 @@ function CampaignsView({ notify }: { notify: Notify }) {
                   notify("Choose at least one channel before scheduling.", "error");
                   return;
                 }
-                scheduleCampaign({
-                  name: campaignName.trim() || "Untitled campaign",
-                  audience: `${audienceSegment} · ${audience.toLocaleString()} selected`,
-                  channels: selectedChannels.map((channel) => channel.name),
-                  sent: reachable,
-                  visited: 0,
-                  revenueCentavos: 0,
-                  costCentavos: Math.round(deliveryCost * 100),
-                  status: "Scheduled",
-                  sendTime,
-                  frequencyPolicy,
-                });
+                schedule.mutate(
+                  {
+                    name: campaignName.trim() || "Untitled campaign",
+                    audience: `${audienceSegment} · ${audience.toLocaleString()} selected`,
+                    channels: selectedChannels.map((channel) => channel.name),
+                    sendTime,
+                    frequencyPolicy,
+                  },
+                  { onError: (failure) => notify(failure.message, "error") },
+                );
                 notify(
                   `${campaignName.trim() || "Untitled campaign"} scheduled for ${sendTime.toLowerCase()} · ${reachable.toLocaleString()} reachable customers.`,
                 );
@@ -1800,14 +1972,16 @@ function CampaignsView({ notify }: { notify: Notify }) {
   );
 }
 /** Derived so a channel that exists in the ledger is always filterable. */
-const messageChannels = [
+const messageChannelsFrom = (rows: MessageRecord[]) => [
   "All",
-  ...Array.from(new Set(business.messages.map((message) => message.channel))),
+  ...Array.from(new Set(rows.map((message) => message.channel))),
 ];
 function MessageLogView({ notify }: { notify: Notify }) {
+  const { data: messages = [] } = useMessages();
+  const messageChannels = useMemo(() => messageChannelsFrom(messages), [messages]);
   const [channel, setChannel] = useState("All");
   const [query, setQuery] = useState("");
-  const rows = business.messages.filter(
+  const rows = messages.filter(
     (message) =>
       (channel === "All" || message.channel === channel) &&
       `${message.campaign} ${message.customer} ${message.status}`
@@ -1914,10 +2088,11 @@ function MessageLogView({ notify }: { notify: Notify }) {
   );
 }
 function AnalyticsView() {
+  const { data: programs = [] } = usePrograms();
   // "Campaign-attributed" was hardcoded at ₱76.4k while the fixture's own
   // campaign revenue summed to ₱136.3k. Both now come from the same number.
-  const metrics = business.metrics;
-  const rewardIssued = business.programs.reduce(
+  const { data: metrics = EMPTY_METRICS } = useBusinessMetrics();
+  const rewardIssued = programs.reduce(
     (sum, program) => sum + program.liabilityCentavos,
     0,
   );
@@ -2053,24 +2228,44 @@ const STAFF_ROLES = [
   ["Analyst", "Read-only customers and analytics"],
 ] as const;
 function StaffView({ notify }: { notify: Notify }) {
+  const { data: locations = [] } = useLocations();
   // "Invite staff" used to open /accept-invite — the recipient's screen. An
   // owner needs a composer, so this is one.
-  const { staff, inviteStaff } = useDemoState();
+  const { data: staff = [] } = useStaff();
+  const invite = useInviteStaff();
   const [composerOpen, setComposerOpen] = useState(false);
   const [inviteName, setInviteName] = useState("");
   const [inviteRole, setInviteRole] = useState<string>("Cashier");
-  const [inviteLocation, setInviteLocation] = useState(business.locations[0].name);
+  const [inviteLocation, setInviteLocation] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
   function sendInvite() {
     if (!inviteName.trim()) {
       notify("Add the name the invitation should be addressed to.", "error");
       return;
     }
-    inviteStaff({ name: inviteName.trim(), role: inviteRole, location: inviteLocation });
-    notify(
-      `Invitation prepared for ${inviteName.trim()} as ${inviteRole} at ${inviteLocation}.`,
+    // The invitation is a signed link sent by email, so there is no invite
+    // without one. The composer used to collect a name and a role only.
+    if (!inviteEmail.trim()) {
+      notify("Add the email address the invitation should go to.", "error");
+      return;
+    }
+    invite.mutate(
+      {
+        name: inviteName.trim(),
+        email: inviteEmail.trim(),
+        role: inviteRole,
+        location: inviteLocation || locations[0]?.name,
+      },
+      {
+        onSuccess: (member) => {
+          notify(`Invitation sent to ${member.name} as ${member.role}.`);
+          setInviteName("");
+          setInviteEmail("");
+          setComposerOpen(false);
+        },
+        onError: (failure) => notify(failure.message, "error"),
+      },
     );
-    setInviteName("");
-    setComposerOpen(false);
   }
   return (
     <ViewFrame
@@ -2105,6 +2300,16 @@ function StaffView({ notify }: { notify: Notify }) {
               />
             </label>
             <label className="grid gap-2 text-xs font-bold">
+              Email
+              <input
+                type="email"
+                value={inviteEmail}
+                onChange={(event) => setInviteEmail(event.target.value)}
+                placeholder="Where should the invitation go?"
+                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]"
+              />
+            </label>
+            <label className="grid gap-2 text-xs font-bold">
               Role
               <select
                 value={inviteRole}
@@ -2123,7 +2328,7 @@ function StaffView({ notify }: { notify: Notify }) {
                 onChange={(event) => setInviteLocation(event.target.value)}
                 className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
               >
-                {business.locations.map((location) => (
+                {locations.map((location) => (
                   <option key={location.id}>{location.name}</option>
                 ))}
                 <option>All locations</option>
@@ -2240,17 +2445,50 @@ const BILLING_PREFERENCES = [
   [
     "invoiceEmails",
     "Email invoices to the owner",
-    `Sent to ${business.profile.owner}`,
+    // Filled in from the profile at render; a module constant cannot know it.
+    "",
   ],
 ] as const;
 function SettingsView({ notify }: { notify: Notify }) {
+  const { settings, setSetting } = useDemoState();
+  const { data: integrations = [] } = useIntegrations();
+  const { data: profile } = useBusinessProfile();
   const {
-    integrations: connected,
-    toggleIntegration,
-    settings,
-    setSetting,
-  } = useDemoState();
-  const billing = business.billing;
+    data: billing,
+    isPending: billingPending,
+    error: billingError,
+    refetch: refetchBilling,
+  } = useBilling();
+  const toggle = useToggleIntegration();
+
+  const connected = useMemo(
+    () =>
+      Object.fromEntries(integrations.map((row) => [row.id, row.status === "Connected"])),
+    [integrations],
+  );
+
+  // Every figure on this screen is a bill. There is no useful half of it to
+  // draw, so it waits rather than showing zeroes that look like a free plan.
+  if (!billing) {
+    return (
+      <ViewFrame
+        eyebrow="Workspace settings"
+        title="Channels & billing"
+        description="Messaging providers, wallet passes, data controls, and the channel budget."
+      >
+        <QueryBoundary
+          isPending={billingPending}
+          error={billingError}
+          onRetry={refetchBilling}
+          label="billing"
+          rows={5}
+        >
+          <p className="text-sm text-[var(--muted-strong)]">No billing record found.</p>
+        </QueryBoundary>
+      </ViewFrame>
+    );
+  }
+
   return (
     <ViewFrame
       eyebrow="Workspace settings"
@@ -2266,7 +2504,7 @@ function SettingsView({ notify }: { notify: Notify }) {
             </h2>
           </div>
           <div className="grid sm:grid-cols-2">
-            {business.integrations
+            {integrations
               .filter((integration) => integration.id !== "int_pos")
               .map((integration, index) => {
               const isConnected = connected[integration.id];
@@ -2289,12 +2527,15 @@ function SettingsView({ notify }: { notify: Notify }) {
                       aria-checked={isConnected}
                       disabled={isPlanned}
                       title={isPlanned ? "Not available yet" : undefined}
-                      onClick={() => {
-                        const next = toggleIntegration(integration.id);
-                        notify(
-                          `${integration.name} ${next ? "connected" : "disconnected"} in this demo.`,
-                        );
-                      }}
+                      onClick={() =>
+                        toggle.mutate(integration.id, {
+                          onSuccess: (result) =>
+                            notify(
+                              `${integration.name} ${result.enabled ? "connected" : "disconnected"}.`,
+                            ),
+                          onError: (failure) => notify(failure.message, "error"),
+                        })
+                      }
                       className={`relative h-6 w-10 shrink-0 rounded-full before:absolute before:-inset-y-2.5 before:-inset-x-2 before:content-[''] ${isPlanned ? "cursor-not-allowed bg-[var(--line)] opacity-60" : isConnected ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                     >
                       <span
@@ -2324,7 +2565,7 @@ function SettingsView({ notify }: { notify: Notify }) {
               {billing.plan} · {peso(billing.monthlyCentavos)}
             </p>
             <p className="mt-1 text-xs text-white/55">
-              {billing.cycle} billing · renews {longDate(business.profile.renewalOn)}
+              {billing.cycle} billing{profile ? ` · renews ${longDate(profile.renewalOn)}` : ""}
             </p>
             <div className="mt-6 divide-y divide-white/12 border-y border-white/12">
               {billing.allowances.map((item) => {
@@ -2413,7 +2654,9 @@ function SettingsView({ notify }: { notify: Notify }) {
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-extrabold">{label}</p>
                     <p className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">
-                      {detail}
+                      {/* The invoice row names the recipient, which only the
+                          profile knows. The constant leaves it blank. */}
+                      {detail || (profile ? `Sent to ${profile.owner}` : "")}
                     </p>
                   </div>
                   <button

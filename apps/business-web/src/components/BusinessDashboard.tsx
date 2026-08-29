@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button, Eyebrow, StampDots, StatCard } from "@kypstamping/ui";
 import { greeting, todayLabel } from "@kypstamping/ui/shell";
 import {
@@ -38,7 +38,17 @@ import {
 } from "lucide-react";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import { useDemoState } from "@/components/DemoState";
-import { business, sharedScenario } from "@kypstamping/demo-data";
+import { sharedScenario } from "@kypstamping/demo-data";
+import type { Automation } from "@kypstamping/demo-data";
+import {
+  useAutomations,
+  useBusinessMetrics,
+  useBusinessProfile,
+  useLocations,
+  usePrograms,
+  useStaff,
+} from "@kypstamping/api";
+import { useToggleAutomation } from "@/components/mutations";
 import type { BusinessView } from "@/components/BusinessShell";
 
 const periods = ["Today", "7 days", "30 days"];
@@ -64,6 +74,19 @@ const SETUP_STEPS = [
  * Programs view landed on a different program. Now the list is the workspace's
  * own programs and only the presentation lives here.
  */
+/** Zeroes while the request is in flight: a counter that fills in reads
+ *  better than a dashboard that is blank until all six answer. */
+const EMPTY_METRICS = {
+  visitsToday: 0,
+  newRegulars: 0,
+  stampsIssued: 0,
+  redemptions: 0,
+  repeatRate: 0,
+  averageOrderCentavos: 0,
+  memberRevenueCentavos: 0,
+  campaignRevenueCentavos: 0,
+};
+
 const programPresentation: Record<
   string,
   { icon: typeof Stamp; rule: string; suggestion: string }
@@ -111,21 +134,40 @@ export function BusinessDashboard({
 }) {
   const [period, setPeriod] = useState("7 days");
   const [scanOpen, setScanOpen] = useState(false);
-  const {
-    automations,
-    toggleAutomation,
-    programs,
-    testStampDone,
-    completeTestStamp,
-    startScanHandoff,
-    workspace,
-  } = useDemoState();
+  const { testStampDone, completeTestStamp, startScanHandoff, workspace } = useDemoState();
+
+  // Server state, from the API. Defaulted to empty rather than guarded one by
+  // one: the dashboard is a wall of counters, and blanking the whole page
+  // because one of six requests is still in flight reads worse than a zero
+  // that fills in.
+  const { data: profile } = useBusinessProfile();
+  const { data: locations = [] } = useLocations();
+  const { data: metrics = EMPTY_METRICS } = useBusinessMetrics();
+  const { data: staff = [] } = useStaff();
+  const { data: programs = [] } = usePrograms();
+  const { data: automationRows = [] } = useAutomations();
+
+  const automations = useMemo(
+    () =>
+      Object.fromEntries(
+        automationRows.map((automation) => [automation.id, automation.status === "Live"]),
+      ),
+    [automationRows],
+  );
+  const automationDefaults = useMemo(
+    () => automationDefaultsFrom(automationRows),
+    [automationRows],
+  );
+  const toggle = useToggleAutomation();
   const setupDone = SETUP_STEPS.length - (testStampDone ? 0 : 1);
-  const [selectedProgramId, setSelectedProgramId] = useState(programs[0].id);
+  // Null until the programs arrive, where it used to be programs[0] from a
+  // fixture that was always populated.
+  const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null);
   const selectedProgram =
     programs.find((program) => program.id === selectedProgramId) ?? programs[0];
-  const presentation =
-    programPresentation[selectedProgram.type] ?? programPresentation.Stamps;
+  const presentation = selectedProgram
+    ? (programPresentation[selectedProgram.type] ?? programPresentation.Stamps)
+    : programPresentation.Stamps;
   /** The onboarding wizard's answers if the merchant came through it. */
   const workspaceName = workspace?.businessName ?? profile?.shortName ?? "";
   const locationCount = workspace?.locations ?? locations.length;
@@ -511,11 +553,17 @@ export function BusinessDashboard({
                     role="switch"
                     aria-checked={enabled}
                     aria-label={automation.name}
+                    disabled={toggle.isPending}
                     onClick={() => {
-                      const next = toggleAutomation(automation.id);
-                      notify(
-                        `${automation.name} ${next ? "switched on" : "paused"}.`,
-                      );
+                      // The server decides which way it lands and says so, so
+                      // the toast reports the state rather than predicting it.
+                      toggle.mutate(automation.id, {
+                        onSuccess: (result) =>
+                          notify(
+                            `${automation.name} ${result.enabled ? "switched on" : "paused"}.`,
+                          ),
+                        onError: (error) => notify(error.message, "error"),
+                      });
                     }}
                     className={`relative h-6 w-10 shrink-0 rounded-full transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                   >

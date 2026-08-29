@@ -16,6 +16,7 @@
  */
 
 import assert from "node:assert/strict";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { createHmac } from "node:crypto";
 import { before, describe, test } from "node:test";
 
@@ -53,20 +54,26 @@ if (!reachable) {
   console.warn("    cd backend && make up\n");
 }
 
-/* ── One cookie jar, because the session is an httpOnly cookie ────────
-   The browser does this for us and `http()` relies on it. Node does not,
-   so the jar is patched in around global fetch - which also means the
-   accessors are exercised exactly as shipped, with no test seam. */
+/* ── A cookie jar per test ────────────────────────────────────────────
+   The session is an httpOnly cookie. A browser carries it automatically and
+   `http()` relies on that, so the jar is patched in around global fetch -
+   which also means the accessors run exactly as shipped, with no test seam.
 
-let cookie = "";
+   It is scoped with AsyncLocalStorage rather than held in one variable
+   because node:test runs these concurrently. A single jar let one test's
+   sign-in land in another's request mid-flight, and the symptom was a 401 on
+   a request that was perfectly well formed. Each test now gets its own. */
+
+const jar = new AsyncLocalStorage<{ cookie: string }>();
 const realFetch = globalThis.fetch;
 
 globalThis.fetch = async (input: RequestInfo | URL, init: RequestInit = {}) => {
+  const store = jar.getStore();
   const headers = new Headers(init.headers);
-  if (cookie) headers.set("cookie", cookie);
+  if (store?.cookie) headers.set("cookie", store.cookie);
   const response = await realFetch(input, { ...init, headers });
   for (const raw of response.headers.getSetCookie()) {
-    cookie = raw.split(";")[0];
+    if (store) store.cookie = raw.split(";")[0];
   }
   return response;
 };
@@ -111,19 +118,48 @@ async function voidVisit(transactionId: string) {
   await post(`/transactions/${transactionId}/void`, { reason: "contract test" });
 }
 
-async function asOwner() {
-  cookie = "";
+/**
+ * One session per persona, established once.
+ *
+ * Signing in inside each test was correct but unaffordable: the API throttles
+ * `/auth/*` per caller and OTP codes to three per destination per ten
+ * minutes, so twenty-three tests produced nineteen 429s. A session lasts
+ * twelve hours; three logins is all this file needs.
+ */
+const sessions: Record<Persona, string> = { owner: "", admin: "", customer: "" };
+
+/**
+ * Why a persona could not sign in, if it could not.
+ *
+ * Held per persona rather than thrown, because a throwing `before` cancels
+ * every test in the file. A throttled OTP should fail the four wallet tests
+ * and tell you why - not hide the state of the other nineteen.
+ */
+const signInFailures: Record<Persona, string | null> = {
+  owner: null,
+  admin: null,
+  customer: null,
+};
+
+type Persona = "owner" | "admin" | "customer";
+
+/** Runs a sign-in in its own jar and returns the cookie it ended up with. */
+async function establish(signIn: () => Promise<void>): Promise<string> {
+  const store = { cookie: "" };
+  await jar.run(store, signIn);
+  return store.cookie;
+}
+
+async function signInOwner() {
   await post("/auth/login", OWNER);
 }
 
-async function asAdmin() {
-  cookie = "";
+async function signInAdmin() {
   await post("/auth/login", ADMIN);
   await post("/auth/mfa/verify", { code: totp(ADMIN_MFA_SECRET) });
 }
 
-async function asCustomer() {
-  cookie = "";
+async function signInCustomer() {
   const requested = await fetch(`${API}/auth/otp/request`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -139,15 +175,56 @@ async function asCustomer() {
     );
   }
   assert.ok(requested.ok, `otp/request answered ${requested.status}`);
+
   const sent = await (await fetch(`${API}/_dev/messages?purpose=otp&limit=1`)).json();
   const code = /\d{6}/.exec(sent[0].body)?.[0];
   assert.ok(code, "no OTP reached the dev sink");
   await post("/auth/otp/verify", { identifier: CUSTOMER_EMAIL, code });
 }
 
-/** Skips the body when the stack is down, so the suite stays runnable. */
-const live = (name: string, body: () => Promise<void>) =>
-  test(name, { skip: !reachable && "API not reachable" }, body);
+before(async () => {
+  if (!reachable) return;
+  const personas: [Persona, () => Promise<void>][] = [
+    ["owner", signInOwner],
+    ["admin", signInAdmin],
+    ["customer", signInCustomer],
+  ];
+  for (const [who, signIn] of personas) {
+    try {
+      sessions[who] = await establish(signIn);
+    } catch (failure) {
+      signInFailures[who] = failure instanceof Error ? failure.message : String(failure);
+    }
+  }
+});
+
+/**
+ * Which session the next `live()` registrations use. Each suite sets it as
+ * its first statement, which runs while the test tree is being built.
+ */
+let persona: Persona = "owner";
+
+/**
+ * One test, signed in before it runs.
+ *
+ * The sign-in is inside the test rather than in a `before` hook because all
+ * four suites share one cookie jar — `http()` uses the global fetch, exactly
+ * as a browser does — and logging in as a second persona revokes the first
+ * session. Whether node:test interleaves the suites is then not something
+ * this file has to depend on, and a local login costs milliseconds.
+ */
+const live = (name: string, body: () => Promise<void>) => {
+  // Captured at registration, not at run time: by the time a body runs, every
+  // suite has been registered and `persona` holds whichever came last.
+  const who = persona;
+  test(name, { skip: !reachable && "API not reachable" }, () => {
+    const failure = signInFailures[who];
+    if (failure) assert.fail(`could not sign in as ${who}: ${failure}`);
+    // A fresh store seeded with that persona's cookie, so a request in one
+    // test can never pick up the session another test is using.
+    return jar.run({ cookie: sessions[who] }, body);
+  });
+};
 
 const isIso = (value: unknown) =>
   typeof value === "string" && !Number.isNaN(Date.parse(value));
@@ -158,11 +235,11 @@ const isCentavos = (value: unknown) =>
 
 describe("business workspace", () => {
   let api: typeof import("./endpoints.ts");
+  persona = "owner";
 
   before(async () => {
     if (!reachable) return;
     api = await import("./endpoints.ts");
-    await asOwner();
   });
 
   live("the profile carries one ISO renewal date, not a display twin", async () => {
@@ -273,11 +350,11 @@ describe("business workspace", () => {
 
 describe("customer wallet", () => {
   let api: typeof import("./endpoints.ts");
+  persona = "customer";
 
   before(async () => {
     if (!reachable) return;
     api = await import("./endpoints.ts");
-    await asCustomer();
   });
 
   live("a wallet card is a membership and never reads negative", async () => {
@@ -325,11 +402,11 @@ describe("customer wallet", () => {
 
 describe("platform administration", () => {
   let api: typeof import("./endpoints.ts");
+  persona = "admin";
 
   before(async () => {
     if (!reachable) return;
     api = await import("./endpoints.ts");
-    await asAdmin();
   });
 
   live("tenant revenue is centavos and the join date is a date", async () => {
@@ -388,11 +465,11 @@ describe("platform administration", () => {
 
 describe("counter writes", () => {
   let api: typeof import("./endpoints.ts");
+  persona = "owner";
 
   before(async () => {
     if (!reachable) return;
     api = await import("./endpoints.ts");
-    await asOwner();
   });
 
   live("a customer is found by phone or by email", async () => {
@@ -465,5 +542,49 @@ describe("counter writes", () => {
 
     const fields = fieldErrors(rejected).map((item) => item.field);
     assert.ok(fields.includes("target"), `fields were ${JSON.stringify(fields)}`);
+  });
+});
+
+describe("durability", () => {
+  persona = "owner";
+
+  live("a write is readable by the very next request", async () => {
+    /*
+     * This is the shape of a real bug, kept as a test.
+     *
+     * `get_session` commits in a FastAPI yield-dependency's exit code, which
+     * runs after the response has been sent. A client that acted on the
+     * response immediately - which is what a redirect after login is - could
+     * be told the session it had just been given did not exist. Four in
+     * twenty, and never reproducible by hand, because a browser is slow
+     * enough to hide it.
+     *
+     * It lives here rather than in the backend's own suite because that suite
+     * overrides the session dependency, so the bug is invisible from inside
+     * the application. It is only reachable over HTTP.
+     */
+    let missing = 0;
+
+    for (let attempt = 0; attempt < 15; attempt += 1) {
+      const signedIn = await realFetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(ADMIN),
+      });
+      assert.equal(signedIn.status, 200);
+      await signedIn.json();
+      const cookie = signedIn.headers.getSetCookie()[0].split(";")[0];
+
+      // No await in between. A deliberately wrong TOTP, because what is under
+      // test is whether the session is found at all.
+      const used = await realFetch(`${API}/auth/mfa/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", cookie },
+        body: JSON.stringify({ code: "000000" }),
+      });
+      if ((await used.json()).detail === "Session expired or revoked") missing += 1;
+    }
+
+    assert.equal(missing, 0, `${missing} of 15 sessions were not committed before the response`);
   });
 });

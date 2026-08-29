@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { business, contract, sharedScenario } from "@kypstamping/demo-data";
+import { contract, sharedScenario } from "@kypstamping/demo-data";
 import type { Environment } from "@kypstamping/demo-data";
 import { Button, DemoBadge, Eyebrow, FieldLabel, Panel } from "@kypstamping/ui";
 import { PlanTag } from "@kypstamping/ui/shell";
@@ -31,6 +31,7 @@ import {
   X,
 } from "lucide-react";
 import type { BusinessView } from "@/components/BusinessShell";
+import { useBusinessProfile, useLocations } from "@kypstamping/api";
 import { useDemoState } from "@/components/DemoState";
 import type { Credential, Delivery } from "@/components/DemoState";
 
@@ -125,6 +126,8 @@ export function IntegrationsView({
     subscribedEvents,
     setSubscribedEvents,
   } = useDemoState();
+  const { data: profile } = useBusinessProfile();
+  const { data: locations = [] } = useLocations();
   const [keyLabel, setKeyLabel] = useState("Main counter backup");
   const [branchScope, setBranchScope] = useState(sharedScenario.branch);
   const [selectedScopes, setSelectedScopes] = useState([
@@ -356,9 +359,9 @@ export function IntegrationsView({
         </div>
         <dl className="mt-7 grid gap-px overflow-hidden rounded-2xl bg-white/12 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            ["Organization", business.profile.organizationId],
-            ["Merchant", business.profile.merchantId],
-            ["Branch access", `${business.locations.length} branches`],
+            ["Organization", profile?.organizationId ?? ""],
+            ["Merchant", profile?.merchantId ?? ""],
+            ["Branch access", `${locations.length} branches`],
             ["Environment", environment === "sandbox" ? "Sandbox · test data" : "Preview only · not live"],
           ].map(([term, detail]) => (
             <div key={term} className="bg-[var(--ink)] px-4 py-4">
@@ -472,7 +475,7 @@ export function IntegrationsView({
                 onChange={(event) => setBranchScope(event.target.value)}
                 className="min-h-11 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-semibold"
               >
-                {business.locations.map((location) => (
+                {locations.map((location) => (
                   <option key={location.id}>{location.name}</option>
                 ))}
                 <option>All sandbox branches</option>

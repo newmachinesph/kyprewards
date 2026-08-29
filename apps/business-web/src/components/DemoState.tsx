@@ -11,31 +11,28 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { business, sharedScenario } from "@kypstamping/demo-data";
-import type {
-  Campaign,
-  Credential,
-  Delivery,
-  Program,
-  StaffMember,
-} from "@kypstamping/demo-data";
+import { sharedScenario } from "@kypstamping/demo-data";
+import type { Credential, Delivery } from "@kypstamping/demo-data";
 
 /**
- * Views are unmounted when the merchant navigates, so anything they own is
- * destroyed on the next click. In a real workspace this state lives on the
- * server; here it lives above the view switch so a toggle, a draft, or a new
- * credential survives navigation the way a merchant would expect.
+ * Client state, and only client state.
  *
- * Seed values come from `@kypstamping/demo-data`'s synchronous mirrors. When the
- * FastAPI service lands, this provider awaits the async accessors in
- * `api.ts` instead — the view contracts below do not change.
+ * This used to hold the workspace itself — programs, campaigns, staff,
+ * automations and integrations — seeded from the fixture and edited in place.
+ * All of that is server state now: it comes from the hooks in
+ * `@kypstamping/api` and changes through the mutations beside them, so there
+ * is one copy of it and a refetch cannot disagree with a local edit.
+ *
+ * What is left is what the API has never heard of. Views are unmounted when
+ * the merchant navigates, so anything they own is destroyed on the next
+ * click; these five things have to outlive that.
+ *
+ * The integration credentials and webhook deliveries below are still local.
+ * They have endpoints — `/integration-credentials` and `/webhook-deliveries` —
+ * and moving them is the next piece of this migration, not a different one.
  */
 
-export type ProgramDraft = Program;
 export type { Credential, Delivery };
-
-/** The API's Campaign, which already carries the composer's two fields. */
-export type ScheduledCampaign = Campaign;
 
 /** What the onboarding wizard wrote to session storage before handing over. */
 export type WorkspaceProfile = {
@@ -156,22 +153,6 @@ function readWorkspace(): WorkspaceProfile | null {
 const noWorkspaceOnServer = () => null;
 
 type DemoState = {
-  automations: Record<string, boolean>;
-  toggleAutomation: (id: string) => boolean;
-
-  integrations: Record<string, boolean>;
-  toggleIntegration: (id: string) => boolean;
-
-  programs: ProgramDraft[];
-  duplicateProgram: (id: string) => string | null;
-  updateProgramRule: (id: string, patch: Partial<ProgramDraft>) => void;
-
-  campaigns: ScheduledCampaign[];
-  scheduleCampaign: (campaign: Omit<ScheduledCampaign, "id">) => void;
-
-  staff: StaffMember[];
-  inviteStaff: (invite: { name: string; role: string; location: string }) => void;
-
   settings: Record<string, boolean>;
   setSetting: (key: string, value: boolean) => void;
 
@@ -208,31 +189,6 @@ type DemoState = {
 const DemoStateContext = createContext<DemoState | null>(null);
 
 export function DemoStateProvider({ children }: { children: ReactNode }) {
-  const [automations, setAutomations] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(
-      business.automations.map((item) => [item.id, item.status === "Live"]),
-    ),
-  );
-  const [integrations, setIntegrations] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(
-      business.integrations.map((item) => [
-        item.id,
-        item.status === "Connected",
-      ]),
-    ),
-  );
-  const [programs, setPrograms] = useState<ProgramDraft[]>(() =>
-    business.programs.map((item) => ({ ...item })),
-  );
-  const [campaigns, setCampaigns] = useState<ScheduledCampaign[]>(() =>
-    business.campaigns.map((item) => ({
-      ...item,
-      channels: [...item.channels],
-    })),
-  );
-  const [staff, setStaff] = useState<StaffMember[]>(() =>
-    business.staff.map((item) => ({ ...item })),
-  );
   const [settings, setSettings] = useState<Record<string, boolean>>({
     autoTopUpSms: true,
     invoiceEmails: true,
@@ -253,95 +209,6 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
     noWorkspaceOnServer,
   );
 
-  const toggleAutomation = useCallback((id: string) => {
-    let next = false;
-    setAutomations((current) => {
-      next = !current[id];
-      return { ...current, [id]: next };
-    });
-    return next;
-  }, []);
-
-  const toggleIntegration = useCallback((id: string) => {
-    let next = false;
-    setIntegrations((current) => {
-      next = !current[id];
-      return { ...current, [id]: next };
-    });
-    return next;
-  }, []);
-
-  const duplicateProgram = useCallback((id: string) => {
-    let draftName: string | null = null;
-    setPrograms((current) => {
-      const source = current.find((item) => item.id === id);
-      if (!source) return current;
-      const copies = current.filter((item) =>
-        item.name.startsWith(`${source.name} copy`),
-      ).length;
-      draftName = copies ? `${source.name} copy ${copies + 1}` : `${source.name} copy`;
-      return [
-        ...current,
-        {
-          ...source,
-          id: `${source.id}_draft_${copies + 1}`,
-          name: draftName,
-          status: "Draft",
-          members: 0,
-          completion: 0,
-          redemption: 0,
-          liability: 0,
-        },
-      ];
-    });
-    return draftName;
-  }, []);
-
-  const updateProgramRule = useCallback(
-    (id: string, patch: Partial<ProgramDraft>) => {
-      setPrograms((current) =>
-        current.map((item) => (item.id === id ? { ...item, ...patch } : item)),
-      );
-    },
-    [],
-  );
-
-  const scheduleCampaign = useCallback(
-    (campaign: Omit<ScheduledCampaign, "id">) => {
-      setCampaigns((current) => [
-        { ...campaign, id: `cmp_local_${current.length + 1}` },
-        ...current,
-      ]);
-    },
-    [],
-  );
-
-  const inviteStaff = useCallback(
-    ({ name, role, location }: { name: string; role: string; location: string }) => {
-      setStaff((current) => [
-        ...current,
-        {
-          id: `staff_invite_${current.length + 1}`,
-          name,
-          initials: name
-            .split(/\s+/)
-            .filter(Boolean)
-            .slice(0, 2)
-            .map((word) => word[0]?.toUpperCase() ?? "")
-            .join(""),
-          role,
-          location,
-          // An invited member has never been active. The API sends the
-          // instant or nothing; "Invitation sent" in a timestamp field was a
-          // display string masquerading as data.
-          lastActiveAt: null,
-          status: "Invited",
-        },
-      ]);
-    },
-    [],
-  );
-
   const setSetting = useCallback((key: string, value: boolean) => {
     setSettings((current) => ({ ...current, [key]: value }));
   }, []);
@@ -359,17 +226,6 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<DemoState>(
     () => ({
-      automations,
-      toggleAutomation,
-      integrations,
-      toggleIntegration,
-      programs,
-      duplicateProgram,
-      updateProgramRule,
-      campaigns,
-      scheduleCampaign,
-      staff,
-      inviteStaff,
       settings,
       setSetting,
       credentials,
@@ -390,17 +246,6 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
       workspace,
     }),
     [
-      automations,
-      toggleAutomation,
-      integrations,
-      toggleIntegration,
-      programs,
-      duplicateProgram,
-      updateProgramRule,
-      campaigns,
-      scheduleCampaign,
-      staff,
-      inviteStaff,
       settings,
       setSetting,
       credentials,

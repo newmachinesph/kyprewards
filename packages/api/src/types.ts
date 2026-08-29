@@ -198,7 +198,11 @@ export type Program = {
   members: number;
   completion: number;
   redemption: number;
+  /** Outstanding reward value, derived from the ledger. Read-only. */
   liabilityCentavos: number;
+  target: number;
+  rewardName: string;
+  rewardValueCentavos: number;
 };
 
 export type Automation = {
