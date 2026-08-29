@@ -1,14 +1,11 @@
 "use client";
 
 /**
- * The read hooks, one per accessor in `@kypstamping/demo-data`'s `api.ts`.
+ * The read hooks, one per function in `endpoints.ts`.
  *
- * They call that seam rather than `fetch` on purpose. Today the seam resolves
- * the fixture, so these hooks work against the demo exactly as the screens do
- * now; at integration each accessor body becomes an `http()` call and not one
- * line in this file changes. That is the whole reason the seam exists, and it
- * is why the caching, keys and retry policy can be settled before the service
- * is wired.
+ * They went from the fixture to the live service without a line changing here,
+ * because the seam kept its signatures: every accessor was already async and
+ * already returned the narrowed type. Only the module they point at moved.
  *
  * What each hook adds over calling the accessor directly: a stable key that
  * invalidation can target, request de-duplication across components that ask
@@ -17,7 +14,7 @@
  */
 
 import { useQuery, type UseQueryOptions, type UseQueryResult } from "@tanstack/react-query";
-import * as api from "@kypstamping/demo-data";
+import * as api from "./endpoints";
 import type {
   Adapter,
   ActivityEntry,
@@ -44,15 +41,14 @@ import type {
   RecoveryItem,
   Redemption,
   ServiceHealth,
-  SharedScenario,
   StaffMember,
   SupportTicket,
   Tenant,
   TenantConnection,
   WalletCard,
-} from "@kypstamping/demo-data";
+} from "./types";
 
-import { keys, type CustomerFilters } from "./keys";
+import { keys, type Coordinates, type CustomerFilters } from "./keys";
 
 /**
  * What a caller may override per hook: everything except the two things that
@@ -71,9 +67,6 @@ const FOREVER = { staleTime: Infinity, gcTime: Infinity } as const;
 
 export const useContract = (options?: Options<ApiContract>): Query<ApiContract> =>
   useQuery({ queryKey: keys.contract, queryFn: api.getContract, ...FOREVER, ...options });
-
-export const useSharedScenario = (options?: Options<SharedScenario>): Query<SharedScenario> =>
-  useQuery({ queryKey: keys.scenario, queryFn: api.getSharedScenario, ...FOREVER, ...options });
 
 /* ── Business workspace ───────────────────────────────────────────── */
 
@@ -149,8 +142,17 @@ export const useCustomerProfile = (options?: Options<CustomerProfile>): Query<Cu
 export const useWallet = (options?: Options<WalletCard[]>): Query<WalletCard[]> =>
   useQuery({ queryKey: keys.customer.wallet(), queryFn: api.getWallet, ...options });
 
-export const useDiscover = (options?: Options<DiscoverPlace[]>): Query<DiscoverPlace[]> =>
-  useQuery({ queryKey: keys.customer.discover(), queryFn: api.getDiscover, ...options });
+export const useDiscover = (
+  near?: Coordinates,
+  options?: Options<DiscoverPlace[]>,
+): Query<DiscoverPlace[]> =>
+  useQuery({
+    queryKey: keys.customer.discover(near),
+    // Wrapped, not passed by reference: useQuery calls the query function with
+    // its own context object, which would arrive here as `near`.
+    queryFn: () => api.getDiscover(near),
+    ...options,
+  });
 
 export const useNotifications = (
   options?: Options<CustomerNotification[]>,

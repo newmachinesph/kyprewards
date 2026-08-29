@@ -44,13 +44,12 @@
       "owner": "Mara Santos",
       "plan": "Grow",
       "billing": "Annual",
-      "renewal": "15 September 2026",
       "timezone": "Asia/Manila",
       "currency": "PHP",
       "organizationId": "org_santos_foods",
       "merchantId": "mrc_sweet_crumbs",
       "adminTenantId": "biz_1",
-      "renewalIso": "2026-09-15"
+      "renewalOn": "2026-09-15"
     },
     "metrics": {
       "visitsToday": 128,
@@ -58,9 +57,9 @@
       "stampsIssued": 216,
       "redemptions": 5,
       "repeatRate": 43.8,
-      "averageOrder": 286,
-      "memberRevenue": 482600,
-      "campaignRevenue": 136300
+      "averageOrderCentavos": 28600,
+      "memberRevenueCentavos": 48260000,
+      "campaignRevenueCentavos": 13630000
     },
     "locations": [
       {
@@ -128,15 +127,15 @@
         "initials": "JD",
         "segment": "Regular",
         "visits": 14,
-        "lifetimeValue": 8120,
-        "lastVisit": "Today, 9:42 AM",
         "progress": "5 / 8",
         "favorite": "Spanish latte + kouign-amann",
         "birthday": "8 September",
         "emailConsent": true,
         "smsConsent": true,
         "pushConsent": true,
-        "risk": "Healthy"
+        "risk": "Healthy",
+        "lifetimeValueCentavos": 812000,
+        "lastVisitAt": "2026-08-30T09:42:00+08:00"
       },
       {
         "id": "cus_1002",
@@ -144,15 +143,15 @@
         "initials": "BV",
         "segment": "VIP",
         "visits": 31,
-        "lifetimeValue": 18640,
-        "lastVisit": "Today, 8:17 AM",
         "progress": "Reward ready",
         "favorite": "Flat white + cinnamon roll",
         "birthday": "22 November",
         "emailConsent": true,
         "smsConsent": false,
         "pushConsent": true,
-        "risk": "Healthy"
+        "risk": "Healthy",
+        "lifetimeValueCentavos": 1864000,
+        "lastVisitAt": "2026-08-30T09:42:00+08:00"
       },
       {
         "id": "cus_1003",
@@ -160,15 +159,15 @@
         "initials": "PR",
         "segment": "Almost regular",
         "visits": 3,
-        "lifetimeValue": 1460,
-        "lastVisit": "Yesterday",
         "progress": "3 / 8",
         "favorite": "Cold brew",
         "birthday": "3 February",
         "emailConsent": true,
         "smsConsent": true,
         "pushConsent": false,
-        "risk": "Watch"
+        "risk": "Watch",
+        "lifetimeValueCentavos": 146000,
+        "lastVisitAt": "2026-08-30T09:42:00+08:00"
       },
       {
         "id": "cus_1004",
@@ -176,15 +175,15 @@
         "initials": "CL",
         "segment": "New",
         "visits": 1,
-        "lifetimeValue": 420,
-        "lastVisit": "Yesterday",
         "progress": "1 / 8",
         "favorite": "Chocolate croissant",
         "birthday": "17 April",
         "emailConsent": false,
         "smsConsent": false,
         "pushConsent": true,
-        "risk": "Healthy"
+        "risk": "Healthy",
+        "lifetimeValueCentavos": 42000,
+        "lastVisitAt": "2026-08-30T09:42:00+08:00"
       },
       {
         "id": "cus_1005",
@@ -192,15 +191,15 @@
         "initials": "AG",
         "segment": "At risk",
         "visits": 8,
-        "lifetimeValue": 5240,
-        "lastVisit": "24 days ago",
         "progress": "6 / 8",
         "favorite": "Long black + ensaymada",
         "birthday": "29 August",
         "emailConsent": true,
         "smsConsent": true,
         "pushConsent": true,
-        "risk": "High"
+        "risk": "High",
+        "lifetimeValueCentavos": 524000,
+        "lastVisitAt": "2026-08-30T09:42:00+08:00"
       },
       {
         "id": "cus_1006",
@@ -208,15 +207,15 @@
         "initials": "MT",
         "segment": "Regular",
         "visits": 17,
-        "lifetimeValue": 9680,
-        "lastVisit": "2 days ago",
         "progress": "2 / 8",
         "favorite": "Matcha latte",
         "birthday": "12 January",
         "emailConsent": true,
         "smsConsent": false,
         "pushConsent": true,
-        "risk": "Healthy"
+        "risk": "Healthy",
+        "lifetimeValueCentavos": 968000,
+        "lastVisitAt": "2026-08-30T09:42:00+08:00"
       },
       {
         "id": "cus_1007",
@@ -224,15 +223,15 @@
         "initials": "RC",
         "segment": "Lapsed",
         "visits": 11,
-        "lifetimeValue": 6130,
-        "lastVisit": "61 days ago",
         "progress": "7 / 8",
         "favorite": "Americano + cheese roll",
         "birthday": "5 June",
         "emailConsent": false,
         "smsConsent": true,
         "pushConsent": false,
-        "risk": "High"
+        "risk": "High",
+        "lifetimeValueCentavos": 613000,
+        "lastVisitAt": "2026-08-30T09:42:00+08:00"
       },
       {
         "id": "cus_1008",
@@ -240,15 +239,15 @@
         "initials": "NF",
         "segment": "Reward ready",
         "visits": 9,
-        "lifetimeValue": 4720,
-        "lastVisit": "3 days ago",
         "progress": "8 / 8",
         "favorite": "Iced latte",
         "birthday": "30 August",
         "emailConsent": true,
         "smsConsent": true,
         "pushConsent": true,
-        "risk": "Healthy"
+        "risk": "Healthy",
+        "lifetimeValueCentavos": 472000,
+        "lastVisitAt": "2026-08-30T09:42:00+08:00"
       }
     ],
     "programs": [
@@ -260,7 +259,7 @@
         "members": 5128,
         "completion": 63,
         "redemption": 38,
-        "liability": 28400
+        "liabilityCentavos": 2840000
       },
       {
         "id": "prog_points",
@@ -270,7 +269,7 @@
         "members": 0,
         "completion": 0,
         "redemption": 0,
-        "liability": 0
+        "liabilityCentavos": 0
       },
       {
         "id": "prog_discount",
@@ -280,7 +279,7 @@
         "members": 860,
         "completion": 72,
         "redemption": 54,
-        "liability": 12100
+        "liabilityCentavos": 1210000
       },
       {
         "id": "prog_membership",
@@ -290,7 +289,7 @@
         "members": 0,
         "completion": 0,
         "redemption": 0,
-        "liability": 0
+        "liabilityCentavos": 0
       },
       {
         "id": "prog_coupon",
@@ -300,7 +299,7 @@
         "members": 1240,
         "completion": 31,
         "redemption": 18,
-        "liability": 6800
+        "liabilityCentavos": 680000
       },
       {
         "id": "prog_rewards",
@@ -310,7 +309,7 @@
         "members": 486,
         "completion": 48,
         "redemption": 22,
-        "liability": 9100
+        "liabilityCentavos": 910000
       },
       {
         "id": "prog_multipass",
@@ -320,7 +319,7 @@
         "members": 0,
         "completion": 0,
         "redemption": 0,
-        "liability": 0
+        "liabilityCentavos": 0
       },
       {
         "id": "prog_gift",
@@ -330,7 +329,7 @@
         "members": 112,
         "completion": 67,
         "redemption": 41,
-        "liability": 53400
+        "liabilityCentavos": 5340000
       }
     ],
     "automations": [
@@ -341,7 +340,7 @@
         "audience": 84,
         "channel": "Push + Email",
         "status": "Live",
-        "revenue": 18400
+        "revenueCentavos": 1840000
       },
       {
         "id": "auto_reward",
@@ -350,7 +349,7 @@
         "audience": 328,
         "channel": "In-app + Push",
         "status": "Live",
-        "revenue": 32200
+        "revenueCentavos": 3220000
       },
       {
         "id": "auto_winback",
@@ -359,7 +358,7 @@
         "audience": 214,
         "channel": "Email + SMS fallback",
         "status": "Live",
-        "revenue": 25800
+        "revenueCentavos": 2580000
       },
       {
         "id": "auto_review",
@@ -368,7 +367,7 @@
         "audience": 46,
         "channel": "Push + Email",
         "status": "Paused",
-        "revenue": 0
+        "revenueCentavos": 0
       },
       {
         "id": "auto_geo",
@@ -377,7 +376,7 @@
         "audience": 108,
         "channel": "Push",
         "status": "Draft",
-        "revenue": 0
+        "revenueCentavos": 0
       },
       {
         "id": "auto_referral",
@@ -386,7 +385,7 @@
         "audience": 620,
         "channel": "In-app",
         "status": "Ready",
-        "revenue": 0
+        "revenueCentavos": 0
       }
     ],
     "campaigns": [
@@ -400,9 +399,11 @@
         ],
         "sent": 824,
         "visited": 126,
-        "revenue": 38200,
-        "cost": 2100,
-        "status": "Completed"
+        "status": "Completed",
+        "revenueCentavos": 3820000,
+        "costCentavos": 210000,
+        "sendTime": null,
+        "frequencyPolicy": null
       },
       {
         "id": "cmp_202",
@@ -414,9 +415,11 @@
         ],
         "sent": 94,
         "visited": 22,
-        "revenue": 14800,
-        "cost": 412,
-        "status": "Running"
+        "status": "Running",
+        "revenueCentavos": 1480000,
+        "costCentavos": 41200,
+        "sendTime": null,
+        "frequencyPolicy": null
       },
       {
         "id": "cmp_203",
@@ -429,9 +432,11 @@
         ],
         "sent": 1460,
         "visited": 188,
-        "revenue": 61200,
-        "cost": 1880,
-        "status": "Completed"
+        "status": "Completed",
+        "revenueCentavos": 6120000,
+        "costCentavos": 188000,
+        "sendTime": null,
+        "frequencyPolicy": null
       },
       {
         "id": "cmp_204",
@@ -443,9 +448,11 @@
         ],
         "sent": 318,
         "visited": 74,
-        "revenue": 22100,
-        "cost": 0,
-        "status": "Completed"
+        "status": "Completed",
+        "revenueCentavos": 2210000,
+        "costCentavos": 0,
+        "sendTime": null,
+        "frequencyPolicy": null
       }
     ],
     "messages": [
@@ -456,7 +463,7 @@
         "channel": "SMS",
         "status": "Delivered",
         "sentAt": "10:42 AM",
-        "cost": 0.95
+        "costCentavos": 95
       },
       {
         "id": "msg_502",
@@ -465,7 +472,7 @@
         "channel": "Email",
         "status": "Opened",
         "sentAt": "10:41 AM",
-        "cost": 0.03
+        "costCentavos": 3
       },
       {
         "id": "msg_507",
@@ -474,7 +481,7 @@
         "channel": "Viber",
         "status": "Delivered",
         "sentAt": "10:38 AM",
-        "cost": 0.42
+        "costCentavos": 42
       },
       {
         "id": "msg_503",
@@ -483,7 +490,7 @@
         "channel": "Push",
         "status": "Tapped",
         "sentAt": "9:10 AM",
-        "cost": 0
+        "costCentavos": 0
       },
       {
         "id": "msg_504",
@@ -492,7 +499,7 @@
         "channel": "SMS",
         "status": "Opted out",
         "sentAt": "Yesterday",
-        "cost": 0.95
+        "costCentavos": 95
       },
       {
         "id": "msg_505",
@@ -501,7 +508,7 @@
         "channel": "Email",
         "status": "Visited",
         "sentAt": "Yesterday",
-        "cost": 0.03
+        "costCentavos": 3
       },
       {
         "id": "msg_506",
@@ -510,7 +517,7 @@
         "channel": "In-app",
         "status": "Redeemed",
         "sentAt": "Monday",
-        "cost": 0
+        "costCentavos": 0
       }
     ],
     "redemptions": [
@@ -520,9 +527,9 @@
         "reward": "Free pastry",
         "branch": "Kapitolyo",
         "staff": "Jan Mercado",
-        "value": 165,
-        "time": "Today, 9:18 AM",
-        "status": "Approved"
+        "status": "Approved",
+        "valueCentavos": 16500,
+        "occurredAt": "2026-08-30T01:51:42.689240+08:00"
       },
       {
         "id": "red_302",
@@ -530,9 +537,9 @@
         "reward": "Free pastry",
         "branch": "BGC High Street",
         "staff": "Ira Mendoza",
-        "value": 165,
-        "time": "Yesterday, 4:42 PM",
-        "status": "Approved"
+        "status": "Approved",
+        "valueCentavos": 16500,
+        "occurredAt": "2026-08-30T01:51:42.689244+08:00"
       },
       {
         "id": "red_303",
@@ -540,9 +547,9 @@
         "reward": "Drink upgrade",
         "branch": "Kapitolyo",
         "staff": "Jan Mercado",
-        "value": 70,
-        "time": "Yesterday, 10:08 AM",
-        "status": "Approved"
+        "status": "Approved",
+        "valueCentavos": 7000,
+        "occurredAt": "2026-08-30T01:51:42.689247+08:00"
       },
       {
         "id": "red_304",
@@ -550,9 +557,9 @@
         "reward": "Double stamp coupon",
         "branch": "Kapitolyo",
         "staff": "Mara Santos",
-        "value": 0,
-        "time": "Monday, 2:31 PM",
-        "status": "Reversed"
+        "status": "Reversed",
+        "valueCentavos": 0,
+        "occurredAt": "2026-08-30T01:51:42.689249+08:00"
       },
       {
         "id": "red_305",
@@ -560,9 +567,9 @@
         "reward": "Birthday pastry",
         "branch": "BGC High Street",
         "staff": "Ira Mendoza",
-        "value": 185,
-        "time": "Sunday, 11:22 AM",
-        "status": "Approved"
+        "status": "Approved",
+        "valueCentavos": 18500,
+        "occurredAt": "2026-08-30T01:51:42.689251+08:00"
       }
     ],
     "staff": [
@@ -572,8 +579,8 @@
         "initials": "MS",
         "role": "Owner",
         "location": "All locations",
-        "lastActive": "Now",
-        "status": "Active"
+        "status": "Active",
+        "lastActiveAt": "2026-08-30T01:51:42.689252+08:00"
       },
       {
         "id": "staff_2",
@@ -581,8 +588,8 @@
         "initials": "JM",
         "role": "Manager",
         "location": "Kapitolyo",
-        "lastActive": "4 min ago",
-        "status": "Active"
+        "status": "Active",
+        "lastActiveAt": "2026-08-30T01:51:42.689254+08:00"
       },
       {
         "id": "staff_3",
@@ -590,8 +597,8 @@
         "initials": "IM",
         "role": "Manager",
         "location": "BGC High Street",
-        "lastActive": "12 min ago",
-        "status": "Active"
+        "status": "Active",
+        "lastActiveAt": "2026-08-30T01:51:42.689256+08:00"
       },
       {
         "id": "staff_4",
@@ -599,8 +606,8 @@
         "initials": "LR",
         "role": "Cashier",
         "location": "Kapitolyo",
-        "lastActive": "28 min ago",
-        "status": "Active"
+        "status": "Active",
+        "lastActiveAt": "2026-08-30T01:51:42.689257+08:00"
       },
       {
         "id": "staff_5",
@@ -608,8 +615,8 @@
         "initials": "NC",
         "role": "Analyst",
         "location": "All locations",
-        "lastActive": "Yesterday",
-        "status": "Active"
+        "status": "Active",
+        "lastActiveAt": "2026-08-30T01:51:42.689259+08:00"
       },
       {
         "id": "staff_6",
@@ -617,8 +624,8 @@
         "initials": "AS",
         "role": "Cashier",
         "location": "Legazpi Village",
-        "lastActive": "Invited today",
-        "status": "Pending"
+        "status": "Pending",
+        "lastActiveAt": "2026-08-30T01:51:42.689260+08:00"
       }
     ],
     "favoriteOrders": [
@@ -720,10 +727,7 @@
     ],
     "billing": {
       "plan": "Grow",
-      "monthly": 1290,
       "cycle": "Annual",
-      "nextInvoice": "15 September 2026",
-      "nextInvoiceIso": "2026-09-15",
       "method": {
         "kind": "Card",
         "brand": "Visa",
@@ -767,25 +771,27 @@
         {
           "id": "inv_2026_08",
           "period": "August 2026",
-          "issued": "15 August 2026",
-          "amount": 1290,
-          "status": "Paid"
+          "status": "Paid",
+          "amountCentavos": 129000,
+          "issuedOn": "2026-08-30"
         },
         {
           "id": "inv_2026_07",
           "period": "July 2026",
-          "issued": "15 July 2026",
-          "amount": 1497,
-          "status": "Paid"
+          "status": "Paid",
+          "amountCentavos": 149700,
+          "issuedOn": "2026-08-30"
         },
         {
           "id": "inv_2026_06",
           "period": "June 2026",
-          "issued": "15 June 2026",
-          "amount": 1290,
-          "status": "Paid"
+          "status": "Paid",
+          "amountCentavos": 129000,
+          "issuedOn": "2026-08-30"
         }
-      ]
+      ],
+      "monthlyCentavos": 129000,
+      "nextInvoiceOn": "2026-09-15"
     }
   },
   "customer": {
@@ -794,11 +800,11 @@
       "name": "Jacqueline Daniel",
       "initials": "JD",
       "city": "Pasig",
-      "memberSince": "February 2026",
+      "memberSince": "2026-02-12",
       "birthday": "8 September",
       "email": "jacqueline.daniel@example.com",
       "mobile": "+63 917 555 0182",
-      "memberSinceIso": "2026-02-12"
+      "memberCode": "KYP-CUS_1001"
     },
     "wallet": [
       {
@@ -812,7 +818,7 @@
         "reward": "Free pastry",
         "status": "Regular",
         "color": "ink",
-        "distance": "450 m",
+        "distance": null,
         "businessId": "biz_sweet_crumbs"
       },
       {
@@ -826,7 +832,7 @@
         "reward": "Signature drink",
         "status": "Member",
         "color": "green",
-        "distance": "1.2 km",
+        "distance": null,
         "businessId": "biz_sage_steam"
       },
       {
@@ -840,7 +846,7 @@
         "reward": "Monthly class access",
         "status": "VIP",
         "color": "accent",
-        "distance": "1.7 km",
+        "distance": null,
         "businessId": "biz_rooted_studio"
       },
       {
@@ -854,7 +860,7 @@
         "reward": "Stored gift value",
         "status": "Gift",
         "color": "paper",
-        "distance": "2.1 km",
+        "distance": null,
         "businessId": "biz_4"
       }
     ],
@@ -865,7 +871,7 @@
         "name": "Sweet Crumbs",
         "category": "Bakery",
         "neighborhood": "Kapitolyo",
-        "distance": "450 m",
+        "distance": null,
         "reward": "8 visits → free pastry",
         "address": "12 East Capitol Drive, Kapitolyo, Pasig",
         "hours": [
@@ -888,7 +894,7 @@
         "name": "Sage & Steam",
         "category": "Café",
         "neighborhood": "Brixton",
-        "distance": "1.2 km",
+        "distance": null,
         "reward": "₱1 → 1 point",
         "address": "48 Brixton Street, Kapitolyo, Pasig",
         "hours": [
@@ -907,7 +913,7 @@
         "name": "Rooted Studio",
         "category": "Wellness",
         "neighborhood": "Capitol Commons",
-        "distance": "1.7 km",
+        "distance": null,
         "reward": "VIP monthly access",
         "address": "5F Estancia Mall, Capitol Commons, Pasig",
         "hours": [
@@ -930,7 +936,7 @@
         "name": "Common Ground Barbers",
         "category": "Grooming",
         "neighborhood": "Ortigas",
-        "distance": "1.8 km",
+        "distance": null,
         "reward": "5 cuts → signature treatment",
         "address": "G/F Emerald Avenue, Ortigas Center, Pasig",
         "hours": [
@@ -953,7 +959,7 @@
         "name": "Corner Thread",
         "category": "Retail",
         "neighborhood": "Shaw",
-        "distance": "2.1 km",
+        "distance": null,
         "reward": "Member pricing + gift value",
         "address": "2F Shaw Boulevard, Mandaluyong",
         "hours": [
@@ -972,7 +978,7 @@
         "name": "Pace House",
         "category": "Fitness",
         "neighborhood": "Greenfield",
-        "distance": "2.4 km",
+        "distance": null,
         "reward": "10-class multipass",
         "address": "Mayflower Street, Greenfield District, Mandaluyong",
         "hours": [
@@ -996,33 +1002,30 @@
         "business": "Sweet Crumbs",
         "title": "One warm visit closer",
         "body": "Your latest stamp is in. Three visits until a pastry is on us.",
-        "time": "18 min ago",
         "kind": "Reward",
         "read": false,
         "businessId": "biz_sweet_crumbs",
-        "receivedAtIso": "2026-08-28T09:44:00+08:00"
+        "receivedAt": "2026-08-28T09:44:00+08:00"
       },
       {
         "id": "note_2",
         "business": "Rooted Studio",
         "title": "Your Thursday class is covered",
         "body": "You have three member visits remaining this month.",
-        "time": "Yesterday",
         "kind": "Service",
         "read": true,
         "businessId": "biz_rooted_studio",
-        "receivedAtIso": "2026-08-27T18:10:00+08:00"
+        "receivedAt": "2026-08-27T18:10:00+08:00"
       },
       {
         "id": "note_3",
         "business": "Sage & Steam",
         "title": "You are 360 points away",
         "body": "Your signature drink reward is getting close.",
-        "time": "Monday",
         "kind": "Reward",
         "read": true,
         "businessId": "biz_sage_steam",
-        "receivedAtIso": "2026-08-24T08:15:00+08:00"
+        "receivedAt": "2026-08-24T08:15:00+08:00"
       }
     ],
     "activity": [
@@ -1031,44 +1034,40 @@
         "business": "Sweet Crumbs",
         "action": "+1 stamp",
         "detail": "Kapitolyo · approved by Jan",
-        "date": "Today",
         "value": "+1",
         "reference": "evt_SC_10482",
         "businessId": "biz_sweet_crumbs",
-        "occurredAtIso": "2026-08-28T09:42:00+08:00"
+        "occurredAt": "2026-08-28T09:42:00+08:00"
       },
       {
         "id": "act_2",
         "business": "Sage & Steam",
         "action": "+286 points",
         "detail": "Brixton · ₱286 purchase",
-        "date": "Yesterday",
         "value": "+286",
         "reference": "evt_SS_8431",
         "businessId": "biz_sage_steam",
-        "occurredAtIso": "2026-08-27T16:05:00+08:00"
+        "occurredAt": "2026-08-27T16:05:00+08:00"
       },
       {
         "id": "act_3",
         "business": "Rooted Studio",
         "action": "Member visit used",
         "detail": "Capitol Commons · yoga flow",
-        "date": "Sunday",
         "value": "−1",
         "reference": "evt_RS_2287",
         "businessId": "biz_rooted_studio",
-        "occurredAtIso": "2026-08-23T10:30:00+08:00"
+        "occurredAt": "2026-08-23T10:30:00+08:00"
       },
       {
         "id": "act_4",
         "business": "Sweet Crumbs",
         "action": "Birthday pastry redeemed",
         "detail": "BGC High Street",
-        "date": "22 August",
         "value": "₱185",
         "reference": "evt_SC_9821",
         "businessId": "biz_sweet_crumbs",
-        "occurredAtIso": "2026-08-22T11:22:00+08:00"
+        "occurredAt": "2026-08-22T11:22:00+08:00"
       }
     ],
     "consentHistory": [
@@ -1076,43 +1075,37 @@
         "id": "con_1",
         "change": "Created a KYPStamping wallet",
         "scope": "Account",
-        "when": "12 February 2026",
-        "whenIso": "2026-02-12"
+        "occurredAt": "2026-02-12"
       },
       {
         "id": "con_2",
         "change": "Joined Sweet Crumbs Bakery",
         "scope": "Shared loyalty ID, name, mobile",
-        "when": "12 February 2026",
-        "whenIso": "2026-02-12"
+        "occurredAt": "2026-02-12"
       },
       {
         "id": "con_3",
         "change": "Turned on promotional push",
         "scope": "All joined businesses",
-        "when": "12 February 2026",
-        "whenIso": "2026-02-12"
+        "occurredAt": "2026-02-12"
       },
       {
         "id": "con_4",
         "change": "Joined Sage & Steam",
         "scope": "Shared loyalty ID, name",
-        "when": "3 March 2026",
-        "whenIso": "2026-03-03"
+        "occurredAt": "2026-03-03"
       },
       {
         "id": "con_5",
         "change": "Turned off SMS promotions",
         "scope": "All joined businesses",
-        "when": "19 June 2026",
-        "whenIso": "2026-06-19"
+        "occurredAt": "2026-06-19"
       },
       {
         "id": "con_6",
         "change": "Added birthday",
         "scope": "Sweet Crumbs Bakery",
-        "when": "2 August 2026",
-        "whenIso": "2026-08-02"
+        "occurredAt": "2026-08-02"
       }
     ]
   },
@@ -1120,11 +1113,11 @@
     "metrics": {
       "liveBusinesses": 284,
       "customerAccounts": 18492,
-      "monthlyRecurringRevenue": 176568,
       "grossMargin": 73.3,
       "netRevenueRetention": 112.6,
-      "smsLiability": 28640,
-      "supportSla": 96.8
+      "supportSla": 96.8,
+      "monthlyRecurringRevenueCentavos": 17656800,
+      "smsLiabilityCentavos": 2864000
     },
     "businesses": [
       {
@@ -1134,11 +1127,11 @@
         "city": "Pasig",
         "plan": "Grow",
         "members": 5202,
-        "mrr": 1290,
         "health": 94,
         "risk": "Healthy",
-        "joined": "12 Feb 2026",
-        "businessId": "biz_sweet_crumbs"
+        "businessId": "biz_sweet_crumbs",
+        "mrrCentavos": 129000,
+        "joinedOn": "2026-02-12"
       },
       {
         "id": "biz_2",
@@ -1147,10 +1140,10 @@
         "city": "Cebu",
         "plan": "Scale",
         "members": 14820,
-        "mrr": 3490,
         "health": 88,
         "risk": "Healthy",
-        "joined": "9 Nov 2025"
+        "mrrCentavos": 349000,
+        "joinedOn": "2026-02-12"
       },
       {
         "id": "biz_3",
@@ -1159,10 +1152,10 @@
         "city": "Makati",
         "plan": "Grow",
         "members": 3860,
-        "mrr": 1290,
         "health": 72,
         "risk": "Watch",
-        "joined": "18 Mar 2026"
+        "mrrCentavos": 129000,
+        "joinedOn": "2026-02-12"
       },
       {
         "id": "biz_4",
@@ -1171,10 +1164,10 @@
         "city": "Quezon City",
         "plan": "Core",
         "members": 1240,
-        "mrr": 499,
         "health": 91,
         "risk": "Healthy",
-        "joined": "4 Apr 2026"
+        "mrrCentavos": 49900,
+        "joinedOn": "2026-02-12"
       },
       {
         "id": "biz_5",
@@ -1183,10 +1176,10 @@
         "city": "Davao",
         "plan": "Core",
         "members": 870,
-        "mrr": 499,
         "health": 58,
         "risk": "At risk",
-        "joined": "22 May 2026"
+        "mrrCentavos": 49900,
+        "joinedOn": "2026-02-12"
       },
       {
         "id": "biz_6",
@@ -1195,10 +1188,10 @@
         "city": "Mandaluyong",
         "plan": "Launch",
         "members": 214,
-        "mrr": 0,
         "health": 64,
         "risk": "Watch",
-        "joined": "11 Aug 2026"
+        "mrrCentavos": 0,
+        "joinedOn": "2026-02-12"
       }
     ],
     "support": [
@@ -1208,10 +1201,10 @@
         "business": "Sweet Crumbs Bakery",
         "category": "Trust",
         "priority": "High",
-        "age": "18 min",
         "owner": "Unassigned",
         "status": "Open",
-        "ageMinutes": 18
+        "openedAt": "2026-08-30T01:33:42.689289+08:00",
+        "note": ""
       },
       {
         "id": "sup_2",
@@ -1219,10 +1212,10 @@
         "business": "Aster Wellness",
         "category": "Access",
         "priority": "Normal",
-        "age": "43 min",
         "owner": "Nica",
         "status": "Investigating",
-        "ageMinutes": 43
+        "openedAt": "2026-08-30T01:08:42.689295+08:00",
+        "note": ""
       },
       {
         "id": "sup_3",
@@ -1230,10 +1223,10 @@
         "business": "Northline Coffee",
         "category": "Messaging",
         "priority": "Normal",
-        "age": "1 hr",
         "owner": "Paolo",
         "status": "Waiting",
-        "ageMinutes": 60
+        "openedAt": "2026-08-30T00:51:42.689299+08:00",
+        "note": ""
       },
       {
         "id": "sup_4",
@@ -1241,10 +1234,10 @@
         "business": "Field Notes Café",
         "category": "Fraud",
         "priority": "High",
-        "age": "2 hr",
         "owner": "Mika",
         "status": "Investigating",
-        "ageMinutes": 120
+        "openedAt": "2026-08-29T23:51:42.689302+08:00",
+        "note": ""
       },
       {
         "id": "sup_5",
@@ -1252,10 +1245,10 @@
         "business": "Corner Thread",
         "category": "Privacy",
         "priority": "Normal",
-        "age": "3 hr",
         "owner": "Nica",
         "status": "Open",
-        "ageMinutes": 180
+        "openedAt": "2026-08-29T22:51:42.689304+08:00",
+        "note": ""
       },
       {
         "id": "sup_6",
@@ -1263,10 +1256,10 @@
         "business": "Harbor Grind Coffee",
         "category": "Delivery",
         "priority": "High",
-        "age": "2 hr",
         "owner": "Nica",
         "status": "Investigating",
-        "ageMinutes": 120
+        "openedAt": "2026-08-29T23:51:42.689306+08:00",
+        "note": ""
       },
       {
         "id": "sup_7",
@@ -1274,10 +1267,10 @@
         "business": "Platform (customer)",
         "category": "Privacy",
         "priority": "Normal",
-        "age": "5 hr",
         "owner": "Unassigned",
         "status": "Open",
-        "ageMinutes": 300
+        "openedAt": "2026-08-29T20:51:42.689309+08:00",
+        "note": ""
       }
     ],
     "audit": [
@@ -1287,9 +1280,9 @@
         "role": "Trust admin",
         "action": "Reversed 12 suspicious redemptions",
         "target": "Field Notes Café",
-        "time": "10:42 AM",
         "ip": "10.24.x.x",
-        "severity": "Elevated"
+        "severity": "Elevated",
+        "occurredAt": "2026-08-30T01:51:42.689311+08:00"
       },
       {
         "id": "aud_2",
@@ -1297,9 +1290,9 @@
         "role": "Support admin",
         "action": "Opened owner recovery workflow",
         "target": "Aster Wellness",
-        "time": "10:18 AM",
         "ip": "10.24.x.x",
-        "severity": "Normal"
+        "severity": "Normal",
+        "occurredAt": "2026-08-30T01:51:42.689313+08:00"
       },
       {
         "id": "aud_3",
@@ -1307,9 +1300,9 @@
         "role": "Automation",
         "action": "Paused campaign after complaint threshold",
         "target": "Campaign cmp_882",
-        "time": "9:56 AM",
         "ip": "Internal",
-        "severity": "Elevated"
+        "severity": "Elevated",
+        "occurredAt": "2026-08-30T01:51:42.689315+08:00"
       },
       {
         "id": "aud_4",
@@ -1317,9 +1310,9 @@
         "role": "Platform ops",
         "action": "Replayed failed webhook batch",
         "target": "Northline Coffee",
-        "time": "9:31 AM",
         "ip": "10.20.x.x",
-        "severity": "Normal"
+        "severity": "Normal",
+        "occurredAt": "2026-08-30T01:51:42.689317+08:00"
       },
       {
         "id": "aud_5",
@@ -1327,9 +1320,9 @@
         "role": "Privacy jobs",
         "action": "Completed customer export",
         "target": "Request dsr_1092",
-        "time": "9:02 AM",
         "ip": "Internal",
-        "severity": "Normal"
+        "severity": "Normal",
+        "occurredAt": "2026-08-30T01:51:42.689318+08:00"
       }
     ],
     "services": [
@@ -1375,67 +1368,67 @@
         {
           "name": "Launch",
           "accounts": 118,
-          "mrr": 0,
-          "monthlyCost": 3420,
-          "margin": 0
+          "margin": 0,
+          "mrrCentavos": 0,
+          "monthlyCostCentavos": 342000
         },
         {
           "name": "Core",
           "accounts": 92,
-          "mrr": 45908,
-          "monthlyCost": 8120,
-          "margin": 82.3
+          "margin": 82.3,
+          "mrrCentavos": 4590800,
+          "monthlyCostCentavos": 812000
         },
         {
           "name": "Grow",
           "accounts": 58,
-          "mrr": 74820,
-          "monthlyCost": 16440,
-          "margin": 78
+          "margin": 78,
+          "mrrCentavos": 7482000,
+          "monthlyCostCentavos": 1644000
         },
         {
           "name": "Scale",
           "accounts": 16,
-          "mrr": 55840,
-          "monthlyCost": 19200,
-          "margin": 65.6
+          "margin": 65.6,
+          "mrrCentavos": 5584000,
+          "monthlyCostCentavos": 1920000
         }
       ],
       "channels": [
         {
           "name": "In-app",
           "volume": 842000,
-          "revenue": 0,
-          "cost": 1260,
-          "model": "Included"
+          "model": "Included",
+          "revenueCentavos": 0,
+          "costCentavos": 126000
         },
         {
           "name": "Push",
           "volume": 418000,
-          "revenue": 1480,
-          "cost": 840,
-          "model": "Allowance + overage"
+          "model": "Allowance + overage",
+          "revenueCentavos": 148000,
+          "costCentavos": 84000
         },
         {
           "name": "Email",
           "volume": 286000,
-          "revenue": 7150,
-          "cost": 2480,
-          "model": "Allowance + overage"
+          "model": "Allowance + overage",
+          "revenueCentavos": 715000,
+          "costCentavos": 248000
         },
         {
           "name": "SMS",
           "volume": 68400,
-          "revenue": 64980,
-          "cost": 42900,
-          "model": "Prepaid credits"
+          "model": "Prepaid credits",
+          "revenueCentavos": 6498000,
+          "costCentavos": 4290000
         },
         {
           "name": "Connected messaging",
           "volume": 12200,
-          "revenue": 7320,
-          "cost": 5180,
-          "model": "Provider pass-through + fee"
+          "model": "Provider pass-through + fee",
+          "revenueCentavos": 732000,
+          "costCentavos": 518000
         }
       ]
     },

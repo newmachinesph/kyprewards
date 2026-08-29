@@ -13,9 +13,9 @@
  * and a run against the running stack for the parts documents get wrong.
  */
 
-import { ApiError } from "@kypstamping/demo-data";
+import { ApiError } from "./errors.ts";
 
-import { nextCursorFrom } from "./pagination";
+import { nextCursorFrom } from "./pagination.ts";
 
 export { ApiError };
 export { nextCursorFrom };
@@ -60,7 +60,12 @@ export function fieldErrors(error: unknown): FieldError[] {
  * `NEXT_PUBLIC_` values are inlined at build time — changing this after a
  * build does nothing to the deployed bundle.
  */
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "";
+export function apiBase(): string {
+  // Read per call, not once at module load: Next inlines this expression
+  // wherever it appears, so a function is just as bundler-friendly, and it
+  // lets a test point the client at a stack without import-order games.
+  return process.env.NEXT_PUBLIC_API_BASE ?? "";
+}
 
 export type HttpOptions = Omit<RequestInit, "body" | "method"> & {
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -99,7 +104,7 @@ function withQuery(path: string, query: HttpOptions["query"]): string {
 export async function http<T>(path: string, options: HttpOptions = {}): Promise<T> {
   const { method = "GET", body, raw, idempotencyKey, query, headers, ...rest } = options;
 
-  const response = await fetch(`${API_BASE}${withQuery(path, query)}`, {
+  const response = await fetch(`${apiBase()}${withQuery(path, query)}`, {
     ...rest,
     method,
     credentials: "include",
@@ -157,7 +162,7 @@ export async function httpPage<T>(path: string, options: HttpOptions = {}): Prom
   // `options` and hoping this module's own fields do not reach `fetch`.
   const { method = "GET", query, headers, signal, cache, mode, redirect } = options;
 
-  const response = await fetch(`${API_BASE}${withQuery(path, query)}`, {
+  const response = await fetch(`${apiBase()}${withQuery(path, query)}`, {
     method,
     credentials: "include",
     headers: { ...headers },

@@ -26,7 +26,7 @@ export {
   http,
   httpPage,
   nextCursorFrom,
-  API_BASE,
+  apiBase,
   type FieldError,
   type HttpOptions,
   type Page,

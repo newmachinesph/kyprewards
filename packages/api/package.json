@@ -7,15 +7,16 @@
     ".": "./src/index.ts",
     "./http": "./src/http.ts",
     "./forms": "./src/forms.ts",
-    "./stores": "./src/stores.ts"
+    "./stores": "./src/stores.ts",
+    "./types": "./src/types.ts",
+    "./endpoints": "./src/endpoints.ts"
   },
   "scripts": {
-    "test": "node --test --experimental-strip-types src/*.test.ts",
+    "test": "node --test --test-concurrency=1 --experimental-strip-types src/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
-    "@kypstamping/demo-data": "*",
     "@tanstack/react-query": "^5.102.8",
     "react": "19.2.8",
     "react-hook-form": "^7.86.0",
