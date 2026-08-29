@@ -359,7 +359,8 @@ export type WalletCard = {
   reward: string;
   status: string;
   color: string;
-  distance: number | null;
+  /** Metres from the position the caller sent, or null when none was. */
+  distanceMetres: number | null;
 };
 
 export type DiscoverPlace = {
@@ -369,7 +370,8 @@ export type DiscoverPlace = {
   name: string;
   category: string;
   neighborhood: string;
-  distance: number | null;
+  /** Metres from the position the caller sent, or null when none was. */
+  distanceMetres: number | null;
   reward: string;
   address: string;
   hours: OpeningHours[];

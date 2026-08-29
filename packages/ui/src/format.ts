@@ -43,6 +43,29 @@ export function pesoCompactFromCentavos(centavos: number) {
   return pesoCompact(centavos / 100);
 }
 
+/* ── Distance ─────────────────────────────────────────────────────── */
+
+/**
+ * `450` → `"450 m"`, `1200` → `"1.2 km"`.
+ *
+ * The API used to send this already formatted, which cost the wallet its
+ * sort order and inverted the discover screen's "nearby" filter — parseFloat
+ * on "1.2 km" gives 1.2 and on "450 m" gives 450, so the nearer place was the
+ * one excluded. It sends `distanceMetres` now; this is the last step before
+ * the number reaches a screen.
+ *
+ * Empty for null, which is what an unknown position means: the customer
+ * refused location, or the branch has no pin. Not "0 m", which reads as
+ * "you are here".
+ */
+export function formatDistance(metres: number | null | undefined) {
+  if (metres === null || metres === undefined) return "";
+  // Rounded to the nearest ten under a kilometre: a wallet card claiming
+  // "437 m" implies a precision that phone GPS does not have.
+  if (metres < 1000) return `${Math.round(metres / 10) * 10} m`;
+  return `${(metres / 1000).toFixed(1)} km`;
+}
+
 /* ── Time ───────────────────────────────────────────────────────── */
 
 /** One "today" for every app, so a screen-share of all four agrees. */

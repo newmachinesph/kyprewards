@@ -10,6 +10,7 @@
 import assert from "node:assert/strict";
 import {
   daysUntilBirthday,
+  formatDistance,
   greeting,
   peso,
   pesoCompact,
@@ -119,5 +120,19 @@ assert.equal(pesoCompactFromCentavos(28600), "₱286");
 assert.equal(relativeTime(null), "Never");
 assert.equal(relativeTime(undefined), "Never");
 assert.equal(relativeTime(""), "Never");
+
+/* ── Distance ─────────────────────────────────────────────────────────
+   Moved here from the API, which used to send "450 m" already formatted.
+   A number is what the wallet can sort and the discover filter can compare;
+   this is only the last step before it reaches a screen. */
+
+assert.equal(formatDistance(450), "450 m");
+assert.equal(formatDistance(1200), "1.2 km");
+assert.equal(formatDistance(999), "1000 m");
+assert.equal(formatDistance(1000), "1.0 km");
+assert.equal(formatDistance(0), "0 m");
+
+// No position, no distance - and nothing pretending otherwise.
+assert.equal(formatDistance(null), "");
 
 console.log("format checks passed");

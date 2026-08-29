@@ -5,7 +5,15 @@ import { customer as customerDemo, sharedScenario } from "@kypstamping/demo-data
 import { BrandMark, DemoBadge, Eyebrow, StampDots } from "@kypstamping/ui";
 import { signOutDemo } from "@kypstamping/ui/auth";
 import { Toast, useToast } from "@kypstamping/ui/shell";
-import { greeting, todayLabel } from "@kypstamping/ui/format";
+import {
+  formatDistance,
+  greeting,
+  relativeTime,
+  todayLabel,
+} from "@kypstamping/ui/format";
+
+/** A place is "nearby" within a 1.5 km walk. */
+const NEARBY_METRES = 1500;
 import {
   CHANNELS,
   CustomerStateProvider,
@@ -564,7 +572,8 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
   const visibleBusinesses = customerDemo.discover.filter(
     (business) =>
       (category === "All" || business.category === category) &&
-      (!nearbyOnly || Number.parseFloat(business.distance) <= 1.5) &&
+      (!nearbyOnly ||
+        (business.distanceMetres !== null && business.distanceMetres <= NEARBY_METRES)) &&
       `${business.name} ${business.neighborhood}`
         .toLowerCase()
         .includes(query.toLowerCase()),
@@ -656,14 +665,16 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
               className={`group flex w-full items-center gap-4 rounded-2xl p-3.5 text-left transition hover:-translate-y-0.5 ${index === 0 ? "bg-[var(--accent)]" : "border border-[var(--line)] bg-[var(--surface)]"}`}
             >
               <span className="relative grid size-13 shrink-0 place-items-center overflow-hidden rounded-xl bg-[var(--surface)]">
-                <img
-                  src={business.image}
-                  alt=""
-                  loading="lazy"
-                  width={52}
-                  height={52}
-                  className="absolute inset-0 size-full object-cover"
-                />
+                {business.image ? (
+                  <img
+                    src={business.image}
+                    alt=""
+                    loading="lazy"
+                    width={52}
+                    height={52}
+                    className="absolute inset-0 size-full object-cover"
+                  />
+                ) : null}
                 <Icon size={22} className="opacity-0" />
               </span>
               <span className="min-w-0 flex-1">
@@ -680,7 +691,10 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
                 <span
                   className={`mt-1 block text-[11px] ${index === 0 ? "text-[var(--ink)]/80" : "text-[var(--muted)]"}`}
                 >
-                  {business.category} · {business.distance}
+                  {business.category}
+                  {business.distanceMetres === null
+                    ? ""
+                    : ` · ${formatDistance(business.distanceMetres)}`}
                 </span>
               </span>
               <ChevronRight
@@ -1077,7 +1091,7 @@ function NotificationSheet({ close }: { close: () => void }) {
                     {notification.body}
                   </p>
                   <p className="mt-2 text-[10px] text-[var(--muted)]">
-                    {notification.time}
+                    {relativeTime(notification.receivedAt)}
                   </p>
                 </div>
               </article>
@@ -1151,7 +1165,7 @@ function ActivitySheet({ close }: { close: () => void }) {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-extrabold">{activity.action}</p>
                 <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--accent-strong)]">
-                  {activity.business} · {activity.date}
+                  {activity.business} · {relativeTime(activity.occurredAt)}
                 </p>
                 <p className="mt-1 text-[11px] text-[var(--muted)]">
                   {activity.detail}
@@ -1228,16 +1242,21 @@ function BusinessSheet({
             {business.name}
           </h2>
           <p className="mt-2 text-sm text-white/60">
-            {business.category} · {business.neighborhood} · {business.distance}
+            {business.category} · {business.neighborhood}
+            {business.distanceMetres === null
+              ? ""
+              : ` · ${formatDistance(business.distanceMetres)}`}
           </p>
           <div className="mt-6 h-40 overflow-hidden rounded-2xl border border-white/12">
-            <img
-              src={business.image}
-              alt={`Inside ${business.name}`}
-              width={800}
-              height={533}
-              className="size-full object-cover"
-            />
+            {business.image ? (
+              <img
+                src={business.image}
+                alt={`Inside ${business.name}`}
+                width={800}
+                height={533}
+                className="size-full object-cover"
+              />
+            ) : null}
           </div>
           <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-5">
             <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent)]">
@@ -1491,7 +1510,7 @@ function WalletSheet({
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-extrabold">{activity.action}</p>
                   <p className="mt-0.5 text-[10px] text-[var(--muted)]">
-                    {activity.detail} · {activity.date}
+                    {activity.detail} · {relativeTime(activity.occurredAt)}
                   </p>
                 </div>
                 <span className="text-xs font-extrabold">{activity.value}</span>
@@ -1721,7 +1740,7 @@ function ProfileSheet({
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-extrabold">{entry.change}</p>
                     <p className="mt-0.5 text-[10px] text-[var(--muted)]">
-                      {entry.scope} · {entry.when}
+                      {entry.scope} · {relativeTime(entry.occurredAt)}
                     </p>
                   </div>
                 </li>

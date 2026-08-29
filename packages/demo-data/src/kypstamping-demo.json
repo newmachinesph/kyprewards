@@ -818,8 +818,8 @@
         "reward": "Free pastry",
         "status": "Regular",
         "color": "ink",
-        "distance": null,
-        "businessId": "biz_sweet_crumbs"
+        "businessId": "biz_sweet_crumbs",
+        "distanceMetres": null
       },
       {
         "id": "wallet_2",
@@ -832,8 +832,8 @@
         "reward": "Signature drink",
         "status": "Member",
         "color": "green",
-        "distance": null,
-        "businessId": "biz_sage_steam"
+        "businessId": "biz_sage_steam",
+        "distanceMetres": null
       },
       {
         "id": "wallet_3",
@@ -846,8 +846,8 @@
         "reward": "Monthly class access",
         "status": "VIP",
         "color": "accent",
-        "distance": null,
-        "businessId": "biz_rooted_studio"
+        "businessId": "biz_rooted_studio",
+        "distanceMetres": null
       },
       {
         "id": "wallet_4",
@@ -860,8 +860,8 @@
         "reward": "Stored gift value",
         "status": "Gift",
         "color": "paper",
-        "distance": null,
-        "businessId": "biz_4"
+        "businessId": "biz_4",
+        "distanceMetres": null
       }
     ],
     "discover": [
@@ -871,7 +871,6 @@
         "name": "Sweet Crumbs",
         "category": "Bakery",
         "neighborhood": "Kapitolyo",
-        "distance": null,
         "reward": "8 visits → free pastry",
         "address": "12 East Capitol Drive, Kapitolyo, Pasig",
         "hours": [
@@ -886,7 +885,8 @@
         ],
         "joined": true,
         "open": true,
-        "businessId": "biz_sweet_crumbs"
+        "businessId": "biz_sweet_crumbs",
+        "distanceMetres": null
       },
       {
         "id": "discover_2",
@@ -894,7 +894,6 @@
         "name": "Sage & Steam",
         "category": "Café",
         "neighborhood": "Brixton",
-        "distance": null,
         "reward": "₱1 → 1 point",
         "address": "48 Brixton Street, Kapitolyo, Pasig",
         "hours": [
@@ -905,7 +904,8 @@
         ],
         "joined": true,
         "open": true,
-        "businessId": "biz_sage_steam"
+        "businessId": "biz_sage_steam",
+        "distanceMetres": null
       },
       {
         "id": "discover_3",
@@ -913,7 +913,6 @@
         "name": "Rooted Studio",
         "category": "Wellness",
         "neighborhood": "Capitol Commons",
-        "distance": null,
         "reward": "VIP monthly access",
         "address": "5F Estancia Mall, Capitol Commons, Pasig",
         "hours": [
@@ -928,7 +927,8 @@
         ],
         "joined": true,
         "open": false,
-        "businessId": "biz_rooted_studio"
+        "businessId": "biz_rooted_studio",
+        "distanceMetres": null
       },
       {
         "id": "discover_4",
@@ -936,7 +936,6 @@
         "name": "Common Ground Barbers",
         "category": "Grooming",
         "neighborhood": "Ortigas",
-        "distance": null,
         "reward": "5 cuts → signature treatment",
         "address": "G/F Emerald Avenue, Ortigas Center, Pasig",
         "hours": [
@@ -951,7 +950,8 @@
         ],
         "joined": false,
         "open": true,
-        "businessId": "biz_common_ground"
+        "businessId": "biz_common_ground",
+        "distanceMetres": null
       },
       {
         "id": "discover_5",
@@ -959,7 +959,6 @@
         "name": "Corner Thread",
         "category": "Retail",
         "neighborhood": "Shaw",
-        "distance": null,
         "reward": "Member pricing + gift value",
         "address": "2F Shaw Boulevard, Mandaluyong",
         "hours": [
@@ -970,7 +969,8 @@
         ],
         "joined": true,
         "open": true,
-        "businessId": "biz_4"
+        "businessId": "biz_4",
+        "distanceMetres": null
       },
       {
         "id": "discover_6",
@@ -978,7 +978,6 @@
         "name": "Pace House",
         "category": "Fitness",
         "neighborhood": "Greenfield",
-        "distance": null,
         "reward": "10-class multipass",
         "address": "Mayflower Street, Greenfield District, Mandaluyong",
         "hours": [
@@ -993,7 +992,8 @@
         ],
         "joined": false,
         "open": true,
-        "businessId": "biz_6"
+        "businessId": "biz_6",
+        "distanceMetres": null
       }
     ],
     "notifications": [

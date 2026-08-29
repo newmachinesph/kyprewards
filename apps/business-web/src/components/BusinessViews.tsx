@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState, type ReactNode } from "react";
 import { business, sharedScenario } from "@kypstamping/demo-data";
 import { Button, Eyebrow, Pill, StampDots, ViewFrame } from "@kypstamping/ui";
@@ -7,7 +6,6 @@ import {
   daysUntilBirthday,
   longDate,
   peso,
-  pesoCompact,
   pesoCompactFromCentavos,
   pesoFromCentavos,
   relativeTime,
@@ -58,7 +56,6 @@ import type { NotifyIntent } from "@kypstamping/ui/shell";
 import type { BusinessView } from "@/components/BusinessShell";
 import { useDemoState } from "@/components/DemoState";
 import { IntegrationsView } from "@/components/IntegrationsView";
-
 const qrPattern = [
   "11111001011111",
   "10001011010001",
@@ -76,10 +73,7 @@ const qrPattern = [
   "10001010100100",
   "11111001101111",
 ];
-
 type Notify = (message: string, intent?: NotifyIntent) => void;
-
-
 function ScanView({ notify }: { notify: Notify }) {
   // The dashboard scanner already picked the demo customer; arriving here and
   // being asked to pick again broke the flow.
@@ -317,7 +311,6 @@ function ScanView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 function JoinCodeView({ notify }: { notify: Notify }) {
   const [branch, setBranch] = useState(business.locations[0].name);
   return (
@@ -389,7 +382,6 @@ function JoinCodeView({ notify }: { notify: Notify }) {
               Set up NFC
             </Button>
           </div>
-
           <div className="mt-6 rounded-2xl border border-dashed border-[var(--line-strong)] bg-[var(--surface)] p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex items-start gap-3">
@@ -495,7 +487,6 @@ function JoinCodeView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 function CustomersView({ notify }: { notify: Notify }) {
   const [query, setQuery] = useState("");
   const [segment, setSegment] = useState("All");
@@ -704,7 +695,6 @@ function CustomersView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 function BusinessProfileView({ notify }: { notify: Notify }) {
   return (
     <ViewFrame
@@ -805,7 +795,6 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 const programIcons: Record<string, typeof Stamp> = {
   Stamps: Stamp,
   Points: Coins,
@@ -816,9 +805,7 @@ const programIcons: Record<string, typeof Stamp> = {
   Multipass: WalletCards,
   "Gift card": CreditCard,
 };
-
 const PROGRAM_STATUSES = ["Live", "Ready", "Draft"] as const;
-
 function ProgramsView({ notify }: { notify: Notify }) {
   const { programs, duplicateProgram, updateProgramRule } = useDemoState();
   const [selectedId, setSelectedId] = useState(programs[0].id);
@@ -999,7 +986,6 @@ function ProgramsView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 function FavoriteOrdersView({ notify }: { notify: Notify }) {
   const max = Math.max(...business.favoriteOrders.map((item) => item.orders));
   return (
@@ -1087,7 +1073,6 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 function BirthdayView({ notify }: { notify: Notify }) {
   // Was a literal list of three dates under a "next 30 days" heading, so it
   // was only ever correct on the day it was written.
@@ -1227,7 +1212,6 @@ function BirthdayView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 function RedemptionsView({ notify }: { notify: Notify }) {
   // These were three hardcoded figures, one of which quoted the stamp-card
   // liability under a "reward value" label. All three now say what they count.
@@ -1336,10 +1320,8 @@ function RedemptionsView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 /** Per-campaign delivery ceiling quoted in the preflight copy. */
 const SMS_CEILING = 1000;
-
 /**
  * What is left of this month's plan allowance, per channel.
  *
@@ -1355,16 +1337,13 @@ const allowanceRemaining: Record<string, number> = Object.fromEntries(
       Math.max(0, item.included - item.used),
     ]),
 );
-
 /** Cost of sending to `count` recipients on one channel, allowance first. */
 function channelCost(name: string, unit: number, count: number) {
   if (unit === 0) return 0;
   const free = Math.min(count, allowanceRemaining[name] ?? 0);
   return (count - free) * unit;
 }
-
 type ChannelStatus = "ready" | "planned";
-
 const channelConfig: {
   name: string;
   icon: typeof BellRing;
@@ -1430,7 +1409,6 @@ const channelConfig: {
     status: "planned",
   },
 ];
-
 function CampaignsView({ notify }: { notify: Notify }) {
   const { scheduleCampaign, campaigns } = useDemoState();
   const [campaignName, setCampaignName] = useState("Tuesday treat");
@@ -1821,13 +1799,11 @@ function CampaignsView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 /** Derived so a channel that exists in the ledger is always filterable. */
 const messageChannels = [
   "All",
   ...Array.from(new Set(business.messages.map((message) => message.channel))),
 ];
-
 function MessageLogView({ notify }: { notify: Notify }) {
   const [channel, setChannel] = useState("All");
   const [query, setQuery] = useState("");
@@ -1937,7 +1913,6 @@ function MessageLogView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 function AnalyticsView() {
   // "Campaign-attributed" was hardcoded at ₱76.4k while the fixture's own
   // campaign revenue summed to ₱136.3k. Both now come from the same number.
@@ -2071,14 +2046,12 @@ function AnalyticsView() {
     </ViewFrame>
   );
 }
-
 const STAFF_ROLES = [
   ["Owner", "Everything, including billing and deletion"],
   ["Manager", "Programs, customers, campaigns, and staff"],
   ["Cashier", "Scan, earn, redeem, and reverse window"],
   ["Analyst", "Read-only customers and analytics"],
 ] as const;
-
 function StaffView({ notify }: { notify: Notify }) {
   // "Invite staff" used to open /accept-invite — the recipient's screen. An
   // owner needs a composer, so this is one.
@@ -2087,7 +2060,6 @@ function StaffView({ notify }: { notify: Notify }) {
   const [inviteName, setInviteName] = useState("");
   const [inviteRole, setInviteRole] = useState<string>("Cashier");
   const [inviteLocation, setInviteLocation] = useState(business.locations[0].name);
-
   function sendInvite() {
     if (!inviteName.trim()) {
       notify("Add the name the invitation should be addressed to.", "error");
@@ -2100,7 +2072,6 @@ function StaffView({ notify }: { notify: Notify }) {
     setInviteName("");
     setComposerOpen(false);
   }
-
   return (
     <ViewFrame
       eyebrow="People & permissions"
@@ -2258,7 +2229,6 @@ function StaffView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 /** Preferences that write through `setSetting`, which previously had no
  *  callers at all. */
 const BILLING_PREFERENCES = [
@@ -2273,7 +2243,6 @@ const BILLING_PREFERENCES = [
     `Sent to ${business.profile.owner}`,
   ],
 ] as const;
-
 function SettingsView({ notify }: { notify: Notify }) {
   const {
     integrations: connected,
@@ -2391,7 +2360,6 @@ function SettingsView({ notify }: { notify: Notify }) {
               Manage plan
             </Button>
           </article>
-
           <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
             <div className="flex items-center justify-between">
               <Eyebrow>Billing</Eyebrow>
@@ -2495,7 +2463,6 @@ function SettingsView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-
 export function BusinessViewContent({
   view,
   notify,
