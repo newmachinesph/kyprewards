@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { Check, LoaderCircle, Send } from "lucide-react";
+import { ApiError, submitContact } from "@kypstamping/api";
 
 type FormState = "idle" | "sending" | "sent";
 
@@ -9,7 +10,7 @@ export function ContactForm() {
   const [state, setState] = useState<FormState>("idle");
   const [error, setError] = useState("");
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = String(data.get("email") ?? "").trim();
@@ -27,7 +28,23 @@ export function ContactForm() {
     }
     setError("");
     setState("sending");
-    window.setTimeout(() => setState("sent"), 650);
+    try {
+      await submitContact({
+        name,
+        email,
+        business: businessName,
+        message: String(data.get("message") ?? "").trim(),
+      });
+      setState("sent");
+    } catch (failure) {
+      // 429 is the per-address throttle; its message already says what to do.
+      setError(
+        failure instanceof ApiError
+          ? failure.message
+          : "That did not send. Check your connection and try again.",
+      );
+      setState("idle");
+    }
   }
 
   if (state === "sent") {
@@ -41,17 +58,17 @@ export function ContactForm() {
             <Check size={24} strokeWidth={3} />
           </span>
           <h2 className="mt-6 text-3xl font-extrabold tracking-[-0.02em]">
-            Demo inquiry prepared.
+Inquiry sent.
           </h2>
           <p className="mx-auto mt-3 max-w-[36ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-            No message was sent. This frontend state shows the confirmation a
-            business would receive after the future API accepts the inquiry.
+            We have it, and a copy is in your inbox. Someone will reply about
+            your business shortly.
           </p>
           <button
             onClick={() => setState("idle")}
             className="focus-ring mt-7 rounded-full border border-[var(--line)] px-5 py-3 text-sm font-bold"
           >
-            Reset the demo form
+Send another
           </button>
         </div>
       </div>

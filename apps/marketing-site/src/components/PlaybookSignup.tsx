@@ -1,13 +1,15 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, LoaderCircle } from "lucide-react";
+import { ApiError, requestPlaybook } from "@kypstamping/api";
 
 export function PlaybookSignup() {
   const [error, setError] = useState("");
+  const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const email = String(
       new FormData(event.currentTarget).get("email") ?? "",
@@ -21,7 +23,20 @@ export function PlaybookSignup() {
     }
 
     setError("");
-    setSent(true);
+    setSending(true);
+    try {
+      await requestPlaybook(email);
+      setSent(true);
+    } catch (failure) {
+      // 429 is the throttle, and its message already says what to do.
+      setError(
+        failure instanceof ApiError
+          ? failure.message
+          : "That did not send. Check your connection and try again.",
+      );
+    } finally {
+      setSending(false);
+    }
   }
 
   if (sent) {
@@ -33,7 +48,7 @@ export function PlaybookSignup() {
         <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[var(--accent)]">
           <Check size={14} strokeWidth={3} />
         </span>
-        Demo signup previewed. Nothing was stored and no email was sent.
+        On its way. Check your inbox for the playbook.
       </div>
     );
   }
@@ -55,9 +70,18 @@ export function PlaybookSignup() {
         />
         <button
           type="submit"
-          className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(24_18_12/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
+          disabled={sending}
+          className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(24_18_12/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98] disabled:opacity-60"
         >
-          Preview playbook signup <ArrowRight size={15} />
+          {sending ? (
+            <>
+              Sending <LoaderCircle size={15} className="animate-spin" />
+            </>
+          ) : (
+            <>
+              Send me the playbook <ArrowRight size={15} />
+            </>
+          )}
         </button>
       </div>
       {error && (

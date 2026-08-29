@@ -502,6 +502,20 @@ export const recordVisit = (
 export const recordTestStamp = (): Promise<VisitResult> =>
   http("/business/onboarding/test-stamp", { method: "POST" });
 
+/* ── Public forms ─────────────────────────────────────────────────────
+   The marketing site, which has no session. Both answer 202 and are
+   throttled server-side per email address. */
+
+export const submitContact = (body: {
+  name: string;
+  email: string;
+  business: string;
+  message: string;
+}): Promise<{ received: boolean }> => http("/public/contact", { method: "POST", body });
+
+export const requestPlaybook = (email: string): Promise<{ received: boolean }> =>
+  http("/public/playbook", { method: "POST", body: { email } });
+
 /* ── Exports ──────────────────────────────────────────────────────────
    Four CSV streams. They are downloads rather than JSON, so they go through
    fetch directly and hand the browser a file. */
