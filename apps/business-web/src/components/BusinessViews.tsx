@@ -8,6 +8,10 @@ import {
   useBusinessMetrics,
   useBranding,
   useBusinessProfile,
+  useMessagingPolicy,
+  useSettings,
+  type BusinessLocation,
+  type MessagingPolicy,
   useCampaigns,
   useFavoriteOrders,
   useIntegrations,
@@ -39,6 +43,7 @@ import {
   ChangePlanDialog,
   EditProfileDialog,
   EditStaffDialog,
+  EditLocationDialog,
   NewLocationDialog,
   NewProgramDialog,
 } from "@/components/WorkspaceForms";
@@ -49,6 +54,8 @@ import {
   useInviteStaff,
   useToggleIntegration,
   useUpdateProgram,
+  useSetMessagingPolicy,
+  useSetSetting,
 } from "@/components/mutations";
 import { Button, Eyebrow, Pill, StampDots, ViewFrame } from "@kypstamping/ui";
 import {
@@ -968,6 +975,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
   const { data: locations = [] } = useLocations();
   const { data: profile, isPending, error, refetch } = useBusinessProfile();
   const { data: branding } = useBranding();
+  const [editingLocation, setEditingLocation] = useState<BusinessLocation | null>(null);
   const [addingLocation, setAddingLocation] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
 
@@ -1087,7 +1095,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
               <button
                 type="button"
                 aria-label={`Open ${location.name} settings`}
-                onClick={() => notify(`${location.name} settings opened.`, "review")}
+                onClick={() => setEditingLocation(location)}
                 className="grid size-10 place-items-center rounded-full border border-[var(--line)] hover:bg-[var(--surface-2)]"
               >
                 <ChevronRight size={16} />
@@ -1098,6 +1106,13 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
       </section>
       {addingLocation && (
         <NewLocationDialog onClose={() => setAddingLocation(false)} notify={notify} />
+      )}
+      {editingLocation && (
+        <EditLocationDialog
+          location={editingLocation}
+          onClose={() => setEditingLocation(null)}
+          notify={notify}
+        />
       )}
       {editingProfile && (
         <EditProfileDialog
@@ -2724,8 +2739,88 @@ const BILLING_PREFERENCES = [
     "",
   ],
 ] as const;
+/**
+ * Quiet hours and frequency caps.
+ *
+ * This protects the customer rather than the merchant, which is why it is on
+ * every plan including the free one - and why leaving it unreachable meant a
+ * bakery could message someone at 3am with nothing in the way.
+ */
+function MessagingPolicyCard({ notify }: { notify: Notify }) {
+  const { data: policy } = useMessagingPolicy();
+  const save = useSetMessagingPolicy();
+  const [draft, setDraft] = useState<MessagingPolicy | null>(null);
+  const shown = draft ?? policy;
+
+  if (!shown) {
+    return (
+      <article className="h-64 animate-pulse rounded-2xl border border-[var(--line)] bg-[var(--surface-2)]" />
+    );
+  }
+
+  const edit = (field: keyof MessagingPolicy, value: number) =>
+    setDraft({ ...shown, [field]: value });
+
+  return (
+    <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+      <div className="flex items-start gap-3">
+        <ShieldCheck size={19} className="mt-0.5 text-[var(--accent-strong)]" />
+        <div>
+          <p className="text-sm font-extrabold">Messaging limits</p>
+          <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+            Nothing sends inside quiet hours, and nobody hears from you more
+            often than these caps allow.
+          </p>
+        </div>
+      </div>
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        {(
+          [
+            ["quietFromHour", "Quiet from", 23],
+            ["quietToHour", "Quiet until", 23],
+            ["maxPerDay", "Max per day", 50],
+            ["maxPerWeek", "Max per week", 200],
+          ] as const
+        ).map(([field, label, max]) => (
+          <label key={field} className="grid gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">
+            {label}
+            <input
+              type="number"
+              min={0}
+              max={max}
+              value={shown[field]}
+              onChange={(event) => edit(field, Number(event.target.value))}
+              className="min-h-10 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm font-bold text-[var(--ink)] outline-none focus:border-[var(--accent-strong)]"
+            />
+          </label>
+        ))}
+      </div>
+      <p className="mt-2 text-[10px] leading-relaxed text-[var(--muted)]">
+        Hours are 0-23 in {"your"} local time. A cap of zero means no cap.
+      </p>
+      <Button
+        className="mt-5"
+        disabled={!draft || save.isPending}
+        onClick={() =>
+          draft &&
+          save.mutate(draft, {
+            onSuccess: () => {
+              setDraft(null);
+              notify("Messaging limits saved.");
+            },
+            onError: (failure) => notify(failure.message, "review"),
+          })
+        }
+      >
+        {save.isPending ? "Saving…" : draft ? "Save limits" : "Saved"}
+      </Button>
+    </article>
+  );
+}
+
 function SettingsView({ notify }: { notify: Notify }) {
-  const { settings, setSetting } = useDemoState();
+  const { data: settings = {} } = useSettings();
+  const setSetting = useSetSetting();
   const { data: integrations = [] } = useIntegrations();
   const { data: profile } = useBusinessProfile();
   const {
@@ -2955,9 +3050,17 @@ function SettingsView({ notify }: { notify: Notify }) {
                     role="switch"
                     aria-checked={Boolean(settings[key])}
                     aria-label={label}
+                    disabled={setSetting.isPending}
                     onClick={() => {
-                      setSetting(key, !settings[key]);
-                      notify(`${label} ${settings[key] ? "turned off" : "turned on"}.`);
+                      const next = !settings[key];
+                      setSetting.mutate(
+                        { key, value: next },
+                        {
+                          onSuccess: () =>
+                            notify(`${label} ${next ? "turned on" : "turned off"}.`),
+                          onError: (failure) => notify(failure.message, "review"),
+                        },
+                      );
                     }}
                     className={`relative h-6 w-10 shrink-0 rounded-full ${settings[key] ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                   >
@@ -2969,29 +3072,7 @@ function SettingsView({ notify }: { notify: Notify }) {
               ))}
             </div>
           </article>
-          <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
-            <div className="flex items-start gap-3">
-              <ShieldCheck
-                size={19}
-                className="mt-0.5 text-[var(--accent-strong)]"
-              />
-              <div>
-                <p className="text-sm font-extrabold">Privacy defaults</p>
-                <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                  Purpose labels, consent evidence, retention, data export,
-                  correction, and deletion workflows are specified for the
-                  production service. None are connected in this demo.
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => notify("Privacy and retention settings opened.", "review")}
-              className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-[var(--accent-strong)]"
-            >
-              Review controls <ArrowRight size={14} />
-            </button>
-          </article>
+          <MessagingPolicyCard notify={notify} />
         </aside>
       </div>
       {changingPlan && (

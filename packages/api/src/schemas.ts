@@ -162,6 +162,9 @@ export const programSchema = z.object({
 });
 export type ProgramInput = z.infer<typeof programSchema>;
 
+/** The two a branch can be in. "Setup" hides it from customer discovery. */
+export const LOCATION_STATUSES = ["Live", "Setup"] as const;
+
 export const STAFF_ROLES = ["Owner", "Manager", "Supervisor", "Cashier", "Analyst"] as const;
 
 export const staffInviteSchema = z.object({

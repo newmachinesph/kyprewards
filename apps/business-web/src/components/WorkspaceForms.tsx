@@ -22,6 +22,7 @@ import {
   profileSchema,
   programSchema,
   zodResolver,
+  LOCATION_STATUSES,
   PROGRAM_TYPES,
   STAFF_ROLES,
   type LocationInput,
@@ -42,6 +43,7 @@ import {
 import { Button, Dialog, FieldLabel } from "@kypstamping/ui";
 import {
   useCreateProgram,
+  useUpdateLocation,
   useUpdateProfile,
   useUploadBrandingImage,
 } from "@/components/mutations";
@@ -315,6 +317,95 @@ export function EditProfileDialog({
           </Button>
           <Button type="submit" disabled={update.isPending}>
             {update.isPending ? "Saving…" : "Save profile"}
+          </Button>
+        </div>
+      </form>
+    </Dialog>
+  );
+}
+
+/**
+ * A branch's name, address and whether it is trading.
+ *
+ * Status is the field that matters: a closed branch that still shows as Live
+ * sends customers to a shuttered door, and the only way to change it was a
+ * toast that said the settings had opened.
+ */
+export function EditLocationDialog({
+  location,
+  onClose,
+  notify,
+}: {
+  location: BusinessLocation;
+  onClose: () => void;
+  notify: Notify;
+}) {
+  const update = useUpdateLocation();
+  const [banner, setBanner] = useState("");
+  const [status, setStatus] = useState(location.status);
+  const form = useForm<LocationInput>({
+    resolver: zodResolver(locationSchema),
+    defaultValues: {
+      name: location.name,
+      address: location.address,
+      city: location.city,
+    },
+  });
+
+  return (
+    <Dialog title={location.name} eyebrow="Location" onClose={onClose}>
+      <form
+        className="grid gap-5"
+        onSubmit={form.handleSubmit((values) => {
+          setBanner("");
+          update.mutate(
+            { id: location.id, ...values, status },
+            {
+              onSuccess: (saved) => {
+                notify(`${saved.name} saved.`);
+                onClose();
+              },
+              onError: (failure) => {
+                const unplaced = applyApiErrors(failure, form.setError, values);
+                setBanner(
+                  unplaced.length
+                    ? unplaced.map((item) => item.message).join(". ")
+                    : failure.message,
+                );
+              },
+            },
+          );
+        })}
+      >
+        <Banner message={banner} />
+        <Field label="Branch name" error={form.formState.errors.name?.message}>
+          <input {...form.register("name")} className={inputClass} />
+        </Field>
+        <Field label="Street address" error={form.formState.errors.address?.message}>
+          <input {...form.register("address")} className={inputClass} />
+        </Field>
+        <Field label="City" error={form.formState.errors.city?.message}>
+          <input {...form.register("city")} className={inputClass} />
+        </Field>
+        <Field label="Status">
+          <select
+            value={status}
+            onChange={(event) => setStatus(event.target.value as BusinessLocation["status"])}
+            className={inputClass}
+          >
+            {LOCATION_STATUSES.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button tone="quiet" type="button" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={update.isPending}>
+            {update.isPending ? "Saving…" : "Save location"}
           </Button>
         </div>
       </form>

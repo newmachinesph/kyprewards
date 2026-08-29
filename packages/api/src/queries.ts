@@ -24,6 +24,7 @@ import type {
   Billing,
   Branding,
   BusinessCustomer,
+  MessagingPolicy,
   BusinessLocation,
   BusinessMetrics,
   BusinessProfile,
@@ -91,6 +92,18 @@ export const useBusinessProfile = (options?: Options<BusinessProfile>): Query<Bu
 
 export const useBranding = (options?: Options<Branding>): Query<Branding> =>
   useQuery({ queryKey: keys.business.branding(), queryFn: api.getBranding, ...options });
+
+export const useSettings = (
+  options?: Options<Record<string, boolean>>,
+): Query<Record<string, boolean>> =>
+  useQuery({ queryKey: keys.business.settings(), queryFn: api.getSettings, ...options });
+
+export const useMessagingPolicy = (options?: Options<MessagingPolicy>): Query<MessagingPolicy> =>
+  useQuery({
+    queryKey: keys.business.messagingPolicy(),
+    queryFn: api.getMessagingPolicy,
+    ...options,
+  });
 
 export const useLocations = (options?: Options<BusinessLocation[]>): Query<BusinessLocation[]> =>
   useQuery({ queryKey: keys.business.locations(), queryFn: api.getLocations, ...options });

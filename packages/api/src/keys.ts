@@ -22,6 +22,8 @@ export const keys = {
     all: ["business"] as const,
     profile: () => [...keys.business.all, "profile"] as const,
     branding: () => [...keys.business.all, "branding"] as const,
+    settings: () => [...keys.business.all, "settings"] as const,
+    messagingPolicy: () => [...keys.business.all, "messaging-policy"] as const,
     locations: () => [...keys.business.all, "locations"] as const,
     metrics: () => [...keys.business.all, "metrics"] as const,
     billing: () => [...keys.business.all, "billing"] as const,

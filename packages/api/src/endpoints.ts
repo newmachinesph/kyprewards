@@ -25,6 +25,7 @@ import type {
   Billing,
   Branding,
   InvitePreview,
+  MessagingPolicy,
   BusinessCustomer,
   BusinessLocation,
   BusinessMetrics,
@@ -183,6 +184,31 @@ export const getContract = (): Promise<ApiContract> => http("/contract");
 export const getBusinessProfile = (): Promise<BusinessProfile> => http("/business/profile");
 
 export const getBranding = (): Promise<Branding> => http("/business/branding");
+
+/** An empty object when nothing has been toggled yet, never a 404. */
+export const getSettings = (): Promise<Record<string, boolean>> => http("/business/settings");
+
+export const setSetting = (key: string, value: boolean): Promise<{ id: string; enabled: boolean }> =>
+  http("/business/settings", { method: "PATCH", body: { key, value } });
+
+export const getMessagingPolicy = (): Promise<MessagingPolicy> =>
+  http("/business/messaging-policy");
+
+export const setMessagingPolicy = (body: Partial<MessagingPolicy>): Promise<MessagingPolicy> =>
+  http("/business/messaging-policy", { method: "PUT", body });
+
+export const updateLocation = (
+  branchId: string,
+  body: Partial<{
+    name: string;
+    city: string;
+    address: string;
+    status: string;
+    latitude: number;
+    longitude: number;
+  }>,
+): Promise<BusinessLocation> =>
+  http(`/business/locations/${branchId}`, { method: "PATCH", body });
 
 export const setBrandingColor = (color: string): Promise<Branding> =>
   http("/business/branding", { method: "PUT", body: { color } });

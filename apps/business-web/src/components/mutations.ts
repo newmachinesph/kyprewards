@@ -22,7 +22,10 @@ import {
   recordVisit,
   toggleAutomation,
   toggleIntegration,
+  setMessagingPolicy,
+  setSetting,
   updateBusinessProfile,
+  updateLocation,
   uploadBrandingImage,
   updateProgram,
   type CampaignDraft,
@@ -83,6 +86,26 @@ export const useUpdateProfile = () =>
  * response rather than keep the one it already had - the old link is for the
  * old object and expires on its own schedule.
  */
+/**
+ * A workspace toggle. Optimistic, because a switch that waits for the network
+ * to move reads as broken - and the whole payload is one boolean.
+ */
+export const useSetSetting = () =>
+  useApiMutation(
+    ({ key, value }: { key: string; value: boolean }) => setSetting(key, value),
+    { invalidates: [keys.business.settings()] },
+  );
+
+export const useSetMessagingPolicy = () =>
+  useApiMutation(setMessagingPolicy, { invalidates: [keys.business.messagingPolicy()] });
+
+export const useUpdateLocation = () =>
+  useApiMutation(
+    ({ id, ...body }: { id: string } & Parameters<typeof updateLocation>[1]) =>
+      updateLocation(id, body),
+    { invalidates: [keys.business.locations()] },
+  );
+
 export const useUploadBrandingImage = () =>
   useApiMutation(uploadBrandingImage, { invalidates: [keys.business.branding()] });
 

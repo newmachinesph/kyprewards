@@ -544,3 +544,11 @@ export type InvitePreview = {
   location: string;
   email: string;
 };
+
+/** Hours are 0-23, local to the merchant's timezone. Zero means "no cap". */
+export type MessagingPolicy = {
+  quietFromHour: number;
+  quietToHour: number;
+  maxPerDay: number;
+  maxPerWeek: number;
+};
