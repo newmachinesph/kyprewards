@@ -16,10 +16,21 @@ import { customerAppUrl, siteUrl } from "@/lib/site";
  * Tuesday has printed posters that 404 until the next deploy.
  *
  * `GET /public/join/{slug}` answers for any branch that exists, so the route
- * resolves at request time. A slug that is genuinely unknown still 404s -
- * which is what a mistyped poster code should do.
+ * resolves at request time and a new branch works the moment it is created.
+ *
+ * An unknown slug renders the not-found page but returns 200, not 404. That is
+ * the framework's documented trade-off: the check runs inside the Suspense
+ * boundary, by which point the response has begun streaming and the status can
+ * no longer change. The remedy Next prescribes is the `noindex` below, which
+ * keeps the soft 404 out of search results - and posters are scanned, not
+ * crawled, so nothing here depends on the status code. Moving the check into
+ * `proxy` would buy a real 404 at the cost of an API call on every request to
+ * the route; worth revisiting only if these pages start being indexed.
+ *
+ * Cached for five minutes: the answer changes when a merchant edits a branch,
+ * which is rare, and a poster is scanned far more often than that.
  */
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 /** Null for an unknown slug; anything else is a real failure and rethrown. */
 async function loadJoinPage(slug: string): Promise<JoinPage | null> {
@@ -38,7 +49,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const page = await loadJoinPage(slug);
-  if (!page) return { title: "Join code not found · KYPStamping" };
+  if (!page) {
+    return {
+      title: "Join code not found · KYPStamping",
+      // The status will be 200 - see the note above - so this is what keeps
+      // a mistyped poster code from being indexed as a real page.
+      robots: { index: false, follow: false },
+    };
+  }
   return {
     title: `Join ${page.business} · ${page.branch} · KYPStamping`,
     description: `Scan, join, and start collecting stamps at ${page.business} ${page.branch}. No app download required.`,
