@@ -8,7 +8,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRecoveryQueue, useSupportQueue } from "@kypstamping/api";
+import {
+  keys,
+  replayRecoveryQueue,
+  setPlatformFlag,
+  updateSupportTicket,
+  useApiMutation,
+  useRecoveryQueue,
+  useSupportQueue,
+} from "@kypstamping/api";
 import type { Environment, RecoveryItem, SupportTicket } from "@kypstamping/api";
 
 /**
@@ -71,10 +79,24 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
   );
   const [environment, setEnvironment] = useState<Environment>("production");
 
+  /**
+   * Triage is written, then kept locally until the queue refetches.
+   *
+   * The overlay is what stops an assignment flickering back to unassigned in
+   * the moment between the response and the refresh; it is not a second copy
+   * of the queue, only of what this admin just changed.
+   */
+  const write = useApiMutation(
+    ({ id, patch }: { id: string; patch: Partial<TriagedTicket> }) =>
+      updateSupportTicket(id, patch),
+    { invalidates: [keys.admin.support()] },
+  );
   const patchTicket = useCallback(
-    (id: string, patch: Partial<TriagedTicket>) =>
-      setTriage((current) => ({ ...current, [id]: { ...current[id], ...patch } })),
-    [],
+    (id: string, patch: Partial<TriagedTicket>) => {
+      setTriage((current) => ({ ...current, [id]: { ...current[id], ...patch } }));
+      write.mutate({ id, patch });
+    },
+    [write],
   );
 
   const assignTicket = useCallback(
@@ -90,22 +112,48 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
     [patchTicket],
   );
 
-  const toggleFlag = useCallback((key: string) => {
-    let next = false;
-    setFlags((current) => {
-      next = !current[key];
-      return { ...current, [key]: next };
-    });
-    return next;
-  }, []);
+  /**
+   * A platform flag is network-wide, so it is the server's answer that counts.
+   * Flipped locally first so the switch moves, and put back if the API
+   * refuses - an admin has to be able to see that it did not take.
+   */
+  const flagWrite = useApiMutation(
+    ({ key, value }: { key: string; value: boolean }) => setPlatformFlag(key, value),
+  );
+  const toggleFlag = useCallback(
+    (key: string) => {
+      let next = false;
+      setFlags((current) => {
+        next = !current[key];
+        return { ...current, [key]: next };
+      });
+      flagWrite.mutate(
+        { key, value: next },
+        { onError: () => setFlags((current) => ({ ...current, [key]: !next })) },
+      );
+      return next;
+    },
+    [flagWrite],
+  );
 
   /** Moving deliveries into replay empties the queue, so the count that drove
    *  the headline actually changes. Returns how many were queued. */
+  /**
+   * Moves every dead-lettered delivery back into the send queue. The count
+   * that drove the headline is the API's, not the length of a local array.
+   */
+  const replay = useApiMutation(replayRecoveryQueue, {
+    invalidates: [keys.admin.recoveryQueue()],
+  });
   const replayRecovery = useCallback(() => {
     const moved = recoveryQueue.map((item) => item.id);
     setReplayed((current) => [...current, ...moved]);
+    replay.mutate(undefined, {
+      onError: () =>
+        setReplayed((current) => current.filter((id) => !moved.includes(id))),
+    });
     return moved.length;
-  }, [recoveryQueue]);
+  }, [recoveryQueue, replay]);
 
   const openTicketCount = tickets.filter(
     (ticket) => ticket.status === "Open",

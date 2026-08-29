@@ -209,6 +209,44 @@ export const getConsentHistory = (): Promise<ConsentEntry[]> => http("/customer/
 export const getChannelPreferences = (): Promise<ChannelPreferences> =>
   http("/customer/channels");
 
+/* ── Customer writes ──────────────────────────────────────────────────
+   Everything here is the customer acting on their own record. The API scopes
+   each one to the session, so none of them takes an account id. */
+
+export const updateCustomerProfile = (body: {
+  name?: string;
+  email?: string;
+  mobile?: string;
+  city?: string;
+}): Promise<CustomerProfile> => http("/customer/profile", { method: "PATCH", body });
+
+/**
+ * One consent switch at a time.
+ *
+ * Each flip is its own request because each is its own consent event under
+ * the Data Privacy Act - a batched save would lose which one the customer
+ * actually changed and when.
+ */
+export const setChannelPreference = (
+  key: keyof ChannelPreferences,
+  value: boolean,
+): Promise<ChannelPreferences> =>
+  http("/customer/channels", { method: "PATCH", body: { key, value } });
+
+export const joinBusiness = (merchantId: string): Promise<WalletCard> =>
+  http(`/customer/discover/${merchantId}/join`, { method: "POST" });
+
+/** Leaves the program. The ledger stays; the card goes. */
+export const leaveBusiness = (membershipId: string): Promise<void> =>
+  http(`/customer/wallet/${membershipId}/leave`, { method: "POST" });
+
+export const markNotificationsRead = (): Promise<void> =>
+  http("/customer/notifications/read", { method: "POST" });
+
+/** "export" hands back a file; "delete" starts the erasure clock. */
+export const requestData = (kind: "export" | "delete"): Promise<{ id: string; status: string }> =>
+  http("/customer/data-requests", { method: "POST", body: { kind } });
+
 /* ── Platform administration ──────────────────────────────────────── */
 
 export const getTenants = (): Promise<Tenant[]> => http("/admin/tenants");
@@ -372,3 +410,17 @@ export const recordVisit = (
 /** The onboarding wizard's "prove it works" step. */
 export const recordTestStamp = (): Promise<VisitResult> =>
   http("/business/onboarding/test-stamp", { method: "POST" });
+
+/* ── Platform writes ──────────────────────────────────────────────── */
+
+export const updateSupportTicket = (
+  ticketId: string,
+  body: { owner?: string; status?: string; note?: string },
+): Promise<SupportTicket> => http(`/admin/support/${ticketId}`, { method: "PATCH", body });
+
+export const setPlatformFlag = (key: string, value: boolean): Promise<ToggleResult> =>
+  http("/admin/flags", { method: "PATCH", body: { key, value } });
+
+/** Moves every dead-lettered delivery back into the send queue. */
+export const replayRecoveryQueue = (): Promise<{ queued: number }> =>
+  http("/admin/recovery-queue/replay", { method: "POST" });

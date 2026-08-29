@@ -29,6 +29,7 @@ import type {
   Campaign,
   ChannelEconomics,
   ConsentEntry,
+  ChannelPreferences,
   CustomerNotification,
   CustomerProfile,
   DiscoverPlace,
@@ -187,6 +188,15 @@ export const useNotifications = (
 
 export const useActivity = (options?: Options<ActivityEntry[]>): Query<ActivityEntry[]> =>
   useQuery({ queryKey: keys.customer.activity(), queryFn: api.getActivity, ...options });
+
+export const useChannelPreferences = (
+  options?: Options<ChannelPreferences>,
+): Query<ChannelPreferences> =>
+  useQuery({
+    queryKey: keys.customer.channels(),
+    queryFn: api.getChannelPreferences,
+    ...options,
+  });
 
 export const useConsentHistory = (options?: Options<ConsentEntry[]>): Query<ConsentEntry[]> =>
   useQuery({

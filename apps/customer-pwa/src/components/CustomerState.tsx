@@ -9,7 +9,20 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { useCustomerProfile, useDiscover, useWallet } from "@kypstamping/api";
+import {
+  joinBusiness as joinBusinessCall,
+  keys,
+  leaveBusiness as leaveBusinessCall,
+  markNotificationsRead as markNotificationsReadCall,
+  requestData,
+  setChannelPreference,
+  updateCustomerProfile,
+  useApiMutation,
+  useChannelPreferences,
+  useCustomerProfile,
+  useDiscover,
+  useWallet,
+} from "@kypstamping/api";
 import type { CustomerProfile, WalletCard } from "@kypstamping/api";
 
 /**
@@ -128,13 +141,22 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
   );
 
   const [edits, setEdits] = useState<Partial<CustomerProfile>>({});
-  const [channels, setChannels] = useState<Record<ChannelKey, boolean>>({
-    service: true,
-    promoPush: true,
-    promoEmail: true,
-    promoSms: false,
-    nearby: false,
-  });
+  const { data: savedChannels } = useChannelPreferences();
+  const [overrides, setOverrides] = useState<Partial<Record<ChannelKey, boolean>>>({});
+  // The API's answer, with whatever the customer just flipped on top of it.
+  // Defaults are only what shows before the request lands.
+  const channels = useMemo<Record<ChannelKey, boolean>>(
+    () => ({
+      service: true,
+      promoPush: false,
+      promoEmail: false,
+      promoSms: false,
+      nearby: false,
+      ...savedChannels,
+      ...overrides,
+    }),
+    [savedChannels, overrides],
+  );
   const [leftBusinessIds, setLeftBusinessIds] = useState<string[]>([]);
   // Which businesses the customer has joined is the API's answer, seeded
   // once the discover list arrives rather than at mount from a fixture.
@@ -166,34 +188,108 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
     };
   }, [apiProfile, edits, signupName]);
 
-  const updateProfile = useCallback((patch: Partial<CustomerProfile>) => {
-    setEdits((current) => ({ ...current, ...patch }));
-  }, []);
+  /**
+   * Saved, then kept locally until the profile request catches up.
+   *
+   * The optimistic copy is what stops a name flickering back to its old value
+   * for the moment between the response and the refetch.
+   */
+  const save = useApiMutation(updateCustomerProfile, {
+    invalidates: [keys.customer.profile()],
+  });
+  const updateProfile = useCallback(
+    (patch: Partial<CustomerProfile>) => {
+      setEdits((current) => ({ ...current, ...patch }));
+      save.mutate(patch);
+    },
+    [save],
+  );
 
-  const toggleChannel = useCallback((key: ChannelKey) => {
-    let next = false;
-    setChannels((current) => {
-      next = !current[key];
-      return { ...current, [key]: next };
-    });
-    return next;
-  }, []);
+  /**
+   * One request per switch, because each flip is its own consent event under
+   * the Data Privacy Act - a batched save would lose which one the customer
+   * changed and when.
+   *
+   * Flipped locally first so the switch moves under the thumb, and put back
+   * if the API refuses.
+   */
+  const channelWrite = useApiMutation(
+    ({ key, value }: { key: ChannelKey; value: boolean }) =>
+      setChannelPreference(key, value),
+    { invalidates: [keys.customer.consentHistory()] },
+  );
+  const toggleChannel = useCallback(
+    (key: ChannelKey) => {
+      const next = !channels[key];
+      setOverrides((current) => ({ ...current, [key]: next }));
+      channelWrite.mutate(
+        { key, value: next },
+        {
+          onError: () =>
+            setOverrides((current) => ({ ...current, [key]: !next })),
+        },
+      );
+      return next;
+    },
+    [channelWrite, channels],
+  );
 
-  const leaveBusiness = useCallback((walletId: string) => {
-    setLeftBusinessIds((current) =>
-      current.includes(walletId) ? current : [...current, walletId],
-    );
-  }, []);
+  const leave = useApiMutation(leaveBusinessCall, {
+    invalidates: [keys.customer.wallet(), keys.customer.discover()],
+  });
+  const leaveBusiness = useCallback(
+    (walletId: string) => {
+      // Hidden immediately: a card the customer just left should not sit
+      // there while the request is in flight.
+      setLeftBusinessIds((current) =>
+        current.includes(walletId) ? current : [...current, walletId],
+      );
+      leave.mutate(walletId, {
+        onError: () =>
+          setLeftBusinessIds((current) => current.filter((id) => id !== walletId)),
+      });
+    },
+    [leave],
+  );
 
-  const joinBusiness = useCallback((discoverId: string) => {
-    setJoinedLocally((current) =>
-      current.includes(discoverId) ? current : [...current, discoverId],
-    );
-  }, []);
+  const join = useApiMutation(joinBusinessCall, {
+    invalidates: [keys.customer.wallet(), keys.customer.discover()],
+  });
+  const joinBusiness = useCallback(
+    (merchantId: string) => {
+      setJoinedLocally((current) =>
+        current.includes(merchantId) ? current : [...current, merchantId],
+      );
+      join.mutate(merchantId, {
+        onError: () =>
+          setJoinedLocally((current) => current.filter((id) => id !== merchantId)),
+      });
+    },
+    [join],
+  );
 
-  const markNotificationsRead = useCallback(() => setNotificationsRead(true), []);
-  const requestDeletion = useCallback(() => setDeletionRequested(true), []);
-  const requestExport = useCallback(() => setExportRequested(true), []);
+  const readAll = useApiMutation(markNotificationsReadCall, {
+    invalidates: [keys.customer.notifications()],
+  });
+  const markNotificationsRead = useCallback(() => {
+    setNotificationsRead(true);
+    readAll.mutate();
+  }, [readAll]);
+
+  /**
+   * Both are formal requests under the Data Privacy Act, so both are recorded
+   * by the API rather than remembered by the browser. The flags below only
+   * decide what the screen says afterwards.
+   */
+  const dataRequest = useApiMutation(requestData);
+  const requestDeletion = useCallback(() => {
+    setDeletionRequested(true);
+    dataRequest.mutate("delete");
+  }, [dataRequest]);
+  const requestExport = useCallback(() => {
+    setExportRequested(true);
+    dataRequest.mutate("export");
+  }, [dataRequest]);
 
   const { data: cards = [] } = useWallet();
   const wallet = useMemo(
