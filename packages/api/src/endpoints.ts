@@ -118,6 +118,21 @@ export const createWorkspace = (body: {
 export const requestPasswordReset = (email: string): Promise<{ sent: boolean }> =>
   http("/auth/password/forgot", { method: "POST", body: { email } });
 
+/**
+ * Ends every other session for that account, server-side.
+ *
+ * Resets 204, so there is nothing to read back - a rejected or expired token
+ * arrives as a 401 `ApiError`.
+ */
+export const resetPassword = (token: string, password: string): Promise<void> =>
+  http("/auth/password/reset", { method: "POST", body: { token, password } });
+
+export const acceptInvite = (
+  token: string,
+  body: { name: string; password: string },
+): Promise<LoginResult> =>
+  http(`/auth/invites/${encodeURIComponent(token)}/accept`, { method: "POST", body });
+
 export const registerBusiness = (body: {
   name: string;
   email: string;

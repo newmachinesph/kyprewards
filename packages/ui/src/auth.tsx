@@ -30,10 +30,12 @@ import {
   getSession,
   login,
   logout,
+  acceptInvite,
   registerBusiness,
   registerCustomer,
   requestOtp,
   requestPasswordReset,
+  resetPassword,
   selectWorkspace,
   getWorkspaces,
   verifyMfa,
@@ -67,6 +69,7 @@ export type DemoAuthRole = "business" | "admin" | "customer";
 export type DemoAuthMode =
   | "login"
   | "forgot"
+  | "reset"
   | "verify"
   | "create"
   | "workspaces"
@@ -473,6 +476,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   const config = roleConfig[role];
   const [identifier, setIdentifier] = useState<string>(config.identifier);
   const [password, setPassword] = useState("");
+  const [confirmation, setConfirmation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [code, setCode] = useState("");
@@ -761,6 +765,57 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
     );
   }
 
+  if (mode === "reset") {
+    return (
+      <AuthShell
+        role={role}
+        mode="reset"
+        title="Choose a new password."
+        description="The link you followed is good for one hour and one use."
+      >
+        {sent ? (
+          <div aria-live="polite" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-7">
+            <span className="grid size-12 place-items-center rounded-2xl bg-[rgb(15_118_85/10%)] text-[var(--success)]"><ShieldCheck size={20} /></span>
+            <h2 className="mt-6 text-xl font-extrabold">Password changed.</h2>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
+              Every other session for this account was signed out, so anyone
+              else who was in it is now out.
+            </p>
+            <a href="/login" className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)]">Sign in <ArrowRight size={15} /></a>
+          </div>
+        ) : (
+          <form
+            onSubmit={async (event) => {
+              event.preventDefault();
+              const token = new URLSearchParams(window.location.search).get("token") ?? "";
+              if (!token) { setNotice("That link is missing its token. Request a new one."); return; }
+              // The API enforces both of these too. Checking here saves a
+              // round trip and puts the message beside the field that caused it.
+              if (password.length < 10) { setNotice("Use at least 10 characters."); return; }
+              if (password !== confirmation) { setNotice("Those two do not match."); return; }
+              setNotice("");
+              setBusy(true);
+              try {
+                await resetPassword(token, password);
+                setSent(true);
+              } catch (failure) {
+                setNotice(failure instanceof ApiError ? failure.message : "That did not work. Request a new link.");
+              } finally {
+                setBusy(false);
+              }
+            }}
+            className="space-y-5"
+          >
+            <Field label="New password" type="password" value={password} onChange={setPassword} autoComplete="new-password" />
+            <Field label="Type it again" type="password" value={confirmation} onChange={setConfirmation} autoComplete="new-password" />
+            {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
+            <PrimaryButton disabled={busy}>{busy ? "Saving…" : "Set new password"}</PrimaryButton>
+            <a href="/forgot-password" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)] hover:text-[var(--ink)]"><ArrowLeft size={14} /> Request a new link</a>
+          </form>
+        )}
+      </AuthShell>
+    );
+  }
   if (mode === "verify") {
     function verifyDestination() {
       if (role === "customer") return "/#home";
