@@ -37,6 +37,7 @@ import type {
   FavoriteOrder,
   Integration,
   MessageRecord,
+  OpeningHours,
   PlanEconomics,
   PlatformMetrics,
   Program,
@@ -127,6 +128,27 @@ export const registerCustomer = (body: {
   email?: string;
 }): Promise<{ sent: boolean }> =>
   http("/auth/register/customer", { method: "POST", body });
+
+/* ── Public ───────────────────────────────────────────────────────────
+   Unauthenticated. What a printed counter poster leads to. */
+
+export type JoinPage = {
+  businessId: string;
+  business: string;
+  shortName: string;
+  category: string;
+  branchId: string;
+  branch: string;
+  city: string;
+  address: string;
+  hours: OpeningHours[];
+  /** "8 visits → Free pastry", or empty when no program is live yet. */
+  reward: string;
+};
+
+/** Slug is `<short-name>-<branch>`, exactly what is printed on the poster. */
+export const getJoinPage = (slug: string): Promise<JoinPage> =>
+  http(`/public/join/${encodeURIComponent(slug)}`);
 
 /* ── Contract ─────────────────────────────────────────────────────── */
 

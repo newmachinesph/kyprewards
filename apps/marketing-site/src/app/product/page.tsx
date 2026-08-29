@@ -432,9 +432,9 @@ export default function ProductPage() {
             </div>
           </div>
           <p className="mx-auto mt-8 max-w-[70ch] rounded-[var(--radius-card)] border border-dashed border-[var(--line-strong)] bg-[var(--surface-2)] p-5 text-xs leading-relaxed text-[var(--muted-strong)]">
-            Every app is a frontend demonstration backed by one local JSON
-            dataset. Nothing is saved to a server, no message is sent, and the
-            platform control room at{" "}
+            Every app runs against the same service, seeded with one
+            demonstration business. Messaging providers are stubbed, so no
+            message leaves the system, and the platform control room at{" "}
             <code className="font-mono">{adminAppUrl}</code> is not part of the
             public demo.
           </p>

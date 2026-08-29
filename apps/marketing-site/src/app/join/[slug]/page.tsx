@@ -1,36 +1,34 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { demoData } from "@kypstamping/demo-data";
+import { ApiError, getJoinPage, type JoinPage } from "@kypstamping/api";
 import { ArrowRight, Clock3, MapPin, ShieldCheck, Stamp } from "lucide-react";
 import { AnswerBlock, PageHero } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
 import { customerAppUrl, siteUrl } from "@/lib/site";
 
-const business = demoData.business;
+/**
+ * The page a printed counter poster leads to.
+ *
+ * It used to read the fixture and pre-render one slug per seeded branch, with
+ * `dynamicParams = false` so anything else was a hard 404. That is correct
+ * for a demo and wrong for a product: a merchant who opens a branch on
+ * Tuesday has printed posters that 404 until the next deploy.
+ *
+ * `GET /public/join/{slug}` answers for any branch that exists, so the route
+ * resolves at request time. A slug that is genuinely unknown still 404s -
+ * which is what a mistyped poster code should do.
+ */
+export const dynamic = "force-dynamic";
 
-// A printed counter poster carries kypstamping.ph/join/<business>-<branch>.
-// The slug is the merchant's branch code; anything else is a genuine 404.
-function branchFor(slug: string) {
-  const prefix = `${business.profile.shortName.toLowerCase().replaceAll(" ", "-")}-`;
-  if (!slug.startsWith(prefix)) return null;
-  const branchSlug = slug.slice(prefix.length);
-  return (
-    business.locations.find(
-      (location) => location.name.toLowerCase().replaceAll(" ", "-") === branchSlug,
-    ) ?? null
-  );
-}
-
-// Only the branches that actually exist are routable. Anything else is a
-// real 404 rather than a soft one, so a mistyped poster code fails loudly.
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  const prefix = business.profile.shortName.toLowerCase().replaceAll(" ", "-");
-  return business.locations.map((location) => ({
-    slug: `${prefix}-${location.name.toLowerCase().replaceAll(" ", "-")}`,
-  }));
+/** Null for an unknown slug; anything else is a real failure and rethrown. */
+async function loadJoinPage(slug: string): Promise<JoinPage | null> {
+  try {
+    return await getJoinPage(slug);
+  } catch (failure) {
+    if (failure instanceof ApiError && failure.status === 404) return null;
+    throw failure;
+  }
 }
 
 export async function generateMetadata({
@@ -39,28 +37,27 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const branch = branchFor(slug);
-  if (!branch) return { title: "Join code not found · KYPStamping" };
+  const page = await loadJoinPage(slug);
+  if (!page) return { title: "Join code not found · KYPStamping" };
   return {
-    title: `Join ${business.profile.name} · ${branch.name} · KYPStamping`,
-    description: `Scan, join, and start collecting stamps at ${business.profile.name} ${branch.name}. No app download required.`,
+    title: `Join ${page.business} · ${page.branch} · KYPStamping`,
+    description: `Scan, join, and start collecting stamps at ${page.business} ${page.branch}. No app download required.`,
     alternates: { canonical: `${siteUrl}/join/${slug}` },
     robots: { index: false, follow: true },
   };
 }
 
-export default async function JoinPage({
+export default async function JoinRoute({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const branch = branchFor(slug);
-  if (!branch) notFound();
+  const page = await loadJoinPage(slug);
+  if (!page) notFound();
 
-  const program = business.programs.find((item) => item.status === "Live");
-  // The wallet is behind a demo session gate that drops the hash, so send
-  // the visitor to the door rather than to a link that cannot arrive.
+  // The wallet's sign-in is the door. Sending the visitor straight to a
+  // deep link they are not signed in for only bounces them here again.
   const joinHref = `${customerAppUrl}/login`;
 
   return (
@@ -69,14 +66,14 @@ export default async function JoinPage({
         data={{
           "@context": "https://schema.org",
           "@type": "WebPage",
-          name: `Join ${business.profile.name} — ${branch.name}`,
+          name: `Join ${page.business} — ${page.branch}`,
           url: `${siteUrl}/join/${slug}`,
         }}
       />
       <PageHero
         eyebrow="Join a program"
-        title={`Collect stamps at ${business.profile.name}.`}
-        description={`You scanned the counter code at ${branch.name}. Joining takes about thirty seconds and works in your browser — there is no app to download.`}
+        title={`Collect stamps at ${page.business}.`}
+        description={`You scanned the counter code at ${page.branch}. Joining takes about thirty seconds and works in your browser — there is no app to download.`}
         image="/images/hero-product.webp"
       />
 
@@ -96,22 +93,22 @@ export default async function JoinPage({
                   </span>
                   <div className="min-w-0">
                     <h2 className="text-xl font-extrabold tracking-[-0.02em]">
-                      {business.profile.name}
+                      {page.business}
                     </h2>
                     <p className="mt-1 flex items-center gap-1.5 text-sm text-[var(--muted-strong)]">
-                      <MapPin size={14} aria-hidden="true" /> {branch.name} · {branch.city}
+                      <MapPin size={14} aria-hidden="true" /> {page.branch} · {page.city}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {program && (
+              {page.reward && (
                 <dl className="mt-7 grid gap-3 sm:grid-cols-2">
                   {[
-                    ["Program", program.name],
-                    ["Type", program.type],
+                    ["Reward", page.reward],
+                    ["Category", page.category],
                     ["Cost to join", "Free"],
-                    ["Where it works", "Every Sweet Crumbs branch"],
+                    ["Where it works", `Every ${page.shortName} branch`],
                   ].map(([label, value]) => (
                     <div
                       key={label}
@@ -154,15 +151,9 @@ export default async function JoinPage({
                   {
                     icon: Clock3,
                     title: "Opening hours",
-                    // The branch carries real hours; this row used to restate
-                    // its setup status under an "opening hours" heading.
-                    text: `${branch.hours
-                      .map((slot) => `${slot.days}: ${slot.time}`)
-                      .join(" · ")}. ${
-                      branch.status === "Live"
-                        ? "This branch is accepting stamps today."
-                        : "This branch is still being set up, so stamps may not be available yet."
-                    }`,
+                    text: page.hours.length
+                      ? `${page.hours.map((slot) => `${slot.days}: ${slot.time}`).join(" · ")}.`
+                      : "Ask at the counter for this branch's hours.",
                   },
                 ].map((item) => {
                   const Icon = item.icon;
@@ -187,12 +178,6 @@ export default async function JoinPage({
               question="Do I need to download an app?"
               answer="No. KYPStamping opens in your browser and can be added to your home screen if you want quicker access. Your stamps are tied to your mobile number, not to a device."
             />
-
-            <p className="rounded-[var(--radius-card)] border border-dashed border-[var(--line-strong)] bg-[var(--surface-2)] p-5 text-xs leading-relaxed text-[var(--muted-strong)]">
-              This is a frontend demonstration. Joining opens the customer demo
-              wallet; no account is created and no personal data is collected or
-              sent anywhere.
-            </p>
           </div>
         </div>
       </section>

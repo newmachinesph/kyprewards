@@ -46,7 +46,7 @@ const sections = [
     title: "Retention and security",
     paragraphs: [
       "We retain information for as long as needed to provide the service, meet contractual and legal obligations, resolve disputes, and prevent abuse. Retention periods differ by data type and account status.",
-      "This notice describes the controls the production service is being built to use: access controls, encryption in transit and at rest, audit logging, and operational safeguards appropriate to the nature of the information. The current build is a frontend demonstration that stores no personal data. No system is completely secure, and these controls will continue to be improved.",
+      "This notice describes the controls the production service is being built to use: access controls, encryption in transit and at rest, audit logging, and operational safeguards appropriate to the nature of the information. The service is not yet open to the public and holds only seeded demonstration records. No system is completely secure, and these controls will continue to be improved.",
     ],
   },
   {

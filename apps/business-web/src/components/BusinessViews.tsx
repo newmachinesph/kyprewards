@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { QueryBoundary } from "@kypstamping/ui";
+import { QueryBoundary, Skeleton } from "@kypstamping/ui";
 import { sharedScenario } from "@kypstamping/demo-data";
 import {
   useBilling,
@@ -82,23 +82,6 @@ import type { NotifyIntent } from "@kypstamping/ui/shell";
 import type { BusinessView } from "@/components/BusinessShell";
 import { useDemoState } from "@/components/DemoState";
 import { IntegrationsView } from "@/components/IntegrationsView";
-const qrPattern = [
-  "11111001011111",
-  "10001011010001",
-  "10101001110101",
-  "10001010110001",
-  "11111010111111",
-  "00000011000000",
-  "10111100101101",
-  "01100111110010",
-  "11011001011100",
-  "00101110100111",
-  "11111001110101",
-  "10001011001110",
-  "10101001111011",
-  "10001010100100",
-  "11111001101111",
-];
 type Notify = (message: string, intent?: NotifyIntent) => void;
 function ScanView({ notify }: { notify: Notify }) {
   const { data: customers = [] } = useBusinessCustomers();
@@ -244,7 +227,7 @@ function ScanView({ notify }: { notify: Notify }) {
                   {lastVisit?.amount
                     ? ` from a ${peso(lastVisit.amount)} purchase`
                     : ""}
-                  . Nothing is written to a server in this demo.
+                  .
                 </p>
                 <Button
                   tone="accent"
@@ -339,9 +322,78 @@ function ScanView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
+/** Where a printed poster points. The marketing site owns /join/<slug>. */
+const MARKETING_ORIGIN =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://kypstamping.ph";
+
+/** The slug form the poster and /public/join/{slug} both use. */
+const slugify = (value: string) => value.toLowerCase().replaceAll(" ", "-");
+
+/**
+ * The scannable poster code for one branch.
+ *
+ * This was a hardcoded 14x14 grid of divs. It looked like a QR and was not
+ * one - the smallest real symbol is 21x21, and the pattern carried no data at
+ * all - so a merchant who printed the poster shipped something no phone could
+ * read. The customer wallet already generates a real symbol with the `qrcode`
+ * package; this does the same, for the same reason.
+ */
+function JoinPosterCode({ url }: { url: string }) {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    void import("qrcode")
+      .then((module) =>
+        module.default.toDataURL(url, {
+          width: 320,
+          margin: 2,
+          // A poster gets scuffed, curled and photographed at an angle. The
+          // higher correction level is what survives that.
+          errorCorrectionLevel: "H",
+          color: { dark: "#181210", light: "#ffffff" },
+        }),
+      )
+      .then((dataUrl) => {
+        if (live) setSrc(dataUrl);
+      })
+      .catch(() => {
+        if (live) setSrc(null);
+      });
+    return () => {
+      live = false;
+    };
+  }, [url]);
+
+  if (!src) {
+    return <Skeleton className="size-[280px]" />;
+  }
+
+  return (
+    // A data: URL generated in the browser has nothing for the image
+    // optimiser to do, and next/image cannot handle one anyway.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={`QR code linking to ${url}`}
+      width={280}
+      height={280}
+      className="size-[280px]"
+    />
+  );
+}
+
 function JoinCodeView({ notify }: { notify: Notify }) {
   const { data: locations = [] } = useLocations();
-  const [branch, setBranch] = useState(locations[0].name);
+  const { data: profile } = useBusinessProfile();
+  const [branch, setBranch] = useState<string | null>(null);
+
+  const selected = branch ?? locations[0]?.name ?? "";
+  // The slug a poster carries: short name and branch, both slugified. It has
+  // to match what /public/join/{slug} resolves, so it is built once here.
+  const slug = `${slugify(profile?.shortName ?? "")}-${slugify(selected)}`;
+  const joinUrl = `${MARKETING_ORIGIN}/join/${slug}`;
+
   return (
     <ViewFrame
       eyebrow="Enrollment"
@@ -361,7 +413,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
           <label className="grid gap-2 text-xs font-bold">
             Location
             <select
-              value={branch}
+              value={selected}
               onChange={(event) => setBranch(event.target.value)}
               className="min-h-12 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 text-sm outline-none"
             >
@@ -371,32 +423,20 @@ function JoinCodeView({ notify }: { notify: Notify }) {
             </select>
           </label>
           <div className="mx-auto mt-8 w-fit rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_18px_45px_rgb(24_18_12/10%)]">
-            <div className="grid grid-cols-[repeat(14,10px)] gap-[2px]">
-              {qrPattern.flatMap((row, y) =>
-                row
-                  .split("")
-                  .map((cell, x) => (
-                    <span
-                      key={`${x}-${y}`}
-                      className={`aspect-square ${cell === "1" ? "bg-[var(--ink)]" : "bg-transparent"}`}
-                    />
-                  )),
-              )}
-            </div>
+            <JoinPosterCode url={joinUrl} />
           </div>
           <p className="mt-5 text-center text-lg font-extrabold">
-            Join Sweet Crumbs · {branch}
+            Join {profile?.shortName ?? ""} · {selected}
           </p>
-          <p className="mt-1 text-center text-xs text-[var(--muted)]">
-            kypstamping.ph/join/sweet-crumbs-
-            {branch.toLowerCase().replaceAll(" ", "-")}
+          <p className="mt-1 text-center break-all text-xs text-[var(--muted)]">
+            {joinUrl}
           </p>
           <div className="mt-6 grid grid-cols-2 gap-2">
             <Button
               tone="quiet"
               icon={<Copy size={15} />}
               onClick={() => {
-                const link = `https://kypstamping.ph/join/sweet-crumbs-${branch.toLowerCase().replaceAll(" ", "-")}`;
+                const link = joinUrl;
                 navigator.clipboard?.writeText(link).catch(() => {});
                 notify("Join link copied.");
               }}
