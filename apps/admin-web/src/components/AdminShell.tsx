@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BrandMark } from "@kypstamping/ui";
 import { signOutDemo } from "@kypstamping/ui/auth";
 import { admin } from "@kypstamping/demo-data";
+import { relativeTime } from "@kypstamping/ui/format";
 import { useAdminState } from "@/components/AdminState";
 import {
   Activity,
@@ -162,7 +163,7 @@ export function AdminShell({
           .map((item) => ({
             key: `aud-${item.id}`,
             label: item.action,
-            hint: `Audit · ${item.actor} · ${item.time}`,
+            hint: `Audit · ${item.actor} · ${relativeTime(item.occurredAt)}`,
             icon: FileClock,
             view: "audit" as AdminView,
           })),

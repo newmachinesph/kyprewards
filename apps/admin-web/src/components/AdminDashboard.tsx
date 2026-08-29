@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { admin } from "@kypstamping/demo-data";
 import { Button, Eyebrow, TrendBadge } from "@kypstamping/ui";
-import { pesoCompact } from "@kypstamping/ui/format";
+import { pesoCompact, relativeTime } from "@kypstamping/ui/format";
 import { useAdminState } from "@/components/AdminState";
 import {
   ArrowRight,
@@ -73,7 +73,9 @@ export function AdminDashboard({
     .filter((ticket) => ticket.status !== "Resolved")
     .sort((a, b) => {
       if (a.priority !== b.priority) return a.priority === "High" ? -1 : 1;
-      return a.ageMinutes - b.ageMinutes;
+      // Newest first, as before: ascending ageMinutes was the same order.
+      // (Worth revisiting - an SLA queue usually wants the oldest first.)
+      return Date.parse(b.openedAt) - Date.parse(a.openedAt);
     })
     .slice(0, 3);
   const degradedServices = admin.services.filter(
@@ -385,7 +387,7 @@ export function AdminDashboard({
                     </span>
                   </span>
                   <span className="text-[11px] font-bold text-[var(--muted)] group-hover:text-[var(--ink)]">
-                    {ticket.age}
+                    {relativeTime(ticket.openedAt)}
                   </span>
                 </button>
               ))}

@@ -21,7 +21,9 @@ import type { Environment, RecoveryItem, SupportTicket } from "@kypstamping/demo
  * FastAPI service replaces.
  */
 
-export type TriagedTicket = SupportTicket & { note: string };
+// The API carries the triage note now, so this is SupportTicket unchanged.
+// The alias stays because the app names it in a dozen places.
+export type TriagedTicket = SupportTicket;
 
 type AdminState = {
   /** Support queue with local triage applied. */

@@ -36,7 +36,7 @@ import type { NotifyIntent } from "@kypstamping/ui/shell";
 import type { AdminView } from "@/components/AdminShell";
 import { AdminIntegrationsView } from "@/components/AdminIntegrationsView";
 import { useAdminState } from "@/components/AdminState";
-import { peso } from "@kypstamping/ui/format";
+import { longDate, peso, pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
 
@@ -140,7 +140,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
                       {business.members.toLocaleString()}
                     </td>
                     <td className="px-4 py-4 text-sm font-extrabold">
-                      {peso(business.mrr)}
+                      {pesoFromCentavos(business.mrrCentavos)}
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
@@ -204,9 +204,9 @@ function BusinessesView({ notify }: { notify: Notify }) {
           <div className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10">
             {[
               ["Plan", selected.plan],
-              ["MRR", peso(selected.mrr)],
+              ["MRR", pesoFromCentavos(selected.mrrCentavos)],
               ["Members", selected.members.toLocaleString()],
-              ["Joined", selected.joined],
+              ["Joined", longDate(selected.joinedOn)],
             ].map(([label, value]) => (
               <div key={label} className="bg-[var(--ink-soft)] p-4">
                 <p className="text-[10px] text-white/50">{label}</p>
@@ -535,7 +535,7 @@ function SupportView({ notify }: { notify: Notify }) {
                     {ticket.status}
                   </span>
                 </span>
-                <span className="text-xs font-bold">{ticket.age}</span>
+                <span className="text-xs font-bold">{relativeTime(ticket.openedAt)}</span>
               </button>
             ))}
           </div>
@@ -671,7 +671,7 @@ function AuditView({ notify }: { notify: Notify }) {
                     {event.target}
                   </td>
                   <td className="px-4 py-4 text-xs text-[var(--muted)]">
-                    {event.time}
+                    {relativeTime(event.occurredAt)}
                   </td>
                   <td className="px-4 py-4 font-mono text-[10px]">
                     {event.ip}
@@ -708,11 +708,11 @@ function AuditView({ notify }: { notify: Notify }) {
 
 function EconomicsView() {
   const totalPlanMrr = admin.economics.plans.reduce(
-    (sum, plan) => sum + plan.mrr,
+    (sum, plan) => sum + plan.mrrCentavos,
     0,
   );
   const totalPlanCost = admin.economics.plans.reduce(
-    (sum, plan) => sum + plan.monthlyCost,
+    (sum, plan) => sum + plan.monthlyCostCentavos,
     0,
   );
   const margin = ((totalPlanMrr - totalPlanCost) / totalPlanMrr) * 100;
@@ -726,7 +726,7 @@ function EconomicsView() {
         {[
           [
             "Subscription MRR",
-            peso(admin.metrics.monthlyRecurringRevenue),
+            pesoFromCentavos(admin.metrics.monthlyRecurringRevenueCentavos),
             "+8.4%",
           ],
           [
@@ -741,7 +741,7 @@ function EconomicsView() {
           ],
           [
             "SMS credit liability",
-            peso(admin.metrics.smsLiability),
+            pesoFromCentavos(admin.metrics.smsLiabilityCentavos),
             "Prepaid reserve",
           ],
         ].map(([label, value, detail]) => (
@@ -789,10 +789,10 @@ function EconomicsView() {
                     </td>
                     <td className="px-4 py-4 text-sm">{plan.accounts}</td>
                     <td className="px-4 py-4 text-sm font-bold">
-                      {peso(plan.mrr)}
+                      {pesoFromCentavos(plan.mrrCentavos)}
                     </td>
                     <td className="px-4 py-4 text-sm">
-                      {peso(plan.monthlyCost)}
+                      {pesoFromCentavos(plan.monthlyCostCentavos)}
                     </td>
                     <td className="px-4 py-4">
                       <Pill
@@ -852,7 +852,7 @@ function EconomicsView() {
           <table className="w-full min-w-[760px] text-left">
             <tbody>
               {admin.economics.channels.map((channel) => {
-                const contribution = channel.revenue - channel.cost;
+                const contribution = channel.revenueCentavos - channel.costCentavos;
                 return (
                   <tr
                     key={channel.name}
@@ -868,10 +868,10 @@ function EconomicsView() {
                       {channel.model}
                     </td>
                     <td className="px-4 py-4 text-sm">
-                      {peso(channel.revenue)} revenue
+                      {pesoFromCentavos(channel.revenueCentavos)} revenue
                     </td>
                     <td className="px-4 py-4 text-sm">
-                      {peso(channel.cost)} cost
+                      {pesoFromCentavos(channel.costCentavos)} cost
                     </td>
                     <td
                       className={`px-4 py-4 text-sm font-extrabold ${contribution >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
