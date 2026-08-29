@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { admin } from "@kypstamping/demo-data";
+import { useRecoveryQueue, useSupportQueue } from "@kypstamping/api";
 import type { Environment, RecoveryItem, SupportTicket } from "@kypstamping/demo-data";
 
 /**
@@ -49,8 +49,13 @@ type AdminState = {
 const AdminStateContext = createContext<AdminState | null>(null);
 
 export function AdminStateProvider({ children }: { children: ReactNode }) {
-  const [tickets, setTickets] = useState<TriagedTicket[]>(() =>
-    admin.support.map((ticket) => ({ ...ticket, note: "" })),
+  // The queue is the API's; triage edits are layered over it rather than
+  // seeding a copy that stops agreeing with the server on the first refetch.
+  const { data: queue = [] } = useSupportQueue();
+  const [triage, setTriage] = useState<Record<string, Partial<TriagedTicket>>>({});
+  const tickets = useMemo<TriagedTicket[]>(
+    () => queue.map((ticket) => ({ ...ticket, ...triage[ticket.id] })),
+    [queue, triage],
   );
   const [flags, setFlags] = useState<Record<string, boolean>>({
     automaticPausing: true,
@@ -58,18 +63,17 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
     newTenantReview: true,
     adminMfa: true,
   });
-  const [recoveryQueue, setRecoveryQueue] = useState<RecoveryItem[]>(() =>
-    admin.recoveryQueue.map((item) => ({ ...item })),
+  const { data: pendingRecovery = [] } = useRecoveryQueue();
+  const [replayed, setReplayed] = useState<string[]>([]);
+  const recoveryQueue = useMemo<RecoveryItem[]>(
+    () => pendingRecovery.filter((item) => !replayed.includes(item.id)),
+    [pendingRecovery, replayed],
   );
   const [environment, setEnvironment] = useState<Environment>("production");
 
   const patchTicket = useCallback(
     (id: string, patch: Partial<TriagedTicket>) =>
-      setTickets((current) =>
-        current.map((ticket) =>
-          ticket.id === id ? { ...ticket, ...patch } : ticket,
-        ),
-      ),
+      setTriage((current) => ({ ...current, [id]: { ...current[id], ...patch } })),
     [],
   );
 
@@ -98,13 +102,10 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
   /** Moving deliveries into replay empties the queue, so the count that drove
    *  the headline actually changes. Returns how many were queued. */
   const replayRecovery = useCallback(() => {
-    let moved = 0;
-    setRecoveryQueue((current) => {
-      moved = current.length;
-      return [];
-    });
-    return moved;
-  }, []);
+    const moved = recoveryQueue.map((item) => item.id);
+    setReplayed((current) => [...current, ...moved]);
+    return moved.length;
+  }, [recoveryQueue]);
 
   const openTicketCount = tickets.filter(
     (ticket) => ticket.status === "Open",

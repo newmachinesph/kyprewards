@@ -16,7 +16,7 @@ import {
   useRedemptions,
   useStaff,
   type Allowance,
-  type BusinessMetrics,
+  EMPTY_BUSINESS_METRICS,
   type MessageRecord,
   type ProgramDraft,
 } from "@kypstamping/api";
@@ -1486,24 +1486,6 @@ function channelCost(
   const free = Math.min(count, allowanceRemaining[name] ?? 0);
   return (count - free) * unit;
 }
-/**
- * Zeroes while the request is in flight.
- *
- * Every counter on these screens reads from one object, so the alternative is
- * seven guards or a blank page. A number that fills in reads better than
- * either, and a zero is honest about what is known so far.
- */
-const EMPTY_METRICS: BusinessMetrics = {
-  visitsToday: 0,
-  newRegulars: 0,
-  stampsIssued: 0,
-  redemptions: 0,
-  repeatRate: 0,
-  averageOrderCentavos: 0,
-  memberRevenueCentavos: 0,
-  campaignRevenueCentavos: 0,
-};
-
 type ChannelStatus = "ready" | "planned";
 const channelConfig: {
   name: string;
@@ -1571,7 +1553,7 @@ const channelConfig: {
   },
 ];
 function CampaignsView({ notify }: { notify: Notify }) {
-  const { data: metrics = EMPTY_METRICS } = useBusinessMetrics();
+  const { data: metrics = EMPTY_BUSINESS_METRICS } = useBusinessMetrics();
   const { data: campaigns = [] } = useCampaigns();
   const schedule = useCreateCampaign();
   const { data: billing } = useBilling();
@@ -2091,7 +2073,7 @@ function AnalyticsView() {
   const { data: programs = [] } = usePrograms();
   // "Campaign-attributed" was hardcoded at ₱76.4k while the fixture's own
   // campaign revenue summed to ₱136.3k. Both now come from the same number.
-  const { data: metrics = EMPTY_METRICS } = useBusinessMetrics();
+  const { data: metrics = EMPTY_BUSINESS_METRICS } = useBusinessMetrics();
   const rewardIssued = programs.reduce(
     (sum, program) => sum + program.liabilityCentavos,
     0,

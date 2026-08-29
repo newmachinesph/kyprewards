@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { admin } from "@kypstamping/demo-data";
 import {
   Button,
   Eyebrow,
@@ -35,6 +34,15 @@ import {
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import type { AdminView } from "@/components/AdminShell";
 import { AdminIntegrationsView } from "@/components/AdminIntegrationsView";
+import {
+  useAuditLedger,
+  useChannelEconomics,
+  usePlanEconomics,
+  usePlatformMetrics,
+  EMPTY_PLATFORM_METRICS,
+  useServices,
+  useTenants,
+} from "@kypstamping/api";
 import { useAdminState } from "@/components/AdminState";
 import { longDate, peso, pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
 
@@ -47,23 +55,25 @@ function ViewFrame(props: Omit<Parameters<typeof SharedViewFrame>[0], "wide" | "
 }
 
 function BusinessesView({ notify }: { notify: Notify }) {
+  const { data: tenants = [] } = useTenants();
+  const { data: metrics = EMPTY_PLATFORM_METRICS } = usePlatformMetrics();
   const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState(admin.businesses[0].id);
+  const [selectedId, setSelectedId] = useState(tenants[0].id);
   const [attentionOnly, setAttentionOnly] = useState(false);
-  const filtered = admin.businesses.filter(
+  const filtered = tenants.filter(
     (business) =>
       (business.name.toLowerCase().includes(query.toLowerCase()) ||
         business.city.toLowerCase().includes(query.toLowerCase())) &&
       (!attentionOnly || business.risk !== "Healthy"),
   );
   const selected =
-    admin.businesses.find((business) => business.id === selectedId) ??
-    admin.businesses[0];
+    tenants.find((business) => business.id === selectedId) ??
+    tenants[0];
   return (
     <ViewFrame
       eyebrow="Tenant directory"
       title="Businesses"
-      description={`Review tenant health, subscription, member growth, risk signals, and operational access without crossing customer-data boundaries. This demo carries ${admin.businesses.length} of ${admin.metrics.liveBusinesses} live tenants.`}
+      description={`Review tenant health, subscription, member growth, risk signals, and operational access without crossing customer-data boundaries. This demo carries ${tenants.length} of ${metrics.liveBusinesses} live tenants.`}
       action={
         <Button
           icon={<Building2 size={16} />}
@@ -244,6 +254,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
 }
 
 function PeopleView({ notify }: { notify: Notify }) {
+  const { data: metrics = EMPTY_PLATFORM_METRICS } = usePlatformMetrics();
   return (
     <ViewFrame
       eyebrow="Network people"
@@ -264,7 +275,7 @@ function PeopleView({ notify }: { notify: Notify }) {
           [
             [
               "Customer accounts",
-              admin.metrics.customerAccounts.toLocaleString("en-PH"),
+              metrics.customerAccounts.toLocaleString("en-PH"),
               "One person, many memberships",
               Users,
             ],
@@ -350,6 +361,7 @@ function PeopleView({ notify }: { notify: Notify }) {
 }
 
 function OperationsView({ notify }: { notify: Notify }) {
+  const { data: services = [] } = useServices();
   const [replaying, setReplaying] = useState(false);
   return (
     <ViewFrame
@@ -371,7 +383,7 @@ function OperationsView({ notify }: { notify: Notify }) {
       }
     >
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {admin.services.map((service) => (
+        {services.map((service) => (
           <article
             key={service.name}
             className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
@@ -626,6 +638,7 @@ function SupportView({ notify }: { notify: Notify }) {
 }
 
 function AuditView({ notify }: { notify: Notify }) {
+  const { data: audit = [] } = useAuditLedger();
   return (
     <ViewFrame
       eyebrow="Privileged action ledger"
@@ -655,7 +668,7 @@ function AuditView({ notify }: { notify: Notify }) {
               </tr>
             </thead>
             <tbody>
-              {admin.audit.map((event) => (
+              {audit.map((event) => (
                 <tr
                   key={event.id}
                   className="border-b border-[var(--line)] last:border-0"
@@ -707,11 +720,14 @@ function AuditView({ notify }: { notify: Notify }) {
 }
 
 function EconomicsView() {
-  const totalPlanMrr = admin.economics.plans.reduce(
+  const { data: metrics = EMPTY_PLATFORM_METRICS } = usePlatformMetrics();
+  const { data: planEconomics = [] } = usePlanEconomics();
+  const { data: channelEconomics = [] } = useChannelEconomics();
+  const totalPlanMrr = planEconomics.reduce(
     (sum, plan) => sum + plan.mrrCentavos,
     0,
   );
-  const totalPlanCost = admin.economics.plans.reduce(
+  const totalPlanCost = planEconomics.reduce(
     (sum, plan) => sum + plan.monthlyCostCentavos,
     0,
   );
@@ -726,22 +742,22 @@ function EconomicsView() {
         {[
           [
             "Subscription MRR",
-            pesoFromCentavos(admin.metrics.monthlyRecurringRevenueCentavos),
+            pesoFromCentavos(metrics.monthlyRecurringRevenueCentavos),
             "+8.4%",
           ],
           [
             "Blended gross margin",
-            `${admin.metrics.grossMargin}%`,
+            `${metrics.grossMargin}%`,
             "Target ≥ 75%",
           ],
           [
             "Net revenue retention",
-            `${admin.metrics.netRevenueRetention}%`,
+            `${metrics.netRevenueRetention}%`,
             "Expansion healthy",
           ],
           [
             "SMS credit liability",
-            pesoFromCentavos(admin.metrics.smsLiabilityCentavos),
+            pesoFromCentavos(metrics.smsLiabilityCentavos),
             "Prepaid reserve",
           ],
         ].map(([label, value, detail]) => (
@@ -779,7 +795,7 @@ function EconomicsView() {
                 </tr>
               </thead>
               <tbody>
-                {admin.economics.plans.map((plan) => (
+                {planEconomics.map((plan) => (
                   <tr
                     key={plan.name}
                     className="border-b border-[var(--line)] last:border-0"
@@ -851,7 +867,7 @@ function EconomicsView() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left">
             <tbody>
-              {admin.economics.channels.map((channel) => {
+              {channelEconomics.map((channel) => {
                 const contribution = channel.revenueCentavos - channel.costCentavos;
                 return (
                   <tr

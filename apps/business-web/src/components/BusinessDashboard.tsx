@@ -47,6 +47,7 @@ import {
   useLocations,
   usePrograms,
   useStaff,
+  EMPTY_BUSINESS_METRICS,
 } from "@kypstamping/api";
 import { useToggleAutomation } from "@/components/mutations";
 import type { BusinessView } from "@/components/BusinessShell";
@@ -74,19 +75,6 @@ const SETUP_STEPS = [
  * Programs view landed on a different program. Now the list is the workspace's
  * own programs and only the presentation lives here.
  */
-/** Zeroes while the request is in flight: a counter that fills in reads
- *  better than a dashboard that is blank until all six answer. */
-const EMPTY_METRICS = {
-  visitsToday: 0,
-  newRegulars: 0,
-  stampsIssued: 0,
-  redemptions: 0,
-  repeatRate: 0,
-  averageOrderCentavos: 0,
-  memberRevenueCentavos: 0,
-  campaignRevenueCentavos: 0,
-};
-
 const programPresentation: Record<
   string,
   { icon: typeof Stamp; rule: string; suggestion: string }
@@ -142,7 +130,7 @@ export function BusinessDashboard({
   // that fills in.
   const { data: profile } = useBusinessProfile();
   const { data: locations = [] } = useLocations();
-  const { data: metrics = EMPTY_METRICS } = useBusinessMetrics();
+  const { data: metrics = EMPTY_BUSINESS_METRICS } = useBusinessMetrics();
   const { data: staff = [] } = useStaff();
   const { data: programs = [], isPending: programsPending } = usePrograms();
   const { data: automationRows = [] } = useAutomations();

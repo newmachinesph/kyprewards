@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { admin } from "@kypstamping/demo-data";
 import { Button, Eyebrow, TrendBadge } from "@kypstamping/ui";
 import { pesoCompact, relativeTime } from "@kypstamping/ui/format";
+import {
+  usePlatformMetrics,
+  EMPTY_PLATFORM_METRICS,
+  useServices,
+} from "@kypstamping/api";
 import { useAdminState } from "@/components/AdminState";
 import {
   ArrowRight,
@@ -64,6 +68,10 @@ export function AdminDashboard({
   onNavigate: (view: AdminView) => void;
   notify: (message: string, intent?: NotifyIntent) => void;
 }) {
+  const { data: services = [] } = useServices();
+  // Zeroes while the request is in flight: this screen is a wall of counters,
+  // and one of them arriving late should not blank the page.
+  const { data: metrics = EMPTY_PLATFORM_METRICS } = usePlatformMetrics();
   const [scope, setScope] = useState("Network");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [activityFilter, setActivityFilter] = useState("All activity");
@@ -78,7 +86,7 @@ export function AdminDashboard({
       return Date.parse(b.openedAt) - Date.parse(a.openedAt);
     })
     .slice(0, 3);
-  const degradedServices = admin.services.filter(
+  const degradedServices = services.filter(
     (service) => service.status !== "Operational",
   );
 
@@ -170,7 +178,7 @@ export function AdminDashboard({
                 Live businesses
               </p>
               <p className="mt-5 text-5xl font-extrabold tracking-[-0.03em]">
-                {admin.metrics.liveBusinesses}
+                {metrics.liveBusinesses}
               </p>
               <div className="mt-7 flex items-center justify-between border-t border-white/12 pt-4">
                 <span className="text-xs text-white/55">
@@ -184,7 +192,7 @@ export function AdminDashboard({
             ? [
                 {
                   label: "Customer accounts",
-                  value: admin.metrics.customerAccounts.toLocaleString("en-PH"),
+                  value: metrics.customerAccounts.toLocaleString("en-PH"),
                   detail: "+824",
                   icon: Users,
                 },
@@ -297,7 +305,7 @@ export function AdminDashboard({
                 <h2 className="mt-1 text-lg font-extrabold tracking-[-0.03em]">
                   {degradedServices.length === 0
                     ? "All core services normal"
-                    : `${admin.services.length - degradedServices.length} of ${admin.services.length} services normal`}
+                    : `${services.length - degradedServices.length} of ${services.length} services normal`}
                 </h2>
               </div>
               {/* The tick used to stay green while a service was degraded, and
@@ -317,7 +325,7 @@ export function AdminDashboard({
               </span>
             </div>
             <div className="mt-6 divide-y divide-[var(--line)]">
-              {[...admin.services]
+              {[...services]
                 .sort((a, b) =>
                   a.status === b.status ? 0 : a.status === "Degraded" ? -1 : 1,
                 )

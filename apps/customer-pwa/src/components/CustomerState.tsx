@@ -9,7 +9,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { customer } from "@kypstamping/demo-data";
+import { useCustomerProfile, useDiscover, useWallet } from "@kypstamping/api";
 import type { CustomerProfile, WalletCard } from "@kypstamping/demo-data";
 
 /**
@@ -99,6 +99,25 @@ type CustomerState = {
   requestExport: () => void;
 };
 
+/**
+ * What a profile looks like before the request answers.
+ *
+ * Every screen reads `profile` unconditionally, which was safe while it came
+ * from a fixture that was always there. Empty strings render as empty rather
+ * than as "undefined", and fill in when the API replies.
+ */
+const EMPTY_PROFILE: CustomerProfile = {
+  id: "",
+  name: "",
+  initials: "",
+  city: "",
+  memberSince: "",
+  memberCode: "",
+  birthday: "",
+  email: "",
+  mobile: "",
+};
+
 const CustomerStateContext = createContext<CustomerState | null>(null);
 
 export function CustomerStateProvider({ children }: { children: ReactNode }) {
@@ -117,24 +136,35 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
     nearby: false,
   });
   const [leftBusinessIds, setLeftBusinessIds] = useState<string[]>([]);
-  const [joinedIds, setJoinedIds] = useState<string[]>(() =>
-    customer.discover.filter((place) => place.joined).map((place) => place.id),
+  // Which businesses the customer has joined is the API's answer, seeded
+  // once the discover list arrives rather than at mount from a fixture.
+  const { data: discover = [] } = useDiscover();
+  const [joinedLocally, setJoinedLocally] = useState<string[]>([]);
+  const joinedIds = useMemo(
+    () => [
+      ...discover.filter((place) => place.joined).map((place) => place.id),
+      ...joinedLocally,
+    ],
+    [discover, joinedLocally],
   );
   const [notificationsRead, setNotificationsRead] = useState(false);
   const [deletionRequested, setDeletionRequested] = useState(false);
   const [exportRequested, setExportRequested] = useState(false);
 
+  const { data: apiProfile } = useCustomerProfile();
+
   const profile = useMemo<CustomerProfile>(() => {
     // A name captured at sign-up is a real answer the customer gave; the
-    // fixture profile is only the fallback for someone who signed in.
-    const name = edits.name ?? signupName ?? customer.profile.name;
+    // API's own record is what it falls back to.
+    const name = edits.name ?? signupName ?? apiProfile?.name ?? "";
     return {
-      ...customer.profile,
+      ...EMPTY_PROFILE,
+      ...apiProfile,
       ...edits,
       name,
       initials: initials(name),
     };
-  }, [edits, signupName]);
+  }, [apiProfile, edits, signupName]);
 
   const updateProfile = useCallback((patch: Partial<CustomerProfile>) => {
     setEdits((current) => ({ ...current, ...patch }));
@@ -156,7 +186,7 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const joinBusiness = useCallback((discoverId: string) => {
-    setJoinedIds((current) =>
+    setJoinedLocally((current) =>
       current.includes(discoverId) ? current : [...current, discoverId],
     );
   }, []);
@@ -165,9 +195,10 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
   const requestDeletion = useCallback(() => setDeletionRequested(true), []);
   const requestExport = useCallback(() => setExportRequested(true), []);
 
+  const { data: cards = [] } = useWallet();
   const wallet = useMemo(
-    () => customer.wallet.filter((card) => !leftBusinessIds.includes(card.id)),
-    [leftBusinessIds],
+    () => cards.filter((card) => !leftBusinessIds.includes(card.id)),
+    [cards, leftBusinessIds],
   );
 
   const value = useMemo<CustomerState>(

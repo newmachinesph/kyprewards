@@ -523,3 +523,29 @@ export type ChannelEconomics = {
   costCentavos: number;
   model: string;
 };
+
+/* ── Zero values ──────────────────────────────────────────────────────
+   Screens made of counters read one object unconditionally. These are what
+   they render before the request answers: a number filling in beats a blank
+   page, and a zero is honest about what is known so far. */
+
+export const EMPTY_BUSINESS_METRICS: BusinessMetrics = {
+  visitsToday: 0,
+  newRegulars: 0,
+  stampsIssued: 0,
+  redemptions: 0,
+  repeatRate: 0,
+  averageOrderCentavos: 0,
+  memberRevenueCentavos: 0,
+  campaignRevenueCentavos: 0,
+};
+
+export const EMPTY_PLATFORM_METRICS: PlatformMetrics = {
+  liveBusinesses: 0,
+  customerAccounts: 0,
+  monthlyRecurringRevenueCentavos: 0,
+  grossMargin: 0,
+  netRevenueRetention: 0,
+  smsLiabilityCentavos: 0,
+  supportSla: 0,
+};

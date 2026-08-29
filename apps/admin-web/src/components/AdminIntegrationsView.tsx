@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { admin, sharedScenario } from "@kypstamping/demo-data";
+import { sharedScenario } from "@kypstamping/demo-data";
 import type { AdapterStatus, ConnectionHealth } from "@kypstamping/demo-data";
 import { Button, Eyebrow, Panel } from "@kypstamping/ui";
+import {
+  useAdapters,
+  useTenantConnections,
+} from "@kypstamping/api";
 import { useAdminState } from "@/components/AdminState";
 import {
   Activity,
@@ -58,26 +62,28 @@ function Status({ value }: { value: AdapterStatus | ConnectionHealth }) {
 }
 
 export function AdminIntegrationsView({ notify }: { notify: Notify }) {
+  const { data: adapters = [] } = useAdapters();
+  const { data: tenantConnections = [] } = useTenantConnections();
   const { environment, setEnvironment, recoveryQueue, replayRecovery } =
     useAdminState();
   const [statusFilter, setStatusFilter] = useState<"All" | AdapterStatus>("All");
   const [replaying, setReplaying] = useState(false);
-  const visibleAdapters = admin.adapters.filter(
+  const visibleAdapters = adapters.filter(
     (adapter) => statusFilter === "All" || adapter.status === statusFilter,
   );
 
   /** The environment switch used to change two headline numbers while the
    *  adapter registry and tenant table stayed on production data. */
   const isSandbox = environment === "sandbox";
-  const connectionsFor = (adapter: (typeof admin.adapters)[number]) =>
+  const connectionsFor = (adapter: (typeof adapters)[number]) =>
     isSandbox ? adapter.connectedSandbox : adapter.connected;
-  const activeConnections = admin.adapters.reduce(
+  const activeConnections = adapters.reduce(
     (sum, adapter) => sum + connectionsFor(adapter),
     0,
   );
   const visibleConnections = isSandbox
-    ? admin.tenantConnections.filter((row) => row.health === "Sandbox")
-    : admin.tenantConnections;
+    ? tenantConnections.filter((row) => row.health === "Sandbox")
+    : tenantConnections;
 
   function replayFailed() {
     if (recoveryQueue.length === 0) return;

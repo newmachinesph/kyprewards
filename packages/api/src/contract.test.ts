@@ -564,15 +564,22 @@ describe("durability", () => {
      * the application. It is only reachable over HTTP.
      */
     let missing = 0;
+    let measured = 0;
 
-    for (let attempt = 0; attempt < 15; attempt += 1) {
+    for (let attempt = 0; attempt < 12; attempt += 1) {
       const signedIn = await realFetch(`${API}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(ADMIN),
       });
+      // /auth/* is capped per caller per minute, and this loop is the
+      // heaviest user of that budget in the file. Stopping at the ceiling
+      // measures fewer attempts rather than reporting a rate limit as a
+      // durability failure.
+      if (signedIn.status === 429) break;
       assert.equal(signedIn.status, 200);
       await signedIn.json();
+      measured += 1;
       const cookie = signedIn.headers.getSetCookie()[0].split(";")[0];
 
       // No await in between. A deliberately wrong TOTP, because what is under
@@ -585,6 +592,11 @@ describe("durability", () => {
       if ((await used.json()).detail === "Session expired or revoked") missing += 1;
     }
 
-    assert.equal(missing, 0, `${missing} of 15 sessions were not committed before the response`);
+    assert.ok(measured >= 4, `only ${measured} attempts got through the rate limit`);
+    assert.equal(
+      missing,
+      0,
+      `${missing} of ${measured} sessions were not committed before the response`,
+    );
   });
 });

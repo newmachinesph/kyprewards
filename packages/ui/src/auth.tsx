@@ -239,8 +239,12 @@ function CustomerAuthShell({
   );
 }
 
-/** Ends the session server-side, then leaves. */
-export async function signOut(role: DemoAuthRole) {
+/** Ends the session server-side, then leaves.
+ *
+ * Takes no role: the cookie identifies the session, and the API ends whichever
+ * one the caller holds. The old sessionStorage flag was per role, which is
+ * why it used to need one. */
+export async function signOut() {
   try {
     await logout();
   } catch {
@@ -861,7 +865,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
             );
           })}
           <div className="pt-3"><PrimaryButton>Open selected workspace</PrimaryButton></div>
-          <button type="button" onClick={() => signOut("business")} className="min-h-11 w-full text-xs font-extrabold text-[var(--muted-strong)] hover:text-[var(--ink)]">Sign in with another account</button>
+          <button type="button" onClick={() => signOut()} className="min-h-11 w-full text-xs font-extrabold text-[var(--muted-strong)] hover:text-[var(--ink)]">Sign in with another account</button>
         </form>
       </AuthShell>
     );

@@ -239,7 +239,7 @@ export function BusinessShell({
                 <button type="button" role="menuitem" onClick={() => navigate("settings")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]">
                   <Settings2 size={15} /> Account settings
                 </button>
-                <button type="button" role="menuitem" onClick={() => signOut("business")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold text-[var(--danger)] hover:bg-[rgb(178_59_43/8%)]">
+                <button type="button" role="menuitem" onClick={() => signOut()} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold text-[var(--danger)] hover:bg-[rgb(178_59_43/8%)]">
                   <LogOut size={15} /> Sign out
                 </button>
               </div>
@@ -321,7 +321,7 @@ export function BusinessShell({
               </button>
               <button
                 type="button"
-                onClick={() => signOut("business")}
+                onClick={() => signOut()}
                 className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[rgb(178_59_43/28%)] bg-[rgb(178_59_43/7%)] text-sm font-bold text-[var(--danger)]"
               >
                 <LogOut size={16} /> Sign out

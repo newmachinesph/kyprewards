@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { customer as customerDemo, sharedScenario } from "@kypstamping/demo-data";
+import { sharedScenario } from "@kypstamping/demo-data";
+import type { DiscoverPlace, WalletCard } from "@kypstamping/demo-data";
+import {
+  useActivity,
+  useConsentHistory,
+  useCustomerProfile,
+  useDiscover,
+  useNotifications,
+} from "@kypstamping/api";
 import { BrandMark, DemoBadge, Eyebrow, StampDots } from "@kypstamping/ui";
 import { signOut } from "@kypstamping/ui/auth";
 import { Toast, useToast } from "@kypstamping/ui/shell";
@@ -86,12 +94,12 @@ const categoryIcons: Record<string, typeof Coffee> = {
   Grooming: UserRound,
 };
 
-const memberCode = `KYP-${customerDemo.profile.id.toUpperCase()}`;
+
 
 // The saved or printed image is the offline fallback, so it has to be a real,
 // scannable symbol. A hand-drawn bitmap is not — QR needs finder patterns and
 // Reed-Solomon error correction, which is not worth hand-rolling.
-async function renderQrDataUrl(size: number) {
+async function renderQrDataUrl(memberCode: string, size: number) {
   const QRCode = (await import("qrcode")).default;
   return QRCode.toDataURL(memberCode, {
     width: size,
@@ -101,11 +109,11 @@ async function renderQrDataUrl(size: number) {
   });
 }
 
-async function saveQrImage() {
+async function saveQrImage(memberCode: string) {
   try {
-    const url = await renderQrDataUrl(720);
+    const url = await renderQrDataUrl(memberCode, 720);
     const link = document.createElement("a");
-    link.download = `kypstamping-${customerDemo.profile.id}.png`;
+    link.download = `kypstamping-${memberCode}.png`;
     link.href = url;
     link.click();
     return true;
@@ -129,13 +137,15 @@ function usePrefetchQrCodec() {
 }
 
 function QrImage() {
+  const { data: profile } = useCustomerProfile();
+  const memberCode = profile?.memberCode ?? "";
   const [state, setState] = useState<
     { kind: "loading" } | { kind: "ready"; src: string } | { kind: "failed" }
   >({ kind: "loading" });
 
   useEffect(() => {
     let active = true;
-    renderQrDataUrl(560)
+    renderQrDataUrl(memberCode, 560)
       .then((url) => {
         if (active) setState({ kind: "ready", src: url });
       })
@@ -145,7 +155,9 @@ function QrImage() {
     return () => {
       active = false;
     };
-  }, []);
+    // The code comes from the profile request, so the symbol has to be
+    // rendered again once it answers - before that it would encode "".
+  }, [memberCode]);
 
   if (state.kind === "loading") {
     return (
@@ -256,6 +268,12 @@ function HomeView({
   onActivity: () => void;
 }) {
   const { profile } = useCustomerState();
+  const { data: discover = [] } = useDiscover();
+
+  // Two places the customer has not joined. The API returns discover
+  // nearest-first when it is given a position.
+  const suggestions = discover.filter((place) => !place.joined).slice(0, 2);
+
   return (
     <div className="px-5 pb-32 pt-5">
       <Eyebrow>
@@ -300,38 +318,61 @@ function HomeView({
             Explore
           </button>
         </div>
-        <div className="grid grid-cols-[1.2fr_0.8fr] gap-3">
-          <button
-            onClick={onDiscover}
-            className="group rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition hover:-translate-y-0.5"
-          >
-            <div className="flex items-start justify-between">
-              <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(232_163_61/14%)] text-[var(--accent-strong)]">
-                <Coffee />
-              </span>
-              <ArrowRight
-                size={16}
-                className="text-[var(--muted)] transition group-hover:translate-x-0.5"
-              />
-            </div>
-            <p className="mt-8 text-sm font-extrabold">Sage & Steam</p>
-            <p className="mt-1 text-[11px] text-[var(--muted)]">
-              Café · 1.2 km
-            </p>
-          </button>
-          <button
-            onClick={onDiscover}
-            className="group rounded-2xl bg-[var(--accent)] p-4 text-left transition hover:-translate-y-0.5"
-          >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[var(--surface)]">
-              <Leaf />
-            </span>
-            <p className="mt-8 text-sm font-extrabold">Rooted</p>
-            <p className="mt-1 text-[11px] text-[var(--ink)]/80">
-              Wellness · 1.7 km
-            </p>
-          </button>
-        </div>
+        {/* These two cards were hardcoded - "Sage & Steam · 1.2 km" and
+            "Rooted · 1.7 km" - so the home screen recommended two places that
+            did not exist and never changed. They are the nearest businesses
+            the customer has not joined. */}
+        {suggestions.length === 0 ? (
+          <p className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-[11px] text-[var(--muted)]">
+            You have joined everything nearby. Explore to find more.
+          </p>
+        ) : (
+          <div className="grid grid-cols-[1.2fr_0.8fr] gap-3">
+            {suggestions.map((place, index) => {
+              const featured = index === 1;
+              return (
+                <button
+                  key={place.id}
+                  onClick={onDiscover}
+                  className={`group rounded-2xl p-4 text-left transition hover:-translate-y-0.5 ${
+                    featured
+                      ? "bg-[var(--accent)]"
+                      : "border border-[var(--line)] bg-[var(--surface)]"
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <span
+                      className={`grid size-11 place-items-center rounded-2xl ${
+                        featured
+                          ? "bg-[var(--surface)]"
+                          : "bg-[rgb(232_163_61/14%)] text-[var(--accent-strong)]"
+                      }`}
+                    >
+                      {featured ? <Leaf /> : <Coffee />}
+                    </span>
+                    {featured ? null : (
+                      <ArrowRight
+                        size={16}
+                        className="text-[var(--muted)] transition group-hover:translate-x-0.5"
+                      />
+                    )}
+                  </div>
+                  <p className="mt-8 text-sm font-extrabold">{place.name}</p>
+                  <p
+                    className={`mt-1 text-[11px] ${
+                      featured ? "text-[var(--ink)]/80" : "text-[var(--muted)]"
+                    }`}
+                  >
+                    {place.category}
+                    {place.distanceMetres === null
+                      ? ""
+                      : ` · ${formatDistance(place.distanceMetres)}`}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <section className="mt-7">
@@ -369,13 +410,14 @@ function HomeView({
 }
 
 /** Chips come from the data, so a "Cafés" chip cannot fail to match a "Café"
- *  card the way the hand-written list did. */
-const walletCategories = [
+ *  card the way the hand-written list did. Derived per render now that both
+ *  lists arrive from a request. */
+const walletCategoriesFrom = (cards: WalletCard[], places: DiscoverPlace[]) => [
   "All",
   ...Array.from(
     new Set([
-      ...customerDemo.wallet.map((card) => card.category),
-      ...customerDemo.discover.map((place) => place.category),
+      ...cards.map((card) => card.category),
+      ...places.map((place) => place.category),
     ]),
   ),
 ];
@@ -394,7 +436,9 @@ function WalletView({
   onCard: (id: string) => void;
   onBusiness: (id: string) => void;
 }) {
+  const { data: discover = [] } = useDiscover();
   const { wallet, joinedIds } = useCustomerState();
+  const walletCategories = walletCategoriesFrom(wallet, discover);
   const [quickPassAdded, setQuickPassAdded] = useState(false);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
@@ -408,7 +452,7 @@ function WalletView({
   const visibleCards = wallet.filter((card) => matches(card.business, card.category));
   // Businesses joined from Discover that do not already have a wallet card.
   const walletBusinessIds = new Set(wallet.map((card) => card.businessId));
-  const newlyJoined = customerDemo.discover.filter(
+  const newlyJoined = discover.filter(
     (place) =>
       joinedIds.includes(place.id) &&
       !walletBusinessIds.has(place.businessId) &&
@@ -564,12 +608,15 @@ function WalletView({
 }
 
 function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
-  const { joinedIds } = useCustomerState();
+  const { data: profile } = useCustomerProfile();
+  const { data: discover = [] } = useDiscover();
+  const { wallet, joinedIds } = useCustomerState();
+  const walletCategories = walletCategoriesFrom(wallet, discover);
   const [category, setCategory] = useState("All");
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [nearbyOnly, setNearbyOnly] = useState(false);
-  const visibleBusinesses = customerDemo.discover.filter(
+  const visibleBusinesses = discover.filter(
     (business) =>
       (category === "All" || business.category === category) &&
       (!nearbyOnly ||
@@ -650,7 +697,7 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
           Near you · {visibleBusinesses.length}
         </h2>
         <span className="flex items-center gap-1 text-[11px] font-bold text-[var(--muted)]">
-          <MapPin size={12} /> {customerDemo.profile.city}
+          <MapPin size={12} /> {profile?.city ?? ""}
         </span>
       </div>
       <div className="mt-3 space-y-3">
@@ -894,7 +941,7 @@ function ProfileView({
       </div>
       <button
         type="button"
-        onClick={() => signOut("customer")}
+        onClick={() => signOut()}
         className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[rgb(178_59_43/28%)] bg-[rgb(178_59_43/6%)] text-sm font-extrabold text-[var(--danger)] active:scale-[0.98]"
       >
         <LogOut size={16} /> Sign out of this device
@@ -910,6 +957,8 @@ function QrModal({
   close: () => void;
   notify: (message: string, tone?: "success" | "error") => void;
 }) {
+  const { data: profile } = useCustomerProfile();
+  const memberCode = profile?.memberCode ?? "";
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -969,7 +1018,7 @@ function QrModal({
           <button
             type="button"
             onClick={() => {
-              void saveQrImage().then((saved) =>
+              void saveQrImage(memberCode).then((saved) =>
                 notify(
                   saved
                     ? "Code saved to your device. It works with no signal."
@@ -1041,6 +1090,7 @@ function SheetHeader({ title, close }: { title: string; close: () => void }) {
 }
 
 function NotificationSheet({ close }: { close: () => void }) {
+  const { data: notifications = [] } = useNotifications();
   const { notificationsRead: allRead, markNotificationsRead: onMarkRead } =
     useCustomerState();
   return (
@@ -1063,7 +1113,7 @@ function NotificationSheet({ close }: { close: () => void }) {
           Service updates, reward progress, and promotions stay clearly labeled.
         </p>
         <div className="mt-6 divide-y divide-[var(--line)] border-y border-[var(--line)]">
-          {customerDemo.notifications.map((notification) => {
+          {notifications.map((notification) => {
             const isRead = allRead || notification.read;
             return (
               <article
@@ -1112,8 +1162,9 @@ function NotificationSheet({ close }: { close: () => void }) {
 }
 
 function ActivitySheet({ close }: { close: () => void }) {
+  const { data: activity = [] } = useActivity();
   const [filter, setFilter] = useState<"All" | "Earned" | "Used">("All");
-  const visibleActivity = customerDemo.activity.filter((activity) => {
+  const visibleActivity = activity.filter((activity) => {
     if (filter === "All") return true;
     if (filter === "Earned") return activity.value.startsWith("+");
     return !activity.value.startsWith("+");
@@ -1210,10 +1261,11 @@ function BusinessSheet({
   close: () => void;
   onJoin: () => void;
 }) {
+  const { data: discover = [] } = useDiscover();
   const { joinedIds } = useCustomerState();
   const business =
-    customerDemo.discover.find((item) => item.id === id) ??
-    customerDemo.discover[0];
+    discover.find((item) => item.id === id) ??
+    discover[0];
   const joined = joinedIds.includes(business.id);
   const Icon = categoryIcons[business.category] ?? Store;
   const [consentOpen, setConsentOpen] = useState(false);
@@ -1447,6 +1499,7 @@ function WalletSheet({
   close: () => void;
   onShowQr: () => void;
 }) {
+  const { data: activity = [] } = useActivity();
   const { wallet } = useCustomerState();
   const card = wallet.find((item) => item.id === id) ?? wallet[0];
   const progress = Math.min(
@@ -1490,14 +1543,14 @@ function WalletSheet({
           </div>
         </section>
         <section className="mt-4 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
-          {customerDemo.activity.filter(
+          {activity.filter(
             (activity) => activity.business === card.business,
           ).length === 0 && (
             <p className="p-4 text-xs text-[var(--muted)]">
               No activity recorded yet. Your first visit will appear here.
             </p>
           )}
-          {customerDemo.activity
+          {activity
             .filter((activity) => activity.business === card.business)
             .map((activity) => (
               <div
@@ -1548,6 +1601,7 @@ function ProfileSheet({
   close: () => void;
   notify: (message: string, tone?: "success" | "error") => void;
 }) {
+  const { data: consentHistory = [] } = useConsentHistory();
   const {
     profile,
     updateProfile,
@@ -1734,7 +1788,7 @@ function ProfileSheet({
               </p>
             </div>
             <ol className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">
-              {customerDemo.consentHistory.map((entry) => (
+              {consentHistory.map((entry) => (
                 <li key={entry.id} className="flex gap-3 py-4">
                   <span className="mt-1 size-2 shrink-0 rounded-full bg-[var(--accent)]" />
                   <div className="min-w-0 flex-1">
