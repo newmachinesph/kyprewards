@@ -14,7 +14,7 @@
  * `/api/v1`.
  */
 
-import { http } from "./http.ts";
+import { apiBase, http, toApiError } from "./http.ts";
 import type { HttpOptions } from "./http.ts";
 import type {
   Adapter,
@@ -23,6 +23,7 @@ import type {
   AuditEvent,
   Automation,
   Billing,
+  Branding,
   BusinessCustomer,
   BusinessLocation,
   BusinessMetrics,
@@ -160,6 +161,19 @@ export const getContract = (): Promise<ApiContract> => http("/contract");
    id - a caller that could pass one could pass someone else's. */
 
 export const getBusinessProfile = (): Promise<BusinessProfile> => http("/business/profile");
+
+export const getBranding = (): Promise<Branding> => http("/business/branding");
+
+export const setBrandingColor = (color: string): Promise<Branding> =>
+  http("/business/branding", { method: "PUT", body: { color } });
+
+export const uploadBrandingImage = (file: File): Promise<Branding> => {
+  const form = new FormData();
+  form.append("file", file);
+  // `raw`, not `body`: the browser has to set the multipart boundary itself,
+  // and `body` would JSON-stringify a FormData into "[object Object]".
+  return http("/business/branding/image", { method: "POST", raw: form });
+};
 
 export const getLocations = (): Promise<BusinessLocation[]> => http("/business/locations");
 
@@ -487,6 +501,49 @@ export const recordVisit = (
 /** The onboarding wizard's "prove it works" step. */
 export const recordTestStamp = (): Promise<VisitResult> =>
   http("/business/onboarding/test-stamp", { method: "POST" });
+
+/* ── Exports ──────────────────────────────────────────────────────────
+   Four CSV streams. They are downloads rather than JSON, so they go through
+   fetch directly and hand the browser a file. */
+
+export type ExportKind = "customers" | "transactions" | "redemptions" | "messages";
+
+/**
+ * Streams one export and saves it, using the filename the API chose.
+ *
+ * A blob rather than a plain link because the endpoint needs the session
+ * cookie and a `download` anchor cannot carry credentials; the object URL is
+ * revoked immediately so the file is not held in memory.
+ */
+export async function downloadExport(kind: ExportKind): Promise<void> {
+  const response = await fetch(`${apiBase()}/business/exports/${kind}`, {
+    credentials: "include",
+  });
+  if (!response.ok) throw await toApiError(response);
+
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const named = /filename="?([^"]+)"?/.exec(disposition)?.[1];
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  try {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = named ?? `${kind}.csv`;
+    link.click();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/* ── Billing ──────────────────────────────────────────────────────── */
+
+/** Upgrades only. The API refuses a downgrade rather than silently losing
+ *  the allowances a merchant is already using. */
+export const changePlan = (plan: string): Promise<Billing> =>
+  http("/business/billing/plan", { method: "PATCH", body: { plan } });
+
+export const payInvoice = (invoiceId: string): Promise<{ url: string }> =>
+  http(`/business/invoices/${invoiceId}/pay`, { method: "POST" });
 
 /* ── Integrations ─────────────────────────────────────────────────────
    API keys and the outbound webhook. Both carry secrets, and the API only

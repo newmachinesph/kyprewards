@@ -124,7 +124,9 @@ export async function http<T>(path: string, options: HttpOptions = {}): Promise<
   return (text ? JSON.parse(text) : undefined) as T;
 }
 
-async function toApiError(response: Response): Promise<ApiError> {
+/** Exported for the CSV downloads, which stream a file rather than JSON and
+ *  so cannot go through `http()`. */
+export async function toApiError(response: Response): Promise<ApiError> {
   // A gateway timeout or a proxy error is HTML, not our envelope. Falling
   // back to the status text keeps the thrown error readable instead of
   // turning a 502 into a JSON parse crash.

@@ -29,16 +29,22 @@ import {
   type ProgramInput,
 } from "@kypstamping/api/forms";
 import {
+  changePlan,
   createLocation,
   keys,
   updateStaff,
   useApiMutation,
+  type Billing,
   type BusinessLocation,
   type BusinessProfile,
   type StaffMember,
 } from "@kypstamping/api";
 import { Button, Dialog, FieldLabel } from "@kypstamping/ui";
-import { useCreateProgram, useUpdateProfile } from "@/components/mutations";
+import {
+  useCreateProgram,
+  useUpdateProfile,
+  useUploadBrandingImage,
+} from "@/components/mutations";
 
 type Notify = (message: string, intent?: "info" | "review" | "error") => void;
 
@@ -233,6 +239,7 @@ export function EditProfileDialog({
   notify: Notify;
 }) {
   const update = useUpdateProfile();
+  const uploadImage = useUploadBrandingImage();
   const [banner, setBanner] = useState("");
   const form = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
@@ -281,6 +288,26 @@ export function EditProfileDialog({
         </Field>
         <Field label="Category" error={form.formState.errors.category?.message}>
           <input {...form.register("category")} className={inputClass} />
+        </Field>
+        <Field label="Storefront photo">
+          <input
+            type="file"
+            // The same list the API enforces. Restating it here only changes
+            // which files the picker offers - the check that matters is the
+            // content-type one on the server.
+            accept="image/png,image/jpeg,image/webp"
+            className={`${inputClass} file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--ink)] file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-[var(--paper)]`}
+            disabled={uploadImage.isPending}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (!file) return;
+              setBanner("");
+              uploadImage.mutate(file, {
+                onSuccess: () => notify("Storefront photo updated."),
+                onError: (failure) => setBanner(failure.message),
+              });
+            }}
+          />
         </Field>
         <div className="grid gap-2 sm:grid-cols-2">
           <Button tone="quiet" type="button" onClick={onClose}>
@@ -397,6 +424,84 @@ export function EditStaffDialog({
             {suspended ? "Restore access" : "Suspend this member"}
           </Button>
         </div>
+      </div>
+    </Dialog>
+  );
+}
+
+/** The four published plans, in the order they cost money. */
+const PLANS = ["Launch", "Core", "Grow", "Scale"] as const;
+
+/**
+ * Upgrades only.
+ *
+ * The API refuses a downgrade rather than silently dropping allowances a
+ * merchant is already using, so the plans below the current one are shown as
+ * where they are rather than offered as a choice.
+ */
+export function ChangePlanDialog({
+  current,
+  onClose,
+  notify,
+}: {
+  current: string;
+  onClose: () => void;
+  notify: Notify;
+}) {
+  const upgrade = useApiMutation<Billing, string>(changePlan, {
+    invalidates: [keys.business.billing(), keys.business.profile()],
+  });
+  const [banner, setBanner] = useState("");
+  const currentIndex = PLANS.indexOf(current as (typeof PLANS)[number]);
+
+  return (
+    <Dialog title="Manage plan" eyebrow="Billing" onClose={onClose}>
+      <div className="grid gap-3">
+        <Banner message={banner} />
+        {PLANS.map((plan, index) => {
+          const isCurrent = index === currentIndex;
+          const isDowngrade = index < currentIndex;
+          return (
+            <div
+              key={plan}
+              className={`flex items-center gap-4 rounded-2xl border p-4 ${
+                isCurrent ? "border-[var(--ink)]" : "border-[var(--line)]"
+              }`}
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-extrabold">{plan}</p>
+                <p className="mt-1 text-xs text-[var(--muted-strong)]">
+                  {isCurrent
+                    ? "Your plan"
+                    : isDowngrade
+                      ? "Below your plan"
+                      : "Available now"}
+                </p>
+              </div>
+              {!isCurrent && !isDowngrade && (
+                <Button
+                  type="button"
+                  disabled={upgrade.isPending}
+                  onClick={() =>
+                    upgrade.mutate(plan, {
+                      onSuccess: (billing) => {
+                        notify(`Moved to ${billing.plan}.`);
+                        onClose();
+                      },
+                      onError: (failure) => setBanner(failure.message),
+                    })
+                  }
+                >
+                  Upgrade
+                </Button>
+              )}
+            </div>
+          );
+        })}
+        <p className="text-[11px] leading-relaxed text-[var(--muted-strong)]">
+          Downgrades are handled by support, so an allowance you are already
+          using is never removed underneath you.
+        </p>
       </div>
     </Dialog>
   );

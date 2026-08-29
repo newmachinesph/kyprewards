@@ -530,3 +530,10 @@ export const EMPTY_PLATFORM_METRICS: PlatformMetrics = {
   smsLiabilityCentavos: 0,
   supportSla: 0,
 };
+
+export type Branding = {
+  /** A design token from packages/ui, never a hex value. */
+  color: string;
+  /** Presigned and short-lived when uploaded; a plain path when seeded. */
+  imageUrl: string | null;
+};

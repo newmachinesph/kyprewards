@@ -58,7 +58,7 @@ function BusinessesView({ notify }: { notify: Notify }) {
   const { data: tenants = [] } = useTenants();
   const { data: metrics = EMPTY_PLATFORM_METRICS } = usePlatformMetrics();
   const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState(tenants[0].id);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [attentionOnly, setAttentionOnly] = useState(false);
   const filtered = tenants.filter(
     (business) =>
@@ -66,9 +66,20 @@ function BusinessesView({ notify }: { notify: Notify }) {
         business.city.toLowerCase().includes(query.toLowerCase())) &&
       (!attentionOnly || business.risk !== "Healthy"),
   );
-  const selected =
-    tenants.find((business) => business.id === selectedId) ??
-    tenants[0];
+  const selected = tenants.find((business) => business.id === selectedId) ?? tenants[0];
+
+  if (!selected) {
+    return (
+      <ViewFrame
+        eyebrow="Tenant directory"
+        title="Businesses"
+        description="Review tenant health, subscription, member growth, and risk signals."
+      >
+        <p className="text-sm text-[var(--muted-strong)]">No tenants yet.</p>
+      </ViewFrame>
+    );
+  }
+
   return (
     <ViewFrame
       eyebrow="Tenant directory"
@@ -494,8 +505,23 @@ function SupportView({ notify }: { notify: Notify }) {
     setTicketNote,
     setTicketStatus,
   } = useAdminState();
-  const [selectedId, setSelectedId] = useState(tickets[0].id);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected = tickets.find((ticket) => ticket.id === selectedId) ?? tickets[0];
+
+  if (!selected) {
+    return (
+      <ViewFrame
+        eyebrow="Human support"
+        title="Support queue"
+        description="Triage trust, access, messaging, fraud, and privacy work."
+      >
+        <p className="text-sm text-[var(--muted-strong)]">
+          Nothing in the queue.
+        </p>
+      </ViewFrame>
+    );
+  }
+
   return (
     <ViewFrame
       eyebrow="Human support"

@@ -22,6 +22,7 @@ import type {
   AuditEvent,
   Automation,
   Billing,
+  Branding,
   BusinessCustomer,
   BusinessLocation,
   BusinessMetrics,
@@ -87,6 +88,9 @@ export const useContract = (options?: Options<ApiContract>): Query<ApiContract> 
 
 export const useBusinessProfile = (options?: Options<BusinessProfile>): Query<BusinessProfile> =>
   useQuery({ queryKey: keys.business.profile(), queryFn: api.getBusinessProfile, ...options });
+
+export const useBranding = (options?: Options<Branding>): Query<Branding> =>
+  useQuery({ queryKey: keys.business.branding(), queryFn: api.getBranding, ...options });
 
 export const useLocations = (options?: Options<BusinessLocation[]>): Query<BusinessLocation[]> =>
   useQuery({ queryKey: keys.business.locations(), queryFn: api.getLocations, ...options });

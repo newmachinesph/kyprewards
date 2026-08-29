@@ -6,6 +6,7 @@ import {
   useBilling,
   useBusinessCustomers,
   useBusinessMetrics,
+  useBranding,
   useBusinessProfile,
   useCampaigns,
   useFavoriteOrders,
@@ -21,7 +22,12 @@ import {
   lookupCustomer,
   idempotencyKey,
   ApiError,
+  downloadExport,
+  keys,
+  payInvoice,
+  useApiMutation,
   type Allowance,
+  type ExportKind,
   EMPTY_BUSINESS_METRICS,
   type MessageRecord,
   type ProgramDraft,
@@ -30,6 +36,7 @@ import {
 } from "@kypstamping/api";
 import { useCounterStore } from "@kypstamping/api/stores";
 import {
+  ChangePlanDialog,
   EditProfileDialog,
   EditStaffDialog,
   NewLocationDialog,
@@ -99,6 +106,33 @@ import type { BusinessView } from "@/components/BusinessShell";
 import { useDemoState } from "@/components/DemoState";
 import { IntegrationsView } from "@/components/IntegrationsView";
 type Notify = (message: string, intent?: NotifyIntent) => void;
+/**
+ * Streams a CSV and hands it to the browser.
+ *
+ * Shared by the customers, redemptions and message-log screens: three buttons
+ * that promised an export and produced a toast until the endpoints existed.
+ */
+function useExport(notify: Notify) {
+  const [busy, setBusy] = useState<ExportKind | null>(null);
+  return {
+    busy,
+    runExport: async (kind: ExportKind) => {
+      setBusy(kind);
+      try {
+        await downloadExport(kind);
+        notify(`${kind} export downloaded.`);
+      } catch (failure) {
+        notify(
+          failure instanceof ApiError ? failure.message : "Could not prepare that export.",
+          "error",
+        );
+      } finally {
+        setBusy(null);
+      }
+    },
+  };
+}
+
 /** Initials from a name, since a counter lookup does not return them. */
 function initialsOf(name: string) {
   return name
@@ -692,18 +726,47 @@ function JoinCodeView({ notify }: { notify: Notify }) {
   );
 }
 function CustomersView({ notify }: { notify: Notify }) {
-  const { data: customers = [] } = useBusinessCustomers();
+  const { runExport, busy: exporting } = useExport(notify);
+  const {
+    data: customers = [],
+    isPending: customersPending,
+    error: customersError,
+    refetch: refetchCustomers,
+  } = useBusinessCustomers();
   const [query, setQuery] = useState("");
   const [segment, setSegment] = useState("All");
-  const [selectedId, setSelectedId] = useState(customers[0].id);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const filtered = customers.filter(
     (customer) =>
       (segment === "All" || customer.segment === segment) &&
       customer.name.toLowerCase().includes(query.toLowerCase()),
   );
   const selected =
-    customers.find((customer) => customer.id === selectedId) ??
-    customers[0];
+    customers.find((customer) => customer.id === selectedId) ?? customers[0];
+
+  if (!selected) {
+    return (
+      <ViewFrame
+        eyebrow="Customer CRM"
+        title="Customers"
+        description="Understand the relationship without turning people into a contact export."
+      >
+        <QueryBoundary
+          isPending={customersPending}
+          error={customersError}
+          onRetry={refetchCustomers}
+          label="customers"
+          rows={5}
+        >
+          <p className="text-sm text-[var(--muted-strong)]">
+            No customers yet. They appear here as soon as somebody joins from
+            your counter code.
+          </p>
+        </QueryBoundary>
+      </ViewFrame>
+    );
+  }
+
   return (
     <ViewFrame
       eyebrow="Customer CRM"
@@ -712,9 +775,10 @@ function CustomersView({ notify }: { notify: Notify }) {
       action={
         <Button
           icon={<FileDown size={16} />}
-          onClick={() => notify("Permission-aware customer export prepared.")}
+          disabled={exporting === "customers"}
+          onClick={() => runExport("customers")}
         >
-          Export view
+          {exporting === "customers" ? "Preparing…" : "Export view"}
         </Button>
       }
     >
@@ -903,6 +967,7 @@ function CustomersView({ notify }: { notify: Notify }) {
 function BusinessProfileView({ notify }: { notify: Notify }) {
   const { data: locations = [] } = useLocations();
   const { data: profile, isPending, error, refetch } = useBusinessProfile();
+  const { data: branding } = useBranding();
   const [addingLocation, setAddingLocation] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
 
@@ -942,14 +1007,23 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
     >
       <section className="grid gap-3 lg:grid-cols-[0.75fr_1.25fr]">
         <article className="overflow-hidden rounded-xl bg-[var(--ink)] text-[var(--paper)]">
-          <div className="h-36 overflow-hidden">
-            <img
-              src="/images/sweet-crumbs.webp"
-              alt="Inside the Sweet Crumbs Kapitolyo shop"
-              width={1200}
-              height={800}
-              className="size-full object-cover"
-            />
+          <div className="grid h-36 place-items-center overflow-hidden bg-white/6">
+            {branding?.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- a
+              // presigned storage URL on a host the optimiser is not
+              // configured for, and it changes every time it is signed.
+              <img
+                src={branding.imageUrl}
+                alt={`Inside ${profile.name}`}
+                width={1200}
+                height={800}
+                className="size-full object-cover"
+              />
+            ) : (
+              <span className="text-xs font-semibold text-white/45">
+                No storefront photo yet
+              </span>
+            )}
           </div>
           <div className="p-6">
           <h2 className="mt-2 text-2xl font-extrabold">{profile.name}</h2>
@@ -1533,6 +1607,7 @@ function BirthdayView({ notify }: { notify: Notify }) {
   );
 }
 function RedemptionsView({ notify }: { notify: Notify }) {
+  const { runExport, busy: exporting } = useExport(notify);
   const { data: redemptions = [] } = useRedemptions();
   const { data: programs = [] } = usePrograms();
   // These were three hardcoded figures, one of which quoted the stamp-card
@@ -1552,9 +1627,10 @@ function RedemptionsView({ notify }: { notify: Notify }) {
         <Button
           tone="quiet"
           icon={<Download size={16} />}
-          onClick={() => notify("Redemption ledger export prepared.")}
+          disabled={exporting === "redemptions"}
+          onClick={() => runExport("redemptions")}
         >
-          Export ledger
+          {exporting === "redemptions" ? "Preparing…" : "Export ledger"}
         </Button>
       }
     >
@@ -2150,6 +2226,7 @@ const messageChannelsFrom = (rows: MessageRecord[]) => [
   ...Array.from(new Set(rows.map((message) => message.channel))),
 ];
 function MessageLogView({ notify }: { notify: Notify }) {
+  const { runExport, busy: exporting } = useExport(notify);
   const { data: messages = [] } = useMessages();
   const messageChannels = useMemo(() => messageChannelsFrom(messages), [messages]);
   const [channel, setChannel] = useState("All");
@@ -2170,9 +2247,10 @@ function MessageLogView({ notify }: { notify: Notify }) {
         <Button
           tone="quiet"
           icon={<Download size={16} />}
-          onClick={() => notify("Message ledger exported.")}
+          disabled={exporting === "messages"}
+          onClick={() => runExport("messages")}
         >
-          Export log
+          {exporting === "messages" ? "Preparing…" : "Export log"}
         </Button>
       }
     >
@@ -2657,6 +2735,10 @@ function SettingsView({ notify }: { notify: Notify }) {
     refetch: refetchBilling,
   } = useBilling();
   const toggle = useToggleIntegration();
+  const pay = useApiMutation<{ url: string }, string>(payInvoice, {
+    invalidates: [keys.business.billing()],
+  });
+  const [changingPlan, setChangingPlan] = useState(false);
 
   const connected = useMemo(
     () =>
@@ -2793,7 +2875,7 @@ function SettingsView({ notify }: { notify: Notify }) {
             <Button
               tone="accent"
               className="mt-5"
-              onClick={() => notify("Plan comparison opened.", "review")}
+              onClick={() => setChangingPlan(true)}
             >
               Manage plan
             </Button>
@@ -2836,8 +2918,20 @@ function SettingsView({ notify }: { notify: Notify }) {
                   <Pill tone="success">{invoice.status}</Pill>
                   <button
                     type="button"
-                    aria-label={`Download the ${invoice.period} invoice`}
-                    onClick={() => notify(`${invoice.period} invoice prepared.`)}
+                    aria-label={
+                      invoice.status === "Due"
+                        ? `Pay the ${invoice.period} invoice`
+                        : `The ${invoice.period} invoice is settled`
+                    }
+                    disabled={invoice.status !== "Due" || pay.isPending}
+                    onClick={() =>
+                      // A hosted payment page, so the merchant leaves to a
+                      // provider rather than typing a card into this screen.
+                      pay.mutate(invoice.id, {
+                        onSuccess: ({ url }) => window.location.assign(url),
+                        onError: (failure) => notify(failure.message, "error"),
+                      })
+                    }
                     className="grid size-9 shrink-0 place-items-center rounded-full hover:bg-[var(--surface-2)]"
                   >
                     <Download size={15} />
@@ -2900,6 +2994,13 @@ function SettingsView({ notify }: { notify: Notify }) {
           </article>
         </aside>
       </div>
+      {changingPlan && (
+        <ChangePlanDialog
+          current={billing.plan}
+          onClose={() => setChangingPlan(false)}
+          notify={notify}
+        />
+      )}
     </ViewFrame>
   );
 }

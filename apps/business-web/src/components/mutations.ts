@@ -23,6 +23,7 @@ import {
   toggleAutomation,
   toggleIntegration,
   updateBusinessProfile,
+  uploadBrandingImage,
   updateProgram,
   type CampaignDraft,
   type ProgramDraft,
@@ -74,6 +75,16 @@ export const useInviteStaff = () =>
 
 export const useUpdateProfile = () =>
   useApiMutation(updateBusinessProfile, { invalidates: [keys.business.profile()] });
+
+/**
+ * The storefront photo customers see on the discover card.
+ *
+ * The API answers with a freshly signed URL, so the cache has to take the
+ * response rather than keep the one it already had - the old link is for the
+ * old object and expires on its own schedule.
+ */
+export const useUploadBrandingImage = () =>
+  useApiMutation(uploadBrandingImage, { invalidates: [keys.business.branding()] });
 
 /**
  * A stamp moves nearly everything a merchant looks at: the customer's balance
