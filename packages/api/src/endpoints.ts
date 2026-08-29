@@ -329,6 +329,20 @@ export const lookupCustomer = (
   identifier: { phone: string } | { email: string },
 ): Promise<CustomerLookup> => http("/customers/lookup", { query: identifier });
 
+export type CustomerBalance = {
+  customerId: string;
+  programId: string;
+  programName: string;
+  /** Stamps or points held. Floored at zero - see programs.floor_at_zero. */
+  balance: number;
+  target: number;
+  rewardsAvailable: number;
+};
+
+/** What the counter shows before it stamps: where this card stands now. */
+export const getCustomerBalance = (customerId: string): Promise<CustomerBalance> =>
+  http(`/customers/${customerId}/balance`);
+
 export type VisitResult = {
   id: string;
   customerId: string;

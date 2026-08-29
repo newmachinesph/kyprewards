@@ -15,13 +15,20 @@ import {
   usePrograms,
   useRedemptions,
   useStaff,
+  useCustomerBalance,
+  lookupCustomer,
+  idempotencyKey,
+  ApiError,
   type Allowance,
   EMPTY_BUSINESS_METRICS,
   type MessageRecord,
   type ProgramDraft,
+  type VisitResult,
 } from "@kypstamping/api";
+import { useCounterStore } from "@kypstamping/api/stores";
 import {
   useCreateCampaign,
+  useRecordVisit,
   useDuplicateProgram,
   useInviteStaff,
   useToggleIntegration,
@@ -83,25 +90,123 @@ import type { BusinessView } from "@/components/BusinessShell";
 import { useDemoState } from "@/components/DemoState";
 import { IntegrationsView } from "@/components/IntegrationsView";
 type Notify = (message: string, intent?: NotifyIntent) => void;
+/** Initials from a name, since a counter lookup does not return them. */
+function initialsOf(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
 function ScanView({ notify }: { notify: Notify }) {
   const { data: customers = [] } = useBusinessCustomers();
   const { data: redemptions = [] } = useRedemptions();
-  // The dashboard scanner already picked the demo customer; arriving here and
-  // being asked to pick again broke the flow.
+  // The dashboard scanner already picked a customer; arriving here and being
+  // asked to pick again broke the flow.
   const { scanHandoff, consumeScanHandoff } = useDemoState();
-  const [step, setStep] = useState<"ready" | "found" | "complete">(
-    scanHandoff ? "found" : "ready",
-  );
+  const { scanned, amount, idempotencyReference, scan, setAmount, reset } =
+    useCounterStore();
+  const record = useRecordVisit();
+
+  const [identifier, setIdentifier] = useState("");
+  const [looking, setLooking] = useState(false);
+  const [done, setDone] = useState<VisitResult | null>(null);
+
+  const { data: balance } = useCustomerBalance(scanned?.id);
+
   useEffect(() => {
-    if (scanHandoff) consumeScanHandoff();
-  }, [scanHandoff, consumeScanHandoff]);
-  const [amount, setAmount] = useState(String(sharedScenario.purchase.amount));
-  const [lastVisit, setLastVisit] = useState<{ stamps: number; amount: number } | null>(null);
-  // The counter re-enacts the shared visit, so it has to start where that
-  // event started. Beginning at the *result* produced a stamp count no other
-  // app agreed with.
-  const stampsBefore = sharedScenario.loyaltyEvent.beforeStamps;
-  const stampTarget = sharedScenario.loyaltyEvent.target;
+    if (!scanHandoff) return;
+    consumeScanHandoff();
+    const first = customers[0];
+    if (first && !scanned) {
+      scan({
+        id: first.id,
+        name: first.name,
+        memberCode: `KYP-${first.id.toUpperCase()}`,
+        isMember: true,
+      });
+    }
+  }, [scanHandoff, consumeScanHandoff, customers, scanned, scan]);
+
+  const step: "ready" | "found" | "complete" = done
+    ? "complete"
+    : scanned
+      ? "found"
+      : "ready";
+
+  /**
+   * A scanner is a keyboard here: the QR carries the member's code and a
+   * cashier without one types a mobile number. Both go to the same lookup,
+   * which is the only thing that can say whether the person is a member.
+   */
+  async function find() {
+    const typed = identifier.trim();
+    if (!typed) {
+      notify("Scan a code, or enter a mobile number or email.", "error");
+      return;
+    }
+    setLooking(true);
+    try {
+      const found = await lookupCustomer(
+        typed.includes("@") ? { email: typed } : { phone: typed },
+      );
+      scan(found);
+      setIdentifier("");
+    } catch (failure) {
+      notify(
+        failure instanceof ApiError && failure.status === 404
+          ? "No member found for that code. They can join with the counter QR."
+          : failure instanceof ApiError
+            ? failure.message
+            : "Could not look that up.",
+        "error",
+      );
+    } finally {
+      setLooking(false);
+    }
+  }
+
+  function approve() {
+    if (!scanned) return;
+    const typed = amount.trim();
+    const pesos = Number.parseFloat(typed);
+    if (typed && (!Number.isFinite(pesos) || pesos < 0)) {
+      notify("Enter a valid purchase amount, or clear the field.", "error");
+      return;
+    }
+
+    record.mutate(
+      {
+        customerId: scanned.id,
+        // Centavos on the wire, always. The cashier types pesos.
+        amountCentavos: typed ? Math.round(pesos * 100) : 0,
+        // Stable until this visit settles, so a cashier who presses again
+        // after a timeout replays the first one rather than stamping twice.
+        idempotencyKey: idempotencyKey("visit", idempotencyReference),
+      },
+      {
+        onSuccess: (visit) => {
+          setDone(visit);
+          notify(
+            visit.rewardEarned
+              ? `Stamp added. ${visit.customerName} earned ${visit.rewardEarned}.`
+              : `Stamp added. ${visit.stampsAfter} of ${visit.target}.`,
+          );
+        },
+        onError: (failure) => notify(failure.message, "error"),
+      },
+    );
+  }
+
+  function startOver() {
+    setDone(null);
+    // Also mints a new idempotency reference: the next customer is a
+    // different visit, not a retry of this one.
+    reset();
+  }
+
   return (
     <ViewFrame
       eyebrow="Counter"
@@ -117,10 +222,9 @@ function ScanView({ notify }: { notify: Notify }) {
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
           <div className="flex items-center justify-between">
             <Eyebrow>Secure scanner</Eyebrow>
-            <span className="font-mono text-[10px] text-white/60">
-              CAMERA 01
-            </span>
+            <span className="font-mono text-[10px] text-white/60">CAMERA 01</span>
           </div>
+
           {step === "ready" && (
             <div className="mx-auto mt-8 max-w-sm">
               <div className="relative aspect-square rounded-[var(--radius-card)] border border-white/15 bg-white/[0.04] p-12">
@@ -130,43 +234,86 @@ function ScanView({ notify }: { notify: Notify }) {
                 <span className="absolute bottom-5 right-5 size-16 border-b-2 border-r-2 border-[var(--accent)]" />
                 <QrCode className="size-full text-white/65" strokeWidth={1} />
               </div>
-              <p className="mt-5 text-center text-sm text-white/65">
-                Scan the customer QR, saved image, or printed card — or choose the demo customer.
-              </p>
-              <Button
-                tone="accent"
-                className="mt-5 w-full"
-                onClick={() => setStep("found")}
+              <form
+                className="mt-5"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void find();
+                }}
               >
-                Use demo customer
-              </Button>
+                <label className="grid gap-2 text-xs font-bold">
+                  Member code, mobile number, or email
+                  <input
+                    value={identifier}
+                    onChange={(event) => setIdentifier(event.target.value)}
+                    placeholder="0917 555 0182"
+                    className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+                  />
+                  <span className="text-[10px] font-semibold text-white/45">
+                    A hardware scanner types here and presses Enter.
+                  </span>
+                </label>
+                <Button tone="accent" className="mt-4 w-full" disabled={looking}>
+                  {looking ? "Looking up\u2026" : "Find customer"}
+                </Button>
+              </form>
+              {customers[0] && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    scan({
+                      id: customers[0].id,
+                      name: customers[0].name,
+                      memberCode: `KYP-${customers[0].id.toUpperCase()}`,
+                      isMember: true,
+                    })
+                  }
+                  className="mt-4 min-h-11 w-full text-xs font-extrabold text-white/60 hover:text-white"
+                >
+                  Use {customers[0].name}
+                </button>
+              )}
             </div>
           )}
-          {step === "found" && (
+
+          {step === "found" && scanned && (
             <div className="mt-8">
               <div className="rounded-2xl bg-[var(--surface)] p-5 text-[var(--ink)]">
                 <div className="flex items-center gap-4">
                   <span className="grid size-14 place-items-center rounded-xl bg-[var(--accent)] text-lg font-extrabold">
-                    {customers[0].initials}
+                    {initialsOf(scanned.name)}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="font-extrabold">{sharedScenario.customer}</p>
-                    <p className="mt-1 text-xs text-[var(--muted)]">
-                      {customers[0].segment} · {customers[0].visits} visits ·{" "}
-                      {customers[0].risk.toLowerCase()}
+                    <p className="font-extrabold">{scanned.name}</p>
+                    <p className="mt-1 font-mono text-xs text-[var(--muted)]">
+                      {scanned.memberCode}
                     </p>
                   </div>
                   <BadgeCheck className="text-[var(--success)]" />
                 </div>
+
                 <div className="mt-6 rounded-2xl bg-[var(--paper)] p-4">
                   <p className="text-xs font-bold text-[var(--muted)]">
                     Eligible program
                   </p>
-                  <p className="mt-1 font-extrabold">Eight visits, pastry on us</p>
-                  <div className="mt-4 overflow-x-auto">
-                    <StampDots filled={stampsBefore} total={stampTarget} />
-                  </div>
+                  {balance ? (
+                    <>
+                      <p className="mt-1 font-extrabold">{balance.programName}</p>
+                      <div className="mt-4 overflow-x-auto">
+                        <StampDots filled={balance.balance} total={balance.target} />
+                      </div>
+                      {balance.rewardsAvailable > 0 && (
+                        <p className="mt-3 text-xs font-extrabold text-[var(--success)]">
+                          {balance.rewardsAvailable} reward
+                          {balance.rewardsAvailable === 1 ? "" : "s"} ready to redeem
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <Skeleton className="mt-3 h-10 w-full" />
+                  )}
                 </div>
+
                 <label className="mt-5 grid gap-2 text-xs font-bold">
                   Purchase amount, optional
                   <input
@@ -185,59 +332,38 @@ function ScanView({ notify }: { notify: Notify }) {
                     Recorded with the visit. Leave blank for a visit-only stamp.
                   </span>
                 </label>
+
                 <div className="mt-5 grid grid-cols-2 gap-2">
-                  <Button tone="quiet" onClick={() => setStep("ready")}>
+                  <Button tone="quiet" onClick={startOver} disabled={record.isPending}>
                     Cancel
                   </Button>
-                  <Button
-                    onClick={() => {
-                      const parsed = Number.parseFloat(amount);
-                      if (amount.trim() && (!Number.isFinite(parsed) || parsed < 0)) {
-                        notify("Enter a valid purchase amount, or clear the field.", "error");
-                        return;
-                      }
-                      const recorded = amount.trim() ? parsed : 0;
-                      setLastVisit({ stamps: stampsBefore + 1, amount: recorded });
-                      setStep("complete");
-                      notify(
-                        recorded
-                          ? `Visit approved. ${peso(recorded)} recorded with the stamp.`
-                          : "Visit approved as a visit-only stamp.",
-                      );
-                    }}
-                  >
-                    Approve +1 stamp
+                  <Button onClick={approve} disabled={record.isPending}>
+                    {record.isPending ? "Recording\u2026" : "Approve +1 stamp"}
                   </Button>
                 </div>
               </div>
             </div>
           )}
-          {step === "complete" && (
+
+          {step === "complete" && done && (
             <div className="grid min-h-[500px] place-items-center text-center">
               <div>
                 <span className="mx-auto grid size-20 place-items-center rounded-full bg-[var(--success)]">
                   <Check size={36} strokeWidth={3} />
                 </span>
                 <h2 className="mt-6 text-3xl font-extrabold tracking-[-0.02em]">
-                  Stamp added.
+                  {done.rewardEarned ? "Reward earned." : "Stamp added."}
                 </h2>
                 <p className="mx-auto mt-3 max-w-[36ch] text-sm leading-relaxed text-white/65">
-                  {sharedScenario.customer} now has{" "}
-                  {lastVisit?.stamps ?? stampsBefore + 1} of {stampTarget} stamps
-                  {lastVisit?.amount
-                    ? ` from a ${peso(lastVisit.amount)} purchase`
+                  {done.customerName} now has {done.stampsAfter} of {done.target} stamps
+                  {done.amountCentavos
+                    ? ` from a ${pesoFromCentavos(done.amountCentavos)} purchase`
                     : ""}
-                  .
+                  .{done.rewardEarned ? ` ${done.rewardEarned} is ready to redeem.` : ""}
                 </p>
-                <Button
-                  tone="accent"
-                  className="mt-6"
-                  onClick={() => {
-                    setAmount(String(sharedScenario.purchase.amount));
-                    setStep("ready");
-                  }}
-                >
-                  Scan next customer
+                <p className="mt-4 font-mono text-[10px] text-white/40">{done.id}</p>
+                <Button tone="accent" className="mt-7" onClick={startOver}>
+                  Scan the next customer
                 </Button>
               </div>
             </div>

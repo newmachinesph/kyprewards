@@ -481,6 +481,33 @@ describe("counter writes", () => {
     assert.equal(byPhone.isMember, true);
   });
 
+  live("a balance says where the card stands", async () => {
+    const balance = await api.getCustomerBalance(SCRATCH_CUSTOMER);
+
+    assert.equal(balance.customerId, SCRATCH_CUSTOMER);
+    assert.ok(Number.isInteger(balance.balance));
+    // Floored server-side: nobody holds negative stamps, and the counter
+    // would otherwise render "-1 of 8" to a cashier mid-service.
+    assert.ok(balance.balance >= 0);
+    assert.ok(balance.target > 0);
+  });
+
+  live("a stamp moves the balance the counter just read", async () => {
+    const before = await api.getCustomerBalance(SCRATCH_CUSTOMER);
+    const visit = await api.recordVisit(
+      { customerId: SCRATCH_CUSTOMER, amountCentavos: 15000 },
+      `visit_CONTRACT_BAL_${Date.now()}`,
+    );
+
+    try {
+      assert.equal(visit.stampsBefore, before.balance);
+      const after = await api.getCustomerBalance(SCRATCH_CUSTOMER);
+      assert.equal(after.balance, visit.stampsAfter);
+    } finally {
+      await voidVisit(visit.id);
+    }
+  });
+
   live("the same idempotency key never stamps twice", async () => {
     // The whole reason the header exists: a counter tablet loses wifi
     // mid-request and the cashier presses the button again.

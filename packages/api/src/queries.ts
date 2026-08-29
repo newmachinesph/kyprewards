@@ -49,6 +49,7 @@ import type {
 } from "./types";
 
 import { keys, type Coordinates, type CustomerFilters } from "./keys";
+import type { CustomerBalance } from "./endpoints";
 
 /**
  * What a caller may override per hook: everything except the two things that
@@ -133,6 +134,27 @@ export const useBusinessMetrics = (options?: Options<BusinessMetrics>): Query<Bu
 
 export const useBilling = (options?: Options<Billing>): Query<Billing> =>
   useQuery({ queryKey: keys.business.billing(), queryFn: api.getBilling, ...options });
+
+/* ── Counter ──────────────────────────────────────────────────────── */
+
+/**
+ * Where one customer's card stands, for the counter.
+ *
+ * Disabled until somebody has been scanned - `undefined` is the honest state
+ * before that, and firing a request for it would 404.
+ */
+export const useCustomerBalance = (
+  customerId: string | undefined,
+  options?: Options<CustomerBalance>,
+): Query<CustomerBalance> =>
+  useQuery({
+    queryKey: keys.counter.balance(customerId ?? ""),
+    queryFn: () => api.getCustomerBalance(customerId as string),
+    enabled: Boolean(customerId),
+    // A card the cashier is looking at right now. Anything cached is stale.
+    staleTime: 0,
+    ...options,
+  });
 
 /* ── Customer wallet ──────────────────────────────────────────────── */
 
