@@ -23,9 +23,16 @@ import {
   EMPTY_BUSINESS_METRICS,
   type MessageRecord,
   type ProgramDraft,
+  type StaffMember,
   type VisitResult,
 } from "@kypstamping/api";
 import { useCounterStore } from "@kypstamping/api/stores";
+import {
+  EditProfileDialog,
+  EditStaffDialog,
+  NewLocationDialog,
+  NewProgramDialog,
+} from "@/components/WorkspaceForms";
 import {
   useCreateCampaign,
   useRecordVisit,
@@ -894,6 +901,8 @@ function CustomersView({ notify }: { notify: Notify }) {
 function BusinessProfileView({ notify }: { notify: Notify }) {
   const { data: locations = [] } = useLocations();
   const { data: profile, isPending, error, refetch } = useBusinessProfile();
+  const [addingLocation, setAddingLocation] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
 
   if (!profile) {
     return (
@@ -923,7 +932,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
       action={
         <Button
           icon={<Plus size={16} />}
-          onClick={() => notify("New location setup opened in demo mode.", "review")}
+          onClick={() => setAddingLocation(true)}
         >
           Add location
         </Button>
@@ -965,7 +974,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
             tone="accent"
             className="mt-6"
             icon={<Pencil size={15} />}
-            onClick={() => notify("Business profile editor opened.", "review")}
+            onClick={() => setEditingProfile(true)}
           >
             Edit public profile
           </Button>
@@ -1011,6 +1020,16 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
           ))}
         </div>
       </section>
+      {addingLocation && (
+        <NewLocationDialog onClose={() => setAddingLocation(false)} notify={notify} />
+      )}
+      {editingProfile && (
+        <EditProfileDialog
+          profile={profile}
+          onClose={() => setEditingProfile(false)}
+          notify={notify}
+        />
+      )}
     </ViewFrame>
   );
 }
@@ -1042,6 +1061,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
    */
   const [draft, setDraft] = useState<Partial<ProgramDraft>>({});
   const [draftFor, setDraftFor] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
   if (selected && draftFor !== selected.id) {
     setDraftFor(selected.id);
     setDraft({
@@ -1082,7 +1102,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
       action={
         <Button
           icon={<Plus size={16} />}
-          onClick={() => notify("New program template picker opened.", "review")}
+          onClick={() => setCreating(true)}
         >
           New program
         </Button>
@@ -1275,6 +1295,9 @@ function ProgramsView({ notify }: { notify: Notify }) {
           )}
         </aside>
       </div>
+      {creating && (
+        <NewProgramDialog onClose={() => setCreating(false)} notify={notify} />
+      )}
     </ViewFrame>
   );
 }
@@ -2381,6 +2404,7 @@ function StaffView({ notify }: { notify: Notify }) {
   // owner needs a composer, so this is one.
   const { data: staff = [] } = useStaff();
   const invite = useInviteStaff();
+  const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
   const [composerOpen, setComposerOpen] = useState(false);
   const [inviteName, setInviteName] = useState("");
   const [inviteRole, setInviteRole] = useState<string>("Cashier");
@@ -2552,9 +2576,7 @@ function StaffView({ notify }: { notify: Notify }) {
                     <button
                       type="button"
                       aria-label={`Edit ${person.name} access`}
-                      onClick={() =>
-                        notify(`${person.name} access editor opened.`, "review")
-                      }
+                      onClick={() => setEditingStaff(person)}
                       className="grid size-9 place-items-center rounded-full hover:bg-[var(--surface-2)]"
                     >
                       <ChevronRight size={16} />
@@ -2579,6 +2601,14 @@ function StaffView({ notify }: { notify: Notify }) {
           </article>
         ))}
       </div>
+      {editingStaff && (
+        <EditStaffDialog
+          member={editingStaff}
+          locations={locations}
+          onClose={() => setEditingStaff(null)}
+          notify={notify}
+        />
+      )}
     </ViewFrame>
   );
 }

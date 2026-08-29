@@ -10,7 +10,6 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
-  Building2,
   Check,
   ChevronRight,
   Croissant,
@@ -32,8 +31,11 @@ import {
   login,
   logout,
   requestOtp,
+  selectWorkspace,
+  getWorkspaces,
   verifyMfa,
   verifyOtp,
+  type Workspace,
 } from "@kypstamping/api";
 import { BrandMark, StampDots } from "./index";
 
@@ -479,7 +481,8 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   const [notice, setNotice] = useState("");
   const [sent, setSent] = useState(false);
   const [channel, setChannel] = useState<"mobile" | "email">("mobile");
-  const [workspace, setWorkspace] = useState("sweet-crumbs");
+  const [workspace, setWorkspace] = useState("");
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("loggedOut") === "1") {
@@ -490,6 +493,25 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
       return () => window.clearTimeout(noticeTimer);
     }
   }, []);
+
+  useEffect(() => {
+    if (mode !== "workspaces") return;
+    let cancelled = false;
+    getWorkspaces()
+      .then((rows) => {
+        if (cancelled) return;
+        setWorkspaces(rows);
+        // Preselect when there is only one: nobody should have to choose
+        // between one thing.
+        if (rows.length === 1) setWorkspace(rows[0].merchantId);
+      })
+      .catch(() => {
+        if (!cancelled) setNotice("Could not load your workspaces.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mode]);
 
   useEffect(() => {
     if (role !== "customer") return;
@@ -841,31 +863,90 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   }
 
   if (mode === "workspaces") {
-    const options = [
-      { id: "sweet-crumbs", name: "Sweet Crumbs Bakery", detail: "Owner · 3 locations", badge: "Live", icon: Store },
-      { id: "sage-steam", name: "Sage & Steam", detail: "Analyst · 2 locations", badge: "Training", icon: Building2 },
-    ];
+    /*
+     * The two options here were hardcoded - "Sweet Crumbs Bakery" and
+     * "Sage & Steam" - so a user saw a workspace they had no access to and
+     * missed any they did. They come from GET /auth/workspaces, which returns
+     * the merchants this session may actually enter, with the role it holds
+     * in each.
+     */
     return (
-      <AuthShell role="business" mode="workspaces" title="Choose your workspace." description="Your demo role and location access change with the workspace you enter.">
-        <form onSubmit={(event) => { event.preventDefault(); completeSession("/#dashboard"); }} className="space-y-3">
-          {options.map((option) => {
-            const Icon = option.icon;
-            const selected = workspace === option.id;
+      <AuthShell
+        role="business"
+        mode="workspaces"
+        title="Choose your workspace."
+        description="Your role and location access change with the workspace you enter."
+      >
+        {notice && (
+          <p aria-live="polite" className="mb-5 rounded-2xl bg-[var(--surface-2)] px-4 py-3 text-xs font-bold text-[var(--muted-strong)]">
+            {notice}
+          </p>
+        )}
+        <form
+          onSubmit={async (event) => {
+            event.preventDefault();
+            if (!workspace) {
+              setNotice("Pick a workspace to continue.");
+              return;
+            }
+            setBusy(true);
+            try {
+              await selectWorkspace(workspace);
+              completeSession("/#dashboard");
+            } catch (failure) {
+              setNotice(
+                failure instanceof ApiError ? failure.message : "Could not open that workspace.",
+              );
+              setBusy(false);
+            }
+          }}
+          className="space-y-3"
+        >
+          {workspaces.length === 0 && (
+            <p className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs text-[var(--muted-strong)]">
+              No workspace is linked to this account yet.
+            </p>
+          )}
+          {workspaces.map((option) => {
+            const selected = workspace === option.merchantId;
             return (
-              <label key={option.id} className={`flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition ${selected ? "border-[var(--ink)] bg-[var(--surface)]" : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"}`}>
-                <input type="radio" name="workspace" value={option.id} checked={selected} onChange={() => setWorkspace(option.id)} className="sr-only" />
-                <span className={`grid size-11 place-items-center rounded-2xl ${selected ? "bg-[var(--accent)]" : "bg-[var(--surface-2)]"}`}><Icon size={18} /></span>
+              <label
+                key={option.merchantId}
+                className={`flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition ${selected ? "border-[var(--ink)] bg-[var(--surface)]" : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"}`}
+              >
+                <input
+                  type="radio"
+                  name="workspace"
+                  value={option.merchantId}
+                  checked={selected}
+                  onChange={() => setWorkspace(option.merchantId)}
+                  className="sr-only"
+                />
+                <span className={`grid size-11 place-items-center rounded-2xl ${selected ? "bg-[var(--accent)]" : "bg-[var(--surface-2)]"}`}>
+                  <Store size={18} />
+                </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-extrabold">{option.name}</span>
-                  <span className="mt-1 block text-xs text-[var(--muted-strong)]">{option.detail}</span>
+                  <span className="mt-1 block text-xs text-[var(--muted-strong)]">
+                    {option.role} · {option.location}
+                  </span>
                 </span>
-                <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]">{option.badge}</span>
                 {selected && <Check size={17} className="text-[var(--success)]" />}
               </label>
             );
           })}
-          <div className="pt-3"><PrimaryButton>Open selected workspace</PrimaryButton></div>
-          <button type="button" onClick={() => signOut()} className="min-h-11 w-full text-xs font-extrabold text-[var(--muted-strong)] hover:text-[var(--ink)]">Sign in with another account</button>
+          <div className="pt-3">
+            <PrimaryButton disabled={busy}>
+              {busy ? "Opening\u2026" : "Open selected workspace"}
+            </PrimaryButton>
+          </div>
+          <button
+            type="button"
+            onClick={() => signOut()}
+            className="min-h-11 w-full text-xs font-extrabold text-[var(--muted-strong)] hover:text-[var(--ink)]"
+          >
+            Sign in with another account
+          </button>
         </form>
       </AuthShell>
     );

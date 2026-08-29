@@ -6,10 +6,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FieldValues, Path, UseFormSetError } from "react-hook-form";
 
-import { fieldErrors } from "./http";
+import { fieldErrors } from "./http.ts";
 
 export { zodResolver };
-export * from "./schemas";
+export * from "./schemas.ts";
 
 /* ── Server errors, back into the form ────────────────────────────── */
 

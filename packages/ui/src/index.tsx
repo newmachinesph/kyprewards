@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import type React from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import {
@@ -207,16 +207,26 @@ export function StampDots({
   );
 }
 
-export function DemoActionDialog({
+/**
+ * A modal shell with the focus handling every dialog needs.
+ *
+ * Extracted from `DemoActionDialog`, which owned it while also insisting that
+ * nothing would happen - true for the two previews that still use it, and not
+ * for the forms that write to the API.
+ */
+export function Dialog({
   title,
+  eyebrow,
   onClose,
-  onConfirm,
+  children,
 }: {
   title: string;
+  eyebrow: string;
   onClose: () => void;
-  onConfirm: () => void;
+  children: ReactNode;
 }) {
   const panelRef = useRef<HTMLElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     const opener = document.activeElement as HTMLElement | null;
@@ -257,44 +267,90 @@ export function DemoActionDialog({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-[90] grid place-items-center p-4" role="dialog" aria-modal="true" aria-labelledby="demo-action-title">
+    <div
+      className="fixed inset-0 z-[90] grid place-items-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
       {/* Scrim is decorative: a focusable element before the content would put
-          "cancel" first in the tab order of a dialog asking for confirmation. */}
-      <div aria-hidden="true" onClick={onClose} className="absolute inset-0 cursor-default bg-[rgb(20_16_13/62%)] backdrop-blur-sm" />
-      <section ref={panelRef} className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-2xl">
+          "cancel" first in the tab order. */}
+      <div
+        aria-hidden="true"
+        onClick={onClose}
+        className="absolute inset-0 cursor-default bg-[rgb(20_16_13/62%)] backdrop-blur-sm"
+      />
+      <section
+        ref={panelRef}
+        className="relative max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[var(--line)] bg-[var(--surface)] shadow-2xl"
+      >
         <header className="flex items-start justify-between gap-4 border-b border-[var(--line)] p-5 sm:p-6">
           <div>
-            <Eyebrow>Interactive demo action</Eyebrow>
-            <h2 id="demo-action-title" className="mt-2 text-xl font-extrabold tracking-[-0.02em]">
+            <Eyebrow>{eyebrow}</Eyebrow>
+            <h2 id={titleId} className="mt-2 text-xl font-extrabold tracking-[-0.02em]">
               {title.replace(/\.$/, "")}
             </h2>
           </div>
-          <button type="button" aria-label="Close" onClick={onClose} className="grid size-10 shrink-0 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface-2)]">
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="grid size-10 shrink-0 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface-2)]"
+          >
             <X size={17} />
           </button>
         </header>
-        <div className="p-5 sm:p-6">
-          <div className="flex items-start gap-3 rounded-2xl bg-[rgb(15_118_85/8%)] p-4">
-            <ShieldCheck size={18} className="mt-0.5 shrink-0 text-[var(--success)]" />
-            <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
-              Review and confirm this workflow using local sample data. No backend request, message, export, or account change will occur.
-            </p>
-          </div>
-          <dl className="mt-5 divide-y divide-[var(--line)] border-y border-[var(--line)]">
-            {[["Mode", "Local preview"], ["Persistence", "None"], ["Network activity", "None"]].map(([term, description]) => (
-              <div key={term} className="grid grid-cols-[118px_1fr] gap-3 py-3 text-xs">
-                <dt className="font-extrabold text-[var(--muted-strong)]">{term}</dt>
-                <dd className="font-bold">{description}</dd>
-              </div>
-            ))}
-          </dl>
-          <div className="mt-6 grid gap-2 sm:grid-cols-2">
-            <Button tone="quiet" onClick={onClose}>Cancel</Button>
-            <Button icon={<Check size={15} />} onClick={onConfirm}>Confirm demo action</Button>
-          </div>
-        </div>
+        <div className="p-5 sm:p-6">{children}</div>
       </section>
     </div>
+  );
+}
+
+/**
+ * The preview dialog, for the two screens whose action really is local.
+ *
+ * Its promise - no request, no message, no account change - is now a claim
+ * about those two screens specifically, not about the product.
+ */
+export function DemoActionDialog({
+  title,
+  onClose,
+  onConfirm,
+}: {
+  title: string;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <Dialog title={title} eyebrow="Interactive demo action" onClose={onClose}>
+      <div className="flex items-start gap-3 rounded-2xl bg-[rgb(15_118_85/8%)] p-4">
+        <ShieldCheck size={18} className="mt-0.5 shrink-0 text-[var(--success)]" />
+        <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
+          Review and confirm this workflow using local sample data. No backend
+          request, message, export, or account change will occur.
+        </p>
+      </div>
+      <dl className="mt-5 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+        {[
+          ["Mode", "Local preview"],
+          ["Persistence", "None"],
+          ["Network activity", "None"],
+        ].map(([term, description]) => (
+          <div key={term} className="grid grid-cols-[118px_1fr] gap-3 py-3 text-xs">
+            <dt className="font-extrabold text-[var(--muted-strong)]">{term}</dt>
+            <dd className="font-bold">{description}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="mt-6 grid gap-2 sm:grid-cols-2">
+        <Button tone="quiet" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button icon={<Check size={15} />} onClick={onConfirm}>
+          Confirm demo action
+        </Button>
+      </div>
+    </Dialog>
   );
 }
 

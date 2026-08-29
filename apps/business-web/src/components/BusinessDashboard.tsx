@@ -49,7 +49,7 @@ import {
   useStaff,
   EMPTY_BUSINESS_METRICS,
 } from "@kypstamping/api";
-import { useToggleAutomation } from "@/components/mutations";
+import { useRecordTestStamp, useToggleAutomation } from "@/components/mutations";
 import type { BusinessView } from "@/components/BusinessShell";
 
 const periods = ["Today", "7 days", "30 days"];
@@ -147,6 +147,7 @@ export function BusinessDashboard({
     [automationRows],
   );
   const toggle = useToggleAutomation();
+  const testStamp = useRecordTestStamp();
   const setupDone = SETUP_STEPS.length - (testStampDone ? 0 : 1);
   // Null until the programs arrive, where it used to be programs[0] from a
   // fixture that was always populated.
@@ -759,14 +760,26 @@ export function BusinessDashboard({
             </p>
             <Button
               className="mt-6 w-full"
-              onClick={() => {
-                completeTestStamp();
-                // Hands the counter view a customer, so the merchant is not
-                // asked to pick the demo customer a second time.
-                startScanHandoff();
-                setScanOpen(false);
-                onNavigate("scan");
-              }}
+              disabled={testStamp.isPending}
+              onClick={() =>
+                // A real stamp against the merchant's own first program, so
+                // "prove it works" proves the counter works rather than that
+                // the button does. The API picks the customer and program.
+                testStamp.mutate(undefined, {
+                  onSuccess: (visit) => {
+                    completeTestStamp();
+                    notify(
+                      `Test stamp recorded. ${visit.customerName} is at ${visit.stampsAfter} of ${visit.target}.`,
+                    );
+                    // Hands the counter view a customer, so the merchant is
+                    // not asked to pick one a second time.
+                    startScanHandoff();
+                    setScanOpen(false);
+                    onNavigate("scan");
+                  },
+                  onError: (failure) => notify(failure.message, "error"),
+                })
+              }
               icon={<CircleDollarSign size={17} />}
             >
               Use demo customer

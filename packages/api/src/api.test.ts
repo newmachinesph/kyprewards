@@ -11,6 +11,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { nextCursorFrom } from "./pagination.ts";
+import { http } from "./http.ts";
+import { applyApiErrors } from "./forms.ts";
 import { email, otpCode, password, pesosAsCentavos, phone, programSchema } from "./schemas.ts";
 
 /* ── Link header ──────────────────────────────────────────────────── */
@@ -119,3 +121,96 @@ test("programSchema rejects a type the API does not have", () => {
 
   assert.equal(result.success, false);
 });
+
+/* ── Server errors, back onto the form ────────────────────────────────
+   The bridge that makes the API's 422 useful. A rule only the server knows -
+   an email already taken, a plan that forbids a program type - can only be
+   shown under the right input if the refusal names the field and something
+   carries it there. */
+
+test("applyApiErrors puts a server refusal under the field that caused it", async () => {
+  const marked: Array<[string, string]> = [];
+  const failure = await refusal({
+    detail: "target: must be between 1 and 30",
+    errors: [{ field: "target", message: "must be between 1 and 30" }],
+  });
+
+  const unplaced = applyApiErrors(
+    failure,
+    ((name: string, error: { message?: string }) =>
+      marked.push([name, error.message ?? ""])) as never,
+    { name: "Eight visits", target: 31 },
+  );
+
+  assert.deepEqual(marked, [["target", "must be between 1 and 30"]]);
+  assert.deepEqual(unplaced, []);
+});
+
+test("a field the form does not have is reported, not swallowed", async () => {
+  // Otherwise the user sees nothing at all and cannot act: the message would
+  // be attached to an input that does not exist.
+  const marked: string[] = [];
+  const failure = await refusal({
+    detail: "plan: Grow does not include gift cards",
+    errors: [{ field: "plan", message: "Grow does not include gift cards" }],
+  });
+
+  const unplaced = applyApiErrors(
+    failure,
+    ((name: string) => marked.push(name)) as never,
+    { name: "Gift cards", target: 8 },
+  );
+
+  assert.deepEqual(marked, []);
+  assert.deepEqual(unplaced, [
+    { field: "plan", message: "Grow does not include gift cards" },
+  ]);
+});
+
+test("a nested field path is walked rather than guessed", async () => {
+  const marked: string[] = [];
+  const failure = await refusal({
+    detail: "tiers.0.target: too small",
+    errors: [{ field: "tiers.0.target", message: "too small" }],
+  });
+
+  applyApiErrors(
+    failure,
+    ((name: string) => marked.push(name)) as never,
+    { tiers: [{ target: 0 }] },
+  );
+
+  assert.deepEqual(marked, ["tiers.0.target"]);
+});
+
+test("an error with no field list places nothing", async () => {
+  const marked: string[] = [];
+  const failure = await refusal({ detail: "Something went wrong on our side" });
+
+  const unplaced = applyApiErrors(
+    failure,
+    ((name: string) => marked.push(name)) as never,
+    { name: "" },
+  );
+
+  assert.deepEqual(marked, []);
+  assert.deepEqual(unplaced, []);
+});
+
+/** An ApiError as `http()` builds one, so the field list rides along with it. */
+async function refusal(body: unknown) {
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async () =>
+    new Response(JSON.stringify(body), {
+      status: 422,
+      headers: { "Content-Type": "application/json" },
+    })) as typeof fetch;
+  try {
+    await http("/business/programs", { method: "POST", body: {} });
+    throw new Error("expected the request to be refused");
+  } catch (failure) {
+    return failure;
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+}
