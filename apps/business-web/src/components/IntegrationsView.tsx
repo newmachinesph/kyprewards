@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { contract, sharedScenario } from "@kypstamping/demo-data";
-import type { Environment } from "@kypstamping/demo-data";
+import { sharedScenario } from "@kypstamping/demo-data";
+import type { Environment } from "@kypstamping/api";
 import { Button, DemoBadge, Eyebrow, FieldLabel, Panel } from "@kypstamping/ui";
 import { PlanTag } from "@kypstamping/ui/shell";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
@@ -31,7 +31,7 @@ import {
   X,
 } from "lucide-react";
 import type { BusinessView } from "@/components/BusinessShell";
-import { useBusinessProfile, useLocations } from "@kypstamping/api";
+import { useBusinessProfile, useContract, useLocations } from "@kypstamping/api";
 import { useDemoState } from "@/components/DemoState";
 import type { Credential, Delivery } from "@/components/DemoState";
 
@@ -126,6 +126,7 @@ export function IntegrationsView({
     subscribedEvents,
     setSubscribedEvents,
   } = useDemoState();
+  const { data: contract } = useContract();
   const { data: profile } = useBusinessProfile();
   const { data: locations = [] } = useLocations();
   const [keyLabel, setKeyLabel] = useState("Main counter backup");
@@ -143,13 +144,13 @@ export function IntegrationsView({
   const keyPrefix = environment === "sandbox" ? "st_test" : "st_live_demo";
   const secretPrefix = environment === "sandbox" ? "sk_test" : "sk_live_demo";
   const providerSlug = connection === "sidecar" ? "terminal" : connection;
-  const inboundUrl = `${contract.apiBase}/integrations/${providerSlug}/webhook`;
+  const inboundUrl = `${(contract?.apiBase ?? "")}/integrations/${providerSlug}/webhook`;
   // Every value below is the shared scenario's own visit, so the request the
   // merchant copies matches the event the wallet and the control room show.
   const quickstart = `curl --request POST \\
-  --url ${contract.apiBase}/transactions \\
+  --url ${(contract?.apiBase ?? "")}/transactions \\
   --header 'Authorization: Bearer ${secretPrefix}_••••••••' \\
-  --header '${contract.idempotency.header}: ${sharedScenario.delivery.idempotencyKey}' \\
+  --header '${(contract?.idempotency.header ?? "Idempotency-Key")}: ${sharedScenario.delivery.idempotencyKey}' \\
   --header 'X-Merchant-ID: ${sharedScenario.merchantId}' \\
   --data '{
     "external_transaction_id": "${sharedScenario.externalTransactionId}",
@@ -325,7 +326,7 @@ export function IntegrationsView({
                 <CircleDot size={12} className="text-[var(--accent)]" /> Sweet Crumbs
               </span>
               <span className="text-xs font-semibold text-white/60">
-                Planned API base · /{contract.version}
+                API base · /{contract?.version ?? ""}
               </span>
             </div>
             <h2 className="mt-6 max-w-2xl text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">
@@ -752,7 +753,7 @@ export function IntegrationsView({
             <div>
               <FieldLabel>Accepted POS events</FieldLabel>
               <div className="flex flex-wrap gap-2">
-                {contract.inboundEvents.map((event) => (
+                {(contract?.inboundEvents ?? []).map((event) => (
                   <span
                     key={event.name}
                     title={event.detail}
@@ -806,7 +807,7 @@ export function IntegrationsView({
                 Send these events
               </legend>
               <div className="grid gap-2 sm:grid-cols-2">
-                {contract.outboundEvents.map((event) => {
+                {(contract?.outboundEvents ?? []).map((event) => {
                   const checked = subscribedEvents.includes(event.name);
                   return (
                     <label
@@ -961,7 +962,7 @@ export function IntegrationsView({
             title: "Sandbox contract",
             detail: "Customer lookup, sale, refund, void, balance, reward, and redemption flows share /api/v1.",
             action: "Copy API base",
-            onClick: () => copyValue(contract.apiBase, "Planned API base"),
+            onClick: () => copyValue((contract?.apiBase ?? ""), "Planned API base"),
           },
           {
             icon: TriangleAlert,

@@ -39,7 +39,7 @@ import {
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import { useDemoState } from "@/components/DemoState";
 import { sharedScenario } from "@kypstamping/demo-data";
-import type { Automation } from "@kypstamping/demo-data";
+import type { Automation } from "@kypstamping/api";
 import {
   useAutomations,
   useBusinessMetrics,

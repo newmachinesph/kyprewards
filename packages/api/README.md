@@ -1,8 +1,7 @@
 # `@kypstamping/api`
 
-The data layer for all four apps. Built, tested, and **not yet wired to the
-API** — that is deliberate, and step 3 of `backend/INTEGRATION.md` is the one
-change that flips it.
+The data layer for all four apps. Wired: every screen in the merchant
+workspace, the customer wallet and the platform console reads this service.
 
 ## The split
 
@@ -19,15 +18,16 @@ disagree the moment one refetches, and the bug reads as "the list is stale"
 rather than "we cached it twice". Customers, programs, campaigns and metrics
 are queries. A scanned-but-unsubmitted transaction is a store.
 
-## What is wired today
+## What it talks to
 
-`ApiProvider` is in all four root layouts, so the query client is live. The
-read hooks call `@kypstamping/demo-data`'s accessor seam, which still resolves the
-fixture — so the hooks work right now against the demo, exactly as the screens
-do. When those 31 accessor bodies become `http()` calls, not one line in
-`queries.ts` changes. That is the whole reason the seam exists.
+`ApiProvider` is in all four root layouts. `endpoints.ts` is every call the
+apps make — 31 reads and 15 writes — and `contract.test.ts` runs them against
+a live stack, asserting on the real body rather than on what the OpenAPI
+schema claims. Start the backend (`make up`) before `npm test`.
 
-`http.ts` is written, typed and unit-tested, and nothing imports it yet.
+`@kypstamping/demo-data` is down to one export: the shared scenario, the ₱286
+visit all four apps narrate from their own side. It is a story, not a record,
+and the API has no route for it.
 
 ## Using it
 
@@ -60,14 +60,16 @@ onError: (error) => {
 field the server names but the form does not have is an error the user can
 otherwise neither see nor fix.
 
-## Superseding `DemoState.tsx`
+## What is still local
 
-`apps/business-web/src/components/DemoState.tsx` currently holds both kinds of
-state in one context. At integration it splits: its server half (programs,
-campaigns, staff, integrations, automations) becomes the hooks here, its
-client half (`scanHandoff`, `testStampDone`, the webhook draft, the workspace)
-becomes the stores here. It is untouched for now so nothing breaks before the
-swap.
+`DemoState.tsx` kept its client half — the webhook draft, the setup ledger,
+the scan handoff, the wizard's answers — and gave up its server half to the
+hooks here.
+
+Two things in it are still local and have endpoints waiting:
+integration credentials (`/integration-credentials`) and webhook deliveries
+(`/webhook-deliveries`). Wallet passes are not implemented at all; that one
+needs Apple and Google signing certificates.
 
 ## Tests
 
@@ -75,8 +77,15 @@ swap.
 npm test -w @kypstamping/api
 ```
 
-Covers the two parsers and the normalising schemas — the Link-header cursor,
-PH mobile normalisation, the peso→centavo rounding, and the published 1–30
-stamp range. The hooks are not tested: they are one-line adapters over
-accessors that already have a fixture, and a test asserting `useQuery` calls
-`useQuery` proves nothing.
+Thirty-eight checks: the two parsers and the normalising schemas offline, and
+every domain against the running API — field names, units, closed unions, the
+idempotency replay, and that a write is committed before its response is sent.
+
+The hooks themselves are not tested. They are one-line adapters over
+`endpoints.ts`, and a test asserting `useQuery` calls `useQuery` proves
+nothing.
+
+One local constraint: OTP is throttled to three codes per destination per ten
+minutes and only the seeded customer has credentials, so the wallet tests and
+manual browser testing share that budget. The suite says so plainly when it
+runs out.

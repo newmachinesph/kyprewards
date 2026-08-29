@@ -29,7 +29,7 @@ import {
   type StaffInvite,
   type ToggleResult,
 } from "@kypstamping/api";
-import type { Program } from "@kypstamping/demo-data";
+import type { Program } from "@kypstamping/api";
 
 export const useToggleAutomation = () =>
   useApiMutation<ToggleResult, string>(toggleAutomation, {

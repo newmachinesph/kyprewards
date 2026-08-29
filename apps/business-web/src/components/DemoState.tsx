@@ -12,7 +12,7 @@ import {
   type SetStateAction,
 } from "react";
 import { sharedScenario } from "@kypstamping/demo-data";
-import type { Credential, Delivery } from "@kypstamping/demo-data";
+import type { Credential, Delivery } from "@kypstamping/api";
 
 /**
  * Client state, and only client state.

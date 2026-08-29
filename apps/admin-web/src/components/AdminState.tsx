@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRecoveryQueue, useSupportQueue } from "@kypstamping/api";
-import type { Environment, RecoveryItem, SupportTicket } from "@kypstamping/demo-data";
+import type { Environment, RecoveryItem, SupportTicket } from "@kypstamping/api";
 
 /**
  * The control room's state, above the view switch.

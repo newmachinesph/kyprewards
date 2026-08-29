@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { sharedScenario } from "@kypstamping/demo-data";
-import type { AdapterStatus, ConnectionHealth } from "@kypstamping/demo-data";
+import type { AdapterStatus, ConnectionHealth } from "@kypstamping/api";
 import { Button, Eyebrow, Panel } from "@kypstamping/ui";
 import {
   useAdapters,

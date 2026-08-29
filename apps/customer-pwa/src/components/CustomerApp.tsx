@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { sharedScenario } from "@kypstamping/demo-data";
-import type { DiscoverPlace, WalletCard } from "@kypstamping/demo-data";
+import type { DiscoverPlace, WalletCard } from "@kypstamping/api";
 import {
   useActivity,
   useConsentHistory,

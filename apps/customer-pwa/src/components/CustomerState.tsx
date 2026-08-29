@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { useCustomerProfile, useDiscover, useWallet } from "@kypstamping/api";
-import type { CustomerProfile, WalletCard } from "@kypstamping/demo-data";
+import type { CustomerProfile, WalletCard } from "@kypstamping/api";
 
 /**
  * Everything the wallet owns, in one place.
