@@ -24,6 +24,7 @@ import type {
   Automation,
   Billing,
   Branding,
+  InvitePreview,
   BusinessCustomer,
   BusinessLocation,
   BusinessMetrics,
@@ -126,6 +127,10 @@ export const requestPasswordReset = (email: string): Promise<{ sent: boolean }> 
  */
 export const resetPassword = (token: string, password: string): Promise<void> =>
   http("/auth/password/reset", { method: "POST", body: { token, password } });
+
+/** Readable with the token alone: whoever holds it is who it is for. */
+export const getInvite = (token: string): Promise<InvitePreview> =>
+  http(`/auth/invites/${encodeURIComponent(token)}`);
 
 export const acceptInvite = (
   token: string,

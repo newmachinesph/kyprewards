@@ -34,12 +34,14 @@ import {
   registerBusiness,
   registerCustomer,
   requestOtp,
+  getInvite,
   requestPasswordReset,
   resetPassword,
   selectWorkspace,
   getWorkspaces,
   verifyMfa,
   verifyOtp,
+  type InvitePreview,
   type Workspace,
 } from "@kypstamping/api";
 import { BrandMark, StampDots } from "./index";
@@ -477,6 +479,8 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   const [identifier, setIdentifier] = useState<string>(config.identifier);
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
+  const [invite, setInvite] = useState<InvitePreview | null>(null);
+  const [inviteError, setInviteError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [code, setCode] = useState("");
@@ -490,6 +494,31 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   const [channel, setChannel] = useState<"mobile" | "email">("mobile");
   const [workspace, setWorkspace] = useState("");
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+
+  // The invite is read once, before anything is offered: the screen has
+  // nothing honest to show until it knows which workspace this token is for.
+  useEffect(() => {
+    if (mode !== "invite") return;
+    // The other flows prefill a demo name; an invitee has to type their own.
+    setName("");
+    const token = new URLSearchParams(window.location.search).get("token") ?? "";
+    if (!token) {
+      setInviteError("This link is missing its token. Ask for the invitation again.");
+      return;
+    }
+    let live = true;
+    getInvite(token)
+      .then((found) => live && setInvite(found))
+      .catch((failure) =>
+        live &&
+        setInviteError(
+          failure instanceof ApiError ? failure.message : "That invitation could not be read.",
+        ),
+      );
+    return () => {
+      live = false;
+    };
+  }, [mode]);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("loggedOut") === "1") {
@@ -1089,23 +1118,65 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
     );
   }
 
+  if (inviteError) {
+    return (
+      <AuthShell role="business" mode="invite" title="That invitation has expired." description="Invitations are good for seven days and one use.">
+        <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
+          {inviteError}
+        </p>
+        <a href="/login" className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)]">Go to sign in <ArrowRight size={15} /></a>
+      </AuthShell>
+    );
+  }
+
+  if (!invite) {
+    return (
+      <AuthShell role="business" mode="invite" title="You have been invited." description="Reading your invitation…">
+        <div className="h-52 animate-pulse rounded-2xl border border-[var(--line)] bg-[var(--surface-2)]" />
+      </AuthShell>
+    );
+  }
+
   return (
-    <AuthShell role="business" mode="invite" title="You have been invited." description="Review the role and locations before joining the Sweet Crumbs demo workspace.">
+    <AuthShell role="business" mode="invite" title="You have been invited." description={`Review the role before joining ${invite.businessName}.`}>
       <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="bg-[var(--ink)] p-6 text-[var(--paper)]">
           <span className="grid size-12 place-items-center rounded-2xl bg-[var(--accent)] text-[var(--ink)]"><UserRoundPlus size={20} /></span>
-          <h2 className="mt-6 text-xl font-extrabold">Sweet Crumbs Bakery</h2>
-          <p className="mt-1 text-xs text-white/65">Invited by Mara Santos · Owner</p>
+          <h2 className="mt-6 text-xl font-extrabold">{invite.businessName}</h2>
+          <p className="mt-1 text-xs text-white/65">Sent to {invite.email}</p>
         </div>
         <div className="divide-y divide-[var(--line)]">
-          {[["Role", "Manager"], ["Locations", "Kapitolyo and BGC High Street"], ["Access", "Customers, campaigns, and reports"]].map(([label, value]) => (
+          {[["Role", invite.role], ["Locations", invite.location]].map(([label, value]) => (
             <div key={label} className="grid grid-cols-[86px_1fr] gap-3 px-6 py-4"><span className="text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">{label}</span><span className="text-xs font-bold">{value}</span></div>
           ))}
         </div>
       </div>
-      <button type="button" onClick={() => go("/workspaces")} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)]">Accept demo invitation <ChevronRight size={16} /></button>
+      <form
+        className="mt-5 space-y-5"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          if (password.length < 10) { setNotice("Use at least 10 characters."); return; }
+          setNotice("");
+          setBusy(true);
+          try {
+            // Accepting signs you in, so there is nowhere to send you but in.
+            await acceptInvite(
+              new URLSearchParams(window.location.search).get("token") ?? "",
+              { name: name.trim(), password },
+            );
+            go("/workspaces");
+          } catch (failure) {
+            setNotice(failure instanceof ApiError ? failure.message : "That did not work. Ask for a new invitation.");
+            setBusy(false);
+          }
+        }}
+      >
+        <Field label="Your name" value={name} onChange={setName} autoComplete="name" />
+        <Field label="Choose a password" type="password" value={password} onChange={setPassword} autoComplete="new-password" />
+        {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
+        <PrimaryButton disabled={busy}>{busy ? "Joining…" : `Join ${invite.businessName}`}</PrimaryButton>
+      </form>
       <a href="/login" className="mt-3 flex min-h-11 items-center justify-center text-xs font-extrabold text-[var(--muted-strong)]">Decline and return to sign in</a>
-      <DemoBoundary />
     </AuthShell>
   );
 }

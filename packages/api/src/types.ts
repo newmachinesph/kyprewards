@@ -537,3 +537,10 @@ export type Branding = {
   /** Presigned and short-lived when uploaded; a plain path when seeded. */
   imageUrl: string | null;
 };
+
+export type InvitePreview = {
+  businessName: string;
+  role: string;
+  location: string;
+  email: string;
+};
