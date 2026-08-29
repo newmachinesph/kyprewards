@@ -1,10 +1,10 @@
 import { AdminDemo } from "@/components/AdminDemo";
-import { DemoSessionGate } from "@kypstamping/ui/auth";
+import { SessionGate } from "@kypstamping/ui/auth";
 
 export default function AdminPage() {
   return (
-    <DemoSessionGate role="admin">
+    <SessionGate role="admin">
       <AdminDemo />
-    </DemoSessionGate>
+    </SessionGate>
   );
 }

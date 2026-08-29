@@ -43,6 +43,7 @@ import type {
   RecoveryItem,
   Redemption,
   ServiceHealth,
+  AccountKind,
   SessionInfo,
   StaffMember,
   SupportTicket,
@@ -59,6 +60,73 @@ import type {
 export const getSession = (): Promise<SessionInfo> => http("/auth/session");
 
 export const getWorkspaces = (): Promise<Workspace[]> => http("/auth/workspaces");
+
+/**
+ * What every sign-in answers with. `mfaRequired` and `needsWorkspace` are
+ * what decide where the user lands next, so the caller never has to guess.
+ */
+export type LoginResult = {
+  kind: AccountKind;
+  name: string;
+  mfaRequired: boolean;
+  needsWorkspace: boolean;
+  merchantId: string | null;
+};
+
+export const login = (email: string, password: string): Promise<LoginResult> =>
+  http("/auth/login", { method: "POST", body: { email, password } });
+
+/** Admin second factor. The session exists but cannot act until this passes. */
+export const verifyMfa = (code: string): Promise<LoginResult> =>
+  http("/auth/mfa/verify", { method: "POST", body: { code } });
+
+/**
+ * Customers sign in with a code, not a password.
+ *
+ * The answer is the same whether or not the identifier is known - telling a
+ * stranger which numbers have wallets is the leak this avoids.
+ */
+export const requestOtp = (identifier: string): Promise<{ sent: boolean; expiresInSeconds: number }> =>
+  http("/auth/otp/request", { method: "POST", body: { identifier } });
+
+export const verifyOtp = (identifier: string, code: string): Promise<LoginResult> =>
+  http("/auth/otp/verify", { method: "POST", body: { identifier, code } });
+
+export const selectWorkspace = (merchantId: string): Promise<LoginResult> =>
+  http(`/auth/workspaces/${merchantId}/select`, { method: "POST" });
+
+export const logout = (): Promise<void> => http("/auth/logout", { method: "POST" });
+
+/**
+ * What the onboarding wizard submits.
+ *
+ * Provisions the merchant, its branches and a first live program in one call,
+ * so the next screen has something to stamp against.
+ */
+export const createWorkspace = (body: {
+  businessName: string;
+  category: string;
+  city: string;
+  locations?: number;
+  program?: string;
+  method?: string;
+}): Promise<LoginResult> => http("/auth/workspaces", { method: "POST", body });
+
+export const requestPasswordReset = (email: string): Promise<{ sent: boolean }> =>
+  http("/auth/password/forgot", { method: "POST", body: { email } });
+
+export const registerBusiness = (body: {
+  name: string;
+  email: string;
+  password: string;
+}): Promise<LoginResult> => http("/auth/register/business", { method: "POST", body });
+
+export const registerCustomer = (body: {
+  name: string;
+  mobile: string;
+  email?: string;
+}): Promise<{ sent: boolean }> =>
+  http("/auth/register/customer", { method: "POST", body });
 
 /* ── Contract ─────────────────────────────────────────────────────── */
 

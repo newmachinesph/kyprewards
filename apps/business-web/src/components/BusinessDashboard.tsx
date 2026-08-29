@@ -144,7 +144,7 @@ export function BusinessDashboard({
   const { data: locations = [] } = useLocations();
   const { data: metrics = EMPTY_METRICS } = useBusinessMetrics();
   const { data: staff = [] } = useStaff();
-  const { data: programs = [] } = usePrograms();
+  const { data: programs = [], isPending: programsPending } = usePrograms();
   const { data: automationRows = [] } = useAutomations();
 
   const automations = useMemo(
@@ -473,6 +473,17 @@ export function BusinessDashboard({
             })}
           </div>
           <aside className="flex min-h-80 flex-col justify-between border-t border-[var(--line)] bg-[var(--ink)] p-6 text-[var(--paper)] lg:border-l lg:border-t-0">
+            {!selectedProgram ? (
+              <div>
+                <Eyebrow>Rule preview</Eyebrow>
+                <p className="mt-9 text-sm leading-relaxed text-white/65">
+                  {programsPending
+                    ? "Loading your programs…"
+                    : "No programs yet. Create one and its rule shows up here."}
+                </p>
+              </div>
+            ) : (
+            <>
             <div>
               <div className="flex items-center justify-between">
                 <Eyebrow>Rule preview</Eyebrow>
@@ -510,6 +521,8 @@ export function BusinessDashboard({
                 <ArrowRight size={14} />
               </button>
             </div>
+            </>
+            )}
           </aside>
         </div>
       </section>

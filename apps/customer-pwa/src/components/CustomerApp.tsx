@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { customer as customerDemo, sharedScenario } from "@kypstamping/demo-data";
 import { BrandMark, DemoBadge, Eyebrow, StampDots } from "@kypstamping/ui";
-import { signOutDemo } from "@kypstamping/ui/auth";
+import { signOut } from "@kypstamping/ui/auth";
 import { Toast, useToast } from "@kypstamping/ui/shell";
 import {
   formatDistance,
@@ -894,7 +894,7 @@ function ProfileView({
       </div>
       <button
         type="button"
-        onClick={() => signOutDemo("customer")}
+        onClick={() => signOut("customer")}
         className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[rgb(178_59_43/28%)] bg-[rgb(178_59_43/6%)] text-sm font-extrabold text-[var(--danger)] active:scale-[0.98]"
       >
         <LogOut size={16} /> Sign out of this device

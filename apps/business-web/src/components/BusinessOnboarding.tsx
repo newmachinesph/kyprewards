@@ -16,7 +16,7 @@ import {
   Webhook,
 } from "lucide-react";
 import { BrandMark, DemoBadge, Eyebrow } from "@kypstamping/ui";
-import { startDemoSession } from "@kypstamping/ui/auth";
+import { ApiError, createWorkspace } from "@kypstamping/api";
 
 // ponytail: city-level only. Exact coordinates are deliberately not collected —
 // discovery matches on city and area, which keeps this out of sensitive-location territory.
@@ -123,16 +123,33 @@ export function BusinessOnboarding() {
     setStep((value) => Math.min(value + 1, STEPS.length - 1));
   }
 
-  function finish() {
-    // Carry the answers forward instead of discarding them, so the workspace
-    // the merchant lands in reflects what they just configured.
-    window.sessionStorage.setItem(
-      "kypstamping-business-profile",
-      JSON.stringify({ businessName, category, city, locations, program, method }),
-    );
-    window.sessionStorage.removeItem("kypstamping-business-signup");
-    startDemoSession("business");
-    window.location.replace("/#dashboard");
+  /**
+   * Provisions the workspace for real.
+   *
+   * The answers used to be written to session storage and the session faked;
+   * they are the request body now, and the merchant, its branches and a first
+   * live program come back from the API. The session already exists - the
+   * merchant registered to get here - so nothing is started, only filled in.
+   */
+  async function finish() {
+    setNotice("");
+    try {
+      await createWorkspace({ businessName, category, city, locations, program, method });
+      // Still carried forward: the dashboard greets the merchant by the name
+      // they just typed, before the profile request has answered.
+      window.sessionStorage.setItem(
+        "kypstamping-business-profile",
+        JSON.stringify({ businessName, category, city, locations, program, method }),
+      );
+      window.sessionStorage.removeItem("kypstamping-business-signup");
+      window.location.replace("/#dashboard");
+    } catch (failure) {
+      setNotice(
+        failure instanceof ApiError
+          ? failure.message
+          : "Could not finish setting up your workspace.",
+      );
+    }
   }
 
   const selectedProgram = PROGRAMS.find((item) => item.id === program);

@@ -26,10 +26,37 @@ import {
   Store,
   UserRoundPlus,
 } from "lucide-react";
+import {
+  ApiError,
+  getSession,
+  login,
+  logout,
+  requestOtp,
+  verifyMfa,
+  verifyOtp,
+} from "@kypstamping/api";
 import { BrandMark, StampDots } from "./index";
 
-const DEMO_CODE = "424242";
-const DEMO_PASSWORD = "DemoPass123!";
+/*
+ * The password and verification code that used to live here were checked in
+ * the browser, which meant the "session" was a sessionStorage flag anyone
+ * could set from the console. Every screen behind it read a fixture, so there
+ * was nothing to protect - but the moment this points at a real API, a
+ * client-side credential check is theatre.
+ *
+ * Sign-in is the API's answer now. The session is an httpOnly cookie this
+ * code cannot read, which is the point: the gate below asks the server who
+ * the visitor is rather than trusting a flag.
+ */
+
+/**
+ * The identifier a customer asked for a code with.
+ *
+ * The verify screen is a separate route, and `POST /auth/otp/verify` needs
+ * the destination as well as the code. Session storage rather than the URL:
+ * a phone number in a query string ends up in browser history and logs.
+ */
+const OTP_IDENTIFIER_KEY = "kypstamping-otp-identifier";
 
 export type DemoAuthRole = "business" | "admin" | "customer";
 export type DemoAuthMode =
@@ -212,20 +239,25 @@ function CustomerAuthShell({
   );
 }
 
-function sessionKey(role: DemoAuthRole) {
-  return `kypstamping-${role}-demo-session`;
-}
-
-export function startDemoSession(role: DemoAuthRole) {
-  window.sessionStorage.setItem(sessionKey(role), "signed-in");
-}
-
-export function signOutDemo(role: DemoAuthRole) {
-  window.sessionStorage.setItem(sessionKey(role), "signed-out");
+/** Ends the session server-side, then leaves. */
+export async function signOut(role: DemoAuthRole) {
+  try {
+    await logout();
+  } catch {
+    // The cookie may already be gone or the API unreachable. Either way the
+    // user asked to leave, so leaving is the only correct outcome.
+  }
   window.location.replace("/login?loggedOut=1");
 }
 
-export function DemoSessionGate({
+/**
+ * Admits a visitor the API recognises, and nobody else.
+ *
+ * It asks `GET /auth/session` rather than reading a flag: the session is an
+ * httpOnly cookie, so the only party that can say whether it is valid is the
+ * one that issued it. Fails closed on anything unexpected.
+ */
+export function SessionGate({
   role,
   children,
 }: {
@@ -235,14 +267,30 @@ export function DemoSessionGate({
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const state = window.sessionStorage.getItem(sessionKey(role));
-    // Fail closed: only an explicit "signed-in" marker admits the visitor.
-    if (state !== "signed-in") {
-      window.location.replace("/login");
-      return;
-    }
-    const readyTimer = window.setTimeout(() => setReady(true), 0);
-    return () => window.clearTimeout(readyTimer);
+    let cancelled = false;
+
+    getSession()
+      .then((session) => {
+        if (cancelled) return;
+        if (session.kind !== role) {
+          // A customer holding a session must not land in the merchant
+          // workspace, even though the API would refuse every call anyway.
+          window.location.replace("/login");
+          return;
+        }
+        if (session.mfaPending) {
+          window.location.replace("/verify");
+          return;
+        }
+        setReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) window.location.replace("/login");
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [role]);
 
   if (!ready) {
@@ -415,10 +463,11 @@ function DemoBoundary({ compact = false }: { compact?: boolean }) {
 export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAuthMode }) {
   const config = roleConfig[role];
   const [identifier, setIdentifier] = useState<string>(config.identifier);
-  const [password, setPassword] = useState(DEMO_PASSWORD);
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
-  const [code, setCode] = useState(DEMO_CODE);
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
   const [name, setName] = useState("Jacqueline Daniel");
   const [businessName, setBusinessName] = useState("Sweet Crumbs Bakery");
   const [email, setEmail] = useState("jacqueline.daniel@example.com");
@@ -449,22 +498,79 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   }
 
   function completeSession(path = "/") {
-    startDemoSession(role);
     window.location.replace(path);
   }
 
-  function submitLogin(event: FormEvent<HTMLFormElement>) {
+  /**
+   * The API decides where the user lands.
+   *
+   * `mfaRequired` and `needsWorkspace` come back from the sign-in itself, so
+   * this never has to guess - and a customer, who has no password, takes the
+   * code route instead.
+   */
+  async function submitLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!identifier.trim()) {
       setNotice(`Enter your ${config.identifierLabel.toLowerCase()}.`);
       return;
     }
-    if (role !== "customer" && password !== DEMO_PASSWORD) {
-      setNotice(`Incorrect password. This demo expects ${DEMO_PASSWORD}.`);
+    if (role !== "customer" && !password) {
+      setNotice("Enter your password.");
       return;
     }
-    if (role === "business") go("/workspaces");
-    else go("/verify");
+
+    setBusy(true);
+    setNotice("");
+    try {
+      if (role === "customer") {
+        // Deliberately unconditional: the API answers the same whether or not
+        // the identifier is known, so this cannot be used to discover who has
+        // a wallet.
+        await requestOtp(identifier.trim());
+        window.sessionStorage.setItem(OTP_IDENTIFIER_KEY, identifier.trim());
+        go("/verify");
+        return;
+      }
+
+      const result = await login(identifier.trim(), password);
+      if (result.mfaRequired) {
+        go("/verify");
+      } else if (result.needsWorkspace) {
+        go("/onboarding");
+      } else {
+        completeSession("/");
+      }
+    } catch (failure) {
+      setNotice(failure instanceof ApiError ? failure.message : "Could not sign in.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** The six-digit step: an authenticator for an admin, an SMS or email code
+   *  for a customer. */
+  async function submitVerify(event: FormEvent<HTMLFormElement>, destination: string) {
+    event.preventDefault();
+    if (code.length !== 6) {
+      setNotice("Enter all six digits.");
+      return;
+    }
+
+    setBusy(true);
+    setNotice("");
+    try {
+      if (role === "customer") {
+        const sentTo = window.sessionStorage.getItem(OTP_IDENTIFIER_KEY) ?? identifier.trim();
+        await verifyOtp(sentTo, code);
+      } else {
+        await verifyMfa(code);
+      }
+      completeSession(destination);
+    } catch (failure) {
+      setNotice(failure instanceof ApiError ? failure.message : "That code is not correct.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (mode === "login") {
@@ -613,7 +719,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
     }
     return (
       <AuthShell role={role} mode="verify" title={role === "customer" ? "Enter your code." : "Confirm it is you."} description={role === "admin" ? "Enter the six-digit code from your administrator authenticator." : role === "customer" ? "Use the six-digit code prepared for your demo wallet." : "Enter the six-digit code prepared for your demo account."}>
-        <form onSubmit={(event) => { event.preventDefault(); if (code.length !== 6) { setNotice("Enter all six digits."); return; } if (code !== DEMO_CODE) { setNotice("That code is not correct."); return; } completeSession(verifyDestination()); }} className="space-y-5">
+        <form onSubmit={(event) => submitVerify(event, verifyDestination())} className="space-y-5">
           <label className="grid gap-2 text-xs font-extrabold">
             Six-digit verification code
             <input
@@ -624,11 +730,33 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
               aria-describedby="code-help"
               className="min-h-16 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-center font-mono text-2xl font-extrabold tracking-[0.42em] outline-none focus:border-[var(--accent-strong)]"
             />
-            <span id="code-help" className="text-[10px] font-semibold text-[var(--muted)]">Demo code: {DEMO_CODE}</span>
+            <span id="code-help" className="text-[10px] font-semibold text-[var(--muted)]">
+              {role === "admin"
+                ? "From your authenticator app"
+                : "Sent to the address you signed in with"}
+            </span>
           </label>
           {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--muted-strong)]">{notice}</p>}
           <PrimaryButton disabled={code.length !== 6}>Verify and continue</PrimaryButton>
-          <button type="button" onClick={() => setNotice(`A new demo code is ready: ${DEMO_CODE}.`)} className="min-h-11 w-full text-xs font-extrabold text-[var(--accent-strong)] hover:underline">Resend demo code</button>
+          {role === "customer" && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={async () => {
+                const sentTo =
+                  window.sessionStorage.getItem(OTP_IDENTIFIER_KEY) ?? identifier.trim();
+                try {
+                  await requestOtp(sentTo);
+                  setNotice("A new code is on its way.");
+                } catch (failure) {
+                  setNotice(failure instanceof ApiError ? failure.message : "Could not resend.");
+                }
+              }}
+              className="min-h-11 w-full text-xs font-extrabold text-[var(--accent-strong)] hover:underline"
+            >
+              Resend code
+            </button>
+          )}
           <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> Use another account</a>
         </form>
         <DemoBoundary compact={role === "customer"} />
@@ -733,7 +861,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
             );
           })}
           <div className="pt-3"><PrimaryButton>Open selected workspace</PrimaryButton></div>
-          <button type="button" onClick={() => signOutDemo("business")} className="min-h-11 w-full text-xs font-extrabold text-[var(--muted-strong)] hover:text-[var(--ink)]">Sign in with another account</button>
+          <button type="button" onClick={() => signOut("business")} className="min-h-11 w-full text-xs font-extrabold text-[var(--muted-strong)] hover:text-[var(--ink)]">Sign in with another account</button>
         </form>
       </AuthShell>
     );

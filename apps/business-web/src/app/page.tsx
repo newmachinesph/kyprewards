@@ -1,10 +1,10 @@
 import { BusinessDemo } from "@/components/BusinessDemo";
-import { DemoSessionGate } from "@kypstamping/ui/auth";
+import { SessionGate } from "@kypstamping/ui/auth";
 
 export default function BusinessPage() {
   return (
-    <DemoSessionGate role="business">
+    <SessionGate role="business">
       <BusinessDemo />
-    </DemoSessionGate>
+    </SessionGate>
   );
 }

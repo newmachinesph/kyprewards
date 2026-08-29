@@ -10,6 +10,7 @@
     "./format": "./src/format.ts"
   },
   "dependencies": {
+    "@kypstamping/api": "*",
     "lucide-react": "latest",
     "react": "19.2.8"
   },

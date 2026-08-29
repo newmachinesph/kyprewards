@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BrandMark } from "@kypstamping/ui";
-import { signOutDemo } from "@kypstamping/ui/auth";
+import { signOut } from "@kypstamping/ui/auth";
 import { admin } from "@kypstamping/demo-data";
 import { relativeTime } from "@kypstamping/ui/format";
 import { useAdminState } from "@/components/AdminState";
@@ -224,7 +224,7 @@ export function AdminShell({
           </p>
           <button
             type="button"
-            onClick={() => signOutDemo("admin")}
+            onClick={() => signOut("admin")}
             className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/6 text-xs font-extrabold text-white/78 transition hover:bg-white/10 hover:text-white"
           >
             <LogOut size={15} /> Sign out securely
@@ -343,7 +343,7 @@ export function AdminShell({
                   </div>
                   <button type="button" onClick={() => navigate("settings")} className="mt-1 flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><Settings2 size={15} /> Administrator settings</button>
                   <button type="button" onClick={() => navigate("audit")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><FileClock size={15} /> My audit activity</button>
-                  <button type="button" onClick={() => signOutDemo("admin")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold text-[var(--danger)] hover:bg-[rgb(178_59_43/8%)]"><LogOut size={15} /> Sign out securely</button>
+                  <button type="button" onClick={() => signOut("admin")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold text-[var(--danger)] hover:bg-[rgb(178_59_43/8%)]"><LogOut size={15} /> Sign out securely</button>
                 </div>
               )}
             </div>
@@ -357,7 +357,7 @@ export function AdminShell({
             <nav className="space-y-1" aria-label="Mobile platform navigation">
               {navContent}
             </nav>
-            <button type="button" onClick={() => signOutDemo("admin")} className="mt-6 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/7 text-sm font-extrabold text-white"><LogOut size={16} /> Sign out securely</button>
+            <button type="button" onClick={() => signOut("admin")} className="mt-6 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/7 text-sm font-extrabold text-white"><LogOut size={16} /> Sign out securely</button>
           </div>
         )}
         <div id="main-content" tabIndex={-1}>
