@@ -19,6 +19,8 @@ import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import { before, describe, test } from "node:test";
 
+import { ApiError, fieldErrors } from "./http.ts";
+
 const API = process.env.KYP_TEST_API ?? "http://localhost:8000/api/v1";
 process.env.NEXT_PUBLIC_API_BASE = API;
 
@@ -30,6 +32,11 @@ const ADMIN_MFA_SECRET = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
 // destination (3 per 10 minutes), and leaving the mobile alone means a manual
 // curl against the running stack does not lock the suite out.
 const CUSTOMER_EMAIL = "jacqueline.daniel@example.com";
+// The write tests stamp a real card, and this suite shares its database with
+// the backend's. cus_1001 is the one the shared scenario narrates and that
+// 34 backend assertions pin, so the writes go to the customer nobody else
+// asserts on - and void themselves afterwards.
+const SCRATCH_CUSTOMER = "cus_1008";
 
 /**
  * Probed at module load, with top-level await, because `test()`'s `skip`
@@ -99,6 +106,11 @@ async function post(path: string, body: unknown) {
   return response.json();
 }
 
+/** Undoes a stamp this suite made, so the card is left where it was found. */
+async function voidVisit(transactionId: string) {
+  await post(`/transactions/${transactionId}/void`, { reason: "contract test" });
+}
+
 async function asOwner() {
   cookie = "";
   await post("/auth/login", OWNER);
@@ -112,7 +124,21 @@ async function asAdmin() {
 
 async function asCustomer() {
   cookie = "";
-  await post("/auth/otp/request", { identifier: CUSTOMER_EMAIL });
+  const requested = await fetch(`${API}/auth/otp/request`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ identifier: CUSTOMER_EMAIL }),
+  });
+  if (requested.status === 429) {
+    // Three codes per destination per ten minutes, by design. Running this
+    // suite in a tight loop trips it, and without saying so the failure reads
+    // like a broken endpoint.
+    assert.fail(
+      "OTP throttled: three codes per ten minutes per destination. " +
+        "Wait, or point KYP_TEST_API at a fresh stack.",
+    );
+  }
+  assert.ok(requested.ok, `otp/request answered ${requested.status}`);
   const sent = await (await fetch(`${API}/_dev/messages?purpose=otp&limit=1`)).json();
   const code = /\d{6}/.exec(sent[0].body)?.[0];
   assert.ok(code, "no OTP reached the dev sink");
@@ -357,5 +383,87 @@ describe("platform administration", () => {
     assert.ok(adapters.length > 0);
     assert.ok(connections.length > 0);
     assert.ok(Array.isArray(recovery));
+  });
+});
+
+describe("counter writes", () => {
+  let api: typeof import("./endpoints.ts");
+
+  before(async () => {
+    if (!reachable) return;
+    api = await import("./endpoints.ts");
+    await asOwner();
+  });
+
+  live("a customer is found by phone or by email", async () => {
+    const byPhone = await api.lookupCustomer({ phone: "+639175550182" });
+    const byEmail = await api.lookupCustomer({ email: CUSTOMER_EMAIL });
+
+    assert.equal(byPhone.id, byEmail.id);
+    assert.match(byPhone.memberCode, /^KYP-/);
+    assert.equal(byPhone.isMember, true);
+  });
+
+  live("the same idempotency key never stamps twice", async () => {
+    // The whole reason the header exists: a counter tablet loses wifi
+    // mid-request and the cashier presses the button again.
+    const key = `visit_CONTRACT_${Date.now()}`;
+    const body = { customerId: SCRATCH_CUSTOMER, amountCentavos: 25000 };
+
+    const first = await api.recordVisit(body, key);
+    const replay = await api.recordVisit(body, key);
+
+    try {
+      assert.equal(replay.id, first.id, "a replay must return the original visit");
+      assert.equal(replay.stampsAfter, first.stampsAfter, "and must not move the balance");
+      assert.equal(first.stampsAfter, first.stampsBefore + 1);
+    } finally {
+      await voidVisit(first.id);
+    }
+  });
+
+  live("a different key on the same customer does stamp again", async () => {
+    const first = await api.recordVisit(
+      { customerId: SCRATCH_CUSTOMER, amountCentavos: 10000 },
+      `visit_CONTRACT_A_${Date.now()}`,
+    );
+    const second = await api.recordVisit(
+      { customerId: SCRATCH_CUSTOMER, amountCentavos: 10000 },
+      `visit_CONTRACT_B_${Date.now()}`,
+    );
+
+    try {
+      assert.equal(second.stampsBefore, first.stampsAfter);
+    } finally {
+      await voidVisit(second.id);
+      await voidVisit(first.id);
+    }
+  });
+
+  live("toggling an automation answers with the state it landed on", async () => {
+    const [automation] = await api.getAutomations();
+
+    const first = await api.toggleAutomation(automation.id);
+    const second = await api.toggleAutomation(automation.id);
+
+    assert.equal(typeof first.enabled, "boolean");
+    assert.equal(second.enabled, !first.enabled, "a second toggle flips it back");
+  });
+
+  live("a rejected program names the field that failed", async () => {
+    // 31 is outside the published 1-30 stamp range. What matters is the
+    // shape of the refusal: a form has to mark the input that caused it.
+    const rejected = await api
+      .createProgram({ type: "Stamps", name: "Too many", target: 31 })
+      .then(() => null)
+      .catch((error: unknown) => error);
+
+    assert.ok(rejected instanceof ApiError, "expected an ApiError");
+    assert.equal(rejected.status, 422);
+    assert.equal(typeof rejected.message, "string");
+    assert.ok(!rejected.message.startsWith("[object"), rejected.message);
+
+    const fields = fieldErrors(rejected).map((item) => item.field);
+    assert.ok(fields.includes("target"), `fields were ${JSON.stringify(fields)}`);
   });
 });

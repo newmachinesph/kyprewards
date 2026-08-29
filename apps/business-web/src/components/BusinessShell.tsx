@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { useBusinessProfile } from "@kypstamping/api";
 import { BrandMark } from "@kypstamping/ui";
 import { signOutDemo } from "@kypstamping/ui/auth";
-import { business } from "@kypstamping/demo-data";
 import { useDemoState } from "@/components/DemoState";
 import {
   BarChart3,
@@ -123,7 +123,10 @@ export function BusinessShell({
   // Whatever onboarding configured, falling back to the fixture workspace when
   // the merchant signed in instead of signing up.
   const { workspace } = useDemoState();
-  const workspaceName = workspace?.businessName ?? business.profile.shortName;
+  // The wizard's answer wins while it is still in session storage; after that
+  // the workspace is whatever the API says it is.
+  const { data: profile } = useBusinessProfile();
+  const workspaceName = workspace?.businessName ?? profile?.shortName ?? "";
   const workspaceInitials = workspaceName
     .split(/\s+/)
     .filter(Boolean)

@@ -87,13 +87,19 @@ const automationIcons: Record<string, typeof Gift> = {
   auto_referral: UserPlus,
 };
 
-const automationDefaults = business.automations.map((automation) => ({
-  id: automation.id,
-  name: automation.name,
-  detail: `${automation.trigger} · ${automation.audience} customers`,
-  icon: automationIcons[automation.id] ?? Gift,
-  enabled: automation.status === "Live",
-}));
+/**
+ * Derived per render rather than once at module load: automations arrive from
+ * a request now, so a module-level constant would capture whatever the first
+ * import saw - which is nothing.
+ */
+const automationDefaultsFrom = (automations: Automation[]) =>
+  automations.map((automation) => ({
+    id: automation.id,
+    name: automation.name,
+    detail: `${automation.trigger} · ${automation.audience} customers`,
+    icon: automationIcons[automation.id] ?? Gift,
+    enabled: automation.status === "Live",
+  }));
 
 
 export function BusinessDashboard({
@@ -121,8 +127,8 @@ export function BusinessDashboard({
   const presentation =
     programPresentation[selectedProgram.type] ?? programPresentation.Stamps;
   /** The onboarding wizard's answers if the merchant came through it. */
-  const workspaceName = workspace?.businessName ?? business.profile.shortName;
-  const locationCount = workspace?.locations ?? business.locations.length;
+  const workspaceName = workspace?.businessName ?? profile?.shortName ?? "";
+  const locationCount = workspace?.locations ?? locations.length;
   const livePrograms = programs.filter((program) => program.status === "Live");
 
   return (
@@ -166,16 +172,16 @@ export function BusinessDashboard({
         className="metric-grid mt-8 grid gap-3"
         aria-label="Business overview"
       >
-        <StatCard className="col-span-6 lg:col-span-3" label="Visits" value={String(business.metrics.visitsToday)} detail="18%" icon={Repeat2} accent />
+        <StatCard className="col-span-6 lg:col-span-3" label="Visits" value={String(metrics.visitsToday)} detail="18%" icon={Repeat2} accent />
         <StatCard
           className="col-span-6 lg:col-span-3"
           label="New regulars"
-          value={String(business.metrics.newRegulars)}
+          value={String(metrics.newRegulars)}
           detail="6 this week"
           icon={UserPlus}
         />
-        <StatCard className="col-span-6 lg:col-span-3" label="Stamps issued" value={String(business.metrics.stampsIssued)} detail="31%" icon={Stamp} />
-        <StatCard className="col-span-6 lg:col-span-3" label="Redemptions" value={String(business.metrics.redemptions)} detail="On pace" icon={Gift} trend="flat" />
+        <StatCard className="col-span-6 lg:col-span-3" label="Stamps issued" value={String(metrics.stampsIssued)} detail="31%" icon={Stamp} />
+        <StatCard className="col-span-6 lg:col-span-3" label="Redemptions" value={String(metrics.redemptions)} detail="On pace" icon={Gift} trend="flat" />
       </section>
 
       <section
@@ -635,8 +641,8 @@ export function BusinessDashboard({
           },
           {
             icon: Users,
-            title: `${business.staff.length} staff accounts`,
-            detail: `Owner, manager, cashier, analyst, and campaign roles across ${business.locations.reduce((sum, location) => sum + location.staff, 0)} branch seats.`,
+            title: `${staff.length} staff accounts`,
+            detail: `Owner, manager, cashier, analyst, and campaign roles across ${locations.reduce((sum, location) => sum + location.staff, 0)} branch seats.`,
           },
           {
             icon: ShieldCheck,

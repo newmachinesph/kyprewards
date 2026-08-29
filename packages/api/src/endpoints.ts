@@ -15,6 +15,7 @@
  */
 
 import { http } from "./http.ts";
+import type { HttpOptions } from "./http.ts";
 import type {
   Adapter,
   ActivityEntry,
@@ -141,3 +142,129 @@ export const getPlanEconomics = (): Promise<PlanEconomics[]> => http("/admin/eco
 
 export const getChannelEconomics = (): Promise<ChannelEconomics[]> =>
   http("/admin/economics/channels");
+
+/* ── Writes ───────────────────────────────────────────────────────────
+   Every one is scoped to the caller's own merchant by the session, and
+   every one names the capability the API will check. A cashier calling
+   these gets 403, which is the point. */
+
+export type ToggleResult = { id: string; enabled: boolean };
+
+/** Flips Live/Paused server-side and answers with the state it landed on. */
+export const toggleAutomation = (automationId: string): Promise<ToggleResult> =>
+  http(`/business/automations/${automationId}`, { method: "PATCH" });
+
+export const toggleIntegration = (integrationId: string): Promise<ToggleResult> =>
+  http(`/business/integrations/${integrationId}`, { method: "PATCH" });
+
+export type ProgramDraft = {
+  type: string;
+  name: string;
+  status?: string;
+  target?: number;
+  rewardName?: string;
+  rewardValueCentavos?: number;
+  expiryDays?: number;
+};
+
+export const createProgram = (body: ProgramDraft): Promise<Program> =>
+  http("/business/programs", { method: "POST", body });
+
+export const updateProgram = (
+  programId: string,
+  body: Partial<ProgramDraft>,
+): Promise<Program> => http(`/business/programs/${programId}`, { method: "PATCH", body });
+
+export const duplicateProgram = (programId: string): Promise<Program> =>
+  http(`/business/programs/${programId}/duplicate`, { method: "POST" });
+
+export type CampaignDraft = {
+  name: string;
+  audience: string;
+  channels: string[];
+  sendTime?: string;
+  frequencyPolicy?: string;
+};
+
+export const createCampaign = (body: CampaignDraft): Promise<Campaign> =>
+  http("/business/campaigns", { method: "POST", body });
+
+export type StaffInvite = {
+  name: string;
+  email: string;
+  role: string;
+  location?: string;
+};
+
+export const inviteStaff = (body: StaffInvite): Promise<StaffMember> =>
+  http("/business/staff/invites", { method: "POST", body });
+
+export const updateStaff = (
+  staffId: string,
+  body: { role?: string; location?: string; status?: string },
+): Promise<StaffMember> => http(`/business/staff/${staffId}`, { method: "PATCH", body });
+
+export const updateBusinessProfile = (body: {
+  name?: string;
+  shortName?: string;
+  category?: string;
+  owner?: string;
+  timezone?: string;
+}): Promise<BusinessProfile> => http("/business/profile", { method: "PATCH", body });
+
+export const createLocation = (body: {
+  name: string;
+  city: string;
+  address?: string;
+  status?: string;
+  latitude?: number;
+  longitude?: number;
+}): Promise<BusinessLocation> => http("/business/locations", { method: "POST", body });
+
+/* ── Counter ──────────────────────────────────────────────────────────
+   The money path. Every write here takes an idempotency key, because the
+   tablet it runs on loses wifi mid-request and the cashier presses again. */
+
+export type CustomerLookup = {
+  id: string;
+  name: string;
+  email: string | null;
+  mobile: string | null;
+  memberCode: string;
+  isMember: boolean;
+};
+
+/** One of phone or email; the API refuses a request carrying neither. */
+export const lookupCustomer = (
+  identifier: { phone: string } | { email: string },
+): Promise<CustomerLookup> => http("/customers/lookup", { query: identifier });
+
+export type VisitResult = {
+  id: string;
+  customerId: string;
+  customerName: string;
+  amountCentavos: number;
+  stampsBefore: number;
+  stampsAfter: number;
+  target: number;
+  programId: string;
+  rewardEarned: string | null;
+  occurredAt: string;
+  status: string;
+};
+
+export const recordVisit = (
+  body: {
+    customerId?: string;
+    memberCode?: string;
+    branchId?: string;
+    amountCentavos?: number;
+    externalReference?: string;
+  },
+  idempotencyKey: string,
+): Promise<VisitResult> =>
+  http("/transactions", { method: "POST", body, idempotencyKey } satisfies HttpOptions);
+
+/** The onboarding wizard's "prove it works" step. */
+export const recordTestStamp = (): Promise<VisitResult> =>
+  http("/business/onboarding/test-stamp", { method: "POST" });

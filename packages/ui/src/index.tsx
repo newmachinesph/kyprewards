@@ -393,6 +393,85 @@ export function ViewFrame({
   );
 }
 
+/**
+ * A grey block standing in for content that has not arrived.
+ *
+ * Sized by the caller, because a skeleton that does not match the shape of
+ * what replaces it makes the page jump when the data lands.
+ */
+export function Skeleton({ className = "" }: { className?: string }) {
+  return (
+    <div
+      className={`animate-pulse rounded-xl bg-[var(--line)] ${className}`}
+      // Decorative: a screen reader should hear the live region below, not a
+      // pile of empty boxes.
+      aria-hidden
+    />
+  );
+}
+
+/**
+ * The three states every screen backed by a request has, in one place.
+ *
+ * Views used to read a fixture that was always there, so none of them had a
+ * loading or an error branch. Rather than add two to each of fourteen views,
+ * they wrap in this - and the empty case stays the view's own business,
+ * because "no customers yet" and "no campaigns yet" want different words.
+ *
+ * `isPending` and `error` are plain props rather than a query object, so this
+ * package keeps knowing nothing about TanStack Query.
+ */
+export function QueryBoundary({
+  isPending,
+  error,
+  onRetry,
+  label,
+  rows = 4,
+  children,
+}: {
+  isPending: boolean;
+  error: Error | null;
+  onRetry?: () => void;
+  /** Names what is loading, for the screen reader. */
+  label: string;
+  rows?: number;
+  children: ReactNode;
+}) {
+  if (isPending) {
+    return (
+      <div role="status" aria-live="polite" aria-busy="true">
+        <span className="sr-only">Loading {label}</span>
+        <div className="space-y-3">
+          {Array.from({ length: rows }, (_, index) => (
+            <Skeleton key={index} className="h-14 w-full" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        role="alert"
+        className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6"
+      >
+        <p className="text-sm font-extrabold">That did not load</p>
+        <p className="mt-1 text-sm text-[var(--muted-strong)]">
+          {error.message}
+        </p>
+        {onRetry ? (
+          <Button className="mt-4" onClick={onRetry}>
+            Try again
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
 export function StatCard({
   label,
   value,
