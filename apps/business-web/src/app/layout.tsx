@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
+import { ApiProvider } from "@stampr/api";
+
 import "./globals.css";
 
 
@@ -18,7 +20,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${inter.variable} ${sora.variable}`}>
-      <body>{children}</body>
+      <body>
+        <ApiProvider>{children}</ApiProvider>
+      </body>
     </html>
   );
 }

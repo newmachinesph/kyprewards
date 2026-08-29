@@ -1,0 +1,30 @@
+{
+  "name": "@stampr/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./http": "./src/http.ts",
+    "./forms": "./src/forms.ts",
+    "./stores": "./src/stores.ts"
+  },
+  "scripts": {
+    "test": "node --test --experimental-strip-types src/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.9.1",
+    "@stampr/demo-data": "*",
+    "@tanstack/react-query": "^5.102.8",
+    "react": "19.2.8",
+    "react-hook-form": "^7.86.0",
+    "zod": "^4.5.2",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^26.3.0",
+    "@types/react": "latest",
+    "typescript": "6.0.3"
+  }
+}

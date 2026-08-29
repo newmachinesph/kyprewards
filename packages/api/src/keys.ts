@@ -1,0 +1,114 @@
+/**
+ * Every query key in the product, in one file.
+ *
+ * Keys are what invalidation targets, so scattering the arrays across call
+ * sites is how a mutation ends up refreshing three of the four lists that
+ * actually changed. Each domain's `all` is a prefix of its members, which is
+ * what makes `invalidateQueries({ queryKey: keys.business.all })` mean
+ * "everything in this workspace" without listing it.
+ */
+
+export const keys = {
+  contract: ["contract"] as const,
+  scenario: ["scenario"] as const,
+
+  session: {
+    all: ["session"] as const,
+    current: () => [...keys.session.all, "current"] as const,
+    workspaces: () => [...keys.session.all, "workspaces"] as const,
+  },
+
+  business: {
+    all: ["business"] as const,
+    profile: () => [...keys.business.all, "profile"] as const,
+    locations: () => [...keys.business.all, "locations"] as const,
+    metrics: () => [...keys.business.all, "metrics"] as const,
+    billing: () => [...keys.business.all, "billing"] as const,
+    staff: () => [...keys.business.all, "staff"] as const,
+    programs: () => [...keys.business.all, "programs"] as const,
+    program: (id: string) => [...keys.business.programs(), id] as const,
+    automations: () => [...keys.business.all, "automations"] as const,
+    campaigns: () => [...keys.business.all, "campaigns"] as const,
+    messages: () => [...keys.business.all, "messages"] as const,
+    redemptions: () => [...keys.business.all, "redemptions"] as const,
+    integrations: () => [...keys.business.all, "integrations"] as const,
+    favoriteOrders: () => [...keys.business.all, "favorite-orders"] as const,
+    /**
+     * Filters belong in the key. Two different filters are two different
+     * server answers, and sharing one key between them is how a list shows
+     * the previous search's rows for a frame.
+     */
+    customers: (filters: CustomerFilters = {}) =>
+      [...keys.business.all, "customers", filters] as const,
+    analytics: {
+      all: () => [...keys.business.all, "analytics"] as const,
+      visits: (period = "week") => [...keys.business.analytics.all(), "visits", period] as const,
+      retention: () => [...keys.business.analytics.all(), "retention"] as const,
+      rfm: () => [...keys.business.analytics.all(), "rfm"] as const,
+      segments: () => [...keys.business.analytics.all(), "segments"] as const,
+      staff: () => [...keys.business.analytics.all(), "staff"] as const,
+      branches: () => [...keys.business.analytics.all(), "branches"] as const,
+      campaigns: () => [...keys.business.analytics.all(), "campaigns"] as const,
+      timeToSecondVisit: () =>
+        [...keys.business.analytics.all(), "time-to-second-visit"] as const,
+    },
+  },
+
+  customer: {
+    all: ["customer"] as const,
+    profile: () => [...keys.customer.all, "profile"] as const,
+    wallet: () => [...keys.customer.all, "wallet"] as const,
+    notifications: () => [...keys.customer.all, "notifications"] as const,
+    activity: () => [...keys.customer.all, "activity"] as const,
+    channels: () => [...keys.customer.all, "channels"] as const,
+    consentHistory: () => [...keys.customer.all, "consent-history"] as const,
+    /** Coordinates change the answer, so they are part of the key. */
+    discover: (near?: Coordinates) => [...keys.customer.all, "discover", near ?? null] as const,
+    nearby: (near?: Coordinates) => [...keys.customer.all, "nearby", near ?? null] as const,
+  },
+
+  counter: {
+    all: ["counter"] as const,
+    lookup: (identifier: string) => [...keys.counter.all, "lookup", identifier] as const,
+    balance: (customerId: string) => [...keys.counter.all, "balance", customerId] as const,
+    rewards: (customerId: string) => [...keys.counter.all, "rewards", customerId] as const,
+  },
+
+  admin: {
+    all: ["admin"] as const,
+    metrics: () => [...keys.admin.all, "metrics"] as const,
+    tenants: () => [...keys.admin.all, "tenants"] as const,
+    support: () => [...keys.admin.all, "support"] as const,
+    audit: () => [...keys.admin.all, "audit"] as const,
+    services: () => [...keys.admin.all, "services"] as const,
+    adapters: () => [...keys.admin.all, "adapters"] as const,
+    tenantConnections: () => [...keys.admin.all, "tenant-connections"] as const,
+    recoveryQueue: () => [...keys.admin.all, "recovery-queue"] as const,
+    economics: {
+      plans: () => [...keys.admin.all, "economics", "plans"] as const,
+      channels: () => [...keys.admin.all, "economics", "channels"] as const,
+    },
+  },
+
+  integrations: {
+    all: ["integrations"] as const,
+    credentials: () => [...keys.integrations.all, "credentials"] as const,
+    webhookEndpoints: () => [...keys.integrations.all, "webhook-endpoints"] as const,
+    webhookDeliveries: () => [...keys.integrations.all, "webhook-deliveries"] as const,
+  },
+
+  /** Unauthenticated. Read by the marketing site's poster route. */
+  public: {
+    all: ["public"] as const,
+    join: (slug: string) => [...keys.public.all, "join", slug] as const,
+  },
+} as const;
+
+export type CustomerFilters = {
+  search?: string;
+  segment?: string;
+  risk?: string;
+  limit?: number;
+};
+
+export type Coordinates = { lat: number; lng: number };

@@ -17,7 +17,8 @@
     "qa:customer-auth": "node scripts/qa-customer-auth.mjs",
     "qa:private-apps": "node scripts/qa-private-apps.mjs",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "lint": "eslint apps packages"
+    "lint": "eslint apps packages",
+    "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",
