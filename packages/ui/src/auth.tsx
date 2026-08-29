@@ -474,18 +474,39 @@ function DemoBoundary({ compact = false }: { compact?: boolean }) {
   );
 }
 
-export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAuthMode }) {
+export function DemoAuthFlow({
+  role,
+  mode,
+  token = "",
+}: {
+  role: DemoAuthRole;
+  mode: DemoAuthMode;
+  /**
+   * From the route's own searchParams, not `window`.
+   *
+   * Reading the query string during render makes the server and the client
+   * disagree - the server has no window and renders an empty token - and
+   * React throws out the whole tree over it.
+   */
+  token?: string;
+}) {
   const config = roleConfig[role];
   const [identifier, setIdentifier] = useState<string>(config.identifier);
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [invite, setInvite] = useState<InvitePreview | null>(null);
-  const [inviteError, setInviteError] = useState("");
+  const [inviteFailure, setInviteFailure] = useState("");
+  const inviteError =
+    inviteFailure ||
+    (mode === "invite" && !token
+      ? "This link is missing its token. Ask for the invitation again."
+      : "");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
-  const [name, setName] = useState("Jacqueline Daniel");
+  // An invitee types their own; the other flows prefill a demo one.
+  const [name, setName] = useState(mode === "invite" ? "" : "Jacqueline Daniel");
   const [businessName, setBusinessName] = useState("Sweet Crumbs Bakery");
   const [email, setEmail] = useState("jacqueline.daniel@example.com");
   const [accepted, setAccepted] = useState(true);
@@ -498,27 +519,20 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   // The invite is read once, before anything is offered: the screen has
   // nothing honest to show until it knows which workspace this token is for.
   useEffect(() => {
-    if (mode !== "invite") return;
-    // The other flows prefill a demo name; an invitee has to type their own.
-    setName("");
-    const token = new URLSearchParams(window.location.search).get("token") ?? "";
-    if (!token) {
-      setInviteError("This link is missing its token. Ask for the invitation again.");
-      return;
-    }
+    if (mode !== "invite" || !token) return;
     let live = true;
     getInvite(token)
       .then((found) => live && setInvite(found))
       .catch((failure) =>
         live &&
-        setInviteError(
+        setInviteFailure(
           failure instanceof ApiError ? failure.message : "That invitation could not be read.",
         ),
       );
     return () => {
       live = false;
     };
-  }, [mode]);
+  }, [mode, token]);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("loggedOut") === "1") {
@@ -816,7 +830,6 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
           <form
             onSubmit={async (event) => {
               event.preventDefault();
-              const token = new URLSearchParams(window.location.search).get("token") ?? "";
               if (!token) { setNotice("That link is missing its token. Request a new one."); return; }
               // The API enforces both of these too. Checking here saves a
               // round trip and puts the message beside the field that caused it.
@@ -1161,7 +1174,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
           try {
             // Accepting signs you in, so there is nowhere to send you but in.
             await acceptInvite(
-              new URLSearchParams(window.location.search).get("token") ?? "",
+              token,
               { name: name.trim(), password },
             );
             go("/workspaces");
