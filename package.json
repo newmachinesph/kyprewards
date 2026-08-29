@@ -1,5 +1,5 @@
 {
-  "name": "stampr-frontends",
+  "name": "kypstamping-frontends",
   "version": "0.1.0",
   "private": true,
   "workspaces": [
@@ -7,10 +7,10 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:business": "npm run dev --workspace @stampr/business-web",
-    "dev:admin": "npm run dev --workspace @stampr/admin-web",
-    "dev:customer": "npm run dev --workspace @stampr/customer-pwa",
-    "dev:marketing": "npm run dev --workspace @stampr/marketing-site",
+    "dev:business": "npm run dev --workspace @kypstamping/business-web",
+    "dev:admin": "npm run dev --workspace @kypstamping/admin-web",
+    "dev:customer": "npm run dev --workspace @kypstamping/customer-pwa",
+    "dev:marketing": "npm run dev --workspace @kypstamping/marketing-site",
     "build": "npm run build --workspaces --if-present",
     "audit:controls": "node scripts/audit-controls.mjs",
     "test:format": "node scripts/test-format.mjs",

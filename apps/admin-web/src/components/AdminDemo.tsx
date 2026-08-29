@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { DemoActionDialog } from "@stampr/ui";
-import { Toast, useHashView, useToast } from "@stampr/ui/shell";
-import type { NotifyIntent } from "@stampr/ui/shell";
+import { DemoActionDialog } from "@kypstamping/ui";
+import { Toast, useHashView, useToast } from "@kypstamping/ui/shell";
+import type { NotifyIntent } from "@kypstamping/ui/shell";
 import { AdminDashboard } from "@/components/AdminDashboard";
 import { AdminShell, type AdminView } from "@/components/AdminShell";
 import { AdminStateProvider } from "@/components/AdminState";

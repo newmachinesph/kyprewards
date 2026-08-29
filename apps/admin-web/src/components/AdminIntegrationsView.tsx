@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { admin, sharedScenario } from "@stampr/demo-data";
-import type { AdapterStatus, ConnectionHealth } from "@stampr/demo-data";
-import { Button, Eyebrow, Panel } from "@stampr/ui";
+import { admin, sharedScenario } from "@kypstamping/demo-data";
+import type { AdapterStatus, ConnectionHealth } from "@kypstamping/demo-data";
+import { Button, Eyebrow, Panel } from "@kypstamping/ui";
 import { useAdminState } from "@/components/AdminState";
 import {
   Activity,
@@ -24,7 +24,7 @@ import {
   TestTube2,
   Webhook,
 } from "lucide-react";
-import type { NotifyIntent } from "@stampr/ui/shell";
+import type { NotifyIntent } from "@kypstamping/ui/shell";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
 

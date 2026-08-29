@@ -213,7 +213,7 @@ function CustomerAuthShell({
 }
 
 function sessionKey(role: DemoAuthRole) {
-  return `stampr-${role}-demo-session`;
+  return `kypstamping-${role}-demo-session`;
 }
 
 export function startDemoSession(role: DemoAuthRole) {
@@ -607,7 +607,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
     function verifyDestination() {
       if (role === "customer") return "/#home";
       if (role === "admin") return "/#overview";
-      return window.sessionStorage.getItem("stampr-business-signup")
+      return window.sessionStorage.getItem("kypstamping-business-signup")
         ? "/onboarding"
         : "/workspaces";
     }
@@ -646,7 +646,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
             if (!identifier.trim()) { setNotice("Enter your work email."); return; }
             if (password.length < 8) { setNotice("Use at least 8 characters for this demo password."); return; }
             if (!accepted) { setNotice("Accept the terms to continue."); return; }
-            window.sessionStorage.setItem("stampr-business-signup", businessName);
+            window.sessionStorage.setItem("kypstamping-business-signup", businessName);
             go("/verify");
           }}
           className="space-y-5"
@@ -692,7 +692,7 @@ export function DemoAuthFlow({ role, mode }: { role: DemoAuthRole; mode: DemoAut
   if (mode === "create") {
     return (
       <AuthShell role="customer" mode="create" title="Set up your wallet." description="Keep rewards from nearby businesses together, with permissions you can change anytime.">
-        <form onSubmit={(event) => { event.preventDefault(); if (!accepted) { setNotice("Accept the terms to continue."); return; } window.sessionStorage.setItem("stampr-customer-signup-name", name); go("/verify"); }} className="space-y-5">
+        <form onSubmit={(event) => { event.preventDefault(); if (!accepted) { setNotice("Accept the terms to continue."); return; } window.sessionStorage.setItem("kypstamping-customer-signup-name", name); go("/verify"); }} className="space-y-5">
           <Field label="Full name" value={name} onChange={setName} autoComplete="name" />
           <Field label="Mobile number" type="tel" value={identifier} onChange={setIdentifier} autoComplete="tel" />
           <Field label="Email, optional" type="email" value={email} onChange={setEmail} autoComplete="email" required={false} />

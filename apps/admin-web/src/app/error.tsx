@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@stampr/ui";
+import { Button } from "@kypstamping/ui";
 import { ShieldAlert } from "lucide-react";
 
 export default function ErrorPage({

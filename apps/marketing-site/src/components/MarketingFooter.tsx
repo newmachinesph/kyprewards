@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BrandMark } from "@stampr/ui";
+import { BrandMark } from "@kypstamping/ui";
 import { ArrowUpRight } from "lucide-react";
 import { businessAppUrl, customerAppUrl } from "@/lib/site";
 

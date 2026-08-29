@@ -5,7 +5,7 @@ import { MarketingFooter } from "@/components/MarketingFooter";
 import { MarketingHeader } from "@/components/MarketingHeader";
 import { StructuredData } from "@/components/StructuredData";
 import { businessAppUrl, customerAppUrl, siteUrl } from "@/lib/site";
-import { ApiProvider } from "@stampr/api";
+import { ApiProvider } from "@kypstamping/api";
 
 import "./globals.css";
 

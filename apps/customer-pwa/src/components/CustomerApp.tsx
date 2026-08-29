@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { customer as customerDemo, sharedScenario } from "@stampr/demo-data";
-import { BrandMark, DemoBadge, Eyebrow, StampDots } from "@stampr/ui";
-import { signOutDemo } from "@stampr/ui/auth";
-import { Toast, useToast } from "@stampr/ui/shell";
-import { greeting, todayLabel } from "@stampr/ui/format";
+import { customer as customerDemo, sharedScenario } from "@kypstamping/demo-data";
+import { BrandMark, DemoBadge, Eyebrow, StampDots } from "@kypstamping/ui";
+import { signOutDemo } from "@kypstamping/ui/auth";
+import { Toast, useToast } from "@kypstamping/ui/shell";
+import { greeting, todayLabel } from "@kypstamping/ui/format";
 import {
   CHANNELS,
   CustomerStateProvider,

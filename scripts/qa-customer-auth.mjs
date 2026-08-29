@@ -7,7 +7,7 @@ import { chromium } from "playwright";
 const baseUrl = process.env.CUSTOMER_APP_URL ?? "http://localhost:3002";
 /** Mirrors DEMO_CODE in packages/ui/src/auth.tsx and the README. */
 const DEMO_CODE = "424242";
-const artifactDirectory = join(tmpdir(), "stampr-customer-auth-qa");
+const artifactDirectory = join(tmpdir(), "kypstamping-customer-auth-qa");
 await mkdir(artifactDirectory, { recursive: true });
 
 const browser = await chromium.launch({ headless: true });

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { BrandMark } from "@stampr/ui";
-import { signOutDemo } from "@stampr/ui/auth";
-import { admin } from "@stampr/demo-data";
+import { BrandMark } from "@kypstamping/ui";
+import { signOutDemo } from "@kypstamping/ui/auth";
+import { admin } from "@kypstamping/demo-data";
 import { useAdminState } from "@/components/AdminState";
 import {
   Activity,

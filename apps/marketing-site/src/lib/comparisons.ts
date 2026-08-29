@@ -5,7 +5,7 @@ export type Comparison = {
   summary: string;
   publicPricing: string;
   bestFor: string;
-  facts: Array<{ label: string; competitor: string; stampr: string }>;
+  facts: Array<{ label: string; competitor: string; kypstamping: string }>;
   sources: Array<{ label: string; href: string }>;
 };
 
@@ -24,31 +24,31 @@ export const comparisons: Comparison[] = [
       {
         label: "Customer access",
         competitor: "QR-based; no app or sign-up advertised",
-        stampr:
+        kypstamping:
           "Installable web app with one private QR and no app-store download",
       },
       {
         label: "Program formats",
         competitor: "Digital stamp-card focus",
-        stampr:
+        kypstamping:
           "Eight demo formats: stamps, cashback, discount, membership, coupons, rewards, multipass, and gift certificates",
       },
       {
         label: "Counter reliability",
         competitor: "NFC and offline mode on Growth",
-        stampr:
+        kypstamping:
           "QR, NFC-ready, offline queue, replay status, and an activity ledger in the business demo",
       },
       {
         label: "Campaigns",
         competitor: "Not detailed on the cited pricing page",
-        stampr:
+        kypstamping:
           "In-app, push, email, and prepaid SMS with consent and budget checks",
       },
       {
         label: "Locations",
         competitor: "Ask GoBalik for current limits",
-        stampr: "1 on Core, 3 on Grow, and 10 on Scale",
+        kypstamping: "1 on Core, 3 on Grow, and 10 on Scale",
       },
     ],
     sources: [
@@ -69,29 +69,29 @@ export const comparisons: Comparison[] = [
       {
         label: "Customer experience",
         competitor: "Apple and Google Wallet passes",
-        stampr:
+        kypstamping:
           "Installable customer PWA plus wallet-pass support planned on Scale",
       },
       {
         label: "Program formats",
         competitor: "Eight card types publicly listed",
-        stampr: "The same eight core formats in a unified program builder demo",
+        kypstamping: "The same eight core formats in a unified program builder demo",
       },
       {
         label: "Locations",
         competitor: "1, 3, or 10 by plan",
-        stampr: "1, 3, or 10 by paid plan",
+        kypstamping: "1, 3, or 10 by paid plan",
       },
       {
         label: "Messaging",
         competitor: "Unlimited push notifications advertised",
-        stampr:
+        kypstamping:
           "In-app and push included; email allowance and SMS credits/overage shown before sending",
       },
       {
         label: "Advanced connections",
         competitor: "API, webhooks, white label, and integrations on Business",
-        stampr:
+        kypstamping:
           "API, webhooks, POS/commerce adapters, and white label planned on Scale",
       },
     ],
@@ -120,29 +120,29 @@ export const comparisons: Comparison[] = [
       {
         label: "Entry price",
         competitor: "Free Express tier",
-        stampr: "Free Launch demo plan for 250 active members",
+        kypstamping: "Free Launch demo plan for 250 active members",
       },
       {
         label: "Paid growth",
         competitor: "Premium publicly listed at ₱4,800/month",
-        stampr: "Core ₱499, Grow ₱1,290, Scale ₱3,490 monthly",
+        kypstamping: "Core ₱499, Grow ₱1,290, Scale ₱3,490 monthly",
       },
       {
         label: "Campaigns",
         competitor: "SMS, email, coupons, and automated marketing listed",
-        stampr:
+        kypstamping:
           "In-app, push, email, SMS, segments, journeys, and per-send cost/consent checks",
       },
       {
         label: "Analytics",
         competitor: "Customer database and analytics listed",
-        stampr:
+        kypstamping:
           "Retention, RFM, cohort, redemption, campaign ROI, and member economics demos",
       },
       {
         label: "Operations",
         competitor: "POS and enterprise services available",
-        stampr:
+        kypstamping:
           "Dedicated staff console, offline event queue, permissions, audit, and platform operations demos",
       },
     ],

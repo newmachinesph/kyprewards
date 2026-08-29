@@ -1,5 +1,5 @@
 {
-  "name": "@stampr/api",
+  "name": "@kypstamping/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
-    "@stampr/demo-data": "*",
+    "@kypstamping/demo-data": "*",
     "@tanstack/react-query": "^5.102.8",
     "react": "19.2.8",
     "react-hook-form": "^7.86.0",

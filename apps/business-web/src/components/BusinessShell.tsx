@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { BrandMark } from "@stampr/ui";
-import { signOutDemo } from "@stampr/ui/auth";
-import { business } from "@stampr/demo-data";
+import { BrandMark } from "@kypstamping/ui";
+import { signOutDemo } from "@kypstamping/ui/auth";
+import { business } from "@kypstamping/demo-data";
 import { useDemoState } from "@/components/DemoState";
 import {
   BarChart3,

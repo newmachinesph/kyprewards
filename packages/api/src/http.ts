@@ -1,7 +1,7 @@
 /**
  * The transport, ready and deliberately unwired.
  *
- * `@stampr/demo-data`'s `api.ts` is still the seam every hook resolves
+ * `@kypstamping/demo-data`'s `api.ts` is still the seam every hook resolves
  * through, and it still returns the fixture. This file is what each of those
  * 31 accessor bodies becomes: one `http()` call. Nothing imports it yet, and
  * that is the point — the fetch layer is written, typed and tested before a
@@ -13,7 +13,7 @@
  * and a run against the running stack for the parts documents get wrong.
  */
 
-import { ApiError } from "@stampr/demo-data";
+import { ApiError } from "@kypstamping/demo-data";
 
 import { nextCursorFrom } from "./pagination";
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DemoAuthFlow } from "@stampr/ui/auth";
+import { DemoAuthFlow } from "@kypstamping/ui/auth";
 
 export const metadata: Metadata = { title: "Verify wallet · KYPStamping" };
 

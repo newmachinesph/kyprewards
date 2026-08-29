@@ -15,8 +15,8 @@ import {
   Store,
   Webhook,
 } from "lucide-react";
-import { BrandMark, DemoBadge, Eyebrow } from "@stampr/ui";
-import { startDemoSession } from "@stampr/ui/auth";
+import { BrandMark, DemoBadge, Eyebrow } from "@kypstamping/ui";
+import { startDemoSession } from "@kypstamping/ui/auth";
 
 // ponytail: city-level only. Exact coordinates are deliberately not collected —
 // discovery matches on city and area, which keeps this out of sensitive-location territory.
@@ -108,7 +108,7 @@ export function BusinessOnboarding() {
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
-    const saved = window.sessionStorage.getItem("stampr-business-signup");
+    const saved = window.sessionStorage.getItem("kypstamping-business-signup");
     if (!saved) return;
     const timer = window.setTimeout(() => setBusinessName(saved), 0);
     return () => window.clearTimeout(timer);
@@ -127,10 +127,10 @@ export function BusinessOnboarding() {
     // Carry the answers forward instead of discarding them, so the workspace
     // the merchant lands in reflects what they just configured.
     window.sessionStorage.setItem(
-      "stampr-business-profile",
+      "kypstamping-business-profile",
       JSON.stringify({ businessName, category, city, locations, program, method }),
     );
-    window.sessionStorage.removeItem("stampr-business-signup");
+    window.sessionStorage.removeItem("kypstamping-business-signup");
     startDemoSession("business");
     window.location.replace("/#dashboard");
   }

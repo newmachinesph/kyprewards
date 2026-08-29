@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { business, contract, sharedScenario } from "@stampr/demo-data";
-import type { Environment } from "@stampr/demo-data";
-import { Button, DemoBadge, Eyebrow, FieldLabel, Panel } from "@stampr/ui";
-import { PlanTag } from "@stampr/ui/shell";
-import type { NotifyIntent } from "@stampr/ui/shell";
+import { business, contract, sharedScenario } from "@kypstamping/demo-data";
+import type { Environment } from "@kypstamping/demo-data";
+import { Button, DemoBadge, Eyebrow, FieldLabel, Panel } from "@kypstamping/ui";
+import { PlanTag } from "@kypstamping/ui/shell";
+import type { NotifyIntent } from "@kypstamping/ui/shell";
 import {
   ArrowRight,
   BadgeCheck,

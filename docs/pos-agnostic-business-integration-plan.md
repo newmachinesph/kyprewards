@@ -1,10 +1,10 @@
-# Stampr POS-Agnostic Integration Plan
+# KYPStamping POS-Agnostic Integration Plan
 
 Status: frontend demonstration in progress; no live backend, credentials, or provider connections exist yet.
 
 ## Outcome
 
-Every Stampr business gets an integration workspace that can connect loyalty activity to a supported POS, a custom commerce system, or the Stampr sidecar terminal. The experience should be safe for an owner to configure, clear enough for a developer to implement, and usable at the counter even when the POS has no native loyalty support.
+Every KYPStamping business gets an integration workspace that can connect loyalty activity to a supported POS, a custom commerce system, or the KYPStamping sidecar terminal. The experience should be safe for an owner to configure, clear enough for a developer to implement, and usable at the counter even when the POS has no native loyalty support.
 
 The first release is frontend-only. All identifiers, API keys, secrets, webhook deliveries, and connection states shown in the UI are local demo data. A future FastAPI service and background worker will replace those states without changing the core screen flow.
 
@@ -19,7 +19,7 @@ The Integrations area contains:
    - Organization, merchant, branch, and API version identifiers.
    - Explicit demo-only notice while the backend is absent.
 2. **Connection method**
-   - Stampr sidecar terminal for POS-independent scanning.
+   - KYPStamping sidecar terminal for POS-independent scanning.
    - Custom API for direct commerce integration.
    - Provider adapters such as Mosaic or StoreHub, described as requiring provider approval until a real connection is authorized.
 3. **API credentials**
@@ -66,7 +66,7 @@ Until the API exists, each business demo can use JSON shaped like this:
     }
   ],
   "outboundWebhook": {
-    "url": "https://pos.sweetcrumbs.ph/webhooks/stampr",
+    "url": "https://pos.sweetcrumbs.ph/webhooks/kypstamping",
     "events": ["loyalty.transaction.completed", "reward.redeemed"],
     "status": "verified"
   }

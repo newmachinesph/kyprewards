@@ -11,7 +11,7 @@
  *   puts the API's own field errors back under the inputs that caused them.
  *
  * `http.ts` is the transport, written and tested but not yet wired: the read
- * hooks still resolve `@stampr/demo-data`'s fixture seam. Integration swaps
+ * hooks still resolve `@kypstamping/demo-data`'s fixture seam. Integration swaps
  * the bodies of that seam's 31 accessors and changes nothing here.
  */
 

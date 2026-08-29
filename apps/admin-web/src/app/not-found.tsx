@@ -1,4 +1,4 @@
-import { BrandMark } from "@stampr/ui";
+import { BrandMark } from "@kypstamping/ui";
 import Link from "next/link";
 
 export default function NotFound() {

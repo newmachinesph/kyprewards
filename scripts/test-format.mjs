@@ -1,7 +1,7 @@
 /**
  * Checks for the shared formatters.
  *
- * These are the only pieces of real logic in `@stampr/ui/format` — a date
+ * These are the only pieces of real logic in `@kypstamping/ui/format` — a date
  * rollover, a rounding rule, and a relative-time ladder — and all three
  * previously lived inline in views as hardcoded strings that quietly aged.
  * Run with `npm run test:format`.

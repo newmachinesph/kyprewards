@@ -11,13 +11,13 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { business, sharedScenario } from "@stampr/demo-data";
+import { business, sharedScenario } from "@kypstamping/demo-data";
 import type {
   Credential,
   Delivery,
   Program,
   StaffMember,
-} from "@stampr/demo-data";
+} from "@kypstamping/demo-data";
 
 /**
  * Views are unmounted when the merchant navigates, so anything they own is
@@ -25,7 +25,7 @@ import type {
  * server; here it lives above the view switch so a toggle, a draft, or a new
  * credential survives navigation the way a merchant would expect.
  *
- * Seed values come from `@stampr/demo-data`'s synchronous mirrors. When the
+ * Seed values come from `@kypstamping/demo-data`'s synchronous mirrors. When the
  * FastAPI service lands, this provider awaits the async accessors in
  * `api.ts` instead — the view contracts below do not change.
  */
@@ -144,7 +144,7 @@ const DEFAULT_WEBHOOK_URL = "https://pos.sweetcrumbs.ph/webhooks/kypstamping";
  * the client snapshot is cached so the value stays referentially stable, and
  * there is no hydration mismatch to paper over.
  */
-const WORKSPACE_KEY = "stampr-business-profile";
+const WORKSPACE_KEY = "kypstamping-business-profile";
 let workspaceCache: WorkspaceProfile | null | undefined;
 
 function subscribeToWorkspace() {

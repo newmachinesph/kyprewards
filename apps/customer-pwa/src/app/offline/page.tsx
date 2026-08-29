@@ -1,4 +1,4 @@
-import { BrandMark } from "@stampr/ui";
+import { BrandMark } from "@kypstamping/ui";
 import { WifiOff } from "lucide-react";
 
 export default function OfflinePage() {

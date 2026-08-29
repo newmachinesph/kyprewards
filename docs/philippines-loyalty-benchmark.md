@@ -2,7 +2,7 @@
 
 Research date: 25 August 2026
 
-This is the product-coverage baseline for Stampr. It inventories publicly documented capabilities from GoBalik and Suki Cards, then checks the wider Philippine market so Stampr does not merely copy one competitor. Product UI can demonstrate these flows before the shared API and workers make them operational.
+This is the product-coverage baseline for KYPStamping. It inventories publicly documented capabilities from GoBalik and Suki Cards, then checks the wider Philippine market so KYPStamping does not merely copy one competitor. Product UI can demonstrate these flows before the shared API and workers make them operational.
 
 ## What the market already expects
 
@@ -37,9 +37,9 @@ This is the product-coverage baseline for Stampr. It inventories publicly docume
 - ScalePlus markets no-app QR enrollment, points and punch cards, targeted reminders, POS and email integration, reporting, and an ROI calculator.
 - Loyalteey describes a universal customer QR, cross-store discovery, store-specific points, time-limited reward events, four VIP tiers, printable IDs, targeted almost-eligible offers, staff and branch tools, and offline scan-and-sync.
 
-## Stampr parity-plus requirement
+## KYPStamping parity-plus requirement
 
-| Area           | Required parity                                                                                              | Stampr advantage                                                                                                     |
+| Area           | Required parity                                                                                              | KYPStamping advantage                                                                                                     |
 | -------------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
 | Enrollment     | QR poster, link, NFC, minimal fields, no app-store dependency                                                | One private customer identity across joined businesses, with PWA and optional wallet pass                            |
 | Counter        | Scan, tap, redeem, reverse, branch and staff attribution                                                     | Signed rotating QR, customer confirmation, encrypted offline queue, duplicate checks                                 |
@@ -54,7 +54,7 @@ This is the product-coverage baseline for Stampr. It inventories publicly docume
 
 ## Sustainable pricing recommendation
 
-Public anchors span from GoBalik at ₱399–₱499 per month, through Suki Cards at roughly ₱450–₱917 per month when its annual PHP plans are divided by 12, to ZAP Premium at ₱4,800 per month. Stampr should occupy the space between a narrow stamp-card tool and a full established engagement suite.
+Public anchors span from GoBalik at ₱399–₱499 per month, through Suki Cards at roughly ₱450–₱917 per month when its annual PHP plans are divided by 12, to ZAP Premium at ₱4,800 per month. KYPStamping should occupy the space between a narrow stamp-card tool and a full established engagement suite.
 
 | Plan   | Monthly | Annual commitment, shown monthly | Designed limit and role                                                                                                |
 | ------ | ------: | -------------------------------: | ---------------------------------------------------------------------------------------------------------------------- |
@@ -80,7 +80,7 @@ These are product and financial assumptions for validation, not final tax or leg
 1. Discover a nearby business or scan its poster.
 2. Review program terms and choose the minimum profile details to share.
 3. Join in the PWA, then optionally add a quick-access Apple or Google Wallet pass.
-4. Show one rotating Stampr QR, tap NFC, or use an approved printed fallback.
+4. Show one rotating KYPStamping QR, tap NFC, or use an approved printed fallback.
 5. Staff sees the customer, eligible programs, purchase context, and confirmation step.
 6. The visit, points, stamps, tier, or balance updates immediately or enters a signed offline queue.
 7. The customer sees progress, value, expiry, messages, and a complete activity history.

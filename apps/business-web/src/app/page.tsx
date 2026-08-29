@@ -1,5 +1,5 @@
 import { BusinessDemo } from "@/components/BusinessDemo";
-import { DemoSessionGate } from "@stampr/ui/auth";
+import { DemoSessionGate } from "@kypstamping/ui/auth";
 
 export default function BusinessPage() {
   return (

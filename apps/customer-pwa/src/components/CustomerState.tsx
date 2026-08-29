@@ -9,8 +9,8 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { customer } from "@stampr/demo-data";
-import type { CustomerProfile, WalletCard } from "@stampr/demo-data";
+import { customer } from "@kypstamping/demo-data";
+import type { CustomerProfile, WalletCard } from "@kypstamping/demo-data";
 
 /**
  * Everything the wallet owns, in one place.
@@ -48,7 +48,7 @@ export const CHANNELS: {
 ];
 
 /** The name the sign-up flow captured, if the customer came through it. */
-const SIGNUP_NAME_KEY = "stampr-customer-signup-name";
+const SIGNUP_NAME_KEY = "kypstamping-customer-signup-name";
 let signupNameCache: string | null | undefined;
 
 const subscribeToSignupName = () => () => {};

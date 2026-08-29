@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { admin } from "@stampr/demo-data";
-import { Button, Eyebrow, TrendBadge } from "@stampr/ui";
-import { pesoCompact } from "@stampr/ui/format";
+import { admin } from "@kypstamping/demo-data";
+import { Button, Eyebrow, TrendBadge } from "@kypstamping/ui";
+import { pesoCompact } from "@kypstamping/ui/format";
 import { useAdminState } from "@/components/AdminState";
 import {
   ArrowRight,
@@ -19,7 +19,7 @@ import {
   Store,
   Users,
 } from "lucide-react";
-import type { NotifyIntent } from "@stampr/ui/shell";
+import type { NotifyIntent } from "@kypstamping/ui/shell";
 import type { AdminView } from "@/components/AdminShell";
 
 const activity = [

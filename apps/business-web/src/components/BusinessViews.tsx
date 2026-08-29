@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { business, sharedScenario } from "@stampr/demo-data";
-import { Button, Eyebrow, Pill, StampDots, ViewFrame } from "@stampr/ui";
-import { daysUntilBirthday, peso, pesoCompact } from "@stampr/ui/format";
+import { business, sharedScenario } from "@kypstamping/demo-data";
+import { Button, Eyebrow, Pill, StampDots, ViewFrame } from "@kypstamping/ui";
+import { daysUntilBirthday, peso, pesoCompact } from "@kypstamping/ui/format";
 import {
   ArrowRight,
   BadgeCheck,
@@ -45,7 +45,7 @@ import {
   WalletCards,
   WifiOff,
 } from "lucide-react";
-import type { NotifyIntent } from "@stampr/ui/shell";
+import type { NotifyIntent } from "@kypstamping/ui/shell";
 import type { BusinessView } from "@/components/BusinessShell";
 import { useDemoState } from "@/components/DemoState";
 import { IntegrationsView } from "@/components/IntegrationsView";

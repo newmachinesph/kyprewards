@@ -1,4 +1,4 @@
-# Stampr frontends
+# KYPStamping frontends
 
 Four Next.js applications share a design package and one typed local JSON demo dataset:
 
@@ -11,7 +11,7 @@ The demos are frontend-only. No live API, account, payment, email, SMS, or push 
 
 ## Start the connected demo
 
-Open `http://localhost:3003/product#apps` for the list of all four surfaces and the way into each one. One Sweet Crumbs visit runs through every product: the same customer, branch, purchase, loyalty balance, event ID, request ID, and delivery state from `packages/demo-data/src/stampr-demo.json`.
+Open `http://localhost:3003/product#apps` for the list of all four surfaces and the way into each one. One Sweet Crumbs visit runs through every product: the same customer, branch, purchase, loyalty balance, event ID, request ID, and delivery state from `packages/demo-data/src/kypstamping-demo.json`.
 
 The three private apps sit behind a simulated session gate, so start at the login screen — a bare hash link cannot survive the redirect:
 

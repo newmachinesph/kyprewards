@@ -8,8 +8,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { admin } from "@stampr/demo-data";
-import type { Environment, RecoveryItem, SupportTicket } from "@stampr/demo-data";
+import { admin } from "@kypstamping/demo-data";
+import type { Environment, RecoveryItem, SupportTicket } from "@kypstamping/demo-data";
 
 /**
  * The control room's state, above the view switch.

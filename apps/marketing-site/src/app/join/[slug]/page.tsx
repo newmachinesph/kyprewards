@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { demoData } from "@stampr/demo-data";
+import { demoData } from "@kypstamping/demo-data";
 import { ArrowRight, Clock3, MapPin, ShieldCheck, Stamp } from "lucide-react";
 import { AnswerBlock, PageHero } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";

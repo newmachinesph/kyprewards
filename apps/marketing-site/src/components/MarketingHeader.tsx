@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { BrandMark } from "@stampr/ui";
+import { BrandMark } from "@kypstamping/ui";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 
 const links = [

@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@stampr/api", "@stampr/ui"],
+  transpilePackages: ["@kypstamping/api", "@kypstamping/ui"],
 };
 
 export default nextConfig;

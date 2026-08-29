@@ -12,7 +12,7 @@ import {
   defaultShouldDehydrateQuery,
   environmentManager,
 } from "@tanstack/react-query";
-import { ApiError } from "@stampr/demo-data";
+import { ApiError } from "@kypstamping/demo-data";
 
 /** Long enough that a tab switch does not re-fetch the whole workspace. */
 const STALE_TIME = 60_000;

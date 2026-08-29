@@ -5,7 +5,7 @@ import { siteUrl } from "@/lib/site";
  * llms.txt, generated from the same data the pricing page renders.
  *
  * The previous version was a static file in public/ and had gone stale — it
- * still said "Stampr" and still described push as free after push overage was
+ * still said "KYPStamping" and still described push as free after push overage was
  * published. Generating it removes that whole class of drift.
  */
 export const dynamic = "force-static";

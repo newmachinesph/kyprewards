@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The read hooks, one per accessor in `@stampr/demo-data`'s `api.ts`.
+ * The read hooks, one per accessor in `@kypstamping/demo-data`'s `api.ts`.
  *
  * They call that seam rather than `fetch` on purpose. Today the seam resolves
  * the fixture, so these hooks work against the demo exactly as the screens do
@@ -17,7 +17,7 @@
  */
 
 import { useQuery, type UseQueryOptions, type UseQueryResult } from "@tanstack/react-query";
-import * as api from "@stampr/demo-data";
+import * as api from "@kypstamping/demo-data";
 import type {
   Adapter,
   ActivityEntry,
@@ -50,7 +50,7 @@ import type {
   Tenant,
   TenantConnection,
   WalletCard,
-} from "@stampr/demo-data";
+} from "@kypstamping/demo-data";
 
 import { keys, type CustomerFilters } from "./keys";
 

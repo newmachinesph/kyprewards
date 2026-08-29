@@ -89,8 +89,8 @@ of the four do. The fourth disagrees, and the vocabulary around it disagrees fiv
 | # | Finding | Where |
 |---|---|---|
 | 1.1 | Business delivery log uses `evt_01J7SC10482` / `req_7G2K9P`. Shared scenario, admin control room, business scan receipt and customer activity (`act_1.reference`) all use `evt_SC_10482` / `req_SC_10482`. The delivery desk is the only surface that disagrees. | `business-web/src/components/DemoState.tsx:89-118` |
-| 1.2 | Five names for one visit: `visit.recorded` (shared scenario + admin), `loyalty.transaction.completed` (business delivery log + outbound subscriptions), `sale.completed` (business inbound accepted events). Admin's recovery queue then lists `sale.refunded` — an *inbound* POS event — as an outbound delivery awaiting replay. | `stampr-demo.json`, `DemoState.tsx`, `IntegrationsView.tsx:727,780`, `AdminIntegrationsView.tsx:395` |
-| 1.3 | Three idempotency conventions: `visit_SC_10482` (shared), `sale_sc_10482` (business quickstart), `sale_sc_10482` (marketing integrations). No key format is documented anywhere. | `stampr-demo.json`, `IntegrationsView.tsx:144`, `marketing integrations/page.tsx:250` |
+| 1.2 | Five names for one visit: `visit.recorded` (shared scenario + admin), `loyalty.transaction.completed` (business delivery log + outbound subscriptions), `sale.completed` (business inbound accepted events). Admin's recovery queue then lists `sale.refunded` — an *inbound* POS event — as an outbound delivery awaiting replay. | `kypstamping-demo.json`, `DemoState.tsx`, `IntegrationsView.tsx:727,780`, `AdminIntegrationsView.tsx:395` |
+| 1.3 | Three idempotency conventions: `visit_SC_10482` (shared), `sale_sc_10482` (business quickstart), `sale_sc_10482` (marketing integrations). No key format is documented anywhere. | `kypstamping-demo.json`, `IntegrationsView.tsx:144`, `marketing integrations/page.tsx:250` |
 | 1.4 | Four identifiers for one tenant: `biz_sweet_crumbs` (business profile + shared scenario), `biz_1` (admin tenant table), `mrc_sweet_crumbs` + `org_santos_foods` (integration header + curl), `sweet-crumbs` (join slug). Display name also splits: "Sweet Crumbs" vs "Sweet Crumbs Bakery". Admin's directory cannot be joined to the business profile by ID. | across all apps |
 | 1.5 | Scan view prefills the shared ₱286 purchase but hardcodes `stampsBefore = 5`, producing 6 of 8. The shared event says 4 → 5, and the recent-activity card *on the same screen* shows that event already recorded at 5 of 8. | `BusinessViews.tsx:81` |
 | 1.6 | Business and admin disagree on how Sweet Crumbs connects: business defaults to "KYPStamping terminal" (sidecar); admin's tenant table says "Custom API". | `IntegrationsView.tsx:110`, `AdminIntegrationsView.tsx:80` |
@@ -104,8 +104,8 @@ of the four do. The fourth disagrees, and the vocabulary around it disagrees fiv
 
 | # | Finding | Where |
 |---|---|---|
-| 2.1 | Onboarding writes `stampr-business-profile` (name, category, city, locations, program, method) with the comment "so the workspace the merchant lands in reflects what they just configured". Nothing reads the key. Configure "Bean There, 1 location, Cebu" and the workspace is still Sweet Crumbs / Pasig / 3 branches. | `BusinessOnboarding.tsx:128-135` |
-| 2.2 | Customer create-account writes `stampr-customer-signup-name`. Nothing reads it. The wallet still greets "Jacqueline." | `packages/ui/src/auth.tsx:695` |
+| 2.1 | Onboarding writes `kypstamping-business-profile` (name, category, city, locations, program, method) with the comment "so the workspace the merchant lands in reflects what they just configured". Nothing reads the key. Configure "Bean There, 1 location, Cebu" and the workspace is still Sweet Crumbs / Pasig / 3 branches. | `BusinessOnboarding.tsx:128-135` |
+| 2.2 | Customer create-account writes `kypstamping-customer-signup-name`. Nothing reads it. The wallet still greets "Jacqueline." | `packages/ui/src/auth.tsx:695` |
 | 2.3 | Customer "Save changes" on personal info updates `personal` state that no other screen reads. `ProfileView`, `JoinConsentDialog`, and the privacy centre all read `customerDemo.profile.*` directly. | `CustomerApp.tsx:1556` |
 | 2.4 | "Leave a business" marks the row "Left". The wallet card stays, "Joined businesses" still shows Active, and the count (`customerDemo.wallet.length`) does not move. | `CustomerApp.tsx:1673`, `:787` |
 | 2.5 | Customer channel toggles do not reach the privacy centre rows that describe the same permissions. | `CustomerApp.tsx:1591`, `:1735` |
@@ -127,13 +127,13 @@ of the four do. The fourth disagrees, and the vocabulary around it disagrees fiv
 | # | Finding | Where |
 |---|---|---|
 | 3.1 | Analytics shows "Campaign-attributed ₱76.4k". `metrics.campaignRevenue` is 136,300 — the exact sum of `campaigns[].revenue`. The rendered figure contradicts the data beside it. | `BusinessViews.tsx:1804` |
-| 3.2 | `metrics.repeatRate` (43.8) is defined and never rendered anywhere. | `stampr-demo.json` |
-| 3.3 | `cmp_203` "BGC opening week" has `status: "Scheduled"` with ₱61,200 revenue and 188 visits. | `stampr-demo.json` |
+| 3.2 | `metrics.repeatRate` (43.8) is defined and never rendered anywhere. | `kypstamping-demo.json` |
+| 3.3 | `cmp_203` "BGC opening week" has `status: "Scheduled"` with ₱61,200 revenue and 188 visits. | `kypstamping-demo.json` |
 | 3.4 | Consent history says "Joined Sweet Crumbs Bakery · 12 Feb 2026" while `customer.profile.memberSince` is "August 2026". 12 Feb 2026 is the *business's* platform join date (`admin.businesses[0].joined`). | `CustomerApp.tsx:1701` |
 | 3.5 | Redemptions hardcodes "Approval rate 98.6%" and "Reward value this month ₱28,400". The ₱28,400 is `prog_stamps.liability` — outstanding liability, not redeemed value. | `BusinessViews.tsx:1183-1191` |
 | 3.6 | `chartByPeriod[].peakIndex` is defined but the chart hardcodes `index === 10`. | `BusinessDashboard.tsx:44-48,249` |
 | 3.7 | Admin dashboard `queue` hardcodes the first three support tickets with a different age format ("18m" vs the fixture's "18 min"). | `AdminDashboard.tsx:57-79` |
-| 3.8 | Support priority enum drifts: High / Normal / **Medium** (`sup_7`). The UI treats everything not "High" identically, so Medium is invisible. Ages drift too: "2 hr" (`sup_4`) vs "2 h" (`sup_6`). | `stampr-demo.json`, `AdminViews.tsx:536` |
+| 3.8 | Support priority enum drifts: High / Normal / **Medium** (`sup_7`). The UI treats everything not "High" identically, so Medium is invisible. Ages drift too: "2 hr" (`sup_4`) vs "2 h" (`sup_6`). | `kypstamping-demo.json`, `AdminViews.tsx:536` |
 | 3.9 | The dashboard "Program studio" keeps a *third* parallel program list (`programTypes` + `programPreviews`) whose names do not match `business.programs` ("Stamp card" vs "Stamps"). Selecting Membership then "Configure" navigates to Programs without selecting it. | `BusinessDashboard.tsx:57-105` |
 | 3.10 | `WalletView` hand-renders the four cards with hardcoded 640 pts / 64% bar / 3 of 5 / ₱740, while `WalletSheet`, the leave list, and the joined-businesses list all read `customer.wallet`. Two sources for one dataset. | `CustomerApp.tsx:399-470` |
 | 3.11 | "Customer accounts 18,492" sits beside tenant member counts summing to 26,206, with no note that one person can hold several memberships. | `AdminViews.tsx:265` |
@@ -148,7 +148,7 @@ of the four do. The fourth disagrees, and the vocabulary around it disagrees fiv
 | 4.2 | Message-log channel tabs omit Viber, which is a selectable campaign channel. A Viber send would be unfilterable. | `BusinessViews.tsx:1679` |
 | 4.3 | Admin shows 6 of 284 tenants, 4 of 59 connections, and 7 support tickets with no "sample of N" label. Two tickets reference tenants absent from the directory (Harbor Grind Coffee, "Platform (customer)"), which reads as a data bug rather than a sample. | `AdminViews.tsx`, `AdminIntegrationsView.tsx` |
 | 4.4 | `BirthdayView` filters a literal `["29 August", "30 August", "8 September"]` under the heading "Next 30 days" — correct only on today's date. The channel pill also counts channels from `smsConsent` alone, ignoring email and push consent. | `BusinessViews.tsx:1006,1053` |
-| 4.5 | `@stampr/ui/shell` exports `TableHead` precisely to stop header drift; seven tables hand-roll `<thead>` instead (business customers, redemptions, staff, message log; admin businesses, audit, economics, tenant connections). | across business-web + admin-web |
+| 4.5 | `@kypstamping/ui/shell` exports `TableHead` precisely to stop header drift; seven tables hand-roll `<thead>` instead (business customers, redemptions, staff, message log; admin businesses, audit, economics, tenant connections). | across business-web + admin-web |
 
 ---
 
@@ -179,7 +179,7 @@ FastAPI response can be dropped in without rewriting the views.
 |---|---|
 | 6.1 | **Only business-web has a store.** `DemoStateProvider` gives it one seam to swap for a fetch layer. Admin has no provider at all — every view owns its own `useState`, so there is nothing to replace. The customer app keeps state at the component root and prop-drills it through `ProfileSheet` with eight props. Two of three private apps need a store before an API can land. |
 | 6.2 | **Nothing survives a reload.** Every store is `useState`; `sessionStorage` carries only the auth flag. Fine for a demo, but it means no code path currently distinguishes "server state" from "view state" — which is exactly the distinction the API introduces. |
-| 6.3 | **No typed domain layer.** `DemoData = typeof demoData` infers everything from JSON, so `status` is `string` where the code branches on `"Live"` / `"Draft"` / `"Ready"`. `Credential`, `Delivery`, `ProgramDraft`, and `ScheduledCampaign` are declared inside `DemoState.tsx` — a business-web component file — rather than in `@stampr/demo-data` where admin and customer could share them. Nothing declares the response shapes the service must produce. |
+| 6.3 | **No typed domain layer.** `DemoData = typeof demoData` infers everything from JSON, so `status` is `string` where the code branches on `"Live"` / `"Draft"` / `"Ready"`. `Credential`, `Delivery`, `ProgramDraft`, and `ScheduledCampaign` are declared inside `DemoState.tsx` — a business-web component file — rather than in `@kypstamping/demo-data` where admin and customer could share them. Nothing declares the response shapes the service must produce. |
 | 6.4 | **Relations join on display strings.** `activity.business === card.business`, wallet ↔ business, support ticket ↔ tenant, and campaign ↔ message are all matched by name. Combined with the four tenant IDs in §1.4, there is no key a real database could join on. |
 | 6.5 | **No fetch boundary.** There is no `lib/api.ts`, no request/response types, and no per-view loading or error state — only route-level `loading.tsx` / `error.tsx`. Every view reads a module-level constant synchronously, so introducing async means editing every view rather than one adapter. |
 | 6.6 | **Money has two units on one screen.** Fixtures store pesos as plain numbers (`lifetimeValue: 8120`); the API contract on the same page sends centavos (`amount: 48500`). Nothing reconciles them, and no formatter is shared. |

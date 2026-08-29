@@ -13,7 +13,7 @@
  * one place that boundary is crossed.
  */
 
-import demoData from "./stampr-demo.json";
+import demoData from "./kypstamping-demo.json";
 import type {
   Adapter,
   ApiContract,

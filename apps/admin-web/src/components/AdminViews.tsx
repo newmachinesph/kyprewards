@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { admin } from "@stampr/demo-data";
+import { admin } from "@kypstamping/demo-data";
 import {
   Button,
   Eyebrow,
   Pill,
   ViewFrame as SharedViewFrame,
-} from "@stampr/ui";
+} from "@kypstamping/ui";
 import {
   Activity,
   ArrowRight,
@@ -32,11 +32,11 @@ import {
   Users,
   Webhook,
 } from "lucide-react";
-import type { NotifyIntent } from "@stampr/ui/shell";
+import type { NotifyIntent } from "@kypstamping/ui/shell";
 import type { AdminView } from "@/components/AdminShell";
 import { AdminIntegrationsView } from "@/components/AdminIntegrationsView";
 import { useAdminState } from "@/components/AdminState";
-import { peso } from "@stampr/ui/format";
+import { peso } from "@kypstamping/ui/format";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
 

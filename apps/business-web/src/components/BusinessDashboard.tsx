@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Eyebrow, StampDots, StatCard } from "@stampr/ui";
-import { greeting, todayLabel } from "@stampr/ui/shell";
+import { Button, Eyebrow, StampDots, StatCard } from "@kypstamping/ui";
+import { greeting, todayLabel } from "@kypstamping/ui/shell";
 import {
   ArrowRight,
   BadgePercent,
@@ -36,9 +36,9 @@ import {
   WifiOff,
   X,
 } from "lucide-react";
-import type { NotifyIntent } from "@stampr/ui/shell";
+import type { NotifyIntent } from "@kypstamping/ui/shell";
 import { useDemoState } from "@/components/DemoState";
-import { business, sharedScenario } from "@stampr/demo-data";
+import { business, sharedScenario } from "@kypstamping/demo-data";
 import type { BusinessView } from "@/components/BusinessShell";
 
 const periods = ["Today", "7 days", "30 days"];

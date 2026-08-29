@@ -2,7 +2,7 @@
  * Cursor extraction, kept dependency-free.
  *
  * Its own module so it can be unit-tested in bare Node: `http.ts` reaches
- * `@stampr/demo-data` for `ApiError`, and that package imports the fixture
+ * `@kypstamping/demo-data` for `ApiError`, and that package imports the fixture
  * JSON, which only a bundler resolves. A pure parser should not need one.
  */
 

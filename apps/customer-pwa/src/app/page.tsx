@@ -1,6 +1,6 @@
 import { CustomerApp } from "@/components/CustomerApp";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
-import { DemoSessionGate } from "@stampr/ui/auth";
+import { DemoSessionGate } from "@kypstamping/ui/auth";
 
 export default function CustomerPage() {
   return (

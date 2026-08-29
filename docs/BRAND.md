@@ -25,7 +25,7 @@ customer list.
 
 **Where each rendering lives**
 
-- `SealMark` in `@stampr/ui` — inline SVG, the only mark to use inside the apps.
+- `SealMark` in `@kypstamping/ui` — inline SVG, the only mark to use inside the apps.
   Crisp at any size and theme-aware.
 - `apps/*/src/app/icon.svg` and `apps/*/public/icon.svg` — favicon.
 - `apps/*/public/brand/logo.png` — 512px raster for stores, PWA install, OG.
@@ -134,7 +134,7 @@ or dividers — the edge is the logo's job.
 
 ## 7. The stamp card
 
-The one piece of product UI that is also brand. `StampDots` in `@stampr/ui`:
+The one piece of product UI that is also brand. `StampDots` in `@kypstamping/ui`:
 
 - Collected: filled amber circle, espresso `K` in Sora 700 — a miniature of the seal.
 - Empty: dashed hairline circle, no fill. Dashed reads as "not yet", solid reads as "broken".

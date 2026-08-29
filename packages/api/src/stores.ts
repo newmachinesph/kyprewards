@@ -44,7 +44,7 @@ export const useSessionStore = create<SessionStore>()(
       clearWorkspace: () => set({ merchantId: null }),
     }),
     {
-      name: "stampr.session",
+      name: "kypstamping.session",
       // sessionStorage, not local: a shared counter tablet should not still
       // be in the last user's workspace tomorrow morning.
       storage: createJSONStorage(() => sessionStorage),
@@ -131,7 +131,7 @@ export const useUiStore = create<UiStore>()(
       clearAnnouncement: () => set({ announcement: "" }),
     }),
     {
-      name: "stampr.ui",
+      name: "kypstamping.ui",
       storage: createJSONStorage(() => localStorage),
       // An announcement is for the screen reader in this moment, not for
       // tomorrow. Only the layout preference is worth persisting.

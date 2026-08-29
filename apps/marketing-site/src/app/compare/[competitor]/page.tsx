@@ -144,7 +144,7 @@ export default async function ComparisonPage({ params }: Props) {
                           size={15}
                           className="mt-0.5 shrink-0 text-[var(--accent-strong)]"
                         />
-                        {fact.stampr}
+                        {fact.kypstamping}
                       </span>
                     </td>
                   </tr>

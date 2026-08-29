@@ -1,4 +1,4 @@
-# `@stampr/api`
+# `@kypstamping/api`
 
 The data layer for all four apps. Built, tested, and **not yet wired to the
 API** — that is deliberate, and step 3 of `backend/INTEGRATION.md` is the one
@@ -22,7 +22,7 @@ are queries. A scanned-but-unsubmitted transaction is a store.
 ## What is wired today
 
 `ApiProvider` is in all four root layouts, so the query client is live. The
-read hooks call `@stampr/demo-data`'s accessor seam, which still resolves the
+read hooks call `@kypstamping/demo-data`'s accessor seam, which still resolves the
 fixture — so the hooks work right now against the demo, exactly as the screens
 do. When those 31 accessor bodies become `http()` calls, not one line in
 `queries.ts` changes. That is the whole reason the seam exists.
@@ -33,7 +33,7 @@ do. When those 31 accessor bodies become `http()` calls, not one line in
 
 ```tsx
 "use client";
-import { useBusinessCustomers, useApiMutation, keys } from "@stampr/api";
+import { useBusinessCustomers, useApiMutation, keys } from "@kypstamping/api";
 
 const { data, isPending, error } = useBusinessCustomers({ segment: "VIP" });
 ```
@@ -72,7 +72,7 @@ swap.
 ## Tests
 
 ```bash
-npm test -w @stampr/api
+npm test -w @kypstamping/api
 ```
 
 Covers the two parsers and the normalising schemas — the Link-header cursor,
