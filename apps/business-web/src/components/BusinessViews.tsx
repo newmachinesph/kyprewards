@@ -9,11 +9,14 @@ import {
   useBranding,
   useBusinessProfile,
   useDiscountQuote,
+  useCatalog,
+  useCoupons,
   useHeldPrograms,
   useMessagingPolicy,
   useSettings,
   type BusinessLocation,
   type MessagingPolicy,
+  type Program,
   type RedemptionResult,
   useCampaigns,
   useFavoriteOrders,
@@ -59,6 +62,9 @@ import {
   useUpdateProgram,
   useSetMessagingPolicy,
   useCancelRedemption,
+  useAddCatalogItem,
+  useIssueCoupon,
+  useIssueGiftCard,
   useRedeemCoupon,
   useRedeemGiftCard,
   useUseBenefit,
@@ -1494,6 +1500,209 @@ const programIcons: Record<string, typeof Stamp> = {
   "Gift card": CreditCard,
 };
 const PROGRAM_STATUSES = ["Live", "Ready", "Draft"] as const;
+/**
+ * The part of a program that is stock rather than rules.
+ *
+ * A Coupon program needs coupons, a Gift card program needs cards, and a
+ * Rewards program needs a catalog to spend points on. None of that is
+ * editable in the rule editor and none of it existed anywhere else, so three
+ * of the eight types could be configured and never used.
+ */
+function ProgramStock({ program, notify }: { program: Program; notify: Notify }) {
+  const issueCouponFor = useIssueCoupon();
+  const issueCard = useIssueGiftCard();
+  const addItem = useAddCatalogItem();
+  const { data: coupons = [] } = useCoupons({ enabled: program.type === "Coupon" });
+  const { data: catalog = [] } = useCatalog(program.type === "Rewards" ? program.id : "");
+  const [couponName, setCouponName] = useState("");
+  const [couponValue, setCouponValue] = useState("");
+  const [cardValue, setCardValue] = useState("");
+  const [cardFor, setCardFor] = useState("");
+  const [itemName, setItemName] = useState("");
+  const [itemCost, setItemCost] = useState("");
+
+  const pesosToCentavos = (typed: string) => Math.round(Number.parseFloat(typed) * 100);
+  const onlyMoney = (typed: string) => typed.replace(/[^0-9.]/g, "");
+  const onlyDigits = (typed: string) => typed.replace(/[^0-9]/g, "");
+  const field =
+    "min-h-11 w-full rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]";
+
+  if (program.type === "Coupon") {
+    const active = coupons.filter((coupon) => coupon.state === "active");
+    return (
+      <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
+        <Eyebrow>Coupons</Eyebrow>
+        <p className="mt-2 text-xs text-white/55">
+          {active.length} active of {coupons.length} issued. Single use, enforced
+          by the API rather than by the counter.
+        </p>
+        <div className="mt-4 grid gap-2">
+          <input
+            value={couponName}
+            onChange={(event) => setCouponName(event.target.value)}
+            placeholder="What it is for"
+            className={field}
+          />
+          <input
+            value={couponValue}
+            onChange={(event) => setCouponValue(onlyMoney(event.target.value))}
+            inputMode="decimal"
+            placeholder="Value in pesos"
+            className={field}
+          />
+          <Button
+            tone="accent"
+            disabled={!couponName.trim() || !couponValue || issueCouponFor.isPending}
+            onClick={() =>
+              issueCouponFor.mutate(
+                {
+                  name: couponName.trim(),
+                  valueCentavos: pesosToCentavos(couponValue),
+                  programId: program.id,
+                },
+                {
+                  onSuccess: (issued) => {
+                    setCouponName("");
+                    setCouponValue("");
+                    notify(`Coupon ${issued.code} issued.`);
+                  },
+                  onError: (failure) => notify(failure.message, "error"),
+                },
+              )
+            }
+          >
+            Issue a coupon
+          </Button>
+        </div>
+        {active.length > 0 && (
+          <ul className="mt-4 space-y-1.5">
+            {active.slice(0, 6).map((coupon) => (
+              <li key={coupon.id} className="flex justify-between gap-3 text-xs">
+                <span className="truncate font-mono text-white/70">{coupon.code}</span>
+                <span className="shrink-0 font-bold">
+                  {pesoFromCentavos(coupon.valueCentavos)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  }
+
+  if (program.type === "Gift card") {
+    return (
+      <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
+        <Eyebrow>Gift cards</Eyebrow>
+        <p className="mt-2 text-xs text-white/55">
+          Sold at the counter and spent down in parts. The code is what the
+          holder presents.
+        </p>
+        <div className="mt-4 grid gap-2">
+          <input
+            value={cardFor}
+            onChange={(event) => setCardFor(event.target.value)}
+            placeholder="Who it is for, optional"
+            className={field}
+          />
+          <input
+            value={cardValue}
+            onChange={(event) => setCardValue(onlyMoney(event.target.value))}
+            inputMode="decimal"
+            placeholder="Amount in pesos"
+            className={field}
+          />
+          <Button
+            tone="accent"
+            disabled={!cardValue || issueCard.isPending}
+            onClick={() =>
+              issueCard.mutate(
+                {
+                  amountCentavos: pesosToCentavos(cardValue),
+                  issuedToName: cardFor.trim(),
+                  programId: program.id,
+                },
+                {
+                  onSuccess: (card) => {
+                    setCardValue("");
+                    setCardFor("");
+                    notify(`Gift card ${card.code} issued.`);
+                  },
+                  onError: (failure) => notify(failure.message, "error"),
+                },
+              )
+            }
+          >
+            Issue a gift card
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (program.type === "Rewards") {
+    return (
+      <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
+        <Eyebrow>Reward catalog</Eyebrow>
+        <p className="mt-2 text-xs text-white/55">
+          What points buy. Without at least one item a points balance has
+          nowhere to go.
+        </p>
+        {catalog.length > 0 && (
+          <ul className="mt-4 space-y-1.5">
+            {catalog.map((item) => (
+              <li key={item.id} className="flex justify-between gap-3 text-xs">
+                <span className="truncate">{item.name}</span>
+                <span className="shrink-0 font-bold">{item.costUnits} pts</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="mt-4 grid gap-2">
+          <input
+            value={itemName}
+            onChange={(event) => setItemName(event.target.value)}
+            placeholder="Item name"
+            className={field}
+          />
+          <input
+            value={itemCost}
+            onChange={(event) => setItemCost(onlyDigits(event.target.value))}
+            inputMode="numeric"
+            placeholder="Cost in points"
+            className={field}
+          />
+          <Button
+            tone="accent"
+            disabled={!itemName.trim() || !itemCost || addItem.isPending}
+            onClick={() =>
+              addItem.mutate(
+                {
+                  programId: program.id,
+                  name: itemName.trim(),
+                  costUnits: Number(itemCost),
+                },
+                {
+                  onSuccess: (item) => {
+                    setItemName("");
+                    setItemCost("");
+                    notify(`${item.name} added to the catalog.`);
+                  },
+                  onError: (failure) => notify(failure.message, "error"),
+                },
+              )
+            }
+          >
+            Add to catalog
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 function ProgramsView({ notify }: { notify: Notify }) {
   const { data: programs = [], isPending, error, refetch } = usePrograms();
   const duplicate = useDuplicateProgram();
@@ -1629,6 +1838,7 @@ function ProgramsView({ notify }: { notify: Notify }) {
               </p>
             </div>
           </div>
+          <ProgramStock program={selected} notify={notify} />
           <div className="mt-6 grid grid-cols-2 gap-2">
             <Button
               tone="quiet"
