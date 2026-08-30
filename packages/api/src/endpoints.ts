@@ -61,9 +61,11 @@ import type {
   PlatformMetrics,
   Program,
   NearbyNudge,
+  OnboardingRow,
   OfflineSyncResult,
   OfflineVisit,
   RecoveryItem,
+  ProviderPolicy,
   Referral,
   SupportRequest,
   Redemption,
@@ -844,6 +846,14 @@ export const decideApproval = (
   http(`/approvals/${approvalId}/decide`, { method: "POST", body });
 
 /* ── Platform ─────────────────────────────────────────────────────────── */
+
+export const getOnboarding = (): Promise<OnboardingRow[]> => http("/admin/onboarding");
+
+export const getProviderPolicy = (): Promise<ProviderPolicy> =>
+  http("/admin/provider-policy");
+
+export const setProviderPolicy = (body: Partial<ProviderPolicy>): Promise<ProviderPolicy> =>
+  http("/admin/provider-policy", { method: "PUT", body });
 
 export const getAdministrators = (): Promise<Administrator[]> =>
   http("/admin/administrators");

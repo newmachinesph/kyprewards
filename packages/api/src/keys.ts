@@ -104,6 +104,8 @@ export const keys = {
     invoices: () => [...keys.admin.all, "invoices"] as const,
     campaigns: () => [...keys.admin.all, "campaigns"] as const,
     administrators: () => [...keys.admin.all, "administrators"] as const,
+    onboarding: () => [...keys.admin.all, "onboarding"] as const,
+    providerPolicy: () => [...keys.admin.all, "provider-policy"] as const,
     economics: {
       plans: () => [...keys.admin.all, "economics", "plans"] as const,
       channels: () => [...keys.admin.all, "economics", "channels"] as const,

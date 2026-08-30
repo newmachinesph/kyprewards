@@ -801,3 +801,26 @@ export type SupportRequest = {
   status: string;
   openedAt: string;
 };
+
+/** How far a workspace got before it stopped. */
+export type OnboardingRow = {
+  merchantId: string;
+  name: string;
+  plan: string;
+  createdAt: string;
+  hasProgram: boolean;
+  hasLocation: boolean;
+  hasStaff: boolean;
+  hasFirstStamp: boolean;
+  stepsDone: number;
+  stepsTotal: number;
+};
+
+/** Network-wide limits. Basis points, never floats. */
+export type ProviderPolicy = {
+  smsCeilingCentavos: number;
+  emailComplaintPauseBps: number;
+  webhookRetryHours: number;
+  offlineReplayDays: number;
+  auditRetentionDays: number;
+};

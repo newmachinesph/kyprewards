@@ -4143,6 +4143,7 @@ function SettingsView({ notify }: { notify: Notify }) {
     invalidates: [keys.business.billing()],
   });
   const [changingPlan, setChangingPlan] = useState(false);
+  const changeCard = useRaiseSupportRequest();
 
   const connected = useMemo(
     () =>
@@ -4303,7 +4304,23 @@ function SettingsView({ notify }: { notify: Notify }) {
               </div>
               <button
                 type="button"
-                onClick={() => notify("Payment method editor opened.", "review")}
+                // Changing a card means the payment provider, and PayMongo is
+                // not connected. Raising a ticket is the honest path, and it
+                // reaches a person who can do it.
+                onClick={() =>
+                  changeCard.mutate(
+                    {
+                      subject: "Change the payment method",
+                      detail: `${profile?.name ?? "This workspace"} wants to update the card on file.`,
+                      category: "Billing",
+                    },
+                    {
+                      onSuccess: () =>
+                        notify("Asked. Someone will send a secure link to update it."),
+                      onError: (failure) => notify(failure.message, "error"),
+                    },
+                  )
+                }
                 className="shrink-0 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]"
               >
                 Update

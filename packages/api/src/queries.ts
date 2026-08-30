@@ -471,6 +471,12 @@ export const useRecoveryQueue = (options?: Options<RecoveryItem[]>): Query<Recov
 export const usePlatformMetrics = (options?: Options<PlatformMetrics>): Query<PlatformMetrics> =>
   useQuery({ queryKey: keys.admin.metrics(), queryFn: api.getPlatformMetrics, ...options });
 
+export const useOnboarding = () =>
+  useQuery({ queryKey: keys.admin.onboarding(), queryFn: api.getOnboarding });
+
+export const useProviderPolicy = () =>
+  useQuery({ queryKey: keys.admin.providerPolicy(), queryFn: api.getProviderPolicy });
+
 export const useAdministrators = () =>
   useQuery({ queryKey: keys.admin.administrators(), queryFn: api.getAdministrators });
 

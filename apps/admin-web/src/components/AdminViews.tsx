@@ -21,7 +21,6 @@ import {
   KeyRound,
   LifeBuoy,
   LockKeyhole,
-  Play,
   RefreshCcw,
   Search,
   ShieldAlert,
@@ -39,14 +38,20 @@ import {
   useChannelEconomics,
   usePlanEconomics,
   ApiError,
+  keys,
   downloadPlatformExport,
+  setProviderPolicy,
   useAdministrators,
+  useApiMutation,
+  useOnboarding,
+  useProviderPolicy,
   usePlatformCampaigns,
   usePlatformInvoices,
   usePlatformMetrics,
   EMPTY_PLATFORM_METRICS,
   useServices,
   useTenants,
+  type ProviderPolicy,
 } from "@kypstamping/api";
 import { useAdminState } from "@/components/AdminState";
 import { longDate, peso, pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
@@ -60,6 +65,7 @@ function ViewFrame(props: Omit<Parameters<typeof SharedViewFrame>[0], "wide" | "
 }
 
 function BusinessesView({ notify }: { notify: Notify }) {
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
   const { data: tenants = [] } = useTenants();
   const { data: metrics = EMPTY_PLATFORM_METRICS } = usePlatformMetrics();
   const [query, setQuery] = useState("");
@@ -93,12 +99,14 @@ function BusinessesView({ notify }: { notify: Notify }) {
       action={
         <Button
           icon={<Building2 size={16} />}
-          onClick={() => notify("Business onboarding review opened.", "review")}
+          aria-expanded={onboardingOpen}
+          onClick={() => setOnboardingOpen((open) => !open)}
         >
-          Review applications
+          {onboardingOpen ? "Hide onboarding" : "Onboarding progress"}
         </Button>
       }
     >
+      {onboardingOpen && <OnboardingPanel />}
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
         <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="flex gap-3 border-b border-[var(--line)] p-4">
@@ -363,7 +371,12 @@ function PeopleView({ notify }: { notify: Notify }) {
           </p>
           <button
             type="button"
-            onClick={() => notify("Privacy workflow playbook opened.", "review")}
+            onClick={() =>
+              notify(
+                "The playbook is not written yet. The workflows it describes are live in the privacy centre.",
+                "review",
+              )
+            }
             className="mt-7 inline-flex items-center gap-2 text-xs font-extrabold"
           >
             Open privacy playbook <ArrowRight size={14} />
@@ -484,14 +497,13 @@ function OperationsView({ notify }: { notify: Notify }) {
               </div>
             ))}
           </div>
-          <Button
-            tone="accent"
-            className="mt-6"
-            icon={<Play size={15} />}
-            onClick={() => notify("Incident runbook opened.", "review")}
-          >
-            Open runbook
-          </Button>
+          {/* No runbook exists to open. Saying so beats reporting that one
+              did - an operator in an incident must not be told a document
+              opened when none did. */}
+          <p className="mt-6 rounded-xl border border-dashed border-white/20 p-3 text-[11px] leading-relaxed text-white/55">
+            No incident runbook is published yet. Service health above is live;
+            the written procedure is not.
+          </p>
         </section>
       </div>
     </ViewFrame>
@@ -534,7 +546,12 @@ function SupportView({ notify }: { notify: Notify }) {
         <Button
           tone="quiet"
           icon={<SlidersHorizontal size={16} />}
-          onClick={() => notify("Support queue rules opened for review.", "review")}
+          onClick={() =>
+            notify(
+              "Routing rules are not configurable yet. Tickets arrive unassigned and are picked up from this queue.",
+              "review",
+            )
+          }
         >
           Queue rules
         </Button>
@@ -1033,6 +1050,144 @@ function EconomicsView() {
  * you cannot take out of the system is not a ledger: the reason to keep one
  * is to hand it to whoever is asking.
  */
+/**
+ * Who signed up and then stalled.
+ *
+ * There is no approval queue - a business is live the moment it signs up -
+ * so the useful question is not who is waiting but who got stuck, and on
+ * which step.
+ */
+function OnboardingPanel() {
+  const { data: rows = [] } = useOnboarding();
+  const stalled = rows.filter((row) => row.stepsDone < row.stepsTotal);
+
+  return (
+    <section className="mb-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+      <div className="border-b border-[var(--line)] p-5">
+        <Eyebrow>Setup</Eyebrow>
+        <h2 className="mt-1 text-lg font-extrabold">
+          {stalled.length
+            ? `${stalled.length} of ${rows.length} still setting up`
+            : "Every workspace is set up"}
+        </h2>
+      </div>
+      <ul className="divide-y divide-[var(--line)]">
+        {rows.map((row) => (
+          <li key={row.merchantId} className="flex items-center gap-4 p-4">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-extrabold">{row.name}</p>
+              <p className="mt-0.5 text-[10px] text-[var(--muted-strong)]">
+                {row.plan} · joined {relativeTime(row.createdAt)}
+              </p>
+            </div>
+            <div className="hidden gap-1.5 sm:flex">
+              {(
+                [
+                  ["Program", row.hasProgram],
+                  ["Location", row.hasLocation],
+                  ["Staff", row.hasStaff],
+                  ["First stamp", row.hasFirstStamp],
+                ] as const
+              ).map(([label, done]) => (
+                <span
+                  key={label}
+                  className={`rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.08em] ${
+                    done
+                      ? "bg-[rgb(15_118_85/12%)] text-[var(--success)]"
+                      : "bg-[var(--surface-2)] text-[var(--muted)]"
+                  }`}
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+            <Pill tone={row.stepsDone === row.stepsTotal ? "success" : "warning"}>
+              {row.stepsDone}/{row.stepsTotal}
+            </Pill>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/**
+ * The five network-wide limits, editable.
+ *
+ * They were displayed as settled fact and stored nowhere. The SMS ceiling
+ * and the complaint threshold are what stand between one misconfigured
+ * tenant and either a bill or a blocklisting.
+ */
+function ProviderPolicyCard({ notify }: { notify: Notify }) {
+  const { data: policy } = useProviderPolicy();
+  const save = useApiMutation(setProviderPolicy, {
+    invalidates: [keys.admin.providerPolicy()],
+  });
+  const [draft, setDraft] = useState<ProviderPolicy | null>(null);
+  const shown = draft ?? policy;
+
+  if (!shown) {
+    return (
+      <article className="h-72 animate-pulse rounded-2xl bg-[var(--ink-soft)]" />
+    );
+  }
+
+  const field =
+    "min-h-9 w-28 rounded-lg border border-white/15 bg-[var(--ink-soft)] px-2 text-right text-xs font-bold text-white outline-none focus:border-[var(--accent)]";
+
+  return (
+    <article className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
+      <div className="flex items-center justify-between">
+        <Eyebrow>Provider policies</Eyebrow>
+        <Webhook size={19} className="text-[var(--accent)]" />
+      </div>
+      <div className="mt-6 divide-y divide-white/12 border-y border-white/12">
+        {(
+          [
+            ["SMS ceiling", "smsCeilingCentavos", "centavos per tenant"],
+            ["Email complaint pause", "emailComplaintPauseBps", "basis points"],
+            ["Webhook retry window", "webhookRetryHours", "hours"],
+            ["Offline replay window", "offlineReplayDays", "days"],
+            ["Audit retention", "auditRetentionDays", "days"],
+          ] as const
+        ).map(([label, key, unit]) => (
+          <label key={key} className="flex items-center justify-between gap-4 py-3 text-xs">
+            <span className="text-white/50">
+              {label}
+              <span className="ml-1 text-white/30">({unit})</span>
+            </span>
+            <input
+              type="number"
+              value={shown[key]}
+              onChange={(event) =>
+                setDraft({ ...shown, [key]: Number(event.target.value) })
+              }
+              className={field}
+            />
+          </label>
+        ))}
+      </div>
+      <Button
+        tone="accent"
+        className="mt-5"
+        disabled={!draft || save.isPending}
+        onClick={() =>
+          draft &&
+          save.mutate(draft, {
+            onSuccess: () => {
+              setDraft(null);
+              notify("Provider policy saved network-wide.");
+            },
+            onError: (failure) => notify(failure.message, "review"),
+          })
+        }
+      >
+        {save.isPending ? "Saving\u2026" : draft ? "Save policy" : "Saved"}
+      </Button>
+    </article>
+  );
+}
+
 function PlatformExportButton({
   kind,
   label,
@@ -1161,36 +1316,7 @@ function SettingsView({ notify }: { notify: Notify }) {
           })}
         </section>
         <aside className="space-y-3">
-          <article className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
-            <div className="flex items-center justify-between">
-              <Eyebrow>Provider policies</Eyebrow>
-              <Webhook size={19} className="text-[var(--accent)]" />
-            </div>
-            <div className="mt-6 divide-y divide-white/12 border-y border-white/12">
-              {[
-                ["SMS ceiling", "₱50,000 / tenant"],
-                ["Email complaint pause", "0.08%"],
-                ["Webhook retry window", "72 hours"],
-                ["Offline replay window", "7 days"],
-                ["Audit retention", "7 years"],
-              ].map(([label, value]) => (
-                <div
-                  key={label}
-                  className="flex justify-between gap-4 py-3 text-xs"
-                >
-                  <span className="text-white/50">{label}</span>
-                  <strong>{value}</strong>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => notify("Provider policy editor opened.", "review")}
-              className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-[var(--accent)]"
-            >
-              Edit provider policies <ArrowRight size={14} />
-            </button>
-          </article>
+          <ProviderPolicyCard notify={notify} />
           <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
             <div className="flex gap-3">
               <UserRoundCog
