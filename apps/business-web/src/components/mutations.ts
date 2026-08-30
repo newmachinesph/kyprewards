@@ -22,6 +22,9 @@ import {
   recordVisit,
   toggleAutomation,
   toggleIntegration,
+  cancelRedemption,
+  commitRedemption,
+  reserveRedemption,
   setMessagingPolicy,
   setSetting,
   updateBusinessProfile,
@@ -101,6 +104,30 @@ export const useVoidVisit = () =>
       voidVisit(id, idempotencyKey),
     { invalidates: [keys.business.all] },
   );
+
+/**
+ * Take a reward out of circulation without spending it.
+ *
+ * Nothing leaves the customer's balance until the commit, so a counter that
+ * reserves and then loses power gives the reward back rather than eating it.
+ */
+export const useReserveRedemption = () =>
+  useApiMutation(
+    ({ idempotencyKey, ...body }: Parameters<typeof reserveRedemption>[0] & {
+      idempotencyKey: string;
+    }) => reserveRedemption(body, idempotencyKey),
+    { invalidates: [keys.business.all] },
+  );
+
+export const useCommitRedemption = () =>
+  useApiMutation(
+    ({ id, idempotencyKey }: { id: string; idempotencyKey: string }) =>
+      commitRedemption(id, idempotencyKey),
+    { invalidates: [keys.business.all] },
+  );
+
+export const useCancelRedemption = () =>
+  useApiMutation(cancelRedemption, { invalidates: [keys.business.all] });
 
 export const useSetSetting = () =>
   useApiMutation(

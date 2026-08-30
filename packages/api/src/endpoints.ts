@@ -47,6 +47,7 @@ import type {
   Program,
   RecoveryItem,
   Redemption,
+  RedemptionResult,
   ServiceHealth,
   AccountKind,
   SessionInfo,
@@ -559,6 +560,27 @@ export const voidVisit = (transactionId: string, idempotencyKey: string): Promis
 
 export const refundVisit = (transactionId: string, idempotencyKey: string): Promise<VisitResult> =>
   http(`/transactions/${transactionId}/refund`, { method: "POST", idempotencyKey });
+
+/* ── Redemptions ──────────────────────────────────────────────────────
+   reserve -> commit, or reserve -> cancel. Reserving takes the reward out of
+   circulation without spending it, so a register that dies mid-handover
+   leaves something that can be given back rather than a balance already
+   eaten. */
+
+export const reserveRedemption = (
+  body: { customerId: string; rewardId?: string; branchId?: string },
+  idempotencyKey: string,
+): Promise<RedemptionResult> =>
+  http("/redemptions/reserve", { method: "POST", body, idempotencyKey });
+
+export const commitRedemption = (
+  redemptionId: string,
+  idempotencyKey: string,
+): Promise<RedemptionResult> =>
+  http(`/redemptions/${redemptionId}/commit`, { method: "POST", idempotencyKey });
+
+export const cancelRedemption = (redemptionId: string): Promise<RedemptionResult> =>
+  http(`/redemptions/${redemptionId}/cancel`, { method: "POST" });
 
 /** The onboarding wizard's "prove it works" step. */
 export const recordTestStamp = (): Promise<VisitResult> =>

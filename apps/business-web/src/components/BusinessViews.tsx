@@ -12,6 +12,7 @@ import {
   useSettings,
   type BusinessLocation,
   type MessagingPolicy,
+  type RedemptionResult,
   useCampaigns,
   useFavoriteOrders,
   useIntegrations,
@@ -55,6 +56,9 @@ import {
   useToggleIntegration,
   useUpdateProgram,
   useSetMessagingPolicy,
+  useCancelRedemption,
+  useCommitRedemption,
+  useReserveRedemption,
   useSetSetting,
   useVoidVisit,
 } from "@/components/mutations";
@@ -166,6 +170,19 @@ function ScanView({ notify }: { notify: Notify }) {
   const [looking, setLooking] = useState(false);
   const [done, setDone] = useState<VisitResult | null>(null);
   const undo = useVoidVisit();
+  const reserve = useReserveRedemption();
+  const handOver = useCommitRedemption();
+  const giveBack = useCancelRedemption();
+  const [held, setHeld] = useState<RedemptionResult | null>(null);
+  /**
+   * Bumped whenever a reservation is put back.
+   *
+   * The idempotency key has to stay stable across a retry of the same
+   * reserve, and change when the cashier deliberately starts a new one -
+   * otherwise the API replays the cancelled reservation and the commit that
+   * follows is refused as already-decided.
+   */
+  const [redeemAttempt, setRedeemAttempt] = useState(0);
 
   const { data: balance } = useCustomerBalance(scanned?.id);
 
@@ -254,6 +271,11 @@ function ScanView({ notify }: { notify: Notify }) {
   }
 
   function startOver() {
+    // A reward still on hold goes back. Walking away from a reservation would
+    // leave it out of circulation for a customer who never received it.
+    if (held) giveBack.mutate(held.id);
+    setHeld(null);
+    setRedeemAttempt((n) => n + 1);
     setDone(null);
     // Also mints a new idempotency reference: the next customer is a
     // different visit, not a retry of this one.
@@ -355,11 +377,84 @@ function ScanView({ notify }: { notify: Notify }) {
                       <div className="mt-4 overflow-x-auto">
                         <StampDots filled={balance.balance} total={balance.target} />
                       </div>
-                      {balance.rewardsAvailable > 0 && (
-                        <p className="mt-3 text-xs font-extrabold text-[var(--success)]">
-                          {balance.rewardsAvailable} reward
-                          {balance.rewardsAvailable === 1 ? "" : "s"} ready to redeem
-                        </p>
+                      {balance.rewardsAvailable > 0 && !held && (
+                        <>
+                          <p className="mt-3 text-xs font-extrabold text-[var(--success)]">
+                            {balance.rewardsAvailable} reward
+                            {balance.rewardsAvailable === 1 ? "" : "s"} ready to redeem
+                          </p>
+                          <Button
+                            tone="accent"
+                            className="mt-3 w-full"
+                            icon={<Gift size={15} />}
+                            disabled={reserve.isPending}
+                            onClick={() =>
+                              reserve.mutate(
+                                {
+                                  customerId: scanned.id,
+                                  idempotencyKey: idempotencyKey(
+                                    "redeem",
+                                    `${scanned.id}_${idempotencyReference}_${redeemAttempt}`,
+                                  ),
+                                },
+                                {
+                                  onSuccess: setHeld,
+                                  onError: (failure) => notify(failure.message, "error"),
+                                },
+                              )
+                            }
+                          >
+                            {reserve.isPending ? "Holding…" : "Redeem a reward"}
+                          </Button>
+                        </>
+                      )}
+                      {held && (
+                        /* Reserved, not spent. The balance only moves when the
+                           cashier confirms the customer actually has it. */
+                        <div className="mt-3 rounded-xl border border-[var(--success)] bg-[rgb(15_118_85/8%)] p-3">
+                          <p className="text-xs font-extrabold text-[var(--success)]">
+                            {held.rewardName} is on hold. Hand it over, then confirm.
+                          </p>
+                          <div className="mt-3 grid grid-cols-2 gap-2">
+                            <Button
+                              tone="quiet"
+                              disabled={giveBack.isPending || handOver.isPending}
+                              onClick={() =>
+                                giveBack.mutate(held.id, {
+                                  onSuccess: () => {
+                                    setHeld(null);
+                                    setRedeemAttempt((n) => n + 1);
+                                    notify("Reward put back. Nothing was spent.");
+                                  },
+                                  onError: (failure) => notify(failure.message, "error"),
+                                })
+                              }
+                            >
+                              Put it back
+                            </Button>
+                            <Button
+                              disabled={handOver.isPending || giveBack.isPending}
+                              onClick={() =>
+                                handOver.mutate(
+                                  {
+                                    id: held.id,
+                                    idempotencyKey: idempotencyKey("commit", held.id),
+                                  },
+                                  {
+                                    onSuccess: (committed) => {
+                                      setHeld(null);
+                                      setRedeemAttempt((n) => n + 1);
+                                      notify(`${committed.rewardName} redeemed.`);
+                                    },
+                                    onError: (failure) => notify(failure.message, "error"),
+                                  },
+                                )
+                              }
+                            >
+                              {handOver.isPending ? "Confirming…" : "Handed over"}
+                            </Button>
+                          </div>
+                        </div>
                       )}
                     </>
                   ) : (

@@ -552,3 +552,15 @@ export type MessagingPolicy = {
   maxPerDay: number;
   maxPerWeek: number;
 };
+
+/** A reward part-way through being handed over. */
+export type RedemptionResult = {
+  id: string;
+  customerId: string;
+  rewardName: string;
+  valueCentavos: number;
+  status: "reserved" | "approved" | "cancelled" | "reversed";
+  reservedAt: string;
+  committedAt: string | null;
+  cancelledAt: string | null;
+};
