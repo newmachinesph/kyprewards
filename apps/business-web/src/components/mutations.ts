@@ -25,9 +25,11 @@ import {
   addCatalogItem,
   addCustomField,
   cancelRedemption,
+  createCustomer,
   createReferral,
   decideApproval,
   issueCoupon,
+  importCustomers,
   issueGiftCard,
   purchaseMultipass,
   redeemCatalogItem,
@@ -148,6 +150,20 @@ export const useCancelRedemption = () =>
    Each settles differently, and all of them move the same three things: the
    customer's balance, today's counters, and the reward that may follow. The
    workspace is the honest invalidation scope for every one. */
+
+/** Someone standing at the counter who has no wallet yet. */
+export const useCreateCustomer = () =>
+  useApiMutation(createCustomer, { invalidates: [keys.business.customers()] });
+
+/**
+ * A CSV of regulars off the old paper cards.
+ *
+ * Someone whose number already has a wallet is joined rather than
+ * duplicated, so a merchant can re-import the same file without splitting
+ * anybody's history.
+ */
+export const useImportCustomers = () =>
+  useApiMutation(importCustomers, { invalidates: [keys.business.all] });
 
 export const useRedeemCoupon = () =>
   useApiMutation(redeemCoupon, { invalidates: [keys.business.all] });

@@ -71,7 +71,9 @@ import {
   useAddCatalogItem,
   useAddCustomField,
   useDecideApproval,
+  useCreateCustomer,
   useCreateReferral,
+  useImportCustomers,
   useSetCustomFieldValues,
   useIssueCoupon,
   useIssueGiftCard,
@@ -132,6 +134,7 @@ import {
   Store,
   TicketCheck,
   Undo2,
+  Upload,
   UserPlus,
   Users,
   WalletCards,
@@ -401,6 +404,72 @@ function OtherProgramActions({
   );
 }
 
+/**
+ * Someone at the counter with no wallet yet.
+ *
+ * The old answer was "they can join with the counter QR", which asks a
+ * queueing customer to install something. Their name, plus the number
+ * already typed, is enough to make the account.
+ */
+function AddWalkIn({
+  identifier,
+  name,
+  onName,
+  onCancel,
+  onAdded,
+  notify,
+}: {
+  identifier: string;
+  name: string;
+  onName: (value: string) => void;
+  onCancel: () => void;
+  onAdded: (customer: { id: string; name: string }) => void;
+  notify: Notify;
+}) {
+  const add = useCreateCustomer();
+  const looksLikeEmail = identifier.includes("@");
+
+  return (
+    <div className="mt-5 rounded-2xl border border-[var(--accent)] bg-white/5 p-4">
+      <p className="text-xs font-extrabold">Nobody found for {identifier}.</p>
+      <p className="mt-1 text-[11px] leading-relaxed text-white/60">
+        Add them now and stamp in the same breath.
+      </p>
+      <input
+        value={name}
+        onChange={(event) => onName(event.target.value)}
+        placeholder="Their name"
+        className="mt-3 min-h-11 w-full rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+      />
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <Button tone="quiet" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button
+          disabled={!name.trim() || add.isPending}
+          onClick={() =>
+            add.mutate(
+              {
+                name: name.trim(),
+                ...(looksLikeEmail ? { email: identifier } : { mobile: identifier }),
+              },
+              {
+                onSuccess: (created) => {
+                  notify(`${created.name} added.`);
+                  onAdded(created);
+                },
+                onError: (failure) => notify(failure.message, "error"),
+              },
+            )
+          }
+        >
+          {add.isPending ? "Adding…" : "Add and continue"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function ScanView({ notify }: { notify: Notify }) {
   const { data: customers = [] } = useBusinessCustomers();
   const { data: redemptions = [] } = useRedemptions();
@@ -412,6 +481,8 @@ function ScanView({ notify }: { notify: Notify }) {
   const record = useRecordVisit();
 
   const [identifier, setIdentifier] = useState("");
+  const [notFound, setNotFound] = useState("");
+  const [newName, setNewName] = useState("");
   const [looking, setLooking] = useState(false);
   const [done, setDone] = useState<VisitResult | null>(null);
   const undo = useVoidVisit();
@@ -480,12 +551,15 @@ function ScanView({ notify }: { notify: Notify }) {
       scan(found);
       setIdentifier("");
     } catch (failure) {
+      if (failure instanceof ApiError && failure.status === 404) {
+        // Offer to add them rather than send them away to scan a QR: the
+        // person is standing at the counter, which is the one moment they
+        // are certain to give a name and a number.
+        setNotFound(typed);
+        return;
+      }
       notify(
-        failure instanceof ApiError && failure.status === 404
-          ? "No member found for that code. They can join with the counter QR."
-          : failure instanceof ApiError
-            ? failure.message
-            : "Could not look that up.",
+        failure instanceof ApiError ? failure.message : "Could not look that up.",
         "error",
       );
     } finally {
@@ -611,6 +685,29 @@ function ScanView({ notify }: { notify: Notify }) {
                   {looking ? "Looking up\u2026" : "Find customer"}
                 </Button>
               </form>
+              {notFound && (
+                <AddWalkIn
+                  identifier={notFound}
+                  name={newName}
+                  onName={setNewName}
+                  onCancel={() => {
+                    setNotFound("");
+                    setNewName("");
+                  }}
+                  onAdded={(created) => {
+                    setNotFound("");
+                    setNewName("");
+                    setIdentifier("");
+                    scan({
+                      id: created.id,
+                      name: created.name,
+                      memberCode: `KYP-${created.id.toUpperCase()}`,
+                      isMember: true,
+                    });
+                  }}
+                  notify={notify}
+                />
+              )}
               {customers[0] && (
                 <button
                   type="button"
@@ -1256,6 +1353,47 @@ function CustomerExtras({
   );
 }
 
+/**
+ * A CSV of regulars off the old paper cards.
+ *
+ * The CRM had no way in but one join at a time from the customer's own
+ * phone, which is a week of retyping for a shop that already has a list.
+ * Someone whose number already has a wallet is joined rather than
+ * duplicated, so re-importing the same file splits nobody's history.
+ */
+function ImportCustomers({ notify }: { notify: Notify }) {
+  const load = useImportCustomers();
+
+  return (
+    <label
+      className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-sm font-extrabold transition hover:bg-[var(--surface-2)] ${load.isPending ? "pointer-events-none opacity-60" : ""}`}
+    >
+      <Upload size={16} />
+      {load.isPending ? "Importing…" : "Import CSV"}
+      <input
+        type="file"
+        accept=".csv,text/csv"
+        className="sr-only"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+          // Cleared so choosing the same file twice fires again - a merchant
+          // fixing a rejected row re-picks the file they just edited.
+          event.target.value = "";
+          load.mutate(file, {
+            onSuccess: (result) =>
+              notify(
+                `${result.created} added, ${result.joined} already had a wallet` +
+                  (result.skipped ? `, ${result.skipped} skipped.` : "."),
+              ),
+            onError: (failure) => notify(failure.message, "error"),
+          });
+        }}
+      />
+    </label>
+  );
+}
+
 function CustomersView({ notify }: { notify: Notify }) {
   const { runExport, busy: exporting } = useExport(notify);
   const {
@@ -1304,6 +1442,8 @@ function CustomersView({ notify }: { notify: Notify }) {
       title="Customers"
       description="Understand the relationship without turning people into a contact export. Profile access follows the customer’s sharing choices."
       action={
+        <div className="flex flex-wrap gap-2">
+          <ImportCustomers notify={notify} />
         <Button
           icon={<FileDown size={16} />}
           disabled={exporting === "customers"}
@@ -1311,6 +1451,7 @@ function CustomersView({ notify }: { notify: Notify }) {
         >
           {exporting === "customers" ? "Preparing…" : "Export view"}
         </Button>
+        </div>
       }
     >
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
