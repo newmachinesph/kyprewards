@@ -109,7 +109,21 @@ export function PartnerIntake() {
   // Move the reading position with the form. Without this a screen reader
   // stays where the button was and a keyboard user tabs from the top of the
   // page again on every step.
+  //
+  // Not on arrival, though: focusing scrolls the element into view, so doing
+  // it on mount threw every visitor past the hero to a form they had not
+  // asked for yet.
+  // Compared by value rather than a "first run" flag: StrictMode invokes an
+  // effect twice in development, which consumes a flag and focuses anyway.
+  const focusedFor = useRef<string | null>(null);
   useEffect(() => {
+    const now = `${step}:${sent}`;
+    if (focusedFor.current === null) {
+      focusedFor.current = now;
+      return;
+    }
+    if (focusedFor.current === now) return;
+    focusedFor.current = now;
     headingRef.current?.focus();
   }, [step, sent]);
 

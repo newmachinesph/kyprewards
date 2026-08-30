@@ -14,6 +14,7 @@ import {
   Activity,
   Bell,
   Building2,
+  ClipboardCheck,
   ChevronDown,
   CircleGauge,
   Coins,
@@ -32,6 +33,7 @@ import {
 export type AdminView =
   | "overview"
   | "businesses"
+  | "partners"
   | "people"
   | "operations"
   | "integrations"
@@ -43,6 +45,7 @@ export type AdminView =
 const nav = [
   { label: "Overview", icon: CircleGauge, view: "overview" as AdminView },
   { label: "Businesses", icon: Building2, view: "businesses" as AdminView },
+  { label: "Applications", icon: ClipboardCheck, view: "partners" as AdminView },
   { label: "People", icon: Users, view: "people" as AdminView },
   { label: "Operations", icon: Activity, view: "operations" as AdminView },
   {

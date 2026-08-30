@@ -431,6 +431,10 @@ export type SupportTicket = {
   note: string;
   owner: string;
   status: TicketStatus | string;
+  /** Set when the ticket came in from the public contact form. Empty for one
+   *  raised inside the platform, where the merchant is already known. */
+  contactName: string;
+  contactEmail: string;
 };
 
 export type AuditEvent = {

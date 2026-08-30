@@ -21,6 +21,7 @@ import {
   KeyRound,
   LifeBuoy,
   LockKeyhole,
+  Mail,
   RefreshCcw,
   Search,
   ShieldAlert,
@@ -31,6 +32,7 @@ import {
   Webhook,
 } from "lucide-react";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
+import { PartnerQueueView } from "@/components/PartnerQueueView";
 import type { AdminView } from "@/components/AdminShell";
 import { AdminIntegrationsView } from "@/components/AdminIntegrationsView";
 import {
@@ -613,7 +615,38 @@ function SupportView({ notify }: { notify: Notify }) {
           <p className="mt-2 text-sm text-white/60">
             {selected.business} · {selected.category}
           </p>
-          <div className="mt-7 rounded-2xl bg-white/6 p-4">
+
+          {/* Set when the ticket came from the public contact form. Without
+              it the queue holds a question and no way to answer it. */}
+          {selected.contactEmail && (
+            <div className="mt-6 rounded-2xl border border-white/12 p-4">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-white/50">
+                Raised from the website
+              </p>
+              <p className="mt-2 text-sm font-extrabold">{selected.contactName}</p>
+              <a
+                href={`mailto:${selected.contactEmail}?subject=${encodeURIComponent(
+                  `Re: ${selected.title}`,
+                )}`}
+                className="mt-1 inline-flex items-center gap-2 text-xs font-bold text-[var(--accent)] underline underline-offset-2"
+              >
+                <Mail size={13} /> {selected.contactEmail}
+              </a>
+            </div>
+          )}
+
+          {selected.note && (
+            <div className="mt-4 rounded-2xl bg-white/6 p-4">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-white/50">
+                What they wrote
+              </p>
+              <p className="mt-2 whitespace-pre-line text-xs leading-relaxed text-white/75">
+                {selected.note}
+              </p>
+            </div>
+          )}
+
+          <div className="mt-4 rounded-2xl bg-white/6 p-4">
             <p className="text-xs font-extrabold">Recommended next step</p>
             <p className="mt-2 text-xs leading-relaxed text-white/65">
               Verify the requester and event scope, request time-limited support
@@ -1389,6 +1422,7 @@ export function AdminViewContent({
 }) {
   const views: Record<Exclude<AdminView, "overview">, ReactNode> = {
     businesses: <BusinessesView notify={notify} />,
+    partners: <PartnerQueueView notify={notify} />,
     people: <PeopleView notify={notify} />,
     operations: <OperationsView notify={notify} />,
     integrations: <AdminIntegrationsView notify={notify} />,

@@ -62,8 +62,23 @@ export default async function IndustryPage({ params }: Props) {
         ]}
       />
     <main>
-      <section className="site-grid overflow-hidden border-b border-[var(--line)]">
-        <div className="mx-auto grid min-h-[720px] max-w-[1400px] items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
+      <section className="relative overflow-hidden border-b border-[var(--line)]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/hero-industry.webp"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 size-full object-cover object-[70%_center]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[linear-gradient(90deg,var(--paper)_10%,rgb(250_248_243/93%)_52%,rgb(250_248_243/74%)_100%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent,var(--paper))]"
+        />
+        <div className="relative mx-auto grid min-h-[720px] max-w-[1400px] items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
           <div>
             <SiteEyebrow>{industry.eyebrow}</SiteEyebrow>
             <h1 className="mt-6 max-w-[11ch] text-5xl font-extrabold leading-[0.94] tracking-[-0.03em] sm:text-6xl lg:text-7xl">

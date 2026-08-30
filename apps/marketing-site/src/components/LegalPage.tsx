@@ -44,8 +44,23 @@ export function LegalPage({
   return (
     <main>
       <StructuredData data={breadcrumb([{ name: title, path }])} />
-      <header className="site-grid border-b border-[var(--line)] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-        <div className="mx-auto max-w-[1100px]">
+      <header className="relative overflow-hidden border-b border-[var(--line)] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/hero-legal.webp"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 size-full object-cover object-[75%_center]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[linear-gradient(90deg,var(--paper)_10%,rgb(250_248_243/93%)_52%,rgb(250_248_243/74%)_100%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent,var(--paper))]"
+        />
+        <div className="relative mx-auto max-w-[1100px]">
           <SiteEyebrow>{eyebrow}</SiteEyebrow>
           <div className="mt-12 grid gap-10 lg:grid-cols-[0.7fr_0.3fr] lg:items-end">
             <div>

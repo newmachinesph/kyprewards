@@ -55,8 +55,19 @@ export default function PartnersPage() {
       {/* Deliberately shorter than the other page heroes. Somebody who has
           reached this page has already decided to look; the job now is to
           get them into the form, not to sell again. */}
-      <section className="site-grid border-b border-[var(--line)]">
-        <div className="mx-auto max-w-[760px] px-4 pb-10 pt-16 text-center sm:px-6 lg:px-8 lg:pt-20">
+      <section className="relative overflow-hidden border-b border-[var(--line)]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/hero-partners.webp"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 size-full object-cover object-[center_38%]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[linear-gradient(180deg,rgb(250_248_243/62%)_0%,rgb(250_248_243/88%)_42%,rgb(250_248_243/95%)_72%,var(--paper)_100%)]"
+        />
+        <div className="relative mx-auto max-w-[760px] px-4 pb-10 pt-16 text-center sm:px-6 lg:px-8 lg:pt-20">
           <SiteEyebrow>Become a partner</SiteEyebrow>
           <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] sm:text-5xl">
             Tell us about your shop.
