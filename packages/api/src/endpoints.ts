@@ -896,6 +896,9 @@ export const requestPlaybook = (email: string): Promise<{ received: boolean }> =
 
 export type ExportKind = "customers" | "transactions" | "redemptions" | "messages";
 
+/** The admin console's own two. Network-wide, not merchant-scoped. */
+export type PlatformExportKind = "audit" | "privacy";
+
 /**
  * Streams one export and saves it, using the filename the API chose.
  *
@@ -904,7 +907,15 @@ export type ExportKind = "customers" | "transactions" | "redemptions" | "message
  * revoked immediately so the file is not held in memory.
  */
 export async function downloadExport(kind: ExportKind): Promise<void> {
-  const response = await fetch(`${apiBase()}/business/exports/${kind}`, {
+  return download(`/business/exports/${kind}`);
+}
+
+export async function downloadPlatformExport(kind: PlatformExportKind): Promise<void> {
+  return download(`/admin/exports/${kind}`);
+}
+
+async function download(path: string): Promise<void> {
+  const response = await fetch(`${apiBase()}${path}`, {
     credentials: "include",
   });
   if (!response.ok) throw await toApiError(response);
@@ -916,7 +927,9 @@ export async function downloadExport(kind: ExportKind): Promise<void> {
   try {
     const link = document.createElement("a");
     link.href = url;
-    link.download = named ?? `${kind}.csv`;
+    // The API names its own file; this is only the fallback when a
+    // proxy strips the header.
+    link.download = named ?? `${path.split("/").pop()}.csv`;
     link.click();
   } finally {
     URL.revokeObjectURL(url);

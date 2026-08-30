@@ -38,6 +38,8 @@ import {
   useAuditLedger,
   useChannelEconomics,
   usePlanEconomics,
+  ApiError,
+  downloadPlatformExport,
   useAdministrators,
   usePlatformCampaigns,
   usePlatformInvoices,
@@ -275,13 +277,11 @@ function PeopleView({ notify }: { notify: Notify }) {
       title="People & privacy"
       description="Monitor aggregate account health and data-subject requests. Platform staff never browse customer profiles without a scoped support or trust reason."
       action={
-        <Button
-          tone="quiet"
-          icon={<Download size={16} />}
-          onClick={() => notify("Privacy operations report prepared.")}
-        >
-          Export privacy report
-        </Button>
+        <PlatformExportButton
+          kind="privacy"
+          label="Export privacy report"
+          notify={notify}
+        />
       }
     >
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -674,13 +674,7 @@ function AuditView({ notify }: { notify: Notify }) {
       title="Audit ledger"
       description="Every admin access, change, reversal, replay, export, and automated safeguard is recorded for accountability."
       action={
-        <Button
-          tone="quiet"
-          icon={<Download size={16} />}
-          onClick={() => notify("Signed audit export prepared.")}
-        >
-          Export audit log
-        </Button>
+        <PlatformExportButton kind="audit" label="Export audit log" notify={notify} />
       }
     >
       <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
@@ -1029,6 +1023,48 @@ function EconomicsView() {
         </div>
       </section>
     </ViewFrame>
+  );
+}
+
+/**
+ * A network-wide export, streamed straight to the browser.
+ *
+ * Both buttons used to say "prepared" and produce nothing. An audit ledger
+ * you cannot take out of the system is not a ledger: the reason to keep one
+ * is to hand it to whoever is asking.
+ */
+function PlatformExportButton({
+  kind,
+  label,
+  notify,
+}: {
+  kind: "audit" | "privacy";
+  label: string;
+  notify: Notify;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  return (
+    <Button
+      tone="quiet"
+      icon={<Download size={16} />}
+      disabled={busy}
+      onClick={async () => {
+        setBusy(true);
+        try {
+          await downloadPlatformExport(kind);
+        } catch (failure) {
+          notify(
+            failure instanceof ApiError ? failure.message : "That export could not be prepared.",
+            "review",
+          );
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      {busy ? "Preparing\u2026" : label}
+    </Button>
   );
 }
 

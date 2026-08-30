@@ -129,6 +129,7 @@ import {
   Phone,
   PlugZap,
   Plus,
+  Printer,
   QrCode,
   Search,
   Send,
@@ -1114,14 +1115,39 @@ function JoinCodeView({ notify }: { notify: Notify }) {
       description="Use a branch-specific poster, social link, or NFC tag. Customers review terms and choose what to share before joining."
       action={
         <Button
-          icon={<Download size={16} />}
-          onClick={() => notify("Print-ready poster prepared for download.")}
+          icon={<Printer size={16} />}
+          // The browser's own print dialog, which is also how it becomes a
+          // PDF. Generating one server-side would add a rendering dependency
+          // to produce the sheet already on screen.
+          onClick={() => window.print()}
         >
-          Download poster
+          Print poster
         </Button>
       }
     >
-      <div className="grid gap-3 lg:grid-cols-[0.8fr_1.2fr]">
+      {/* Screen-hidden, print-only. `print:` utilities flip the two so the
+          sheet is the whole page on paper and invisible on screen. */}
+      <section className="hidden print:block">
+        <div className="mx-auto max-w-[520px] text-center">
+          <p className="text-sm font-extrabold uppercase tracking-[0.2em]">
+            {profile?.shortName ?? ""}
+          </p>
+          <h1 className="mt-6 text-5xl font-extrabold leading-[1.05] tracking-[-0.03em]">
+            Collect stamps here.
+          </h1>
+          <p className="mt-4 text-lg font-bold">{selected}</p>
+          <div className="mx-auto mt-10 w-fit border-4 border-black p-6">
+            <JoinPosterCode url={joinUrl} />
+          </div>
+          <p className="mt-8 text-base font-extrabold">Scan with your phone camera</p>
+          <p className="mt-2 break-all text-xs">{joinUrl}</p>
+          <p className="mt-10 text-[10px] uppercase tracking-[0.18em]">
+            No app needed · You choose what to share
+          </p>
+        </div>
+      </section>
+
+      <div className="grid gap-3 print:hidden lg:grid-cols-[0.8fr_1.2fr]">
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
           <label className="grid gap-2 text-xs font-bold">
             Location

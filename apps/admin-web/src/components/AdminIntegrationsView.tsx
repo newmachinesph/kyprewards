@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 import { sharedScenario } from "@kypstamping/demo-data";
-import type { AdapterStatus, ConnectionHealth } from "@kypstamping/api";
-import { Button, Eyebrow, Panel } from "@kypstamping/ui";
+import type {
+  Adapter,
+  AdapterStatus,
+  ConnectionHealth,
+  TenantConnection,
+} from "@kypstamping/api";
+import { Button, Dialog, Eyebrow, Panel } from "@kypstamping/ui";
 import {
   useAdapters,
   useTenantConnections,
@@ -61,9 +66,84 @@ function Status({ value }: { value: AdapterStatus | ConnectionHealth }) {
   );
 }
 
+/**
+ * One adapter and the tenants on it.
+ *
+ * Both lists are already on the screen - the card grid and the tenant
+ * connection table below it - so the record is a join of two things the page
+ * has, not a read it was missing.
+ */
+function AdapterRecord({
+  adapter,
+  connections,
+  onClose,
+}: {
+  adapter: Adapter;
+  connections: TenantConnection[];
+  onClose: () => void;
+}) {
+  const theirs = connections.filter((row) => row.adapter === adapter.name);
+  const unhealthy = theirs.filter((row) => row.health !== "Healthy");
+
+  return (
+    <Dialog title={adapter.name} eyebrow={adapter.category} onClose={onClose}>
+      <div className="grid gap-5">
+        <p className="text-sm leading-relaxed text-[var(--muted-strong)]">{adapter.detail}</p>
+
+        <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-[var(--line)]">
+          {(
+            [
+              ["Status", adapter.status],
+              ["Production", `${adapter.connected} connected`],
+              ["Sandbox", `${adapter.connectedSandbox} connected`],
+              [
+                "Needing attention",
+                unhealthy.length ? `${unhealthy.length} tenant${unhealthy.length === 1 ? "" : "s"}` : "none",
+              ],
+            ] as const
+          ).map(([label, value]) => (
+            <div key={label} className="bg-[var(--surface)] p-3">
+              <dt className="text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">
+                {label}
+              </dt>
+              <dd className="mt-1 text-xs font-bold">{value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div>
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">
+            Tenants on this adapter
+          </p>
+          {theirs.length === 0 ? (
+            <p className="mt-2 text-xs text-[var(--muted-strong)]">
+              Nobody is connected to it yet.
+            </p>
+          ) : (
+            <ul className="mt-2 divide-y divide-[var(--line)] rounded-xl border border-[var(--line)]">
+              {theirs.map((row) => (
+                <li key={row.businessId} className="flex items-center gap-3 p-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-extrabold">{row.business}</p>
+                    <p className="mt-0.5 text-[10px] text-[var(--muted-strong)]">
+                      {row.branches} · {row.events.toLocaleString()} events
+                    </p>
+                  </div>
+                  <Status value={row.health} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </Dialog>
+  );
+}
+
 export function AdminIntegrationsView({ notify }: { notify: Notify }) {
   const { data: adapters = [] } = useAdapters();
   const { data: tenantConnections = [] } = useTenantConnections();
+  const [openAdapter, setOpenAdapter] = useState<Adapter | null>(null);
   const { environment, setEnvironment, recoveryQueue, replayRecovery } =
     useAdminState();
   const [statusFilter, setStatusFilter] = useState<"All" | AdapterStatus>("All");
@@ -260,7 +340,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                 <button
                   key={adapter.id}
                   type="button"
-                  onClick={() => notify(`${adapter.name} adapter record opened.`, "review")}
+                  onClick={() => setOpenAdapter(adapter)}
                   className={`group min-h-64 p-5 text-left transition hover:bg-[var(--surface-2)] ${
                     index > 0 ? "border-t border-[var(--line)] sm:border-l sm:border-t-0" : ""
                   } ${index === 2 || index === 4 ? "sm:border-t xl:border-t-0" : ""}`}
@@ -440,6 +520,13 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
           })}
         </div>
       </div>
+      {openAdapter && (
+        <AdapterRecord
+          adapter={openAdapter}
+          connections={tenantConnections}
+          onClose={() => setOpenAdapter(null)}
+        />
+      )}
     </main>
   );
 }
