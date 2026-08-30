@@ -46,7 +46,7 @@ export default function AboutPage() {
         title="Local loyalty deserves better than another discount engine."
         description="Independent businesses already create real relationships. KYPStamping gives those relationships a simple digital memory without making them feel transactional."
       >
-        <SiteButton href="/contact">Build with us</SiteButton>
+        <SiteButton href="/partners">Build with us</SiteButton>
       </PageHero>
 
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">

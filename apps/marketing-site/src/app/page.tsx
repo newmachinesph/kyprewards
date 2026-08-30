@@ -68,7 +68,7 @@ export default function HomePage() {
               learn from.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <SiteButton href="/contact" tone="dark">
+              <SiteButton href="/partners" tone="dark">
                 Start your loyalty program
               </SiteButton>
               <SiteButton href="/product" tone="outline">

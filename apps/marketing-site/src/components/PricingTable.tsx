@@ -136,7 +136,7 @@ export function PricingTable() {
                   }`}
                 >
                   <SiteButton
-                    href="/contact"
+                    href="/partners"
                     tone={plan.featured ? "accent" : "outline"}
                   >
                     {plan.cta}

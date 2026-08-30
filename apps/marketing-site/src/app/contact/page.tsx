@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { Clock3, Mail, MapPin, MessagesSquare } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
-import { PageHero, SiteEyebrow } from "@/components/MarketingUi";
+import { PageHero, SiteButton, SiteEyebrow } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, organizationId } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Talk to KYPStamping about launching or improving a loyalty program for your local business.",
+    "Questions about KYPStamping — support for a running shop, anything before you apply, or press. To start a program, use the partner application.",
   alternates: { canonical: "/contact" },
 };
 
@@ -31,9 +31,9 @@ export default function ContactPage() {
       />
       <PageHero
         image="/images/hero-contact.webp"
-        eyebrow="Talk to the team"
-        title="Tell us how customers return today."
-        description="We’ll help you shape a program around the rhythm, reward, and counter workflow that already make sense for your business."
+        eyebrow="Questions"
+        title="Ask us anything."
+        description="Support for a shop already running, a question before you apply, press, or something that does not fit a form. If you are ready to start a program, the application asks better questions than this page can."
       />
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[0.62fr_1.38fr]">
@@ -44,7 +44,7 @@ export default function ContactPage() {
                 {
                   icon: Clock3,
                   title: "Within one business day",
-                  text: "Once the contact API is connected, a teammate will read every note and reply with useful next steps. The form below is a preview and sends nothing yet.",
+                  text: "A teammate reads every note and replies with useful next steps. You get a copy in your own inbox too.",
                 },
                 {
                   icon: MessagesSquare,
@@ -53,8 +53,8 @@ export default function ContactPage() {
                 },
                 {
                   icon: MapPin,
-                  title: "Singapore time zone",
-                  text: "Remote conversations are available across Southeast Asia and beyond.",
+                  title: "Manila hours",
+                  text: "Weekdays, UTC+8. Replies go out the same working day where we can.",
                 },
                 {
                   icon: Mail,
@@ -86,7 +86,22 @@ export default function ContactPage() {
               })}
             </div>
           </aside>
-          <ContactForm />
+          <div>
+            {/* Most people landing here want to sign up, not ask something.
+                Say so once, at the top, rather than letting them fill in the
+                wrong form and wait. */}
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius-card)] border border-[var(--line-strong)] bg-[var(--surface)] p-5">
+              <p className="max-w-[46ch] text-sm leading-relaxed">
+                <strong className="font-extrabold">Want to start a program?</strong>{" "}
+                <span className="text-[var(--muted-strong)]">
+                  The partner application takes about three minutes and gets you
+                  an answer the same working day.
+                </span>
+              </p>
+              <SiteButton href="/partners">Apply to join</SiteButton>
+            </div>
+            <ContactForm />
+          </div>
         </div>
       </section>
     </main>

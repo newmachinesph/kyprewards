@@ -136,7 +136,7 @@ export function MarketingCta({
           </p>
         </div>
         <div className="relative mt-8 flex flex-wrap gap-3 lg:mt-0 lg:pl-20">
-          <SiteButton href="/contact" tone="accent">
+          <SiteButton href="/partners" tone="accent">
             Start your program
           </SiteButton>
           <SiteButton href="/product" tone="light">

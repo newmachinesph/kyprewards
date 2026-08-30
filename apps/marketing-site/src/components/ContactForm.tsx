@@ -130,7 +130,7 @@ Send another
           </select>
         </label>
         <label className="grid gap-2 text-sm font-bold sm:col-span-2">
-          What would you like loyalty to improve?
+          What can we help with?
           <textarea
             name="message"
             rows={5}
@@ -164,7 +164,7 @@ Send another
             </>
           ) : (
             <>
-              <Send size={16} /> Preview submission
+              <Send size={16} /> Send message
             </>
           )}
         </button>

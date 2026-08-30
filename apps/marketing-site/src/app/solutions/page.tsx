@@ -48,7 +48,7 @@ export default function SolutionsPage() {
         title="Loyalty should feel native to the visit."
         description="A morning coffee, six-week appointment, dinner reservation, and considered purchase do not follow the same cadence. KYPStamping adapts to each one."
       >
-        <SiteButton href="/contact">Find your program</SiteButton>
+        <SiteButton href="/partners">Find your program</SiteButton>
         <SiteButton href="/pricing" tone="outline">
           Compare plans
         </SiteButton>

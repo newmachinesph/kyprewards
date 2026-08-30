@@ -144,7 +144,7 @@ export default function ProductPage() {
         title="One small scan. A much better return visit."
         description="KYPStamping connects the moment at the counter with the customer wallet, business workspace, and thoughtful follow-up that happen afterward."
       >
-        <SiteButton href="/contact">Start your program</SiteButton>
+        <SiteButton href="/partners">Start your program</SiteButton>
         <SiteButton href={`${businessAppUrl}/login`} tone="outline">
           Open business demo
         </SiteButton>

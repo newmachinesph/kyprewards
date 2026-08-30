@@ -73,7 +73,7 @@ export default async function IndustryPage({ params }: Props) {
               {industry.description}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <SiteButton href="/contact">Design my program</SiteButton>
+              <SiteButton href="/partners">Design my program</SiteButton>
               <SiteButton href="/pricing" tone="outline">
                 See pricing
               </SiteButton>

@@ -92,7 +92,7 @@ export function PricingCards() {
               </div>
               <div className="mt-auto pt-8">
                 <SiteButton
-                  href="/contact"
+                  href="/partners"
                   tone={plan.featured ? "accent" : "outline"}
                 >
                   {plan.cta}

@@ -58,7 +58,7 @@ export function MarketingHeader({
             Business sign in
           </a>
           <Link
-            href="/contact"
+            href="/partners"
             className="focus-ring ml-1 inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(24_18_12/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
           >
             Start your program <ArrowUpRight size={16} />
@@ -108,7 +108,7 @@ export function MarketingHeader({
                 Business sign in
               </a>
               <Link
-                href="/contact"
+                href="/partners"
                 onClick={() => setOpen(false)}
                 className="focus-ring flex min-h-11 items-center justify-center whitespace-nowrap rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)]"
               >

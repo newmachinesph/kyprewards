@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { HandCoins, HeartHandshake, Rocket } from "lucide-react";
 import { PartnerIntake } from "@/components/partner-intake/PartnerIntake";
 import { SiteEyebrow } from "@/components/MarketingUi";
@@ -70,6 +71,18 @@ export default function PartnersPage() {
 
       <section className="px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
         <PartnerIntake />
+        {/* The other direction from /contact's pointer here. Somebody with a
+            question should not have to fill in an application to ask it. */}
+        <p className="mx-auto mt-10 max-w-[760px] text-center text-sm text-[var(--muted-strong)]">
+          Not ready to apply, or just have a question?{" "}
+          <Link
+            href="/contact"
+            className="font-extrabold text-[var(--accent-strong)] underline underline-offset-2"
+          >
+            Ask us instead
+          </Link>
+          .
+        </p>
       </section>
 
       <section className="border-t border-[var(--line)] bg-[var(--surface)] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
