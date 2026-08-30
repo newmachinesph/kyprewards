@@ -15,6 +15,7 @@ import {
   Stamp,
   Users,
 } from "lucide-react";
+import { FirstStamp } from "@/components/FirstStamp";
 import {
   CheckList,
   MarketingCta,
@@ -159,6 +160,8 @@ export default function ProductPage() {
           { label: "Works offline", value: "Grow and Scale, queued and signed" },
         ]}
       />
+
+      <FirstStamp />
 
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">

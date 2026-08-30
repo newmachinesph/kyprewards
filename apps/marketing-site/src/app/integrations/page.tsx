@@ -258,7 +258,7 @@ X-Merchant-ID: mrc_sweet_crumbs
   "currency": "PHP"
 }`}</code>
             </pre>
-            <div className="grid gap-px bg-white/12 sm:grid-cols-2">
+            <div className="grid gap-px border-t border-white/12 bg-white/12 sm:grid-cols-2">
               {[
                 [KeyRound, "Scoped credentials", "Keys can be limited by branch and action."],
                 [BadgeCheck, "Signed events", "Planned: timestamped HMAC to block replay outside the allowed window."],
