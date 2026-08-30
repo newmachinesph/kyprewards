@@ -732,3 +732,30 @@ export type DataRequest = {
   requestedAt: string;
   completedAt: string | null;
 };
+
+/** One visit taken while the counter had no signal. */
+export type OfflineVisit = {
+  /**
+   * Minted once at the counter and resent on every retry. It is the dedup
+   * key, so a sidecar that syncs twice does not stamp twice.
+   */
+  externalReference: string;
+  customerId: string;
+  amountCentavos: number;
+  branchId?: string;
+  occurredAt: string;
+  /** HMAC over the reference and timestamp, from the till's signing secret. */
+  signature: string;
+};
+
+export type OfflineSyncResult = {
+  accepted: number;
+  duplicates: number;
+  rejected: number;
+  results: {
+    externalReference: string;
+    status: "accepted" | "duplicate" | "rejected";
+    transactionId: string | null;
+    detail: string;
+  }[];
+};

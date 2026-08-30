@@ -41,6 +41,10 @@ export type ApiMutationOptions<TData, TVariables> = Omit<
  * A caller's own `onSuccess` still runs — for the toast, the redirect, the
  * dialog close — after the invalidation is queued.
  */
+/** Re-exported so callers invalidate through this package, not a second
+ *  copy of react-query resolved from their own node_modules. */
+export { useQueryClient };
+
 export function useApiMutation<TData = unknown, TVariables = void>(
   mutationFn: (variables: TVariables) => Promise<TData>,
   { invalidates = [], onSuccess, ...options }: ApiMutationOptions<TData, TVariables> = {},

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { QueryBoundary, Skeleton } from "@kypstamping/ui";
 import { sharedScenario } from "@kypstamping/demo-data";
 import {
@@ -40,6 +40,7 @@ import {
   keys,
   payInvoice,
   useApiMutation,
+  useQueryClient,
   type Allowance,
   type ExportKind,
   EMPTY_BUSINESS_METRICS,
@@ -57,6 +58,7 @@ import {
   NewLocationDialog,
   NewProgramDialog,
 } from "@/components/WorkspaceForms";
+import { useOfflineQueue } from "@/components/useOfflineQueue";
 import {
   useCreateCampaign,
   useRecordVisit,
@@ -95,7 +97,6 @@ import {
   timeOfDay,
 } from "@kypstamping/ui/format";
 import {
-  ArrowRight,
   BadgeCheck,
   BellRing,
   CakeSlice,
@@ -414,6 +415,16 @@ function ScanView({ notify }: { notify: Notify }) {
   const [looking, setLooking] = useState(false);
   const [done, setDone] = useState<VisitResult | null>(null);
   const undo = useVoidVisit();
+  const queryClient = useQueryClient();
+  const { queue, online, enqueue } = useOfflineQueue(
+    useCallback(
+      (settled: number) => {
+        notify(`${settled} held ${settled === 1 ? "stamp" : "stamps"} synced.`);
+        void queryClient.invalidateQueries({ queryKey: keys.business.all });
+      },
+      [notify, queryClient],
+    ),
+  );
   const reserve = useReserveRedemption();
   const handOver = useCommitRedemption();
   const giveBack = useCancelRedemption();
@@ -491,11 +502,30 @@ function ScanView({ notify }: { notify: Notify }) {
       return;
     }
 
+    const amountCentavos = typed ? Math.round(pesos * 100) : 0;
+
+    // No signal: hold it rather than lose it. The reference is minted once
+    // here and resent on every retry, so syncing twice stamps once.
+    if (!online) {
+      enqueue({
+        // The same key the online path would have used, kept with the visit:
+        // replaying it later settles once however many times it is sent.
+        idempotencyKey: idempotencyKey("visit", idempotencyReference),
+        customerId: scanned.id,
+        customerName: scanned.name,
+        amountCentavos,
+        occurredAt: new Date().toISOString(),
+      });
+      notify(`Held for ${scanned.name}. It will sync when the signal is back.`);
+      startOver();
+      return;
+    }
+
     record.mutate(
       {
         customerId: scanned.id,
         // Centavos on the wire, always. The cashier types pesos.
-        amountCentavos: typed ? Math.round(pesos * 100) : 0,
+        amountCentavos,
         // Stable until this visit settles, so a cashier who presses again
         // after a timeout replays the first one rather than stamping twice.
         idempotencyKey: idempotencyKey("visit", idempotencyReference),
@@ -532,8 +562,13 @@ function ScanView({ notify }: { notify: Notify }) {
       title="Scan a customer"
       description="A guided earn-and-redeem flow that remains safe and understandable during the busiest part of service."
       action={
-        <Pill tone="success">
-          <WifiOff size={12} className="mr-1.5" /> Offline queue ready
+        <Pill tone={online ? (queue.length ? "warning" : "success") : "warning"}>
+          <WifiOff size={12} className="mr-1.5" />
+          {!online
+            ? "No signal - stamps are being held"
+            : queue.length
+              ? `${queue.length} held, syncing`
+              : "Offline queue ready"}
         </Pill>
       }
     >
@@ -1503,9 +1538,9 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
         <article className="overflow-hidden rounded-xl bg-[var(--ink)] text-[var(--paper)]">
           <div className="grid h-36 place-items-center overflow-hidden bg-white/6">
             {branding?.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- a
-              // presigned storage URL on a host the optimiser is not
-              // configured for, and it changes every time it is signed.
+              /* A presigned storage URL on a host the image optimiser is not
+                 configured for, and it changes every time it is signed. */
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={branding.imageUrl}
                 alt={`Inside ${profile.name}`}

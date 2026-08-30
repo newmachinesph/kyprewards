@@ -11,7 +11,6 @@ import {
   ArrowRight,
   BadgeCheck,
   Check,
-  ChevronRight,
   Croissant,
   Eye,
   EyeOff,

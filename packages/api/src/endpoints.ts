@@ -59,6 +59,8 @@ import type {
   PlatformMetrics,
   Program,
   NearbyNudge,
+  OfflineSyncResult,
+  OfflineVisit,
   RecoveryItem,
   Referral,
   Redemption,
@@ -614,6 +616,45 @@ export const commitRedemption = (
 
 export const cancelRedemption = (redemptionId: string): Promise<RedemptionResult> =>
   http(`/redemptions/${redemptionId}/cancel`, { method: "POST" });
+
+/**
+ * Reconcile visits taken while a POS had no signal.
+ *
+ * Not for a browser: every entry must be HMAC-signed with the workspace's
+ * signing secret, which is server-side and must never reach a client. This
+ * is for a till sidecar that holds one. The web counter queues locally and
+ * replays through `recordVisit` with its own idempotency key instead, which
+ * gives the same settle-once guarantee without the secret.
+ *
+ * Every entry is reported on individually: a batch that half-succeeds is the
+ * normal case, and one duplicate must not discard the other nineteen sales.
+ */
+export const syncOfflineVisits = (entries: OfflineVisit[]): Promise<OfflineSyncResult> =>
+  http("/counter/offline-sync", { method: "POST", body: { entries } });
+
+/**
+ * Bulk import from a CSV with name, mobile and email columns.
+ *
+ * Someone whose number already has a wallet is joined rather than
+ * duplicated - a second account would split their history.
+ */
+export const importCustomers = (file: File): Promise<{
+  created: number;
+  joined: number;
+  skipped: number;
+  errors: string[];
+}> => {
+  const form = new FormData();
+  form.append("file", file);
+  return http("/business/customers/import", { method: "POST", raw: form });
+};
+
+/** Adds someone at the counter who has no wallet yet. */
+export const createCustomer = (body: {
+  name: string;
+  mobile?: string;
+  email?: string;
+}): Promise<{ id: string; name: string }> => http("/customers", { method: "POST", body });
 
 /** The onboarding wizard's "prove it works" step. */
 export const recordTestStamp = (): Promise<VisitResult> =>
