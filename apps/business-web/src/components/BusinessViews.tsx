@@ -14,6 +14,7 @@ import {
   useApprovals,
   useCustomFields,
   useCoupons,
+  useFeedback,
   useReferrals,
   useHeldPrograms,
   useMessagingPolicy,
@@ -79,6 +80,7 @@ import {
   useIssueCoupon,
   useIssueGiftCard,
   useRedeemCoupon,
+  useRequestFeedback,
   useRedeemGiftCard,
   useUseBenefit,
   useUseMultipass,
@@ -487,6 +489,7 @@ function ScanView({ notify }: { notify: Notify }) {
   const [looking, setLooking] = useState(false);
   const [done, setDone] = useState<VisitResult | null>(null);
   const undo = useVoidVisit();
+  const askFeedback = useRequestFeedback();
   const queryClient = useQueryClient();
   const { queue, online, enqueue } = useOfflineQueue(
     useCallback(
@@ -902,6 +905,24 @@ function ScanView({ notify }: { notify: Notify }) {
                 </Button>
                 {/* Right here, because this is where a wrong scan is
                     noticed - one customer back, before the queue moves on. */}
+                <button
+                  type="button"
+                  disabled={askFeedback.isPending}
+                  onClick={() =>
+                    askFeedback.mutate(
+                      { customerId: done.customerId },
+                      {
+                        onSuccess: () =>
+                          notify(`Asked ${done.customerName} how it went.`),
+                        onError: (failure) => notify(failure.message, "error"),
+                      },
+                    )
+                  }
+                  className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/20 text-xs font-extrabold text-white/70 transition hover:bg-white/5 disabled:opacity-50"
+                >
+                  <MessageCircle size={14} />
+                  {askFeedback.isPending ? "Sending…" : "Ask how it went"}
+                </button>
                 <button
                   type="button"
                   disabled={undo.isPending}
@@ -3285,6 +3306,77 @@ function SegmentBreakdown() {
   );
 }
 
+/**
+ * What customers actually said.
+ *
+ * Only a happy rating is invited to post publicly, which the API decides -
+ * routing an unhappy customer to a review form turns a retention tool into a
+ * reputation problem, and the merchant should see the unhappy ones first.
+ */
+function WhatTheySaid() {
+  const { data: feedback = [] } = useFeedback();
+  const answered = feedback.filter((entry) => entry.status === "answered");
+  if (feedback.length === 0) return null;
+
+  const average =
+    answered.length === 0
+      ? 0
+      : answered.reduce((sum, entry) => sum + (entry.rating ?? 0), 0) / answered.length;
+  // Worst first: a four-star with no comment needs nobody's attention.
+  const worstFirst = [...answered].sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
+
+  return (
+    <section className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <Eyebrow>What they said</Eyebrow>
+          <h2 className="mt-1 text-lg font-extrabold">
+            {answered.length} of {feedback.length} answered
+          </h2>
+        </div>
+        {answered.length > 0 && (
+          <Pill tone={average >= 4 ? "success" : average >= 3 ? "warning" : "danger"}>
+            {average.toFixed(1)} average
+          </Pill>
+        )}
+      </div>
+      {answered.length === 0 ? (
+        <p className="mt-4 text-sm text-[var(--muted-strong)]">
+          Nobody has answered yet.
+        </p>
+      ) : (
+        <ul className="mt-5 space-y-2">
+          {worstFirst.slice(0, 6).map((entry) => (
+            <li
+              key={entry.id}
+              className="flex items-start gap-3 rounded-xl border border-[var(--line)] p-3"
+            >
+              <span
+                className={`grid size-8 shrink-0 place-items-center rounded-lg text-xs font-extrabold ${
+                  (entry.rating ?? 0) >= 4
+                    ? "bg-[rgb(15_118_85/12%)] text-[var(--success)]"
+                    : "bg-[rgb(178_59_43/10%)] text-[var(--danger)]"
+                }`}
+              >
+                {entry.rating}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs leading-relaxed">
+                  {entry.comment || <span className="text-[var(--muted)]">No comment</span>}
+                </p>
+                <p className="mt-1 text-[10px] text-[var(--muted)]">
+                  {relativeTime(entry.answeredAt)}
+                  {entry.reviewInvited ? " · invited to review publicly" : ""}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 function AnalyticsView() {
   const { data: programs = [] } = usePrograms();
   // "Campaign-attributed" was hardcoded at ₱76.4k while the fixture's own
@@ -3434,6 +3526,7 @@ function AnalyticsView() {
         </div>
       </section>
       <SegmentBreakdown />
+      <WhatTheySaid />
     </ViewFrame>
   );
 }

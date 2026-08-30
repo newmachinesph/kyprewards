@@ -34,6 +34,7 @@ import {
   purchaseMultipass,
   redeemCatalogItem,
   redeemCoupon,
+  requestFeedback,
   redeemGiftCard,
   requestApproval,
   setCustomFieldValues,
@@ -164,6 +165,10 @@ export const useCreateCustomer = () =>
  */
 export const useImportCustomers = () =>
   useApiMutation(importCustomers, { invalidates: [keys.business.all] });
+
+/** One question by email after a visit, answered without an account. */
+export const useRequestFeedback = () =>
+  useApiMutation(requestFeedback, { invalidates: [keys.business.feedback()] });
 
 export const useRedeemCoupon = () =>
   useApiMutation(redeemCoupon, { invalidates: [keys.business.all] });
