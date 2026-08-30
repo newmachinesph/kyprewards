@@ -10,12 +10,10 @@ import {
   QrCode,
   ScanLine,
   ShieldCheck,
-  Stamp,
   Users,
 } from "lucide-react";
 import {
   MarketingCta,
-  ProofStrip,
   ReceiptDemo,
   SiteButton,
   SiteEyebrow,
@@ -53,10 +51,7 @@ export default function HomePage() {
         />
         <div className="relative mx-auto grid min-h-[760px] max-w-[1400px] items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:py-24">
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[rgb(255_254_251/72%)] px-3 py-2 text-[11px] font-bold text-[var(--muted-strong)] backdrop-blur">
-              <span className="grid size-5 place-items-center rounded-full bg-[var(--accent)]">
-                <Stamp size={11} />
-              </span>
+            <div className="inline-flex items-center rounded-full border border-[var(--line)] bg-[rgb(255_254_251/72%)] px-4 py-2 text-[11px] font-bold text-[var(--muted-strong)] backdrop-blur">
               Built for the businesses people remember
             </div>
             <h1 className="mt-8 max-w-[10.5ch] text-6xl font-extrabold leading-[0.9] tracking-[-0.03em] sm:text-7xl lg:text-[92px]">
@@ -105,7 +100,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <ProofStrip />
 
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-32">
         <div className="mx-auto max-w-[1400px]">

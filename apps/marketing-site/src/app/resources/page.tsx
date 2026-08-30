@@ -13,7 +13,6 @@ import {
   SiteButton,
   SiteEyebrow,
 } from "@/components/MarketingUi";
-import { PlaybookSignup } from "@/components/PlaybookSignup";
 import { resources } from "@/lib/content";
 import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, itemList } from "@/lib/schema";
@@ -128,8 +127,15 @@ export default function ResourcesPage() {
               businesses: reward math, counter setup, staff briefing, customer
               welcome, and the first thirty days.
             </p>
+            {/* Was a signup that mailed a playbook nobody has written yet.
+                Asking to be told when it exists is a question, and questions
+                have a page. */}
+            <p className="mt-5 max-w-[54ch] text-base leading-relaxed text-[var(--muted-strong)]">
+              Want a copy when it is ready, or the short version now? Ask us and
+              we will walk you through it.
+            </p>
             <div className="mt-7">
-              <PlaybookSignup />
+              <SiteButton href="/contact">Ask for the playbook</SiteButton>
             </div>
           </div>
         </div>

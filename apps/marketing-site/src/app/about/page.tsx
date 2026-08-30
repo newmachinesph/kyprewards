@@ -144,8 +144,8 @@ export default function AboutPage() {
                   <MapPin />
                 </span>
                 <h3 className="mt-8 max-w-[18ch] text-3xl font-extrabold tracking-[-0.02em]">
-                  Built in Singapore, shaped by neighborhood businesses across
-                  the region.
+                  Built in Manila, shaped by neighborhood businesses across
+                  the Philippines.
                 </h3>
               </div>
               <Building2

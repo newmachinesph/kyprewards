@@ -31,6 +31,25 @@ function CellValue({ value }: { value: Cell }) {
   return <span className="font-bold">{value}</span>;
 }
 
+/**
+ * The featured column, as three tints of one amber rather than three
+ * different opacities.
+ *
+ * They are flat colours, not alpha: the group rows sit on a grey band and
+ * the rest on paper, so an alpha that looks right over one is wrong over the
+ * other - which is what made the column look striped.
+ */
+const FEATURED = {
+  head: "bg-[#f0dfbe]",
+  /** Over the grey group band. */
+  band: "bg-[#ede3d3]",
+  /** Over paper. */
+  cell: "bg-[#f9f1e5]",
+};
+
+/** Side borders, so the column stays one object across every band it crosses. */
+const EDGE = "border-x border-[rgb(232_163_61/45%)]";
+
 export function PricingTable() {
   return (
     <div>
@@ -57,7 +76,7 @@ export function PricingTable() {
                   scope="col"
                   className={`border-b border-[var(--line-strong)] px-4 py-5 text-center align-bottom ${
                     plan.featured
-                      ? "bg-[rgb(232_163_61/10%)]"
+                      ? `${FEATURED.head} ${EDGE} border-t border-t-[rgb(232_163_61/45%)]`
                       : "bg-[var(--paper)]"
                   }`}
                 >
@@ -77,9 +96,11 @@ export function PricingTable() {
           {featureMatrix.map((section) => (
             <tbody key={section.group}>
               <tr>
+                {/* Not colSpan across the whole table any more. It used to
+                    paint a flat grey straight through the featured column,
+                    which is what broke the highlight into blocks. */}
                 <th
                   scope="colgroup"
-                  colSpan={5}
                   className="border-b border-[var(--line)] bg-[var(--surface-2)] px-5 py-3 text-left"
                 >
                   <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ink)]">
@@ -91,6 +112,15 @@ export function PricingTable() {
                     </span>
                   )}
                 </th>
+                {plans.map((plan) => (
+                  <td
+                    key={plan.key}
+                    aria-hidden="true"
+                    className={`border-b border-[var(--line)] ${
+                      plan.featured ? `${FEATURED.band} ${EDGE}` : "bg-[var(--surface-2)]"
+                    }`}
+                  />
+                ))}
               </tr>
               {section.rows.map((row) => (
                 <tr
@@ -112,9 +142,7 @@ export function PricingTable() {
                     <td
                       key={plans[index].key}
                       className={`px-4 py-4 text-center align-top text-sm ${
-                        plans[index].featured
-                          ? "bg-[rgb(232_163_61/6%)]"
-                          : ""
+                        plans[index].featured ? `${FEATURED.cell} ${EDGE}` : ""
                       }`}
                     >
                       <CellValue value={cell} />
@@ -132,7 +160,9 @@ export function PricingTable() {
                 <td
                   key={plan.key}
                   className={`border-t border-[var(--line-strong)] px-4 py-6 text-center ${
-                    plan.featured ? "bg-[rgb(232_163_61/6%)]" : ""
+                    plan.featured
+                      ? `${FEATURED.cell} ${EDGE} border-b border-b-[rgb(232_163_61/45%)]`
+                      : ""
                   }`}
                 >
                   <SiteButton

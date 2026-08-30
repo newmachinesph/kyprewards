@@ -103,7 +103,7 @@ export function MarketingFooter() {
       </div>
       <div className="border-t border-[var(--line)]">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-2 px-4 py-5 text-[11px] font-semibold text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <span>© 2026 KYPStamping. Loyalty, made local.</span>
+          <span>© 2026 KYPStamping.</span>
           <span>Built for neighborhood businesses everywhere.</span>
         </div>
       </div>
