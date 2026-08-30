@@ -68,6 +68,20 @@ button:disabled {
   background-repeat: repeat-x;
 }
 
+.leader {
+  /* The dotted run between a label and its value on a printed receipt.
+     Drawn on the row rather than typed as dots, so it reflows with the
+     column and never wraps to a line of its own. */
+  background-image: radial-gradient(
+    circle,
+    var(--line-strong) 0.5px,
+    transparent 0.6px
+  );
+  background-position: bottom 0.35em left;
+  background-size: 5px 5px;
+  background-repeat: repeat-x;
+}
+
 .ink-stamp {
   border: 2px solid currentColor;
   box-shadow:

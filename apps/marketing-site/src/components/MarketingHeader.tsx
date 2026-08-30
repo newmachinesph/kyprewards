@@ -11,6 +11,7 @@ const links = [
   { href: "/integrations", label: "Integrations" },
   { href: "/solutions", label: "Solutions" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/partners", label: "Partners" },
 ];
 
 export function MarketingHeader({
