@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Stamp,
 } from "lucide-react";
+import { ApiError, answerHeardFrom, submitPartnerApplication } from "@kypstamping/api";
 import {
   displayMobile,
   isCompleteMobile,
@@ -25,11 +26,7 @@ import { ChipGroup, Field, Remaining, inputClass, inputInvalidClass } from "./Fi
 /**
  * Partner intake.
  *
- * NOT WIRED. `submit()` below is where the POST goes; today it only moves to
- * the confirmation state so the flow can be reviewed end to end. Nothing
- * leaves the browser, and the confirmation says so.
- *
- * Three decisions worth keeping when it is wired:
+ * Three decisions behind the shape of it:
  *
  * 1. The draft lives in localStorage, so a refresh mid-application costs
  *    nothing. See `draft.ts`.
@@ -103,6 +100,9 @@ export function PartnerIntake() {
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState<Errors>({});
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState("");
+  const [applicationId, setApplicationId] = useState("");
   const [source, setSource] = useState("");
   const headingRef = useRef<HTMLParagraphElement>(null);
 
@@ -120,14 +120,44 @@ export function PartnerIntake() {
     setStep((current) => Math.min(current + 1, STEPS.length - 1));
   }
 
-  function submit() {
-    // Where the POST goes once this is wired. Everything above stays.
-    setSent(true);
-    clear();
+  async function submit() {
+    setFailed("");
+    setSending(true);
+    try {
+      const created = await submitPartnerApplication({
+        businessName: draft.businessName.trim(),
+        category: draft.category,
+        branches: Number(draft.branches) || 1,
+        address: draft.address.trim(),
+        mapsLink: draft.notOnMaps ? "" : draft.mapsLink.trim(),
+        ownerName: draft.ownerName.trim(),
+        // The API wants E.164; the form holds the ten national digits.
+        mobile: `+63${draft.mobile}`,
+        email: draft.email.trim(),
+        facebook: draft.facebook.trim(),
+        volume: draft.volume,
+        existing: draft.existing,
+        mechanic: draft.mechanic,
+      });
+      setApplicationId(created.id);
+      setSent(true);
+      // Only once it is safely on the server. Clearing before would lose the
+      // whole application to a failed request.
+      clear();
+    } catch (failure) {
+      setFailed(
+        failure instanceof ApiError
+          ? // 409 is "you already have one waiting", which is worth reading.
+            failure.message
+          : "That did not send. Check your connection and try again.",
+      );
+    } finally {
+      setSending(false);
+    }
   }
 
   if (sent) {
-    return <Submitted source={source} onSource={setSource} />;
+    return <Submitted applicationId={applicationId} source={source} onSource={setSource} />;
   }
 
   const left = remainingCount(draft);
@@ -168,6 +198,15 @@ export function PartnerIntake() {
 
         <div className="perforated mt-9 h-px" />
 
+        {failed && (
+          <p
+            role="alert"
+            className="mt-6 rounded-2xl border border-[var(--danger)] bg-[rgb(178_59_43/8%)] p-4 text-sm font-bold text-[var(--danger)]"
+          >
+            {failed}
+          </p>
+        )}
+
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
           {step > 0 ? (
             <button
@@ -190,7 +229,7 @@ export function PartnerIntake() {
           >
             {step === STEPS.length - 1 ? (
               <>
-                <Stamp size={16} /> Send application
+                <Stamp size={16} /> {sending ? "Sending…" : "Send application"}
               </>
             ) : (
               <>
@@ -684,9 +723,11 @@ function ReviewStep({
  * same answer for free.
  */
 function Submitted({
+  applicationId,
   source,
   onSource,
 }: {
+  applicationId: string;
   source: string;
   onSource: (value: string) => void;
 }) {
@@ -752,6 +793,12 @@ function Submitted({
                 onClick={() => {
                   onSource(option);
                   setThanked(true);
+                  // Attached to the application it belongs to. Swallowed on
+                  // failure: this is our question, and losing the answer to
+                  // it must never look like the application went wrong.
+                  if (applicationId) {
+                    void answerHeardFrom(applicationId, option).catch(() => {});
+                  }
                 }}
                 className={`focus-ring rounded-full border px-4 py-2.5 text-sm font-bold transition ${
                   source === option
@@ -773,10 +820,6 @@ function Submitted({
         </p>
       )}
 
-      {/* Visible because it is true. Remove this line when the POST is wired. */}
-      <p className="mt-6 text-center text-xs text-[var(--muted)]">
-        Preview only — this form is not connected yet, so nothing was sent.
-      </p>
     </div>
   );
 }

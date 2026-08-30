@@ -59,8 +59,8 @@ export default function ContactPage() {
                 {
                   icon: Mail,
                   title: "Prefer email?",
-                  text: "hello@kypstamping.ph",
-                  email: "hello@kypstamping.ph",
+                  text: "hello@kypsolutions.com.ph",
+                  email: "hello@kypsolutions.com.ph",
                 },
               ].map((item) => {
                 const Icon = item.icon;

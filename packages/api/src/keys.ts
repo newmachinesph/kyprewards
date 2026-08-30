@@ -103,6 +103,7 @@ export const keys = {
     recoveryQueue: () => [...keys.admin.all, "recovery-queue"] as const,
     invoices: () => [...keys.admin.all, "invoices"] as const,
     campaigns: () => [...keys.admin.all, "campaigns"] as const,
+    partnerApplications: () => [...keys.admin.all, "partner-applications"] as const,
     administrators: () => [...keys.admin.all, "administrators"] as const,
     onboarding: () => [...keys.admin.all, "onboarding"] as const,
     providerPolicy: () => [...keys.admin.all, "provider-policy"] as const,

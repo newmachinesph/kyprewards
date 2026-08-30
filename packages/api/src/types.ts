@@ -824,3 +824,27 @@ export type ProviderPolicy = {
   offlineReplayDays: number;
   auditRetentionDays: number;
 };
+
+/** A shop asking to join, and what was decided about it. */
+export type PartnerApplication = {
+  id: string;
+  businessName: string;
+  category: string;
+  branches: number;
+  address: string;
+  mapsLink: string;
+  ownerName: string;
+  mobile: string;
+  email: string;
+  facebook: string;
+  volume: string;
+  existing: string;
+  mechanic: string;
+  heardFrom: string;
+  status: "new" | "approved" | "rejected";
+  reason: string;
+  decidedAt: string | null;
+  /** Set when approval provisioned the workspace. */
+  merchantId: string | null;
+  createdAt: string;
+};

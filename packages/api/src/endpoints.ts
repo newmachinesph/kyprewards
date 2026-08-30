@@ -61,6 +61,7 @@ import type {
   PlatformMetrics,
   Program,
   NearbyNudge,
+  PartnerApplication,
   OnboardingRow,
   OfflineSyncResult,
   OfflineVisit,
@@ -896,6 +897,55 @@ export const submitContact = (body: {
   business: string;
   message: string;
 }): Promise<{ received: boolean }> => http("/public/contact", { method: "POST", body });
+
+/**
+ * A shop applying to join. Unauthenticated and throttled per address.
+ *
+ * One open application per email: a second is nearly always somebody who did
+ * not see the first go through, and the API answers 409 for it.
+ */
+export const submitPartnerApplication = (body: {
+  businessName: string;
+  category: string;
+  branches: number;
+  address: string;
+  mapsLink?: string;
+  ownerName: string;
+  mobile: string;
+  email: string;
+  facebook?: string;
+  volume?: string;
+  existing?: string;
+  mechanic?: string;
+  heardFrom?: string;
+}): Promise<PartnerApplication> => http("/public/partner-applications", { method: "POST", body });
+
+/**
+ * Where they came across us, asked on the confirmation screen.
+ *
+ * Write-once and unauthenticated: the id is unguessable and arrived with the
+ * person who just applied.
+ */
+export const answerHeardFrom = (
+  applicationId: string,
+  heardFrom: string,
+): Promise<{ received: boolean }> =>
+  http(`/public/partner-applications/${applicationId}/heard-from`, {
+    method: "PATCH",
+    body: { heardFrom },
+  });
+
+/* ── Platform: the partner queue ──────────────────────────────────── */
+
+export const getPartnerApplications = (status?: string): Promise<PartnerApplication[]> =>
+  http("/admin/partner-applications", { query: { status } });
+
+/** Approving provisions the workspace and mails the sign-in. */
+export const decidePartnerApplication = (
+  applicationId: string,
+  body: { approve: boolean; reason?: string },
+): Promise<PartnerApplication> =>
+  http(`/admin/partner-applications/${applicationId}/decide`, { method: "POST", body });
 
 export const requestPlaybook = (email: string): Promise<{ received: boolean }> =>
   http("/public/playbook", { method: "POST", body: { email } });

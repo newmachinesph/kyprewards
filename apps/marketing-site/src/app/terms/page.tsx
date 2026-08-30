@@ -83,7 +83,7 @@ const sections = [
   {
     title: "Contact",
     paragraphs: [
-      "Questions about these terms can be sent to legal@kypstamping.ph. Support questions should be sent through the in-product support channel or hello@kypstamping.ph.",
+      "Questions about these terms can be sent to hello@kypsolutions.com.ph. Support questions should be sent through the in-product support channel or hello@kypsolutions.com.ph.",
     ],
   },
 ];

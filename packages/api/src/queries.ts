@@ -486,6 +486,12 @@ export const usePlatformInvoices = () =>
 export const usePlatformCampaigns = () =>
   useQuery({ queryKey: keys.admin.campaigns(), queryFn: api.getPlatformCampaigns });
 
+export const usePartnerApplications = (status?: string) =>
+  useQuery({
+    queryKey: [...keys.admin.partnerApplications(), status ?? "all"],
+    queryFn: () => api.getPartnerApplications(status),
+  });
+
 export const usePlanEconomics = (options?: Options<PlanEconomics[]>): Query<PlanEconomics[]> =>
   useQuery({ queryKey: keys.admin.economics.plans(), queryFn: api.getPlanEconomics, ...options });
 
