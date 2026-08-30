@@ -1168,8 +1168,16 @@ export function IntegrationsView({
             icon: TriangleAlert,
             title: "Using an unusual POS?",
             detail: "Any register that can post webhooks or expose a read API connects through the same event contract.",
-            action: "Review readiness",
-            onClick: () => notify("Integration readiness checklist opened in demo mode.", "review"),
+            // There is no readiness checklist to open, and inventing a toast
+            // that says there is helps nobody. An unusual register is a
+            // conversation - the contact page is where that starts.
+            action: "Tell us about it",
+            onClick: () =>
+              window.open(
+                `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://kypstamping.ph"}/contact`,
+                "_blank",
+                "noopener,noreferrer",
+              ),
           },
         ].map((item) => {
           const Icon = item.icon;
