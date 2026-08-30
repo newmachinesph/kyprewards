@@ -137,6 +137,15 @@ export const useHeldPrograms = (customerId: string, options?: Options<HeldProgra
     ...options,
   });
 
+/** Fetched only when a drawer is actually open: the payload is the reason
+ *  the list stays narrow. */
+export const useDelivery = (deliveryId: string) =>
+  useQuery({
+    queryKey: keys.business.delivery(deliveryId),
+    queryFn: () => api.getDelivery(deliveryId),
+    enabled: Boolean(deliveryId),
+  });
+
 export const useCoupons = (options?: Options<Coupon[]>): Query<Coupon[]> =>
   useQuery({ queryKey: keys.business.coupons(), queryFn: api.getCoupons, ...options });
 
@@ -461,6 +470,9 @@ export const useRecoveryQueue = (options?: Options<RecoveryItem[]>): Query<Recov
 
 export const usePlatformMetrics = (options?: Options<PlatformMetrics>): Query<PlatformMetrics> =>
   useQuery({ queryKey: keys.admin.metrics(), queryFn: api.getPlatformMetrics, ...options });
+
+export const useAdministrators = () =>
+  useQuery({ queryKey: keys.admin.administrators(), queryFn: api.getAdministrators });
 
 export const usePlatformInvoices = () =>
   useQuery({ queryKey: keys.admin.invoices(), queryFn: api.getPlatformInvoices });

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { sharedScenario } from "@kypstamping/demo-data";
 import type { Environment } from "@kypstamping/api";
-import { Button, DemoBadge, Eyebrow, FieldLabel, Panel } from "@kypstamping/ui";
+import { Button, DemoBadge, Dialog, Eyebrow, FieldLabel, Panel, Skeleton } from "@kypstamping/ui";
 import { PlanTag } from "@kypstamping/ui/shell";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import {
@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import type { BusinessView } from "@/components/BusinessShell";
 import {
+  ApiError,
   createCredential as createCredential_,
   keys,
   rotateCredential as rotateCredential_,
@@ -42,6 +43,7 @@ import {
   saveWebhookEndpoint,
   sendTestDelivery,
   useApiMutation,
+  useDelivery,
   useBusinessProfile,
   useContract,
   useCredentials,
@@ -126,6 +128,89 @@ function StatusBadge({ status }: { status: DeliveryStatus | CredentialStatus }) 
   );
 }
 
+/**
+ * What a delivery actually sent, and what came back.
+ *
+ * The row it opens from says a webhook failed. Everything an engineer needs
+ * to know why - the payload, the response status, how many attempts are left
+ * - lives on the same database row and was never exposed.
+ */
+function DeliveryDrawer({
+  deliveryId,
+  onClose,
+}: {
+  deliveryId: string;
+  onClose: () => void;
+}) {
+  const { data: delivery, isPending, error } = useDelivery(deliveryId);
+
+  return (
+    <Dialog title="Delivery" eyebrow={deliveryId} onClose={onClose}>
+      {isPending ? (
+        <Skeleton className="h-64 w-full" />
+      ) : error || !delivery ? (
+        <p className="text-sm text-[var(--muted-strong)]">
+          {error instanceof ApiError ? error.message : "That delivery could not be read."}
+        </p>
+      ) : (
+        <div className="grid gap-5">
+          <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-[var(--line)]">
+            {(
+              [
+                ["Event", delivery.event],
+                ["Direction", delivery.direction],
+                ["Status", delivery.status],
+                [
+                  "Response",
+                  delivery.responseStatus === null ? "no reply" : String(delivery.responseStatus),
+                ],
+                ["Attempts", `${delivery.attempts} of ${delivery.maxAttempts}`],
+                [
+                  "Next attempt",
+                  delivery.nextAttemptAt ? relativeTime(delivery.nextAttemptAt) : "none scheduled",
+                ],
+              ] as const
+            ).map(([label, value]) => (
+              <div key={label} className="bg-[var(--surface)] p-3">
+                <dt className="text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">
+                  {label}
+                </dt>
+                <dd className="mt-1 text-xs font-bold">{value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {delivery.detail && (
+            <div>
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">
+                What went wrong
+              </p>
+              <p className="mt-1.5 text-xs leading-relaxed">{delivery.detail}</p>
+            </div>
+          )}
+
+          <div>
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">
+              Payload
+            </p>
+            {/* Scrolls inside itself: a payload is arbitrary depth and must
+                not push the dialog wider than the screen. */}
+            <pre className="mt-1.5 max-h-64 overflow-auto rounded-xl bg-[var(--ink)] p-3 font-mono text-[10px] leading-relaxed text-[var(--paper)]">
+              {JSON.stringify(delivery.payload, null, 2)}
+            </pre>
+          </div>
+
+          <p className="text-[10px] text-[var(--muted)]">
+            Request {delivery.requestId || "unknown"} · created{" "}
+            {relativeTime(delivery.createdAt)}
+            {delivery.deliveredAt ? ` · delivered ${relativeTime(delivery.deliveredAt)}` : ""}
+          </p>
+        </div>
+      )}
+    </Dialog>
+  );
+}
+
 export function IntegrationsView({
   notify,
   onNavigate,
@@ -134,6 +219,7 @@ export function IntegrationsView({
   onNavigate: (view: BusinessView) => void;
 }) {
   const [environment, setEnvironment] = useState<Environment>("sandbox");
+  const [inspecting, setInspecting] = useState("");
   // Matches the adapter the platform control room reports for this tenant.
   const [connection, setConnection] = useState<(typeof connectionOptions)[number]["id"]>(
     "custom",
@@ -1051,7 +1137,7 @@ export function IntegrationsView({
               ) : (
                 <button
                   type="button"
-                  onClick={() => notify(`${delivery.id} inspection drawer opened.`, "review")}
+                  onClick={() => setInspecting(delivery.id)}
                   className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-4 text-xs font-extrabold"
                 >
                   Inspect <ArrowRight size={13} />
@@ -1108,6 +1194,9 @@ export function IntegrationsView({
           );
         })}
       </section>
+      {inspecting && (
+        <DeliveryDrawer deliveryId={inspecting} onClose={() => setInspecting("")} />
+      )}
     </main>
   );
 }

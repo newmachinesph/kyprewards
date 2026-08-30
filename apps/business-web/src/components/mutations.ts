@@ -33,8 +33,10 @@ import {
   issueGiftCard,
   purchaseMultipass,
   redeemCatalogItem,
+  raiseSupportRequest,
   redeemCoupon,
   requestFeedback,
+  sendCampaignTest,
   redeemGiftCard,
   requestApproval,
   setCustomFieldValues,
@@ -167,6 +169,12 @@ export const useImportCustomers = () =>
   useApiMutation(importCustomers, { invalidates: [keys.business.all] });
 
 /** One question by email after a visit, answered without an account. */
+/** To yourself, before you send it to thousands of people. */
+export const useSendCampaignTest = () => useApiMutation(sendCampaignTest);
+
+/** Raises a real ticket in the platform's support queue. */
+export const useRaiseSupportRequest = () => useApiMutation(raiseSupportRequest);
+
 export const useRequestFeedback = () =>
   useApiMutation(requestFeedback, { invalidates: [keys.business.feedback()] });
 

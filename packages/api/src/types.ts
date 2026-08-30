@@ -759,3 +759,45 @@ export type OfflineSyncResult = {
     detail: string;
   }[];
 };
+
+/** One delivery with what was sent and what came back. */
+export type DeliveryDetail = {
+  id: string;
+  event: string;
+  source: string;
+  status: string;
+  detail: string;
+  requestId: string;
+  attempts: number;
+  createdAt: string;
+  direction: string;
+  payload: Record<string, unknown>;
+  responseStatus: number | null;
+  maxAttempts: number;
+  nextAttemptAt: string | null;
+  deliveredAt: string | null;
+};
+
+/**
+ * One platform administrator, for the quarterly access review.
+ *
+ * `activeSessions` is the point of the review: a departed administrator with
+ * a live session is exactly what it exists to catch.
+ */
+export type Administrator = {
+  id: string;
+  name: string;
+  email: string;
+  isActive: boolean;
+  mfaEnabled: boolean;
+  activeSessions: number;
+  lastSeenAt: string | null;
+  createdAt: string;
+};
+
+export type SupportRequest = {
+  id: string;
+  subject: string;
+  status: string;
+  openedAt: string;
+};

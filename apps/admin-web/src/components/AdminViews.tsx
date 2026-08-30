@@ -38,6 +38,7 @@ import {
   useAuditLedger,
   useChannelEconomics,
   usePlanEconomics,
+  useAdministrators,
   usePlatformCampaigns,
   usePlatformInvoices,
   usePlatformMetrics,
@@ -1032,6 +1033,10 @@ function EconomicsView() {
 }
 
 function SettingsView({ notify }: { notify: Notify }) {
+  const { data: administrators = [] } = useAdministrators();
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const signedIn = administrators.filter((person) => person.activeSessions > 0);
+  const withoutMfa = administrators.filter((person) => !person.mfaEnabled);
   const { flags, toggleFlag } = useAdminState();
   return (
     <ViewFrame
@@ -1161,18 +1166,51 @@ function SettingsView({ notify }: { notify: Notify }) {
                   Administrator access review
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                  12 administrators · 2 elevated roles · next quarterly review
-                  in 18 days.
+                  {administrators.length} administrator
+                  {administrators.length === 1 ? "" : "s"} ·{" "}
+                  {signedIn.length} signed in now ·{" "}
+                  {withoutMfa.length
+                    ? `${withoutMfa.length} without a second factor`
+                    : "all with a second factor"}
+                  .
                 </p>
               </div>
             </div>
             <Button
               tone="quiet"
               className="mt-5"
-              onClick={() => notify("Administrator access review opened.", "review")}
+              aria-expanded={reviewOpen}
+              onClick={() => setReviewOpen((open) => !open)}
             >
-              Review access
+              {reviewOpen ? "Close review" : "Review access"}
             </Button>
+            {reviewOpen && (
+              <ul className="mt-4 divide-y divide-[var(--line)] rounded-2xl border border-[var(--line)]">
+                {administrators.map((person) => (
+                  <li key={person.id} className="flex items-start gap-3 p-3.5">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-extrabold">{person.name}</p>
+                      <p className="mt-0.5 truncate text-[10px] text-[var(--muted-strong)]">
+                        {person.email}
+                      </p>
+                      <p className="mt-1 text-[10px] text-[var(--muted)]">
+                        {person.activeSessions
+                          ? `${person.activeSessions} live session${person.activeSessions === 1 ? "" : "s"}`
+                          : "not signed in"}
+                        {person.lastSeenAt ? ` · last seen ${relativeTime(person.lastSeenAt)}` : ""}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      {/* The two states this review exists to surface. */}
+                      <Pill tone={person.isActive ? "success" : "neutral"}>
+                        {person.isActive ? "Active" : "Disabled"}
+                      </Pill>
+                      {!person.mfaEnabled && <Pill tone="danger">No MFA</Pill>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </article>
         </aside>
       </div>

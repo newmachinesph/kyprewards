@@ -79,8 +79,10 @@ import {
   useSetCustomFieldValues,
   useIssueCoupon,
   useIssueGiftCard,
+  useRaiseSupportRequest,
   useRedeemCoupon,
   useRequestFeedback,
+  useSendCampaignTest,
   useRedeemGiftCard,
   useUseBenefit,
   useUseMultipass,
@@ -1094,6 +1096,7 @@ function JoinPosterCode({ url }: { url: string }) {
 
 function JoinCodeView({ notify }: { notify: Notify }) {
   const [nfcOpen, setNfcOpen] = useState(false);
+  const quote = useRaiseSupportRequest();
   const { data: locations = [] } = useLocations();
   const { data: profile } = useBusinessProfile();
   const [branch, setBranch] = useState<string | null>(null);
@@ -1236,17 +1239,30 @@ function JoinCodeView({ notify }: { notify: Notify }) {
               <Button
                 tone="quiet"
                 icon={<Send size={15} />}
-                onClick={() => notify("Card order request opened in demo mode.", "review")}
+                disabled={quote.isPending}
+                onClick={() =>
+                  quote.mutate(
+                    {
+                      subject: "Printed member cards",
+                      detail: `Quote request for printed cards from ${profile?.name ?? "this workspace"}.`,
+                      category: "Billing",
+                    },
+                    {
+                      onSuccess: () =>
+                        notify("Quote requested. Someone will reply by email."),
+                      onError: (failure) => notify(failure.message, "error"),
+                    },
+                  )
+                }
               >
-                Request a quote
+                {quote.isPending ? "Requesting\u2026" : "Request a quote"}
               </Button>
-              <Button
-                tone="quiet"
-                icon={<WalletCards size={15} />}
-                onClick={() => notify("Wallet pass preview opened in demo mode.", "review")}
-              >
-                Use wallet passes instead
-              </Button>
+              {/* Honest rather than a toast: wallet passes need Apple and
+                  Google signing certificates, which are not in place. */}
+              <span className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-dashed border-[var(--line-strong)] px-4 text-xs font-bold text-[var(--muted-strong)]">
+                <WalletCards size={15} /> Wallet passes need Apple and Google
+                certificates
+              </span>
             </div>
           </div>
         </section>
@@ -2810,6 +2826,7 @@ const channelConfig: {
   },
 ];
 function CampaignsView({ notify }: { notify: Notify }) {
+  const testSend = useSendCampaignTest();
   const { data: metrics = EMPTY_BUSINESS_METRICS } = useBusinessMetrics();
   const { data: campaigns = [] } = useCampaigns();
   const schedule = useCreateCampaign();
@@ -3119,9 +3136,23 @@ function CampaignsView({ notify }: { notify: Notify }) {
           <div className="mt-6 grid grid-cols-2 gap-2">
             <Button
               tone="quiet"
-              onClick={() => notify("Test message preview opened.", "review")}
+              disabled={testSend.isPending}
+              onClick={() =>
+                testSend.mutate(
+                  {
+                    subject: "Campaign preview",
+                    body: "This is how your next campaign will look when it arrives.",
+                  },
+                  {
+                    // Never to a customer: the API sends it to whoever is
+                    // signed in, so there is no address to get wrong.
+                    onSuccess: () => notify("Test sent to your own inbox."),
+                    onError: (failure) => notify(failure.message, "error"),
+                  },
+                )
+              }
             >
-              Send test
+              {testSend.isPending ? "Sending\u2026" : "Send test"}
             </Button>
             <Button
               onClick={() => {

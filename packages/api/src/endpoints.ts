@@ -29,8 +29,10 @@ import type {
   CatalogItem,
   Coupon,
   CustomField,
+  Administrator,
   CustomFieldValue,
   DataRequest,
+  DeliveryDetail,
   DiscountQuote,
   Feedback,
   GiftCard,
@@ -63,6 +65,7 @@ import type {
   OfflineVisit,
   RecoveryItem,
   Referral,
+  SupportRequest,
   Redemption,
   RedemptionResult,
   ServiceHealth,
@@ -497,6 +500,19 @@ export type StaffInvite = {
   location?: string;
 };
 
+/** Goes to the signed-in staff member's own address, never one you pass. */
+export const sendCampaignTest = (body: {
+  body: string;
+  subject?: string;
+}): Promise<{ sent: boolean }> => http("/business/campaigns/test", { method: "POST", body });
+
+/** Something a person has to answer, into the queue where a person will. */
+export const raiseSupportRequest = (body: {
+  subject: string;
+  detail?: string;
+  category?: string;
+}): Promise<SupportRequest> => http("/business/support-requests", { method: "POST", body });
+
 export const inviteStaff = (body: StaffInvite): Promise<StaffMember> =>
   http("/business/staff/invites", { method: "POST", body });
 
@@ -829,6 +845,9 @@ export const decideApproval = (
 
 /* ── Platform ─────────────────────────────────────────────────────────── */
 
+export const getAdministrators = (): Promise<Administrator[]> =>
+  http("/admin/administrators");
+
 export const getPlatformInvoices = (): Promise<
   { id: string; merchantId: string; period: string; amountCentavos: number; status: string }[]
 > => http("/admin/invoices");
@@ -1001,6 +1020,10 @@ export type Delivery = {
 
 export const getWebhookDeliveries = (environment: Environment): Promise<Delivery[]> =>
   http("/webhook-deliveries", { query: { environment } });
+
+/** What was sent, what came back, and what happens next. */
+export const getDelivery = (deliveryId: string): Promise<DeliveryDetail> =>
+  http(`/webhook-deliveries/${deliveryId}`);
 
 export const retryDelivery = (deliveryId: string): Promise<Delivery> =>
   http(`/webhook-deliveries/${deliveryId}/retry`, { method: "POST" });

@@ -35,6 +35,7 @@ export const keys = {
       [...keys.business.customFields(), customerId] as const,
     approvals: () => [...keys.business.all, "approvals"] as const,
     held: (customerId: string) => [...keys.business.all, "held", customerId] as const,
+    delivery: (id: string) => [...keys.business.all, "delivery", id] as const,
     rfm: () => [...keys.business.all, "rfm"] as const,
     locations: () => [...keys.business.all, "locations"] as const,
     metrics: () => [...keys.business.all, "metrics"] as const,
@@ -102,6 +103,7 @@ export const keys = {
     recoveryQueue: () => [...keys.admin.all, "recovery-queue"] as const,
     invoices: () => [...keys.admin.all, "invoices"] as const,
     campaigns: () => [...keys.admin.all, "campaigns"] as const,
+    administrators: () => [...keys.admin.all, "administrators"] as const,
     economics: {
       plans: () => [...keys.admin.all, "economics", "plans"] as const,
       channels: () => [...keys.admin.all, "economics", "channels"] as const,
