@@ -22,7 +22,22 @@ import {
   recordVisit,
   toggleAutomation,
   toggleIntegration,
+  addCatalogItem,
+  addCustomField,
   cancelRedemption,
+  createReferral,
+  decideApproval,
+  issueCoupon,
+  issueGiftCard,
+  purchaseMultipass,
+  redeemCatalogItem,
+  redeemCoupon,
+  redeemGiftCard,
+  requestApproval,
+  setCustomFieldValues,
+  subscribeMembership,
+  useMembershipBenefit,
+  useMultipass,
   commitRedemption,
   reserveRedemption,
   setMessagingPolicy,
@@ -128,6 +143,72 @@ export const useCommitRedemption = () =>
 
 export const useCancelRedemption = () =>
   useApiMutation(cancelRedemption, { invalidates: [keys.business.all] });
+
+/* ── The other program types ──────────────────────────────────────────
+   Each settles differently, and all of them move the same three things: the
+   customer's balance, today's counters, and the reward that may follow. The
+   workspace is the honest invalidation scope for every one. */
+
+export const useRedeemCoupon = () =>
+  useApiMutation(redeemCoupon, { invalidates: [keys.business.all] });
+
+export const useRedeemGiftCard = () =>
+  useApiMutation(
+    ({ code, ...body }: { code: string; amountCentavos: number; reason?: string }) =>
+      redeemGiftCard(code, body),
+    { invalidates: [keys.business.all] },
+  );
+
+export const useUseMultipass = () =>
+  useApiMutation(useMultipass, { invalidates: [keys.business.all] });
+
+export const useUseBenefit = () =>
+  useApiMutation(useMembershipBenefit, { invalidates: [keys.business.all] });
+
+export const useSubscribeMembership = () =>
+  useApiMutation(subscribeMembership, { invalidates: [keys.business.all] });
+
+export const usePurchaseMultipass = () =>
+  useApiMutation(purchaseMultipass, { invalidates: [keys.business.all] });
+
+export const useIssueCoupon = () =>
+  useApiMutation(issueCoupon, { invalidates: [keys.business.coupons()] });
+
+export const useIssueGiftCard = () =>
+  useApiMutation(issueGiftCard, { invalidates: [keys.business.giftCards()] });
+
+export const useAddCatalogItem = () =>
+  useApiMutation(
+    ({ programId, ...body }: { programId: string; name: string; costUnits: number; valueCentavos?: number }) =>
+      addCatalogItem(programId, body),
+    { invalidates: [keys.business.programs()] },
+  );
+
+export const useRedeemCatalogItem = () =>
+  useApiMutation(redeemCatalogItem, { invalidates: [keys.business.all] });
+
+export const useCreateReferral = () =>
+  useApiMutation(createReferral, { invalidates: [keys.business.referrals()] });
+
+export const useAddCustomField = () =>
+  useApiMutation(addCustomField, { invalidates: [keys.business.customFields()] });
+
+export const useSetCustomFieldValues = () =>
+  useApiMutation(
+    ({ customerId, values }: { customerId: string; values: Record<string, string> }) =>
+      setCustomFieldValues(customerId, values),
+    { invalidates: [keys.business.customers()] },
+  );
+
+export const useDecideApproval = () =>
+  useApiMutation(
+    ({ id, ...body }: { id: string; approve: boolean; reason?: string }) =>
+      decideApproval(id, body),
+    { invalidates: [keys.business.approvals()] },
+  );
+
+export const useRequestApproval = () =>
+  useApiMutation(requestApproval, { invalidates: [keys.business.approvals()] });
 
 export const useSetSetting = () =>
   useApiMutation(

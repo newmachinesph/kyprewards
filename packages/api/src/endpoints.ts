@@ -22,8 +22,20 @@ import type {
   ApiContract,
   AuditEvent,
   Automation,
+  ApprovalRequest,
+  Benefit,
   Billing,
   Branding,
+  CatalogItem,
+  Coupon,
+  CustomField,
+  CustomFieldValue,
+  DiscountQuote,
+  Feedback,
+  GiftCard,
+  GiftCardEntry,
+  HeldProgram,
+  MemberSubscription,
   InvitePreview,
   MessagingPolicy,
   BusinessCustomer,
@@ -46,6 +58,7 @@ import type {
   PlatformMetrics,
   Program,
   RecoveryItem,
+  Referral,
   Redemption,
   RedemptionResult,
   ServiceHealth,
@@ -585,6 +598,199 @@ export const cancelRedemption = (redemptionId: string): Promise<RedemptionResult
 /** The onboarding wizard's "prove it works" step. */
 export const recordTestStamp = (): Promise<VisitResult> =>
   http("/business/onboarding/test-stamp", { method: "POST" });
+
+/* ── The other six program types ──────────────────────────────────────
+   Stamps and Points settle through /transactions. Each of these has its own
+   rule, and a merchant can run several at once. */
+
+/**
+ * What this member pays after their tier discount.
+ *
+ * A discount writes nothing to the ledger - it comes off at the till - so
+ * the counter asks for a quote rather than recording a balance change.
+ */
+export const quoteDiscount = (
+  customerId: string,
+  amountCentavos: number,
+): Promise<DiscountQuote> =>
+  http("/discounts/quote", { query: { customerId, amountCentavos } });
+
+/** Subscriptions and bundles, with what is left on each. */
+export const getHeldPrograms = (customerId: string): Promise<HeldProgram[]> =>
+  http("/memberships", { query: { customerId } });
+
+export const subscribeMembership = (body: {
+  customerId: string;
+  programId: string;
+}): Promise<MemberSubscription> => http("/memberships/subscribe", { method: "POST", body });
+
+export const cancelMembership = (subscriptionId: string): Promise<MemberSubscription> =>
+  http(`/memberships/${subscriptionId}/cancel`, { method: "POST" });
+
+/** Draws down one of the period's included benefits. */
+export const useMembershipBenefit = (subscriptionId: string): Promise<Benefit> =>
+  http(`/memberships/${subscriptionId}/use-benefit`, { method: "POST" });
+
+/** `remaining` is what is left on the bundle, in passes. */
+export const purchaseMultipass = (body: {
+  customerId: string;
+  programId: string;
+}): Promise<Benefit> => http("/multipass/purchase", { method: "POST", body });
+
+/** Draws one pass. Takes the same body as the purchase: a pass belongs to a
+ *  customer-and-program pair, not to a subscription of its own. */
+export const useMultipass = (body: {
+  customerId: string;
+  programId: string;
+}): Promise<Benefit> => http("/multipass/use", { method: "POST", body });
+
+export const issueCoupon = (body: {
+  name: string;
+  valueCentavos?: number;
+  percentBps?: number;
+  programId?: string;
+  /** Leave unset to issue one anybody can claim. */
+  customerId?: string;
+  validFrom?: string;
+  validUntil?: string;
+}): Promise<Coupon> => http("/coupons", { method: "POST", body });
+
+export const getCoupons = (): Promise<Coupon[]> => http("/coupons");
+
+export const redeemCoupon = (body: { code: string; customerId: string }): Promise<Coupon> =>
+  http("/coupons/redeem", { method: "POST", body });
+
+export const getCatalog = (programId: string): Promise<CatalogItem[]> =>
+  http(`/business/programs/${programId}/catalog`);
+
+export const addCatalogItem = (
+  programId: string,
+  body: { name: string; kind?: string; costUnits: number; valueCentavos?: number },
+): Promise<CatalogItem> =>
+  http(`/business/programs/${programId}/catalog`, { method: "POST", body });
+
+export const redeemCatalogItem = (body: {
+  itemId: string;
+  customerId: string;
+}): Promise<CatalogItem> => http("/catalog/redeem", { method: "POST", body });
+
+export const issueGiftCard = (body: {
+  amountCentavos: number;
+  issuedToName?: string;
+  holderAccountId?: string;
+  programId?: string;
+  expiresOn?: string;
+}): Promise<GiftCard> => http("/gift-cards", { method: "POST", body });
+
+export const getGiftCard = (code: string): Promise<GiftCard> =>
+  http(`/gift-cards/${encodeURIComponent(code)}`);
+
+export const getGiftCardEntries = (code: string): Promise<GiftCardEntry[]> =>
+  http(`/gift-cards/${encodeURIComponent(code)}/entries`);
+
+/** Partial spends are normal: a card keeps its remaining balance. */
+export const redeemGiftCard = (
+  code: string,
+  body: { amountCentavos: number; reason?: string },
+): Promise<GiftCard> =>
+  http(`/gift-cards/${encodeURIComponent(code)}/redeem`, { method: "POST", body });
+
+export const transferGiftCard = (
+  code: string,
+  body: { toAccountId: string; toName?: string },
+): Promise<GiftCard> =>
+  http(`/gift-cards/${encodeURIComponent(code)}/transfer`, { method: "POST", body });
+
+/* ── Growth ───────────────────────────────────────────────────────────── */
+
+export const getReferrals = (): Promise<Referral[]> => http("/referrals");
+
+export const createReferral = (body: { customerId: string }): Promise<Referral> =>
+  http("/referrals", { method: "POST", body });
+
+export const claimReferral = (body: { code: string; customerId: string }): Promise<Referral> =>
+  http("/referrals/claim", { method: "POST", body });
+
+export const qualifyReferral = (referralId: string): Promise<Referral> =>
+  http(`/referrals/${referralId}/qualify`, { method: "POST" });
+
+export const getFeedback = (): Promise<Feedback[]> => http("/feedback");
+
+export const requestFeedback = (body: {
+  customerId: string;
+  transactionId?: string;
+}): Promise<Feedback> => http("/feedback", { method: "POST", body });
+
+export const answerFeedback = (
+  feedbackId: string,
+  body: { rating: number; comment?: string },
+): Promise<Feedback> => http(`/feedback/${feedbackId}/answer`, { method: "POST", body });
+
+export const getCustomFields = (): Promise<CustomField[]> => http("/business/custom-fields");
+
+export const addCustomField = (body: {
+  key: string;
+  label: string;
+  kind?: string;
+  position?: number;
+}): Promise<CustomField> => http("/business/custom-fields", { method: "POST", body });
+
+export const getCustomFieldValues = (customerId: string): Promise<CustomFieldValue[]> =>
+  http(`/customers/${customerId}/custom-fields`);
+
+export const setCustomFieldValues = (
+  customerId: string,
+  values: Record<string, string>,
+): Promise<CustomFieldValue[]> =>
+  http(`/customers/${customerId}/custom-fields`, { method: "PUT", body: { values } });
+
+/* ── Four-eyes approvals ──────────────────────────────────────────────
+   Anyone who works here may ask; only settings:write decides, and never
+   their own request. */
+
+export const getApprovals = (): Promise<ApprovalRequest[]> => http("/approvals");
+
+export const requestApproval = (body: {
+  action: string;
+  target?: string;
+  amountCentavos?: number;
+}): Promise<ApprovalRequest> => http("/approvals", { method: "POST", body });
+
+export const decideApproval = (
+  approvalId: string,
+  body: { approve: boolean; reason?: string },
+): Promise<ApprovalRequest> =>
+  http(`/approvals/${approvalId}/decide`, { method: "POST", body });
+
+/* ── Platform ─────────────────────────────────────────────────────────── */
+
+export const getPlatformInvoices = (): Promise<
+  { id: string; merchantId: string; period: string; amountCentavos: number; status: string }[]
+> => http("/admin/invoices");
+
+export const getPlatformCampaigns = (): Promise<
+  {
+    id: string;
+    merchantId: string;
+    name: string;
+    status: string;
+    sent: number;
+    costCentavos: number;
+  }[]
+> => http("/admin/campaigns");
+
+/** RFM quintiles within this merchant's own base, not an industry benchmark. */
+export const getRfm = (): Promise<
+  {
+    customerId: string;
+    name: string;
+    recencyScore: number;
+    frequencyScore: number;
+    monetaryScore: number;
+    totalScore: number;
+    segment: string;
+  }[]
+> => http("/business/analytics/rfm");
 
 /* ── Public forms ─────────────────────────────────────────────────────
    The marketing site, which has no session. Both answer 202 and are

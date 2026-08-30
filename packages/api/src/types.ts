@@ -564,3 +564,146 @@ export type RedemptionResult = {
   committedAt: string | null;
   cancelledAt: string | null;
 };
+
+/* ── The eight program types ──────────────────────────────────────────
+   Stamps and Points run through /transactions. These are the other six,
+   each with its own settlement rule. */
+
+export type DiscountQuote = {
+  customerId: string;
+  programId: string;
+  tier: string;
+  /** Basis points: 250 is 2.5%. Never a float - money maths on floats drifts. */
+  rateBps: number;
+  grossCentavos: number;
+  discountCentavos: number;
+  netCentavos: number;
+};
+
+export type MemberSubscription = {
+  id: string;
+  membershipId: string;
+  programId: string;
+  status: string;
+  priceCentavos: number;
+  startedOn: string;
+  renewsOn: string | null;
+  cancelledAt: string | null;
+};
+
+/** Multipass uses this too: `remaining` is the balance on the pass. */
+export type Benefit = {
+  subscriptionId: string;
+  period: string;
+  used: number;
+  included: number;
+  remaining: number;
+};
+
+export type Coupon = {
+  id: string;
+  code: string;
+  name: string;
+  valueCentavos: number;
+  /** Basis points off, when the coupon is a percentage rather than an amount. */
+  percentBps: number;
+  state: "active" | "redeemed" | "expired" | "scheduled";
+  validFrom: string;
+  validUntil: string;
+  redeemedAt: string | null;
+};
+
+export type CatalogItem = {
+  id: string;
+  name: string;
+  kind: "milestone" | "perk" | "product" | "service";
+  costUnits: number;
+  valueCentavos: number;
+  active: boolean;
+};
+
+export type GiftCard = {
+  id: string;
+  code: string;
+  initialCentavos: number;
+  balanceCentavos: number;
+  status: string;
+  issuedToName: string;
+  holderAccountId: string | null;
+  expiresOn: string | null;
+};
+
+export type GiftCardEntry = {
+  id: string;
+  kind: string;
+  amountCentavos: number;
+  reason: string;
+  occurredAt: string;
+};
+
+export type Referral = {
+  id: string;
+  code: string;
+  status: "pending" | "claimed" | "qualified";
+  referrerRewardUnits: number;
+  friendRewardUnits: number;
+  createdAt: string;
+  claimedAt: string | null;
+  qualifiedAt: string | null;
+};
+
+export type Feedback = {
+  id: string;
+  status: "requested" | "answered";
+  rating: number | null;
+  comment: string;
+  /** True only above the threshold: an unhappy customer is never routed to a
+   *  public review form. */
+  reviewInvited: boolean;
+  requestedAt: string;
+  answeredAt: string | null;
+};
+
+export type CustomField = {
+  key: string;
+  label: string;
+  kind: "text" | "number" | "date" | "boolean";
+  position: number;
+};
+
+export type CustomFieldValue = { key: string; label: string; value: string };
+
+export type ApprovalRequest = {
+  id: string;
+  action: string;
+  target: string;
+  amountCentavos: number;
+  status: "pending" | "approved" | "rejected";
+  requestedByUserId: string;
+  approvedByUserId: string | null;
+  reason: string;
+  requestedAt: string;
+  decidedAt: string | null;
+};
+
+/**
+ * One thing a customer holds with this merchant, as the counter sees it.
+ *
+ * Membership and multipass share a shape deliberately: the till asks the
+ * same question of both - what is this person entitled to right now - and
+ * the only difference is whether `remaining` resets with the period or
+ * counts down a bundle. A bundle has no subscription of its own, so its
+ * `subscriptionId` is empty.
+ */
+export type HeldProgram = {
+  subscriptionId: string;
+  programId: string;
+  programName: string;
+  programType: string;
+  status: string;
+  period: string;
+  used: number;
+  included: number;
+  remaining: number;
+  renewsOn: string | null;
+};

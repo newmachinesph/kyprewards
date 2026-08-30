@@ -22,9 +22,17 @@ import type {
   AuditEvent,
   Automation,
   Billing,
+  ApprovalRequest,
   Branding,
   BusinessCustomer,
+  CatalogItem,
+  Coupon,
+  CustomField,
+  CustomFieldValue,
+  Feedback,
+  HeldProgram,
   MessagingPolicy,
+  Referral,
   BusinessLocation,
   BusinessMetrics,
   BusinessProfile,
@@ -104,6 +112,74 @@ export const useMessagingPolicy = (options?: Options<MessagingPolicy>): Query<Me
     queryFn: api.getMessagingPolicy,
     ...options,
   });
+
+/**
+ * What the member pays after their tier discount.
+ *
+ * Keyed on the amount, so typing re-quotes rather than debouncing by hand -
+ * and skipped entirely when there is no discount program or no amount yet.
+ */
+export const useDiscountQuote = (customerId: string, amountCentavos: number) =>
+  useQuery({
+    queryKey: [...keys.business.all, "discount-quote", customerId, amountCentavos],
+    queryFn: () => api.quoteDiscount(customerId, amountCentavos),
+    enabled: Boolean(customerId) && amountCentavos > 0,
+    retry: false,
+  });
+
+export const useHeldPrograms = (customerId: string, options?: Options<HeldProgram[]>) =>
+  useQuery({
+    queryKey: keys.business.held(customerId),
+    queryFn: () => api.getHeldPrograms(customerId),
+    enabled: Boolean(customerId),
+    ...options,
+  });
+
+export const useCoupons = (options?: Options<Coupon[]>): Query<Coupon[]> =>
+  useQuery({ queryKey: keys.business.coupons(), queryFn: api.getCoupons, ...options });
+
+export const useCatalog = (programId: string, options?: Options<CatalogItem[]>): Query<CatalogItem[]> =>
+  useQuery({
+    queryKey: keys.business.catalog(programId),
+    queryFn: () => api.getCatalog(programId),
+    enabled: Boolean(programId),
+    ...options,
+  });
+
+export const useReferrals = (options?: Options<Referral[]>): Query<Referral[]> =>
+  useQuery({ queryKey: keys.business.referrals(), queryFn: api.getReferrals, ...options });
+
+export const useFeedback = (options?: Options<Feedback[]>): Query<Feedback[]> =>
+  useQuery({ queryKey: keys.business.feedback(), queryFn: api.getFeedback, ...options });
+
+export const useCustomFields = (options?: Options<CustomField[]>): Query<CustomField[]> =>
+  useQuery({ queryKey: keys.business.customFields(), queryFn: api.getCustomFields, ...options });
+
+export const useCustomFieldValues = (
+  customerId: string,
+  options?: Options<CustomFieldValue[]>,
+): Query<CustomFieldValue[]> =>
+  useQuery({
+    queryKey: keys.business.customFieldValues(customerId),
+    queryFn: () => api.getCustomFieldValues(customerId),
+    enabled: Boolean(customerId),
+    ...options,
+  });
+
+/**
+ * Four-eyes approvals. Scale plan only, so a workspace below it answers 402 -
+ * which the caller shows as an upgrade prompt, not an error.
+ */
+export const useApprovals = (options?: Options<ApprovalRequest[]>): Query<ApprovalRequest[]> =>
+  useQuery({
+    queryKey: keys.business.approvals(),
+    queryFn: api.getApprovals,
+    retry: false,
+    ...options,
+  });
+
+export const useRfm = (options?: Options<Awaited<ReturnType<typeof api.getRfm>>>) =>
+  useQuery({ queryKey: keys.business.rfm(), queryFn: api.getRfm, ...options });
 
 export const useLocations = (options?: Options<BusinessLocation[]>): Query<BusinessLocation[]> =>
   useQuery({ queryKey: keys.business.locations(), queryFn: api.getLocations, ...options });

@@ -8,6 +8,8 @@ import {
   useBusinessMetrics,
   useBranding,
   useBusinessProfile,
+  useDiscountQuote,
+  useHeldPrograms,
   useMessagingPolicy,
   useSettings,
   type BusinessLocation,
@@ -57,6 +59,12 @@ import {
   useUpdateProgram,
   useSetMessagingPolicy,
   useCancelRedemption,
+  useRedeemCoupon,
+  useRedeemGiftCard,
+  useUseBenefit,
+  useUseMultipass,
+  usePurchaseMultipass,
+  useSubscribeMembership,
   useCommitRedemption,
   useReserveRedemption,
   useSetSetting,
@@ -154,6 +162,228 @@ function initialsOf(name: string) {
     .slice(0, 2)
     .map((word) => word[0]?.toUpperCase() ?? "")
     .join("");
+}
+
+/**
+ * What else this counter can settle for the customer in front of it.
+ *
+ * A merchant can run eight program types at once and the till only knew how
+ * to add a stamp - so a Coupon or Gift card program was a row in a list that
+ * did nothing. Each type has its own rule, and only the ones the merchant
+ * actually runs appear.
+ */
+function OtherProgramActions({
+  customerId,
+  amountCentavos,
+  notify,
+}: {
+  customerId: string;
+  amountCentavos: number;
+  notify: Notify;
+}) {
+  const { data: programs = [] } = usePrograms();
+  const live = (type: string) =>
+    programs.find((program) => program.type === type && program.status === "Live");
+
+  const coupon = useRedeemCoupon();
+  const giftCard = useRedeemGiftCard();
+  const pass = useUseMultipass();
+  const benefit = useUseBenefit();
+  const buyPass = usePurchaseMultipass();
+  const subscribe = useSubscribeMembership();
+  const { data: held = [] } = useHeldPrograms(customerId);
+  const [couponCode, setCouponCode] = useState("");
+  const [cardCode, setCardCode] = useState("");
+
+  const discount = live("Discount");
+  const { data: quote } = useDiscountQuote(
+    discount ? customerId : "",
+    amountCentavos,
+  );
+
+  const membership = live("Membership");
+  const anything =
+    discount ||
+    membership ||
+    held.length > 0 ||
+    live("Multipass") ||
+    live("Coupon") ||
+    live("Gift card");
+  if (!anything) return null;
+
+  return (
+    <div className="mt-5 space-y-3 rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-4">
+      <Eyebrow>Also on this counter</Eyebrow>
+
+      {discount && quote && amountCentavos > 0 && (
+        <p className="text-xs font-bold">
+          {quote.tier ? `${quote.tier} tier: ` : ""}
+          {(quote.rateBps / 100).toFixed(quote.rateBps % 100 ? 2 : 0)}% off &middot; member
+          pays{" "}
+          <span className="font-extrabold text-[var(--success)]">
+            {pesoFromCentavos(quote.netCentavos)}
+          </span>
+        </p>
+      )}
+
+      {live("Coupon") && (
+        <div className="flex gap-2">
+          <input
+            value={couponCode}
+            onChange={(event) => setCouponCode(event.target.value.toUpperCase())}
+            placeholder="Coupon code"
+            className="min-h-10 flex-1 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-mono outline-none focus:border-[var(--accent-strong)]"
+          />
+          <Button
+            tone="quiet"
+            disabled={!couponCode.trim() || coupon.isPending}
+            onClick={() =>
+              coupon.mutate(
+                { code: couponCode.trim(), customerId },
+                {
+                  onSuccess: (redeemed) => {
+                    setCouponCode("");
+                    notify(`${redeemed.name} redeemed.`);
+                  },
+                  onError: (failure) => notify(failure.message, "error"),
+                },
+              )
+            }
+          >
+            Redeem
+          </Button>
+        </div>
+      )}
+
+      {live("Gift card") && (
+        <div className="flex gap-2">
+          <input
+            value={cardCode}
+            onChange={(event) => setCardCode(event.target.value.toUpperCase())}
+            placeholder="Gift card code"
+            className="min-h-10 flex-1 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-mono outline-none focus:border-[var(--accent-strong)]"
+          />
+          <Button
+            tone="quiet"
+            // Needs the purchase amount: a gift card pays for something, and
+            // spending an unstated amount off a card is not a transaction.
+            disabled={!cardCode.trim() || amountCentavos <= 0 || giftCard.isPending}
+            onClick={() =>
+              giftCard.mutate(
+                { code: cardCode.trim(), amountCentavos, reason: "Paid at the counter" },
+                {
+                  onSuccess: (card) => {
+                    setCardCode("");
+                    notify(
+                      `Paid from gift card. ${pesoFromCentavos(card.balanceCentavos)} left on it.`,
+                    );
+                  },
+                  onError: (failure) => notify(failure.message, "error"),
+                },
+              )
+            }
+          >
+            {amountCentavos > 0 ? `Pay ${pesoFromCentavos(amountCentavos)}` : "Enter an amount"}
+          </Button>
+        </div>
+      )}
+
+      {/* What they hold, not what the merchant sells. A bundle with nothing
+          left is offered for sale rather than hidden, and a membership needs
+          its subscription id - which is exactly what this read is for. */}
+      {held.map((item) =>
+        item.programType === "Multipass" ? (
+          <div key={item.programId} className="flex items-center gap-2">
+            <span className="min-w-0 flex-1 truncate text-xs font-bold">
+              {item.programName}
+              <span className="ml-1 font-normal text-[var(--muted-strong)]">
+                {item.remaining} of {item.included} left
+              </span>
+            </span>
+            {item.remaining > 0 ? (
+              <Button
+                tone="quiet"
+                disabled={pass.isPending}
+                onClick={() =>
+                  pass.mutate(
+                    { customerId, programId: item.programId },
+                    {
+                      onSuccess: (left) =>
+                        notify(`Pass used. ${left.remaining} left on the bundle.`),
+                      onError: (failure) => notify(failure.message, "error"),
+                    },
+                  )
+                }
+              >
+                Use a pass
+              </Button>
+            ) : (
+              <Button
+                tone="quiet"
+                disabled={buyPass.isPending}
+                onClick={() =>
+                  buyPass.mutate(
+                    { customerId, programId: item.programId },
+                    {
+                      onSuccess: (bought) => notify(`Bundle sold. ${bought.remaining} passes.`),
+                      onError: (failure) => notify(failure.message, "error"),
+                    },
+                  )
+                }
+              >
+                Sell a bundle
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div key={item.subscriptionId} className="flex items-center gap-2">
+            <span className="min-w-0 flex-1 truncate text-xs font-bold">
+              {item.programName}
+              <span className="ml-1 font-normal text-[var(--muted-strong)]">
+                {item.included
+                  ? `${item.remaining} of ${item.included} this period`
+                  : item.status}
+              </span>
+            </span>
+            <Button
+              tone="quiet"
+              disabled={benefit.isPending || item.status !== "active"}
+              onClick={() =>
+                benefit.mutate(item.subscriptionId, {
+                  onSuccess: (left) =>
+                    notify(`Benefit used. ${left.remaining} of ${left.included} left.`),
+                  onError: (failure) => notify(failure.message, "error"),
+                })
+              }
+            >
+              Use a benefit
+            </Button>
+          </div>
+        ),
+      )}
+
+      {/* Offered when they hold nothing yet - the till is where a membership
+          is actually sold. */}
+      {membership && !held.some((item) => item.programId === membership.id) && (
+        <Button
+          tone="quiet"
+          className="w-full"
+          disabled={subscribe.isPending}
+          onClick={() =>
+            subscribe.mutate(
+              { customerId, programId: membership.id },
+              {
+                onSuccess: () => notify(`${membership.name} started.`),
+                onError: (failure) => notify(failure.message, "error"),
+              },
+            )
+          }
+        >
+          Start {membership.name}
+        </Button>
+      )}
+    </div>
+  );
 }
 
 function ScanView({ notify }: { notify: Notify }) {
@@ -480,6 +710,16 @@ function ScanView({ notify }: { notify: Notify }) {
                     Recorded with the visit. Leave blank for a visit-only stamp.
                   </span>
                 </label>
+
+                <OtherProgramActions
+                  customerId={scanned.id}
+                  amountCentavos={
+                    Number.isFinite(Number.parseFloat(amount))
+                      ? Math.round(Number.parseFloat(amount) * 100)
+                      : 0
+                  }
+                  notify={notify}
+                />
 
                 <div className="mt-5 grid grid-cols-2 gap-2">
                   <Button tone="quiet" onClick={startOver} disabled={record.isPending}>
