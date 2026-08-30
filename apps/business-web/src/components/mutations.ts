@@ -26,6 +26,7 @@ import {
   setSetting,
   updateBusinessProfile,
   updateLocation,
+  voidVisit,
   uploadBrandingImage,
   updateProgram,
   type CampaignDraft,
@@ -90,6 +91,17 @@ export const useUpdateProfile = () =>
  * A workspace toggle. Optimistic, because a switch that waits for the network
  * to move reads as broken - and the whole payload is one boolean.
  */
+/**
+ * Undo a stamp. Same scope as recording one, for the same reason: it moves
+ * the customer's balance, today's counters, and whatever reward it earned.
+ */
+export const useVoidVisit = () =>
+  useApiMutation(
+    ({ id, idempotencyKey }: { id: string; idempotencyKey: string }) =>
+      voidVisit(id, idempotencyKey),
+    { invalidates: [keys.business.all] },
+  );
+
 export const useSetSetting = () =>
   useApiMutation(
     ({ key, value }: { key: string; value: boolean }) => setSetting(key, value),

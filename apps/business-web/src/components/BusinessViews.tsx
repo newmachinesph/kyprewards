@@ -56,6 +56,7 @@ import {
   useUpdateProgram,
   useSetMessagingPolicy,
   useSetSetting,
+  useVoidVisit,
 } from "@/components/mutations";
 import { Button, Eyebrow, Pill, StampDots, ViewFrame } from "@kypstamping/ui";
 import {
@@ -103,6 +104,7 @@ import {
   Stamp,
   Store,
   TicketCheck,
+  Undo2,
   UserPlus,
   Users,
   WalletCards,
@@ -163,6 +165,7 @@ function ScanView({ notify }: { notify: Notify }) {
   const [identifier, setIdentifier] = useState("");
   const [looking, setLooking] = useState(false);
   const [done, setDone] = useState<VisitResult | null>(null);
+  const undo = useVoidVisit();
 
   const { data: balance } = useCustomerBalance(scanned?.id);
 
@@ -415,6 +418,27 @@ function ScanView({ notify }: { notify: Notify }) {
                 <Button tone="accent" className="mt-7" onClick={startOver}>
                   Scan the next customer
                 </Button>
+                {/* Right here, because this is where a wrong scan is
+                    noticed - one customer back, before the queue moves on. */}
+                <button
+                  type="button"
+                  disabled={undo.isPending}
+                  onClick={() =>
+                    undo.mutate(
+                      { id: done.id, idempotencyKey: idempotencyKey("void", done.id) },
+                      {
+                        onSuccess: () => {
+                          notify(`Stamp reversed for ${done.customerName}.`);
+                          startOver();
+                        },
+                        onError: (failure) => notify(failure.message, "review"),
+                      },
+                    )
+                  }
+                  className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 text-xs font-extrabold text-white/55 transition hover:text-white disabled:opacity-50"
+                >
+                  <Undo2 size={14} /> {undo.isPending ? "Reversing…" : "That was a mistake, undo it"}
+                </button>
               </div>
             </div>
           )}

@@ -544,6 +544,22 @@ export const recordVisit = (
 ): Promise<VisitResult> =>
   http("/transactions", { method: "POST", body, idempotencyKey } satisfies HttpOptions);
 
+/**
+ * Reverses a stamp that should not have happened.
+ *
+ * Void is for a sale cancelled before it settled, refund for one already
+ * settled - the API writes a different ledger reason for each, and the
+ * customer's balance moves back either way.
+ *
+ * The idempotency key is required: a cashier who taps undo twice on a slow
+ * connection must not take two stamps off.
+ */
+export const voidVisit = (transactionId: string, idempotencyKey: string): Promise<VisitResult> =>
+  http(`/transactions/${transactionId}/void`, { method: "POST", idempotencyKey });
+
+export const refundVisit = (transactionId: string, idempotencyKey: string): Promise<VisitResult> =>
+  http(`/transactions/${transactionId}/refund`, { method: "POST", idempotencyKey });
+
 /** The onboarding wizard's "prove it works" step. */
 export const recordTestStamp = (): Promise<VisitResult> =>
   http("/business/onboarding/test-stamp", { method: "POST" });
