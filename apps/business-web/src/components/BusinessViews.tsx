@@ -1034,9 +1034,15 @@ function ScanView({
     </ViewFrame>
   );
 }
-/** Where a printed poster points. The marketing site owns /join/<slug>. */
-const MARKETING_ORIGIN =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://kypstamping.ph";
+/**
+ * Where a printed poster points: the wallet, not the marketing site.
+ *
+ * The promise is that the stamp appears on scan. Landing on a marketing page
+ * with a "continue to join" button is the interstitial this whole flow
+ * exists to remove.
+ */
+const POSTER_ORIGIN =
+  process.env.NEXT_PUBLIC_CUSTOMER_APP_URL ?? "https://app.kypstamping.ph";
 
 /** The slug form the poster and /public/join/{slug} both use. */
 const slugify = (value: string) => value.toLowerCase().replaceAll(" ", "-");
@@ -1106,7 +1112,7 @@ function JoinCodeView({ notify }: { notify: Notify }) {
   // The slug a poster carries: short name and branch, both slugified. It has
   // to match what /public/join/{slug} resolves, so it is built once here.
   const slug = `${slugify(profile?.shortName ?? "")}-${slugify(selected)}`;
-  const joinUrl = `${MARKETING_ORIGIN}/join/${slug}`;
+  const joinUrl = `${POSTER_ORIGIN}/join/${slug}`;
 
   return (
     <ViewFrame

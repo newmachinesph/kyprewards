@@ -35,6 +35,7 @@ import type {
   DeliveryDetail,
   DiscountQuote,
   Feedback,
+  FirstStampOffer,
   GiftCard,
   GiftCardEntry,
   HeldProgram,
@@ -366,6 +367,20 @@ export const getNotifications = (): Promise<CustomerNotification[]> =>
 /** Branches within a short walk that have something waiting. */
 export const getNearby = (near: { lat: number; lng: number }): Promise<NearbyNudge[]> =>
   http("/customer/nearby", { query: near });
+
+/**
+ * One stamp for a stranger, before anything is asked of them.
+ *
+ * Unauthenticated on purpose, and shareable: a poster passed between friends
+ * is how a shop gets found. Nothing is written yet - the stamp settles when
+ * they register, which is also what stops it being claimed twice.
+ */
+export const offerFirstStamp = (slug: string): Promise<FirstStampOffer> =>
+  http(`/public/join/${encodeURIComponent(slug)}/first-stamp`, { method: "POST" });
+
+/** Turns the offered stamp into a real one. Needs a wallet. */
+export const claimFirstStamp = (claimToken: string): Promise<WalletCard> =>
+  http("/customer/first-stamp/claim", { method: "POST", body: { claimToken } });
 
 export const getActivity = (): Promise<ActivityEntry[]> => http("/customer/activity");
 

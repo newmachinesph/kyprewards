@@ -852,3 +852,14 @@ export type PartnerApplication = {
   merchantId: string | null;
   createdAt: string;
 };
+
+/** What a stranger sees the instant they scan the counter poster. */
+export type FirstStampOffer = {
+  claimToken: string;
+  business: string;
+  branch: string;
+  program: string;
+  reward: string;
+  stamps: number;
+  target: number;
+};

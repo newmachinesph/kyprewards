@@ -4,7 +4,9 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
@@ -18,14 +20,17 @@ import {
   setChannelPreference,
   updateCustomerProfile,
   useApiMutation,
+  useQueryClient,
   useChannelPreferences,
   useCustomerProfile,
+  claimFirstStamp,
   useDataRequests,
   useDiscover,
   useWallet,
 } from "@kypstamping/api";
 import type { CustomerProfile, WalletCard } from "@kypstamping/api";
 import { useCoordinates } from "@/components/useCoordinates";
+import { PENDING_CLAIM_KEY } from "@/components/FirstStamp";
 
 /**
  * Everything the wallet owns, in one place.
@@ -135,6 +140,46 @@ const EMPTY_PROFILE: CustomerProfile = {
 
 const CustomerStateContext = createContext<CustomerState | null>(null);
 
+/**
+ * Settles a stamp claimed at the counter, once there is a wallet to put it in.
+ *
+ * The claim is made before registration - that is the whole point - so it
+ * waits in sessionStorage across the sign-up and the OTP screen and is
+ * redeemed here, on the first render that has a session.
+ *
+ * Failures are swallowed deliberately. The common ones are "already a
+ * member" and an expired token, and neither is worth interrupting somebody
+ * who has just arrived in their wallet; staff can stamp them at the counter.
+ */
+function usePendingFirstStamp() {
+  const queryClient = useQueryClient();
+  const settled = useRef(false);
+
+  useEffect(() => {
+    if (settled.current) return;
+    let token: string | null = null;
+    try {
+      token = window.sessionStorage.getItem(PENDING_CLAIM_KEY);
+    } catch {
+      token = null;
+    }
+    if (!token) return;
+    settled.current = true;
+
+    claimFirstStamp(token)
+      .catch(() => {})
+      .finally(() => {
+        try {
+          window.sessionStorage.removeItem(PENDING_CLAIM_KEY);
+        } catch {
+          // Nothing to do; the guard above stops a retry loop either way.
+        }
+        void queryClient.invalidateQueries({ queryKey: keys.customer.all });
+      });
+  }, [queryClient]);
+}
+
+
 export function CustomerStateProvider({ children }: { children: ReactNode }) {
   const signupName = useSyncExternalStore(
     subscribeToSignupName,
@@ -166,6 +211,7 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
   // list reports is computed from it, and without one the "Nearby only"
   // filter has nothing to compare against.
   const where = useCoordinates(true);
+  usePendingFirstStamp();
   const { data: discover = [] } = useDiscover(where);
   const [joinedLocally, setJoinedLocally] = useState<string[]>([]);
   const joinedIds = useMemo(

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { sharedScenario } from "@kypstamping/demo-data";
 import type { DiscoverPlace, WalletCard } from "@kypstamping/api";
 import {
   ApiError,
@@ -208,7 +207,22 @@ function QrImage() {
   );
 }
 
-function LoyaltyCard({ compact = false }: { compact?: boolean }) {
+/**
+ * The card the customer is closest to finishing.
+ *
+ * Everything here comes from their wallet. It used to recite the demo
+ * fixture, so a customer holding one stamp was shown five, with somebody
+ * else's last visit and a transaction id that was not theirs.
+ */
+function LoyaltyCard({
+  card,
+  compact = false,
+}: {
+  card: WalletCard;
+  compact?: boolean;
+}) {
+  const remaining = Math.max(0, card.target - card.progress);
+
   return (
     <article className="loyalty-ticket overflow-hidden rounded-2xl px-5 py-5 text-[var(--paper)]">
       <div className="flex items-start justify-between">
@@ -217,48 +231,29 @@ function LoyaltyCard({ compact = false }: { compact?: boolean }) {
             <Croissant size={22} />
           </span>
           <div>
-            <p className="text-base font-extrabold tracking-[-0.025em]">
-              {sharedScenario.business}
-            </p>
-            <p className="mt-0.5 text-[11px] text-white/50">
-              Neighborhood bakery
-            </p>
+            <p className="text-base font-extrabold tracking-[-0.025em]">{card.business}</p>
+            <p className="mt-0.5 text-[11px] text-white/50">{card.category}</p>
           </div>
         </div>
         <span className="rounded-full border border-white/15 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/60">
-          Regular
+          {card.status}
         </span>
       </div>
       {!compact && (
         <p className="mt-7 max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em]">
-          {sharedScenario.loyaltyEvent.target - sharedScenario.loyaltyEvent.afterStamps}{" "}
-          more visits, then pastry.
+          {remaining === 0
+            ? `${card.reward} is ready.`
+            : `${remaining} more ${remaining === 1 ? "visit" : "visits"}, then ${card.reward.toLowerCase()}.`}
         </p>
       )}
       <div className={compact ? "mt-5" : "mt-7"}>
         <div className="overflow-x-auto pb-1">
-          <StampDots
-            filled={sharedScenario.loyaltyEvent.afterStamps}
-            total={sharedScenario.loyaltyEvent.target}
-            dark
-          />
+          <StampDots filled={card.progress} total={card.target} dark />
         </div>
         <div className="mt-3 flex items-center justify-between text-[11px] font-semibold">
-          <span className="text-white/50">
-            {sharedScenario.loyaltyEvent.after} stamps
-          </span>
-          <span className="text-[var(--accent)]">Free pastry</span>
+          <span className="text-white/50">{card.balance}</span>
+          <span className="text-[var(--accent)]">{card.reward}</span>
         </div>
-        {!compact && (
-          <div className="mt-4 flex items-center justify-between gap-3 border-t border-white/12 pt-3 text-[9px] font-bold text-white/50">
-            <span>
-              Last visit · {sharedScenario.branch} · {sharedScenario.loyaltyEvent.occurredAt}
-            </span>
-            <code className="shrink-0 text-white/70">
-              {sharedScenario.loyaltyEvent.id}
-            </code>
-          </div>
-        )}
       </div>
     </article>
   );
@@ -427,7 +422,13 @@ function HomeView({
             My wallet
           </button>
         </div>
-        <LoyaltyCard />
+        {best ? (
+          <LoyaltyCard card={best} />
+        ) : (
+          <p className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 text-sm text-[var(--muted-strong)]">
+            No cards yet. Scan a counter code to start one.
+          </p>
+        )}
       </section>
 
       <section className="mt-7">
@@ -650,7 +651,7 @@ function WalletView({
               className="block w-full text-left transition active:scale-[0.99]"
             >
               {isFeature ? (
-                <LoyaltyCard compact />
+                <LoyaltyCard card={card} compact />
               ) : (
                 <span className="flex items-center gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
                   <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)]">

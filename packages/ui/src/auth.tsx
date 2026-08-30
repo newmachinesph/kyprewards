@@ -504,10 +504,18 @@ export function DemoAuthFlow({
   const [remember, setRemember] = useState(true);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
-  // An invitee types their own; the other flows prefill a demo one.
-  const [name, setName] = useState(mode === "invite" ? "" : "Jacqueline Daniel");
-  const [businessName, setBusinessName] = useState("Sweet Crumbs Bakery");
-  const [email, setEmail] = useState("jacqueline.daniel@example.com");
+  // Every flow that asks for a name is somebody typing their own.
+  const [name, setName] = useState("");
+  // Blank, not seeded with the demo account.
+  //
+  // These are sign-up fields. Prefilling the customer email with an address
+  // that already has a wallet made every real registration collide on the
+  // unique index and answer 409, and the same state doubles as the mobile
+  // field on business sign-up, so it put an email address in a phone box.
+  // The one prefill worth keeping is the login identifier, which roleConfig
+  // still supplies.
+  const [businessName, setBusinessName] = useState("");
+  const [email, setEmail] = useState("");
   const [accepted, setAccepted] = useState(true);
   const [notice, setNotice] = useState("");
   const [sent, setSent] = useState(false);
