@@ -38,6 +38,8 @@ import {
   useAuditLedger,
   useChannelEconomics,
   usePlanEconomics,
+  usePlatformCampaigns,
+  usePlatformInvoices,
   usePlatformMetrics,
   EMPTY_PLATFORM_METRICS,
   useServices,
@@ -745,6 +747,102 @@ function AuditView({ notify }: { notify: Notify }) {
   );
 }
 
+/**
+ * Invoices and campaigns as they actually stand.
+ *
+ * The screen above this models plan margin. These are the two reads that
+ * say what really billed and what really sent - both endpoints existed and
+ * nothing called either.
+ */
+function BilledAndSent() {
+  const { data: invoices = [] } = usePlatformInvoices();
+  const { data: campaigns = [] } = usePlatformCampaigns();
+  const outstanding = invoices.filter((invoice) => invoice.status !== "Paid");
+
+  return (
+    <div className="mt-3 grid gap-3 xl:grid-cols-2">
+      <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+        <div className="border-b border-[var(--line)] p-5">
+          <Eyebrow>Billing</Eyebrow>
+          <h2 className="mt-1 text-lg font-extrabold">
+            {outstanding.length
+              ? `${outstanding.length} invoice${outstanding.length === 1 ? "" : "s"} outstanding`
+              : "Every invoice settled"}
+          </h2>
+        </div>
+        {invoices.length === 0 ? (
+          <p className="p-5 text-sm text-[var(--muted-strong)]">Nothing issued yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[480px] text-left">
+              <thead>
+                <tr className="border-b border-[var(--line)] text-[10px] uppercase tracking-[0.12em] text-[var(--muted)]">
+                  <th className="px-5 py-3">Workspace</th>
+                  <th className="px-4 py-3">Period</th>
+                  <th className="px-4 py-3">Amount</th>
+                  <th className="px-4 py-3">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoices.slice(0, 12).map((invoice) => (
+                  <tr key={invoice.id} className="border-b border-[var(--line)] last:border-0">
+                    <td className="px-5 py-3.5 font-mono text-[11px]">{invoice.merchantId}</td>
+                    <td className="px-4 py-3.5 text-sm">{invoice.period}</td>
+                    <td className="px-4 py-3.5 text-sm font-bold">
+                      {pesoFromCentavos(invoice.amountCentavos)}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <Pill tone={invoice.status === "Paid" ? "success" : "warning"}>
+                        {invoice.status}
+                      </Pill>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+        <div className="border-b border-[var(--line)] p-5">
+          <Eyebrow>Delivery</Eyebrow>
+          <h2 className="mt-1 text-lg font-extrabold">
+            {campaigns.reduce((sum, campaign) => sum + campaign.sent, 0).toLocaleString()}{" "}
+            messages across {campaigns.length} campaign
+            {campaigns.length === 1 ? "" : "s"}
+          </h2>
+        </div>
+        {campaigns.length === 0 ? (
+          <p className="p-5 text-sm text-[var(--muted-strong)]">Nothing sent yet.</p>
+        ) : (
+          <ul className="divide-y divide-[var(--line)]">
+            {campaigns.slice(0, 8).map((campaign) => (
+              <li key={campaign.id} className="flex items-center gap-3 px-5 py-3.5">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-extrabold">{campaign.name}</p>
+                  <p className="mt-0.5 font-mono text-[10px] text-[var(--muted)]">
+                    {campaign.merchantId}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="text-sm font-bold">{campaign.sent.toLocaleString()}</p>
+                  <p className="text-[10px] text-[var(--muted-strong)]">
+                    {pesoFromCentavos(campaign.costCentavos)}
+                  </p>
+                </div>
+                <Pill tone={campaign.status === "Sent" ? "success" : "neutral"}>
+                  {campaign.status}
+                </Pill>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
+
 function EconomicsView() {
   const { data: metrics = EMPTY_PLATFORM_METRICS } = usePlatformMetrics();
   const { data: planEconomics = [] } = usePlanEconomics();
@@ -801,6 +899,7 @@ function EconomicsView() {
           </article>
         ))}
       </div>
+      <BilledAndSent />
       <div className="mt-3 grid gap-3 xl:grid-cols-[1.1fr_0.9fr]">
         <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="border-b border-[var(--line)] p-5">

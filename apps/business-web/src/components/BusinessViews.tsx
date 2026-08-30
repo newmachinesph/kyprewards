@@ -17,6 +17,7 @@ import {
   useReferrals,
   useHeldPrograms,
   useMessagingPolicy,
+  useRfm,
   useSettings,
   type BusinessLocation,
   type MessagingPolicy,
@@ -3219,6 +3220,71 @@ function MessageLogView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
+/**
+ * Who the numbers above are about.
+ *
+ * Quintiles within this merchant's own base, not an industry benchmark: a
+ * neighbourhood bakery's "frequent" is not a mall chain's, and scoring
+ * against somebody else's distribution would put every small shop in the
+ * bottom band.
+ */
+function SegmentBreakdown() {
+  const { data: scored = [] } = useRfm();
+  if (scored.length === 0) return null;
+
+  const bySegment = new Map<string, typeof scored>();
+  for (const member of scored) {
+    bySegment.set(member.segment, [...(bySegment.get(member.segment) ?? []), member]);
+  }
+  const segments = [...bySegment.entries()].sort((a, b) => b[1].length - a[1].length);
+
+  return (
+    <section className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+      <Eyebrow>Who returns</Eyebrow>
+      <h2 className="mt-1 text-lg font-extrabold">
+        {scored.length} scored member{scored.length === 1 ? "" : "s"}
+      </h2>
+      <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+        Recency, frequency and spend, each scored one to five against your own
+        customers rather than an industry average.
+      </p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {segments.map(([segment, members]) => (
+          <article
+            key={segment}
+            className="rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-4"
+          >
+            <div className="flex items-baseline justify-between gap-2">
+              <p className="text-xs font-extrabold">{segment}</p>
+              <p className="text-lg font-extrabold">{members.length}</p>
+            </div>
+            <ul className="mt-3 space-y-1">
+              {members.slice(0, 4).map((member) => (
+                <li
+                  key={member.customerId}
+                  className="flex justify-between gap-2 text-[11px]"
+                >
+                  <span className="truncate">{member.name}</span>
+                  <span className="shrink-0 font-mono text-[var(--muted-strong)]">
+                    {member.recencyScore}
+                    {member.frequencyScore}
+                    {member.monetaryScore}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {members.length > 4 && (
+              <p className="mt-2 text-[10px] text-[var(--muted)]">
+                and {members.length - 4} more
+              </p>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function AnalyticsView() {
   const { data: programs = [] } = usePrograms();
   // "Campaign-attributed" was hardcoded at ₱76.4k while the fixture's own
@@ -3367,6 +3433,7 @@ function AnalyticsView() {
           </div>
         </div>
       </section>
+      <SegmentBreakdown />
     </ViewFrame>
   );
 }

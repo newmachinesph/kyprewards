@@ -100,6 +100,8 @@ export const keys = {
     adapters: () => [...keys.admin.all, "adapters"] as const,
     tenantConnections: () => [...keys.admin.all, "tenant-connections"] as const,
     recoveryQueue: () => [...keys.admin.all, "recovery-queue"] as const,
+    invoices: () => [...keys.admin.all, "invoices"] as const,
+    campaigns: () => [...keys.admin.all, "campaigns"] as const,
     economics: {
       plans: () => [...keys.admin.all, "economics", "plans"] as const,
       channels: () => [...keys.admin.all, "economics", "channels"] as const,

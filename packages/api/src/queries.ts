@@ -462,6 +462,12 @@ export const useRecoveryQueue = (options?: Options<RecoveryItem[]>): Query<Recov
 export const usePlatformMetrics = (options?: Options<PlatformMetrics>): Query<PlatformMetrics> =>
   useQuery({ queryKey: keys.admin.metrics(), queryFn: api.getPlatformMetrics, ...options });
 
+export const usePlatformInvoices = () =>
+  useQuery({ queryKey: keys.admin.invoices(), queryFn: api.getPlatformInvoices });
+
+export const usePlatformCampaigns = () =>
+  useQuery({ queryKey: keys.admin.campaigns(), queryFn: api.getPlatformCampaigns });
+
 export const usePlanEconomics = (options?: Options<PlanEconomics[]>): Query<PlanEconomics[]> =>
   useQuery({ queryKey: keys.admin.economics.plans(), queryFn: api.getPlanEconomics, ...options });
 
