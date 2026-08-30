@@ -10,7 +10,11 @@ import {
   useBusinessProfile,
   useDiscountQuote,
   useCatalog,
+  useCustomFieldValues,
+  useApprovals,
+  useCustomFields,
   useCoupons,
+  useReferrals,
   useHeldPrograms,
   useMessagingPolicy,
   useSettings,
@@ -63,6 +67,10 @@ import {
   useSetMessagingPolicy,
   useCancelRedemption,
   useAddCatalogItem,
+  useAddCustomField,
+  useDecideApproval,
+  useCreateReferral,
+  useSetCustomFieldValues,
   useIssueCoupon,
   useIssueGiftCard,
   useRedeemCoupon,
@@ -1097,6 +1105,122 @@ function JoinCodeView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
+/**
+ * The merchant's own columns on a customer, and their referral code.
+ *
+ * Custom fields are what makes this a CRM rather than a visit counter - a
+ * bakery tracks allergies, a salon tracks preferred stylist. The endpoints
+ * existed and nothing read or wrote them.
+ */
+function CustomerExtras({
+  customerId,
+  customerName,
+  notify,
+}: {
+  customerId: string;
+  customerName: string;
+  notify: Notify;
+}) {
+  const { data: fields = [] } = useCustomFields();
+  const { data: values = [] } = useCustomFieldValues(customerId);
+  const { data: referrals = [] } = useReferrals();
+  const save = useSetCustomFieldValues();
+  const invite = useCreateReferral();
+  const [draft, setDraft] = useState<Record<string, string> | null>(null);
+
+  // Keyed by customer: switching selection drops a half-typed draft rather
+  // than carrying one person's notes onto another's record.
+  const [draftFor, setDraftFor] = useState("");
+  if (draftFor !== customerId) {
+    setDraftFor(customerId);
+    setDraft(null);
+  }
+
+  const current =
+    draft ?? Object.fromEntries(values.map((value) => [value.key, value.value]));
+  const theirs = referrals.filter((referral) => referral.status !== "qualified");
+
+  return (
+    <>
+      {fields.length > 0 && (
+        <div className="mt-7">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-white/50">
+            Your own fields
+          </p>
+          <div className="mt-3 space-y-2">
+            {fields.map((field) => (
+              <label key={field.key} className="grid gap-1.5 text-xs font-bold">
+                {field.label}
+                <input
+                  value={current[field.key] ?? ""}
+                  onChange={(event) =>
+                    setDraft({ ...current, [field.key]: event.target.value })
+                  }
+                  className="min-h-10 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm font-normal outline-none focus:border-[var(--accent)]"
+                />
+              </label>
+            ))}
+          </div>
+          <Button
+            tone="quiet"
+            className="mt-3 w-full border-white/20 bg-white/5 text-white hover:bg-white/10"
+            disabled={!draft || save.isPending}
+            onClick={() =>
+              draft &&
+              save.mutate(
+                { customerId, values: draft },
+                {
+                  onSuccess: () => {
+                    setDraft(null);
+                    notify(`Saved against ${customerName}.`);
+                  },
+                  onError: (failure) => notify(failure.message, "error"),
+                },
+              )
+            }
+          >
+            {save.isPending ? "Saving\u2026" : draft ? "Save fields" : "Saved"}
+          </Button>
+        </div>
+      )}
+
+      <div className="mt-7">
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-white/50">
+          Referral code
+        </p>
+        {theirs.length > 0 ? (
+          <ul className="mt-3 space-y-1.5">
+            {theirs.slice(0, 3).map((referral) => (
+              <li key={referral.id} className="flex justify-between gap-3 text-xs">
+                <span className="font-mono text-white/75">{referral.code}</span>
+                <span className="shrink-0 text-white/50">{referral.status}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-2 text-xs text-white/55">None outstanding.</p>
+        )}
+        <Button
+          tone="quiet"
+          className="mt-3 w-full border-white/20 bg-white/5 text-white hover:bg-white/10"
+          disabled={invite.isPending}
+          onClick={() =>
+            invite.mutate(
+              { customerId },
+              {
+                onSuccess: (referral) => notify(`Referral code ${referral.code} issued.`),
+                onError: (failure) => notify(failure.message, "error"),
+              },
+            )
+          }
+        >
+          Issue a referral code
+        </Button>
+      </div>
+    </>
+  );
+}
+
 function CustomersView({ notify }: { notify: Notify }) {
   const { runExport, busy: exporting } = useExport(notify);
   const {
@@ -1323,14 +1447,11 @@ function CustomersView({ notify }: { notify: Notify }) {
               ))}
             </div>
           </div>
-          <Button
-            tone="accent"
-            className="mt-8 w-full"
-            icon={<MessageCircle size={16} />}
-            onClick={() => notify(`Draft opened for ${selected.name}.`, "review")}
-          >
-            Create personal note
-          </Button>
+          <CustomerExtras
+            customerId={selected.id}
+            customerName={selected.name}
+            notify={notify}
+          />
         </aside>
       </div>
     </ViewFrame>
@@ -3387,6 +3508,152 @@ function MessagingPolicyCard({ notify }: { notify: Notify }) {
   );
 }
 
+/**
+ * The columns this shop keeps on a customer.
+ *
+ * A bakery tracks allergies, a salon tracks a preferred stylist. The create
+ * endpoint existed with no screen behind it, so the set was frozen at
+ * whatever the schema shipped with.
+ */
+function CustomFieldsCard({ notify }: { notify: Notify }) {
+  const { data: fields = [] } = useCustomFields();
+  const add = useAddCustomField();
+  const [label, setLabel] = useState("");
+
+  // The key is derived, not typed: it has to be an identifier, and asking a
+  // merchant for one is asking them to debug a regex.
+  const key = label
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^[^a-z]+/, "")
+    .slice(0, 60);
+
+  return (
+    <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+      <p className="text-sm font-extrabold">Your own customer fields</p>
+      <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+        What this shop needs to remember about someone, beyond visits and
+        spend. They appear on every customer record.
+      </p>
+      {fields.length > 0 && (
+        <ul className="mt-4 flex flex-wrap gap-2">
+          {fields.map((field) => (
+            <li
+              key={field.key}
+              className="rounded-full bg-[var(--surface-2)] px-3 py-1 text-[10px] font-extrabold"
+            >
+              {field.label}
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="mt-4 flex gap-2">
+        <input
+          value={label}
+          onChange={(event) => setLabel(event.target.value)}
+          placeholder="Allergies"
+          className="min-h-10 flex-1 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]"
+        />
+        <Button
+          tone="quiet"
+          disabled={!key || add.isPending}
+          onClick={() =>
+            add.mutate(
+              { key, label: label.trim() },
+              {
+                onSuccess: (field) => {
+                  setLabel("");
+                  notify(`${field.label} added to every customer record.`);
+                },
+                onError: (failure) => notify(failure.message, "error"),
+              },
+            )
+          }
+        >
+          Add
+        </Button>
+      </div>
+    </article>
+  );
+}
+
+/**
+ * Privileged actions waiting on a second pair of eyes.
+ *
+ * The API has the whole control - anyone may request, only settings:write
+ * decides, and never their own request - and there was nowhere to decide.
+ * Scale plan only, so a workspace below it gets an upgrade line rather than
+ * an error.
+ */
+function ApprovalsCard({ notify }: { notify: Notify }) {
+  const { data: approvals = [], error } = useApprovals();
+  const decide = useDecideApproval();
+  const pending = approvals.filter((request) => request.status === "pending");
+
+  if (error) {
+    return (
+      <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+        <p className="text-sm font-extrabold">Four-eyes approvals</p>
+        <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+          {error instanceof ApiError && error.status === 402
+            ? "On the Scale plan. Privileged actions wait for a second person before they happen."
+            : error.message}
+        </p>
+      </article>
+    );
+  }
+
+  return (
+    <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+      <p className="text-sm font-extrabold">Four-eyes approvals</p>
+      <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+        {pending.length
+          ? `${pending.length} waiting on a decision.`
+          : "Nothing waiting. Privileged actions appear here before they happen."}
+      </p>
+      <ul className="mt-4 space-y-3">
+        {pending.map((request) => (
+          <li key={request.id} className="rounded-xl border border-[var(--line)] p-3">
+            <p className="text-xs font-extrabold">{request.action}</p>
+            <p className="mt-0.5 text-[10px] text-[var(--muted-strong)]">
+              {request.target}
+              {request.amountCentavos
+                ? ` \u00b7 ${pesoFromCentavos(request.amountCentavos)}`
+                : ""}
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {([
+                ["Reject", false],
+                ["Approve", true],
+              ] as const).map(([verb, approve]) => (
+                <Button
+                  key={verb}
+                  tone={approve ? "accent" : "quiet"}
+                  disabled={decide.isPending}
+                  onClick={() =>
+                    decide.mutate(
+                      { id: request.id, approve },
+                      {
+                        onSuccess: () => notify(`${request.action} ${approve ? "approved" : "rejected"}.`),
+                        // 403 here is the control working: the person who
+                        // asked cannot be the person who decides.
+                        onError: (failure) => notify(failure.message, "error"),
+                      },
+                    )
+                  }
+                >
+                  {verb}
+                </Button>
+              ))}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </article>
+  );
+}
+
 function SettingsView({ notify }: { notify: Notify }) {
   const { data: settings = {} } = useSettings();
   const setSetting = useSetSetting();
@@ -3642,6 +3909,8 @@ function SettingsView({ notify }: { notify: Notify }) {
             </div>
           </article>
           <MessagingPolicyCard notify={notify} />
+          <CustomFieldsCard notify={notify} />
+          <ApprovalsCard notify={notify} />
         </aside>
       </div>
       {changingPlan && (

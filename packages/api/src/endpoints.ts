@@ -705,8 +705,12 @@ export const transferGiftCard = (
 
 export const getReferrals = (): Promise<Referral[]> => http("/referrals");
 
-export const createReferral = (body: { customerId: string }): Promise<Referral> =>
-  http("/referrals", { method: "POST", body });
+/** Query parameters, not a body: that is how the handler declares them. */
+export const createReferral = (query: {
+  customerId: string;
+  referrerRewardUnits?: number;
+  friendRewardUnits?: number;
+}): Promise<Referral> => http("/referrals", { method: "POST", query });
 
 export const claimReferral = (body: { code: string; customerId: string }): Promise<Referral> =>
   http("/referrals/claim", { method: "POST", body });
