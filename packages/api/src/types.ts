@@ -707,3 +707,19 @@ export type HeldProgram = {
   remaining: number;
   renewsOn: string | null;
 };
+
+/**
+ * A branch the customer is standing near, with something waiting.
+ *
+ * Gated on the wallet's own `nearby` consent toggle: a customer who never
+ * switched it on gets an empty list rather than a nudge.
+ */
+export type NearbyNudge = {
+  businessId: string;
+  business: string;
+  branchId: string;
+  branch: string;
+  metres: number;
+  open: boolean;
+  reward: string;
+};

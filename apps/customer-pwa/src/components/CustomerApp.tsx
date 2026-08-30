@@ -8,6 +8,8 @@ import {
   useConsentHistory,
   useCustomerProfile,
   useDiscover,
+  useNearby,
+  useWallet,
   useNotifications,
 } from "@kypstamping/api";
 import { BrandMark, DemoBadge, Eyebrow, StampDots } from "@kypstamping/ui";
@@ -22,6 +24,7 @@ import {
 
 /** A place is "nearby" within a 1.5 km walk. */
 const NEARBY_METRES = 1500;
+import { useCoordinates } from "@/components/useCoordinates";
 import {
   CHANNELS,
   CustomerStateProvider,
@@ -268,11 +271,22 @@ function HomeView({
   onActivity: () => void;
 }) {
   const { profile } = useCustomerState();
-  const { data: discover = [] } = useDiscover();
+  const where = useCoordinates(true);
+  const { data: discover = [] } = useDiscover(where);
+  const { data: cards = [] } = useWallet();
+  const { data: nudges = [] } = useNearby(where);
 
   // Two places the customer has not joined. The API returns discover
-  // nearest-first when it is given a position.
+  // nearest-first when it is given a position, which is why it is given one.
   const suggestions = discover.filter((place) => !place.joined).slice(0, 2);
+
+  // The card they are furthest along on. The badge used to read a number out
+  // of the demo fixture, so every customer saw the same streak.
+  const best = cards.reduce<(typeof cards)[number] | undefined>(
+    // `progress` is the count; `balance` is the label built from it.
+    (leader, card) => (!leader || card.progress > leader.progress ? card : leader),
+    undefined,
+  );
 
   return (
     <div className="px-5 pb-32 pt-5">
@@ -286,10 +300,37 @@ function HomeView({
             {profile.name.split(" ")[0]}.
           </h1>
         </div>
-        <span className="mb-1 flex items-center gap-2 rounded-full bg-[rgb(15_118_85/12%)] px-3 py-1.5 text-[11px] font-extrabold text-[var(--success)]">
-          <Sparkles size={13} /> {sharedScenario.loyaltyEvent.afterStamps}-stamp streak
-        </span>
+        {best && best.progress > 0 && (
+          <span className="mb-1 flex items-center gap-2 rounded-full bg-[rgb(15_118_85/12%)] px-3 py-1.5 text-[11px] font-extrabold text-[var(--success)]">
+            <Sparkles size={13} /> {best.progress}-stamp streak
+          </span>
+        )}
       </div>
+
+      {/* Only when they are actually standing near one, and only if they
+          switched the location toggle on - the API returns an empty list
+          otherwise rather than guessing. */}
+      {nudges.length > 0 && (
+        <section className="mt-7 rounded-3xl border border-[var(--accent-strong)] bg-[var(--accent)] p-5">
+          <Eyebrow>You are close by</Eyebrow>
+          <ul className="mt-3 space-y-3">
+            {nudges.slice(0, 2).map((nudge) => (
+              <li key={nudge.branchId}>
+                <p className="text-base font-extrabold tracking-[-0.02em]">
+                  {nudge.business}
+                </p>
+                <p className="mt-0.5 text-xs font-semibold">
+                  {nudge.branch} · {formatDistance(nudge.metres)} ·{" "}
+                  {nudge.open ? "open now" : "closed"}
+                </p>
+                {nudge.reward && (
+                  <p className="mt-1 text-xs font-bold">{nudge.reward} waiting</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="mt-7">
         <div className="mb-3 flex items-center justify-between">

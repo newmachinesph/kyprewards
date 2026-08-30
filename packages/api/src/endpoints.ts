@@ -57,6 +57,7 @@ import type {
   PlanEconomics,
   PlatformMetrics,
   Program,
+  NearbyNudge,
   RecoveryItem,
   Referral,
   Redemption,
@@ -352,6 +353,10 @@ export const getDiscover = (near?: { lat: number; lng: number }): Promise<Discov
 
 export const getNotifications = (): Promise<CustomerNotification[]> =>
   http("/customer/notifications");
+
+/** Branches within a short walk that have something waiting. */
+export const getNearby = (near: { lat: number; lng: number }): Promise<NearbyNudge[]> =>
+  http("/customer/nearby", { query: near });
 
 export const getActivity = (): Promise<ActivityEntry[]> => http("/customer/activity");
 

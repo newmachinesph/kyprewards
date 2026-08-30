@@ -24,6 +24,7 @@ import {
   useWallet,
 } from "@kypstamping/api";
 import type { CustomerProfile, WalletCard } from "@kypstamping/api";
+import { useCoordinates } from "@/components/useCoordinates";
 
 /**
  * Everything the wallet owns, in one place.
@@ -160,7 +161,11 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
   const [leftBusinessIds, setLeftBusinessIds] = useState<string[]>([]);
   // Which businesses the customer has joined is the API's answer, seeded
   // once the discover list arrives rather than at mount from a fixture.
-  const { data: discover = [] } = useDiscover();
+  // Asked for once the customer opens the wallet: every distance the discover
+  // list reports is computed from it, and without one the "Nearby only"
+  // filter has nothing to compare against.
+  const where = useCoordinates(true);
+  const { data: discover = [] } = useDiscover(where);
   const [joinedLocally, setJoinedLocally] = useState<string[]>([]);
   const joinedIds = useMemo(
     () => [

@@ -32,6 +32,7 @@ import type {
   Feedback,
   HeldProgram,
   MessagingPolicy,
+  NearbyNudge,
   Referral,
   BusinessLocation,
   BusinessMetrics,
@@ -342,6 +343,14 @@ export const useDiscover = (
     // Wrapped, not passed by reference: useQuery calls the query function with
     // its own context object, which would arrive here as `near`.
     queryFn: () => api.getDiscover(near),
+    ...options,
+  });
+
+export const useNearby = (near?: Coordinates, options?: Options<NearbyNudge[]>) =>
+  useQuery({
+    queryKey: keys.customer.nearby(near),
+    queryFn: () => api.getNearby(near!),
+    enabled: Boolean(near),
     ...options,
   });
 
