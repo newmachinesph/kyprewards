@@ -29,6 +29,7 @@ import type {
   Coupon,
   CustomField,
   CustomFieldValue,
+  DataRequest,
   Feedback,
   HeldProgram,
   MessagingPolicy,
@@ -330,6 +331,13 @@ export const useCustomerBalance = (
 
 export const useCustomerProfile = (options?: Options<CustomerProfile>): Query<CustomerProfile> =>
   useQuery({ queryKey: keys.customer.profile(), queryFn: api.getCustomerProfile, ...options });
+
+export const useDataRequests = (options?: Options<DataRequest[]>): Query<DataRequest[]> =>
+  useQuery({
+    queryKey: keys.customer.dataRequests(),
+    queryFn: api.getDataRequests,
+    ...options,
+  });
 
 export const useWallet = (options?: Options<WalletCard[]>): Query<WalletCard[]> =>
   useQuery({ queryKey: keys.customer.wallet(), queryFn: api.getWallet, ...options });

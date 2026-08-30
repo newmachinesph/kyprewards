@@ -4,9 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { sharedScenario } from "@kypstamping/demo-data";
 import type { DiscoverPlace, WalletCard } from "@kypstamping/api";
 import {
+  ApiError,
+  getDataExportLink,
   useActivity,
   useConsentHistory,
   useCustomerProfile,
+  useDataRequests,
   useDiscover,
   useNearby,
   useWallet,
@@ -258,6 +261,86 @@ function LoyaltyCard({ compact = false }: { compact?: boolean }) {
         )}
       </div>
     </article>
+  );
+}
+
+/**
+ * What the customer has asked for under the Data Privacy Act, and the file
+ * when one is ready.
+ *
+ * This used to be two booleans held in React state that said "you will be
+ * notified when it is ready to download" - a sentence with nothing behind
+ * it. The list survives a reload because it is the API's answer, and a
+ * finished export is a real link.
+ */
+function DataRequests() {
+  const { data: requests = [] } = useDataRequests();
+  const [fetching, setFetching] = useState("");
+  const [failed, setFailed] = useState("");
+  const open = requests.filter((request) => request.status !== "completed");
+
+  if (open.length === 0) return null;
+
+  async function download(requestId: string) {
+    setFetching(requestId);
+    try {
+      const { url } = await getDataExportLink(requestId);
+      // A signed URL on the storage host, so the browser is sent to it
+      // rather than the app trying to stream it through itself.
+      window.location.assign(url);
+    } catch (failure) {
+      setFailed(
+        failure instanceof ApiError
+          ? failure.message
+          : "That download could not be prepared.",
+      );
+    } finally {
+      setFetching("");
+    }
+  }
+
+  return (
+    <section className="mt-4 rounded-2xl border border-[rgb(143_85_16/28%)] bg-[rgb(232_163_61/12%)] p-4">
+      <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
+        Your requests
+      </p>
+      <ul className="mt-2 space-y-2.5">
+        {open.map((request) => (
+          <li key={request.id} className="flex items-start gap-2 text-xs leading-relaxed">
+            {request.kind === "delete" ? (
+              <Trash2 size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
+            ) : (
+              <Download size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
+            )}
+            <span className="min-w-0 flex-1">
+              {request.kind === "delete"
+                ? "Account deletion is queued for identity review. You can still use your wallet until it completes."
+                : request.status === "ready"
+                  ? "Your export is ready."
+                  : "Your export is being prepared."}
+              <span className="mt-0.5 block text-[10px] text-[var(--muted-strong)]">
+                Asked for {relativeTime(request.requestedAt)}
+              </span>
+              {request.kind !== "delete" && request.status === "ready" && (
+                <button
+                  type="button"
+                  disabled={fetching === request.id}
+                  onClick={() => download(request.id)}
+                  className="mt-2 min-h-10 rounded-xl bg-[var(--ink)] px-4 text-xs font-extrabold text-[var(--paper)] disabled:opacity-60"
+                >
+                  {fetching === request.id ? "Preparing\u2026" : "Download it"}
+                </button>
+              )}
+            </span>
+          </li>
+        ))}
+      </ul>
+      {failed && (
+        <p aria-live="polite" className="mt-3 text-xs font-bold text-[var(--danger)]">
+          {failed}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -823,8 +906,7 @@ function ProfileView({
 }: {
   onOpen: (title: string, screen: ProfileScreen) => void;
 }) {
-  const { profile, wallet, deletionRequested, exportRequested } =
-    useCustomerState();
+  const { profile, wallet } = useCustomerState();
   return (
     <div className="px-5 pb-32 pt-5">
       <Eyebrow>Your account</Eyebrow>
@@ -954,29 +1036,7 @@ function ProfileView({
           );
         })}
       </section>
-      {(deletionRequested || exportRequested) && (
-        <section className="mt-4 rounded-2xl border border-[rgb(143_85_16/28%)] bg-[rgb(232_163_61/12%)] p-4">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
-            In progress
-          </p>
-          <ul className="mt-2 space-y-1.5">
-            {exportRequested && (
-              <li className="flex items-start gap-2 text-xs leading-relaxed">
-                <Download size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
-                Portable export is being prepared. You will be notified when it
-                is ready to download.
-              </li>
-            )}
-            {deletionRequested && (
-              <li className="flex items-start gap-2 text-xs leading-relaxed">
-                <Trash2 size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
-                Account deletion is queued for identity review. You can still use
-                your wallet until it completes.
-              </li>
-            )}
-          </ul>
-        </section>
-      )}
+      <DataRequests />
       <div className="mt-5 flex justify-center">
         <DemoBadge label="Frontend demo only" />
       </div>

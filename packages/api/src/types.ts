@@ -723,3 +723,12 @@ export type NearbyNudge = {
   open: boolean;
   reward: string;
 };
+
+/** An access, correction, export or deletion request under the DPA. */
+export type DataRequest = {
+  id: string;
+  kind: "export" | "delete" | "access" | "correction";
+  status: "requested" | "processing" | "ready" | "completed" | "rejected";
+  requestedAt: string;
+  completedAt: string | null;
+};

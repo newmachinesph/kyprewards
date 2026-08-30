@@ -72,6 +72,7 @@ export const keys = {
   customer: {
     all: ["customer"] as const,
     profile: () => [...keys.customer.all, "profile"] as const,
+    dataRequests: () => [...keys.customer.all, "data-requests"] as const,
     wallet: () => [...keys.customer.all, "wallet"] as const,
     notifications: () => [...keys.customer.all, "notifications"] as const,
     activity: () => [...keys.customer.all, "activity"] as const,

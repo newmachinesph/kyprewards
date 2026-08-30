@@ -20,6 +20,7 @@ import {
   useApiMutation,
   useChannelPreferences,
   useCustomerProfile,
+  useDataRequests,
   useDiscover,
   useWallet,
 } from "@kypstamping/api";
@@ -175,8 +176,7 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
     [discover, joinedLocally],
   );
   const [notificationsRead, setNotificationsRead] = useState(false);
-  const [deletionRequested, setDeletionRequested] = useState(false);
-  const [exportRequested, setExportRequested] = useState(false);
+
 
   const { data: apiProfile } = useCustomerProfile();
 
@@ -286,15 +286,21 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
    * by the API rather than remembered by the browser. The flags below only
    * decide what the screen says afterwards.
    */
-  const dataRequest = useApiMutation(requestData);
-  const requestDeletion = useCallback(() => {
-    setDeletionRequested(true);
-    dataRequest.mutate("delete");
-  }, [dataRequest]);
-  const requestExport = useCallback(() => {
-    setExportRequested(true);
-    dataRequest.mutate("export");
-  }, [dataRequest]);
+  const dataRequest = useApiMutation(requestData, {
+    invalidates: [keys.customer.dataRequests()],
+  });
+  // Whether one is outstanding is the API's answer, not a boolean the browser
+  // forgets on reload - and the screen used to say "you will be notified"
+  // while holding exactly such a boolean.
+  const { data: dataRequests = [] } = useDataRequests();
+  const outstanding = (kind: "export" | "delete") =>
+    dataRequests.some(
+      (request) => request.kind === kind && request.status !== "completed",
+    );
+  const deletionRequested = outstanding("delete");
+  const exportRequested = outstanding("export");
+  const requestDeletion = useCallback(() => dataRequest.mutate("delete"), [dataRequest]);
+  const requestExport = useCallback(() => dataRequest.mutate("export"), [dataRequest]);
 
   const { data: cards = [] } = useWallet();
   const wallet = useMemo(

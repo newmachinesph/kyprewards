@@ -30,6 +30,7 @@ import type {
   Coupon,
   CustomField,
   CustomFieldValue,
+  DataRequest,
   DiscountQuote,
   Feedback,
   GiftCard,
@@ -400,6 +401,20 @@ export const markNotificationsRead = (): Promise<void> =>
   http("/customer/notifications/read", { method: "POST" });
 
 /** "export" hands back a file; "delete" starts the erasure clock. */
+export const getDataRequests = (): Promise<DataRequest[]> => http("/customer/data-requests");
+
+/**
+ * A time-limited link, not a public object.
+ *
+ * The export is one person's entire history across every business they have
+ * joined, so the URL expires rather than working forever for anyone who ever
+ * saw it.
+ */
+export const getDataExportLink = (
+  requestId: string,
+): Promise<{ url: string; expiresInHours: number }> =>
+  http(`/customer/data-requests/${requestId}/download`);
+
 export const requestData = (kind: "export" | "delete"): Promise<{ id: string; status: string }> =>
   http("/customer/data-requests", { method: "POST", body: { kind } });
 
