@@ -18,7 +18,8 @@
     "qa:private-apps": "node scripts/qa-private-apps.mjs",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint apps packages",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "sweep": "node tools/sweep.mjs"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",

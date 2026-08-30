@@ -1759,7 +1759,9 @@ function ProfileSheet({
                     <Icon size={16} className="text-[var(--muted)]" />
                     <input
                       type={type}
-                      value={profile[field]}
+                      // Birthday is null until they give one, and null flips
+                      // a controlled input to uncontrolled mid-edit.
+                      value={profile[field] ?? ""}
                       onChange={(event) =>
                         updateProfile({ [field]: event.target.value })
                       }

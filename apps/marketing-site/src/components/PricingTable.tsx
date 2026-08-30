@@ -54,13 +54,18 @@ export function PricingTable() {
   return (
     <div>
       {/* Wide content scrolls inside its own container so the page body never does. */}
-      <div className="-mx-4 overflow-x-auto px-4 [overflow-y:clip] sm:mx-0 sm:px-0">
+      <div className="relative -mx-4 overflow-x-auto px-4 [overflow-y:clip] sm:mx-0 sm:px-0">
         <table className="w-full min-w-[860px] border-collapse text-left">
           <caption className="sr-only">
             Full feature comparison across the Launch, Core, Grow, and Scale
             plans
           </caption>
-          <thead className="sticky top-[72px] z-20">
+          {/* Sticky only once the table fits without sideways scrolling.
+              A thead sticking to the page's vertical scroll while sitting
+              inside a horizontal scroller leaks the table's full 860px onto
+              the document - a 406px overflow on a phone - and a pinned
+              header is no use on a table you are dragging sideways anyway. */}
+          <thead className="z-20 min-[900px]:sticky min-[900px]:top-[72px]">
             <tr>
               <th
                 scope="col"
@@ -188,7 +193,7 @@ export function PricingTable() {
 export function ChannelRates() {
   return (
     <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)]">
-      <div className="-mx-px overflow-x-auto">
+      <div className="relative -mx-px overflow-x-auto">
         <table className="w-full min-w-[720px] border-collapse text-left">
           <caption className="sr-only">
             Included message volume and add-on rates for each delivery channel

@@ -183,7 +183,8 @@ export type BusinessCustomer = {
   lastVisitAt: string;
   progress: string;
   favorite: string;
-  birthday: string;
+  /** Null for the many customers who never gave one. */
+  birthday: string | null;
   emailConsent: boolean;
   smsConsent: boolean;
   pushConsent: boolean;
@@ -327,7 +328,8 @@ export type CustomerProfile = {
   city: string;
   memberSince: string;
   memberCode: string;
-  birthday: string;
+  /** Null for the many customers who never gave one. */
+  birthday: string | null;
   email: string;
   mobile: string;
 };

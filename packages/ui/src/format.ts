@@ -158,10 +158,12 @@ const MONTHS = [
  * has already passed. Returns the day count so callers can sort by it.
  */
 export function daysUntilBirthday(
-  birthday: string,
+  birthday: string | null | undefined,
   days = 30,
   now: Date = new Date(),
 ): number | null {
+  // Most customers never give one. "No birthday" is an answer, not an error.
+  if (!birthday) return null;
   const match = /^(\d{1,2})\s+([A-Za-z]+)$/.exec(birthday.trim());
   if (!match) return null;
   const month = MONTHS.indexOf(match[2].toLowerCase());
