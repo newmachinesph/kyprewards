@@ -473,7 +473,13 @@ function AddWalkIn({
   );
 }
 
-function ScanView({ notify }: { notify: Notify }) {
+function ScanView({
+  notify,
+  onNavigate,
+}: {
+  notify: Notify;
+  onNavigate: (view: BusinessView) => void;
+}) {
   const { data: customers = [] } = useBusinessCustomers();
   const { data: redemptions = [] } = useRedemptions();
   // The dashboard scanner already picked a customer; arriving here and being
@@ -956,7 +962,7 @@ function ScanView({ notify }: { notify: Notify }) {
             </div>
             <button
               type="button"
-              onClick={() => notify("Redemption ledger opened.", "review")}
+              onClick={() => onNavigate("redemptions")}
               className="text-xs font-bold text-[var(--accent-strong)]"
             >
               View ledger
@@ -1087,6 +1093,7 @@ function JoinPosterCode({ url }: { url: string }) {
 }
 
 function JoinCodeView({ notify }: { notify: Notify }) {
+  const [nfcOpen, setNfcOpen] = useState(false);
   const { data: locations = [] } = useLocations();
   const { data: profile } = useBusinessProfile();
   const [branch, setBranch] = useState<string | null>(null);
@@ -1149,11 +1156,49 @@ function JoinCodeView({ notify }: { notify: Notify }) {
             <Button
               tone="quiet"
               icon={<Nfc size={15} />}
-              onClick={() => notify("NFC tag setup opened in demo mode.", "review")}
+              aria-expanded={nfcOpen}
+              onClick={() => setNfcOpen((open) => !open)}
             >
-              Set up NFC
+              {nfcOpen ? "Hide NFC steps" : "Set up NFC"}
             </Button>
           </div>
+          {nfcOpen && (
+            /* There is nothing to configure server-side: an NFC tag holds a
+               URL, and the join link above is that URL. The only thing a
+               merchant is missing is being told so. */
+            <div className="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
+              <Eyebrow>Writing a tag</Eyebrow>
+              <ol className="mt-3 list-decimal space-y-2 pl-4 text-xs leading-relaxed text-[var(--muted-strong)]">
+                <li>
+                  Open any NFC writer app on an Android phone, or NFC Tools on
+                  iPhone.
+                </li>
+                <li>
+                  Choose <strong>Write &rarr; URL</strong> and paste the join
+                  link.
+                </li>
+                <li>Hold the tag to the back of the phone until it confirms.</li>
+                <li>
+                  Tap it with another phone to check it opens{" "}
+                  {profile?.shortName ?? "your"} sign-up.
+                </li>
+              </ol>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard?.writeText(joinUrl).catch(() => {});
+                  notify("Join link copied. Paste it into the writer app.");
+                }}
+                className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-xl border border-[var(--line-strong)] px-4 text-xs font-extrabold"
+              >
+                <Copy size={14} /> Copy the link again
+              </button>
+              <p className="mt-4 text-[11px] leading-relaxed text-[var(--muted)]">
+                A tag is just a link. Re-writing one costs nothing, and a tag
+                for a branch that closes can be pointed somewhere else.
+              </p>
+            </div>
+          )}
           <div className="mt-6 rounded-2xl border border-dashed border-[var(--line-strong)] bg-[var(--surface)] p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex items-start gap-3">
@@ -2280,8 +2325,17 @@ function ProgramsView({ notify }: { notify: Notify }) {
     </ViewFrame>
   );
 }
-function FavoriteOrdersView({ notify }: { notify: Notify }) {
+function FavoriteOrdersView({
+  notify,
+  onNavigate,
+}: {
+  notify: Notify;
+  onNavigate: (view: BusinessView) => void;
+}) {
   const { data: favoriteOrders = [] } = useFavoriteOrders();
+  const draft = useCreateCampaign();
+  // The item the most regulars actually order, rather than a fixed example.
+  const top = [...favoriteOrders].sort((a, b) => b.regulars - a.regulars)[0];
   // Math.max of nothing is -Infinity, which would make every bar NaN wide.
   const max = Math.max(1, ...favoriteOrders.map((item) => item.orders));
   return (
@@ -2293,7 +2347,7 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
         <Button
           tone="quiet"
           icon={<PlugZap size={16} />}
-          onClick={() => notify("POS connection catalog opened.", "review")}
+          onClick={() => onNavigate("integrations")}
         >
           Connect order data
         </Button>
@@ -2339,31 +2393,64 @@ function FavoriteOrdersView({ notify }: { notify: Notify }) {
             <Eyebrow>Useful segment</Eyebrow>
             <Heart size={19} />
           </div>
-          <h2 className="mt-8 max-w-[13ch] text-3xl font-extrabold leading-[1.02] tracking-[-0.02em]">
-            Spanish latte regulars are moving earlier.
-          </h2>
-          <p className="mt-4 text-sm leading-relaxed text-[var(--ink)]/80">
-            Forty-two regulars shifted their visits from afternoon to 8–11 AM in
-            the last month. The morning branch has enough capacity to welcome
-            more.
-          </p>
-          <div className="mt-8 rounded-2xl bg-[var(--surface)] p-4">
-            <p className="text-xs font-extrabold">
-              Suggested audience · 248 customers
-            </p>
-            <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
-              Use favorite-order context only for customers who chose
-              personalized recommendations.
-            </p>
-          </div>
-          <Button
-            className="mt-5"
-            onClick={() =>
-              notify("Campaign draft created for Spanish latte regulars.")
-            }
-          >
-            Create audience
-          </Button>
+          {top ? (
+            <>
+              <h2 className="mt-8 max-w-[13ch] text-3xl font-extrabold leading-[1.02] tracking-[-0.02em]">
+                {top.regulars} regulars order {top.item}.
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-[var(--ink)]/80">
+                {top.orders.toLocaleString()} orders on record
+                {top.change > 0
+                  ? `, up ${top.change}% on last month`
+                  : top.change < 0
+                    ? `, down ${Math.abs(top.change)}% on last month`
+                    : ", level with last month"}
+                . They are the easiest people in your list to say something
+                relevant to.
+              </p>
+              <div className="mt-8 rounded-2xl bg-[var(--surface)] p-4">
+                <p className="text-xs font-extrabold">
+                  Audience · {top.regulars} customer{top.regulars === 1 ? "" : "s"}
+                </p>
+                <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
+                  Favourite-order context reaches only the customers who chose
+                  personalised recommendations.
+                </p>
+              </div>
+              <Button
+                className="mt-5"
+                disabled={draft.isPending}
+                onClick={() =>
+                  draft.mutate(
+                    {
+                      name: `${top.item} regulars`,
+                      audience: `Regulars who order ${top.item}`,
+                      channels: ["Push"],
+                    },
+                    {
+                      onSuccess: (campaign) => {
+                        notify(`${campaign.name} drafted.`);
+                        onNavigate("campaigns");
+                      },
+                      onError: (failure) => notify(failure.message, "error"),
+                    },
+                  )
+                }
+              >
+                {draft.isPending ? "Creating\u2026" : "Create this audience"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <h2 className="mt-8 max-w-[14ch] text-3xl font-extrabold leading-[1.02] tracking-[-0.02em]">
+                No order data yet.
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-[var(--ink)]/80">
+                Connect a POS or import a file and the items your regulars
+                actually choose appear here, ready to build an audience from.
+              </p>
+            </>
+          )}
         </section>
       </div>
     </ViewFrame>
@@ -3069,13 +3156,6 @@ function CampaignsView({ notify }: { notify: Notify }) {
             <Eyebrow>Campaign history</Eyebrow>
             <h2 className="mt-1 text-lg font-extrabold">Revenue after delivery</h2>
           </div>
-          <button
-            type="button"
-            onClick={() => notify("Campaign history opened.", "review")}
-            className="text-xs font-bold text-[var(--accent-strong)]"
-          >
-            View all
-          </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[780px] text-left">
@@ -4269,12 +4349,14 @@ export function BusinessViewContent({
   onNavigate: (view: BusinessView) => void;
 }) {
   const views: Record<Exclude<BusinessView, "dashboard">, ReactNode> = {
-    scan: <ScanView notify={notify} />,
+    scan: <ScanView notify={notify} onNavigate={onNavigate} />,
     "join-code": <JoinCodeView notify={notify} />,
     customers: <CustomersView notify={notify} />,
     business: <BusinessProfileView notify={notify} />,
     programs: <ProgramsView notify={notify} />,
-    "favorite-orders": <FavoriteOrdersView notify={notify} />,
+    "favorite-orders": (
+      <FavoriteOrdersView notify={notify} onNavigate={onNavigate} />
+    ),
     birthday: <BirthdayView notify={notify} />,
     redemptions: <RedemptionsView notify={notify} />,
     campaigns: <CampaignsView notify={notify} />,
