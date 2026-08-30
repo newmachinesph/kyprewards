@@ -5,24 +5,12 @@ import { DemoActionDialog } from "@kypstamping/ui";
 import { Toast, useHashView, useToast } from "@kypstamping/ui/shell";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import { AdminDashboard } from "@/components/AdminDashboard";
-import { AdminShell, type AdminView } from "@/components/AdminShell";
+import { AdminShell, ADMIN_VIEWS } from "@/components/AdminShell";
 import { AdminStateProvider } from "@/components/AdminState";
 import { AdminViewContent } from "@/components/AdminViews";
 
-const VIEWS: readonly AdminView[] = [
-  "overview",
-  "businesses",
-  "people",
-  "operations",
-  "integrations",
-  "support",
-  "audit",
-  "economics",
-  "settings",
-];
-
 export function AdminDemo() {
-  const { view, navigate } = useHashView(VIEWS, "overview");
+  const { view, navigate } = useHashView(ADMIN_VIEWS, "overview");
   const { toast, setToast, dismiss } = useToast();
   const [action, setAction] = useState<string | null>(null);
   const [toastTone, setToastTone] = useState<"success" | "error">("success");

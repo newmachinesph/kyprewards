@@ -68,6 +68,15 @@ const nav = [
   },
 ];
 
+/**
+ * Every view, in nav order.
+ *
+ * Derived from the nav rather than written out again: the hash router needs
+ * the same list, and keeping two copies is how "Applications" shipped in the
+ * sidebar while its URL still fell through to Overview.
+ */
+export const ADMIN_VIEWS: readonly AdminView[] = nav.map((item) => item.view);
+
 export function AdminShell({
   children,
   activeView,
