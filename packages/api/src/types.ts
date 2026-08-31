@@ -335,7 +335,11 @@ export type CustomerProfile = {
 };
 
 export type WalletCard = {
+  /** The membership. Shared by every card from the same shop, so leaving
+   *  stays one action; a single card is identified by (id, programId). */
   id: string;
+  programId: string;
+  program: string;
   businessId: string;
   business: string;
   kind: string;

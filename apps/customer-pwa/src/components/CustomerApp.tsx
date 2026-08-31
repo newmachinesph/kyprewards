@@ -86,7 +86,7 @@ type Sheet =
   | { kind: "notifications" }
   | { kind: "activity" }
   | { kind: "business"; id: string }
-  | { kind: "wallet"; id: string }
+  | { kind: "wallet"; id: string; programId: string }
   | { kind: "profile"; title: string; screen: ProfileScreen }
   | null;
 
@@ -214,6 +214,17 @@ function QrImage() {
  * fixture, so a customer holding one stamp was shown five, with somebody
  * else's last visit and a transaction id that was not theirs.
  */
+/**
+ * How full the card is, or null when the programme has no finish line.
+ *
+ * Points and cashback run forever; dividing by their target of zero gives
+ * Infinity, which clamps to a full bar on a balance of five.
+ */
+function percentOf(card: WalletCard): number | null {
+  if (card.target <= 0) return null;
+  return Math.min(100, Math.round((card.progress / card.target) * 100));
+}
+
 function LoyaltyCard({
   card,
   compact = false,
@@ -221,7 +232,9 @@ function LoyaltyCard({
   card: WalletCard;
   compact?: boolean;
 }) {
-  const remaining = Math.max(0, card.target - card.progress);
+  // Null on a programme with no target: "0 more visits, then ." is what the
+  // subtraction produced for a points balance before this.
+  const remaining = card.target > 0 ? Math.max(0, card.target - card.progress) : null;
 
   return (
     <article className="loyalty-ticket overflow-hidden rounded-2xl px-5 py-5 text-[var(--paper)]">
@@ -241,15 +254,19 @@ function LoyaltyCard({
       </div>
       {!compact && (
         <p className="mt-7 max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em]">
-          {remaining === 0
-            ? `${card.reward} is ready.`
-            : `${remaining} more ${remaining === 1 ? "visit" : "visits"}, then ${card.reward.toLowerCase()}.`}
+          {remaining === null
+            ? card.balance
+            : remaining === 0
+              ? `${card.reward} is ready.`
+              : `${remaining} more ${remaining === 1 ? "visit" : "visits"}, then ${card.reward.toLowerCase()}.`}
         </p>
       )}
       <div className={compact ? "mt-5" : "mt-7"}>
-        <div className="overflow-x-auto pb-1">
-          <StampDots filled={card.progress} total={card.target} dark />
-        </div>
+        {card.target > 0 && (
+          <div className="overflow-x-auto pb-1">
+            <StampDots filled={card.progress} total={card.target} dark />
+          </div>
+        )}
         <div className="mt-3 flex items-center justify-between text-[11px] font-semibold">
           <span className="text-white/50">{card.balance}</span>
           <span className="text-[var(--accent)]">{card.reward}</span>
@@ -360,11 +377,16 @@ function HomeView({
 
   // The card they are furthest along on. The badge used to read a number out
   // of the demo fixture, so every customer saw the same streak.
-  const best = cards.reduce<(typeof cards)[number] | undefined>(
-    // `progress` is the count; `balance` is the label built from it.
-    (leader, card) => (!leader || card.progress > leader.progress ? card : leader),
-    undefined,
-  );
+  // Only cards with something to reach, ranked by how close they are. Raw
+  // progress was fine while a shop showed one stamp card; now that a points
+  // balance sits beside it, 340 points would outrank seven stamps of eight
+  // and "closest reward" would name the card furthest from paying out.
+  const best = cards.reduce<(typeof cards)[number] | undefined>((leader, card) => {
+    const share = percentOf(card);
+    if (share === null) return leader;
+    const leading = leader ? percentOf(leader) : null;
+    return leading === null || share > leading ? card : leader;
+  }, undefined);
 
   return (
     <div className="px-5 pb-32 pt-5">
@@ -558,7 +580,7 @@ function WalletView({
   onCard,
   onBusiness,
 }: {
-  onCard: (id: string) => void;
+  onCard: (id: string, programId: string) => void;
   onBusiness: (id: string) => void;
 }) {
   const { data: discover = [] } = useDiscover();
@@ -641,13 +663,15 @@ function WalletView({
       <div className="mt-5 space-y-3">
         {visibleCards.map((card) => {
           const Icon = walletIcons[card.kind] ?? WalletCards;
-          const pct = Math.min(100, Math.round((card.progress / card.target) * 100));
+          const pct = percentOf(card);
           const isFeature = card.id === "wallet_1";
           return (
             <button
-              key={card.id}
+              // A shop running stamps beside points puts two cards here under
+              // one membership id, so the key is the pair.
+              key={`${card.id}:${card.programId}`}
               type="button"
-              onClick={() => onCard(card.id)}
+              onClick={() => onCard(card.id, card.programId)}
               className="block w-full text-left transition active:scale-[0.99]"
             >
               {isFeature ? (
@@ -666,15 +690,17 @@ function WalletView({
                         {card.kind}
                       </span>
                     </span>
-                    <span className="mt-1 block text-[11px] text-[var(--muted)]">
-                      {card.balance} · {card.reward}
+                    <span className="mt-1 block truncate text-[11px] text-[var(--muted)]">
+                      {card.program} · {card.balance}
                     </span>
-                    <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-[var(--surface-2)]">
-                      <span
-                        className="block h-full rounded-full bg-[var(--success)]"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </span>
+                    {pct !== null && (
+                      <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-[var(--surface-2)]">
+                        <span
+                          className="block h-full rounded-full bg-[var(--success)]"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </span>
+                    )}
                   </span>
                   <ChevronRight size={16} className="shrink-0 text-[var(--muted)]" />
                 </span>
@@ -1594,20 +1620,25 @@ function JoinConsentDialog({
 
 function WalletSheet({
   id,
+  programId,
   close,
   onShowQr,
 }: {
   id: string;
+  programId: string;
   close: () => void;
   onShowQr: () => void;
 }) {
   const { data: activity = [] } = useActivity();
   const { wallet } = useCustomerState();
-  const card = wallet.find((item) => item.id === id) ?? wallet[0];
-  const progress = Math.min(
-    100,
-    Math.round((card.progress / card.target) * 100),
+  // By the pair. Matching on the membership alone returned whichever card of
+  // that shop came first, so tapping Points opened the stamp card.
+  const card = wallet.find(
+    (item) => item.id === id && item.programId === programId,
   );
+  // Leaving the shop while its sheet is open empties the wallet under it.
+  if (!card) return null;
+  const progress = percentOf(card);
   return (
     <div
       className="absolute inset-0 z-[55] overflow-y-auto bg-[var(--paper)]"
@@ -1632,15 +1663,21 @@ function WalletSheet({
           >
             {card.business}
           </h2>
+          <p className="mt-1 text-[11px] text-white/45">{card.program}</p>
           <p className="mt-2 text-sm text-white/60">{card.balance}</p>
-          <div className="mt-7 h-2 overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full bg-[var(--accent)]"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+          {progress !== null && (
+            <div className="mt-7 h-2 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-[var(--accent)]"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          )}
           <div className="mt-3 flex justify-between text-[10px]">
-            <span className="text-white/55">{progress}% progress</span>
+            {/* A running balance has no percentage to report. */}
+            <span className="text-white/55">
+              {progress === null ? "Running balance" : `${progress}% progress`}
+            </span>
             <strong className="text-[var(--accent)]">{card.reward}</strong>
           </div>
         </section>
@@ -2077,7 +2114,7 @@ function CustomerWallet() {
     ),
     wallet: (
       <WalletView
-        onCard={(id) => setSheet({ kind: "wallet", id })}
+        onCard={(id, programId) => setSheet({ kind: "wallet", id, programId })}
         onBusiness={(id) => setSheet({ kind: "business", id })}
       />
     ),
@@ -2178,6 +2215,7 @@ function CustomerWallet() {
       {sheet?.kind === "wallet" && (
         <WalletSheet
           id={sheet.id}
+          programId={sheet.programId}
           close={() => setSheet(null)}
           onShowQr={() => {
             setSheet(null);
