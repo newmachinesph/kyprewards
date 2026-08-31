@@ -923,16 +923,33 @@ export function IntegrationsView({
                 ))}
               </div>
             </div>
-            <div className="flex items-start gap-3 rounded-2xl bg-[rgb(15_118_85/9%)] p-4">
-              <BadgeCheck size={18} className="mt-0.5 shrink-0 text-[var(--success)]" />
-              <div>
-                <p className="text-xs font-extrabold">Replay protection planned</p>
-                <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
-                  HMAC signature, timestamp window, stable event ID, and idempotent
-                  processing are required before a live endpoint is enabled.
-                </p>
+            {/* This said "planned" while the signing was already shipped, so
+                a merchant reading it had no reason to look for the recipe.
+                The steps come from /contract, which is what we actually do. */}
+            {contract?.webhookSignature && (
+              <div className="flex items-start gap-3 rounded-2xl bg-[rgb(15_118_85/9%)] p-4">
+                <BadgeCheck size={18} className="mt-0.5 shrink-0 text-[var(--success)]" />
+                <div className="min-w-0">
+                  <p className="text-xs font-extrabold">
+                    Verify every delivery we send
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
+                    {contract.webhookSignature.algorithm} over{" "}
+                    <code className="font-mono">
+                      {contract.webhookSignature.signedPayload}
+                    </code>
+                    , compared against{" "}
+                    <code className="font-mono">
+                      {contract.webhookSignature.signatureHeader}
+                    </code>{" "}
+                    in constant time. Reject anything older than{" "}
+                    {contract.webhookSignature.toleranceSeconds} seconds — the
+                    timestamp is inside the signature, so a captured body
+                    cannot be replayed later.
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </Panel>
 

@@ -100,6 +100,20 @@ export type Workspace = {
 
 export type EventDefinition = { name: string; detail: string };
 
+/** How a merchant checks that a delivery came from us. */
+export type WebhookSignature = {
+  algorithm: string;
+  signatureHeader: string;
+  timestampHeader: string;
+  eventHeader: string;
+  /** The exact string that gets signed. */
+  signedPayload: string;
+  encoding: string;
+  secretFrom: string;
+  toleranceSeconds: number;
+  verify: string;
+};
+
 export type ApiContract = {
   apiBase: string;
   version: string;
@@ -107,6 +121,7 @@ export type ApiContract = {
   amountUnit: string;
   idPrefixes: Record<string, string>;
   idempotency: { header: string; format: string; example: string };
+  webhookSignature: WebhookSignature;
   inboundEvents: EventDefinition[];
   outboundEvents: EventDefinition[];
 };
