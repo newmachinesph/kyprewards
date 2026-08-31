@@ -1097,8 +1097,8 @@ export const sendTestDelivery = (endpointId: string): Promise<Delivery> =>
 
 export type Delivery = {
   id: string;
-  /** Which endpoint it went to; empty for an inbound delivery. */
-  endpointId: string;
+  /** Which endpoint it went to. Null for an inbound delivery. */
+  endpointId: string | null;
   event: string;
   source: string;
   status: string;
