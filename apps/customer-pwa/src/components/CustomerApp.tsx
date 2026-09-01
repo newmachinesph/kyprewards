@@ -1073,6 +1073,7 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
             >
               <span className="relative grid size-13 shrink-0 place-items-center overflow-hidden rounded-xl bg-[var(--surface)]">
                 {business.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- a presigned URL that expires, or a host only the merchant knows
                   <img
                     src={business.image}
                     alt=""
@@ -1650,6 +1651,7 @@ function BusinessSheet({
               that failed to load rather than a shop that has not added one. */}
           {business.image && (
             <div className="mt-6 h-40 overflow-hidden rounded-2xl border border-white/12">
+              {/* eslint-disable-next-line @next/next/no-img-element -- a presigned URL that expires, or a host only the merchant knows */}
               <img
                 src={business.image}
                 alt={`Inside ${business.name}`}
