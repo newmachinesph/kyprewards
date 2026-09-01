@@ -518,12 +518,36 @@ function SupportView({ notify }: { notify: Notify }) {
   const {
     tickets,
     openTicketCount,
+    updateTicket,
     assignTicket,
     setTicketNote,
-    setTicketStatus,
   } = useAdminState();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected = tickets.find((ticket) => ticket.id === selectedId) ?? tickets[0];
+  /**
+   * The note being typed, kept local until the field is left.
+   *
+   * It used to write on every keystroke, so a forty-character note was forty
+   * PATCH requests - free against a fixture, and forty round trips against a
+   * real API. Keyed by ticket, like the program and custom-field drafts
+   * elsewhere, so switching tickets drops a half-typed note rather than
+   * carrying one investigation's words onto another.
+   */
+  const [noteDraft, setNoteDraft] = useState<string | null>(null);
+  const [noteFor, setNoteFor] = useState<string | null>(null);
+  if (selected && noteFor !== selected.id) {
+    setNoteFor(selected.id);
+    setNoteDraft(null);
+  }
+  const note = noteDraft ?? selected?.note ?? "";
+
+  /** Writes the draft if it says anything new. Returns what the note now is. */
+  const commitNote = () => {
+    if (selected && noteDraft !== null && noteDraft !== selected.note) {
+      setTicketNote(selected.id, noteDraft, (message) => notify(message, "error"));
+    }
+    return note;
+  };
 
   if (!selected) {
     return (
@@ -660,7 +684,9 @@ function SupportView({ notify }: { notify: Notify }) {
               className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3"
               value={selected.owner}
               onChange={(event) => {
-                assignTicket(selected.id, event.target.value);
+                assignTicket(selected.id, event.target.value, (message) =>
+                  notify(message, "error"),
+                );
                 notify(`${selected.id} assigned to ${event.target.value}.`);
               }}
             >
@@ -676,9 +702,25 @@ function SupportView({ notify }: { notify: Notify }) {
             <select
               className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3"
               value={selected.status}
+              // One write carrying both fields.
+              //
+              // The API refuses "Investigating" without an internal note, and
+              // sending the note and the status as two PATCHes races: blur
+              // fires the note, the change fires the status, and the status
+              // can reach the server first and be refused over a note that is
+              // moments from arriving.
+              //
+              // The dropdown also announced the move before the API had taken
+              // it. The row reverts now, and the reason the server gave is
+              // what the admin reads.
               onChange={(event) => {
-                setTicketStatus(selected.id, event.target.value);
-                notify(`${selected.id} moved to ${event.target.value.toLowerCase()}.`);
+                const status = event.target.value;
+                const pending =
+                  noteDraft !== null && noteDraft !== selected.note
+                    ? { status, note: noteDraft }
+                    : { status };
+                updateTicket(selected.id, pending, (message) => notify(message, "error"));
+                notify(`${selected.id} moved to ${status.toLowerCase()}.`);
               }}
             >
               {[...new Set([selected.status, ...TICKET_STATUSES])].map((status) => (
@@ -692,19 +734,28 @@ function SupportView({ notify }: { notify: Notify }) {
               rows={4}
               className="rounded-xl border border-white/15 bg-[var(--ink-soft)] p-3 outline-none"
               placeholder="Record evidence and the next decision"
-              value={selected.note}
-              onChange={(event) => setTicketNote(selected.id, event.target.value)}
+              value={note}
+              onChange={(event) => setNoteDraft(event.target.value)}
+              onBlur={commitNote}
             />
           </label>
           <Button
             tone="accent"
             className="mt-5 w-full"
             onClick={() => {
-              if (!selected.note.trim()) {
+              // The draft, not the saved note: the API refuses this transition
+              // without one, and a note typed but not yet blurred is still a
+              // note the admin has written.
+              if (!note.trim()) {
                 notify("Add an internal note before starting an investigation.", "error");
                 return;
               }
-              setTicketStatus(selected.id, "Investigating");
+              // Same single write, for the same reason.
+              updateTicket(
+                selected.id,
+                { status: "Investigating", note: note },
+                (message) => notify(message, "error"),
+              );
               notify(`${selected.id} moved to investigating.`);
             }}
           >

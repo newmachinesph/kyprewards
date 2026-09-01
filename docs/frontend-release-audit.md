@@ -2,6 +2,15 @@
 
 Audit date: 25 August 2026 · revised 28 August 2026 after the cross-app consistency review in [frontend-synergy-audit.md](frontend-synergy-audit.md)
 
+> **Superseded in part, 1 September 2026.** This audit was taken while the four
+> apps were frontend-only. They now read and write the live FastAPI service, so
+> the "Scope boundary" section at the end no longer describes the product: state
+> survives a reload, authentication is a real server session, and the fixture
+> seam it refers to is gone. The automated gates and the accessibility results
+> above still stand and are still run. What remains simulated is narrower —
+> SMS and push have no transport, and wallet passes are blocked on signing
+> certificates. See the README for the current picture.
+
 ## Result
 
 All four frontend demos pass the release gate for the current frontend-only scope.

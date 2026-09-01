@@ -9,15 +9,42 @@
  * that used to announce a result they never produced.
  *
  * Start both apps first (`npm run build`, then `npm run start --workspace ...`),
- * or point BUSINESS_APP_URL / ADMIN_APP_URL at a deployment.
+ * or point BUSINESS_APP_URL / ADMIN_APP_URL at a deployment. The API has to be
+ * up and seeded too: sign-in is the server's answer now, not a sessionStorage
+ * flag, so this walks the real auth path.
  */
 
+import { createHmac } from "node:crypto";
 import { chromium } from "playwright";
 
 const businessUrl = process.env.BUSINESS_APP_URL ?? "http://localhost:3000";
 const adminUrl = process.env.ADMIN_APP_URL ?? "http://localhost:3001";
-/** Mirrors DEMO_CODE in packages/ui/src/auth.tsx and the README. */
-const DEMO_CODE = "424242";
+
+/**
+ * The seeded demo accounts, matching `DEMO_PASSWORD` in the API's seed script.
+ *
+ * The password field used to carry a checked-in default and the code used to
+ * be a fixed "424242" the browser compared for itself. Both went when auth
+ * became real, so this script has to type a password and compute a live TOTP
+ * exactly as a person with an authenticator would.
+ */
+const OWNER_PASSWORD = process.env.DEMO_PASSWORD ?? "DemoPass123!";
+const ADMIN_MFA_SECRET = process.env.ADMIN_MFA_SECRET ?? "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
+
+/** RFC 6238, 30-second step, 6 digits. Same helper as the contract tests. */
+function totp(secret, at = Date.now()) {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = "";
+  for (const character of secret.replace(/=+$/, "")) {
+    bits += alphabet.indexOf(character.toUpperCase()).toString(2).padStart(5, "0");
+  }
+  const key = Buffer.from((bits.match(/.{8}/g) ?? []).map((byte) => parseInt(byte, 2)));
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(at / 1000 / 30)));
+  const digest = createHmac("sha1", key).update(counter).digest();
+  const offset = digest[digest.length - 1] & 0x0f;
+  return String((digest.readUInt32BE(offset) & 0x7fffffff) % 1_000_000).padStart(6, "0");
+}
 
 const BUSINESS_VIEWS = [
   "dashboard", "scan", "join-code", "customers", "business", "programs",
@@ -37,7 +64,20 @@ async function openApp(label, baseUrl, views, signIn) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   page.on("pageerror", (error) => problems.push(`${label} pageerror: ${error.message}`));
   page.on("console", (message) => {
-    if (message.type() === "error") problems.push(`${label} console: ${message.text()}`);
+    // The browser logs "Failed to load resource: …" for every non-2xx and
+    // names neither the route nor the reason. The response listener below
+    // reports those properly, so this only carries real page errors.
+    if (message.type() !== "error") return;
+    if (message.text().startsWith("Failed to load resource")) return;
+    problems.push(`${label} console: ${message.text()}`);
+  });
+  page.on("response", (response) => {
+    if (response.status() < 400) return;
+    if (!response.url().includes("/api/")) return;
+    // 402 is a plan gate, which is an answer rather than a fault: a card
+    // below its plan renders an upgrade line from exactly this response.
+    if (response.status() === 402) return;
+    problems.push(`${label} ${response.status()} ${new URL(response.url()).pathname}`);
   });
 
   await page.goto(`${baseUrl}/login`, { waitUntil: "networkidle" });
@@ -59,17 +99,27 @@ async function openApp(label, baseUrl, views, signIn) {
 /* ── Business workspace ───────────────────────────────────────────── */
 
 const business = await openApp("business", businessUrl, BUSINESS_VIEWS, async (page) => {
+  // The email is prefilled; the password never is. An owner with exactly one
+  // workspace no longer passes a picker - the API says `needsWorkspace: false`
+  // and the app goes straight to the dashboard.
+  await page.locator('input[type="password"]').fill(OWNER_PASSWORD);
   await page.getByRole("button", { name: "Continue securely" }).click();
-  await page.waitForURL(/workspaces/);
-  await page.getByRole("button", { name: /Open selected workspace/i }).click();
-  await page.waitForURL(/#dashboard/);
+  // The app lands on its root and picks the default view; the hash only
+  // appears once something navigates. Waiting for `#dashboard` waited forever.
+  await page.waitForURL((url) => !url.pathname.startsWith("/login"));
+  await page.locator("#main-content").waitFor();
 });
 
 // "Invite staff" used to open the recipient's acceptance screen.
 await business.goto(`${businessUrl}/#staff`, { waitUntil: "networkidle" });
 await business.getByRole("button", { name: "Invite staff" }).click();
 await business.getByLabel("Name").fill("Tala Reyes");
+// An invitation is a signed link that has to reach somebody, so the composer
+// refuses to send without an address. Filling only the name sent nothing and
+// this check passed on a roster that had not changed.
+await business.getByLabel("Email").fill(`tala.reyes.${Date.now()}@sweetcrumbs.ph`);
 await business.getByRole("button", { name: "Send invitation" }).click();
+await business.getByText("Tala Reyes").first().waitFor({ timeout: 10_000 });
 if (!(await business.getByText("Tala Reyes").first().isVisible())) {
   problems.push("business: an invited staff member did not appear in the table");
 }
@@ -79,6 +129,10 @@ checks.push("business: staff invitation reaches the roster");
 await business.goto(`${businessUrl}/#programs`, { waitUntil: "networkidle" });
 await business.getByRole("button", { name: "Edit rules" }).click();
 await business.getByLabel("Program name").fill("Nine visits, pastry on us");
+// The draft is a draft until it is published. Navigating away from an unsaved
+// editor is supposed to lose it - the check is that a *saved* rule survives.
+await business.getByRole("button", { name: "Publish new version" }).click();
+await business.getByText("Nine visits, pastry on us").first().waitFor({ timeout: 10_000 });
 await business.goto(`${businessUrl}/#dashboard`, { waitUntil: "networkidle" });
 await business.goto(`${businessUrl}/#programs`, { waitUntil: "networkidle" });
 if (!(await business.getByText("Nine visits, pastry on us").first().isVisible())) {
@@ -89,24 +143,46 @@ checks.push("business: program edits survive navigation");
 /* ── Platform control room ────────────────────────────────────────── */
 
 const admin = await openApp("admin", adminUrl, ADMIN_VIEWS, async (page) => {
+  await page.locator('input[type="password"]').fill(OWNER_PASSWORD);
   await page.getByRole("button", { name: "Continue securely" }).click();
   await page.waitForURL(/verify/);
-  await page.getByLabel(/verification code/i).fill(DEMO_CODE);
+  // A real second factor: the API verifies this, so a fixed demo code no
+  // longer gets in.
+  await page.getByLabel(/verification code/i).fill(totp(ADMIN_MFA_SECRET));
   await page.getByRole("button", { name: /Verify/i }).click();
-  await page.waitForURL(/#overview/);
+  await page.waitForURL((url) => !/\/(login|verify)/.test(url.pathname));
+  await page.locator("#main-content").waitFor();
 });
 
 // Triage was per-view state, and the badge counted the fixture instead.
 await admin.goto(`${adminUrl}/#support`, { waitUntil: "networkidle" });
-const openBefore = await admin.getByText(/\d+ open/).first().innerText();
-await admin.getByLabel("Status").selectOption("Investigating");
-await admin.goto(`${adminUrl}/#audit`, { waitUntil: "networkidle" });
-await admin.goto(`${adminUrl}/#support`, { waitUntil: "networkidle" });
-const openAfter = await admin.getByText(/\d+ open/).first().innerText();
-if (openBefore === openAfter) {
-  problems.push(
-    `admin: the open count did not move after triage (${openBefore} then ${openAfter})`,
-  );
+const openCount = async () =>
+  // innerText returns the rendered text, and the badge is uppercased in CSS.
+  Number(/(\d+)\s+open/i.exec(await admin.getByText(/\d+ open/).first().innerText())?.[1]);
+
+const openBefore = await openCount();
+// A ticket that is actually Open, rather than whichever row happens to be
+// first: moving an already-investigating ticket to Investigating changes the
+// database and not the badge, which read as a failure of the badge.
+const openRow = admin.locator("button", { hasText: "· Open" }).first();
+if ((await openRow.count()) === 0) {
+  problems.push("admin: no open ticket to triage");
+} else {
+  await openRow.click();
+  // A note first: the API refuses "Investigating" without one, and this used
+  // to drive a transition the database never accepted while the console
+  // reported it had.
+  await admin.getByLabel("Internal note").fill("Reproduced on the sandbox tenant.");
+  await admin.getByLabel("Status").selectOption("Investigating");
+  await admin.waitForTimeout(750);
+  await admin.goto(`${adminUrl}/#audit`, { waitUntil: "networkidle" });
+  await admin.goto(`${adminUrl}/#support`, { waitUntil: "networkidle" });
+  const openAfter = await openCount();
+  if (openAfter !== openBefore - 1) {
+    problems.push(
+      `admin: the open count did not move after triage (${openBefore} then ${openAfter})`,
+    );
+  }
 }
 checks.push("admin: triage persists and the open count follows it");
 

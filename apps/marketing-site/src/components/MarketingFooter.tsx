@@ -57,7 +57,8 @@ const groups = [
 export function MarketingFooter() {
   return (
     <footer className="border-t border-[var(--line)] bg-[var(--surface)]">
-      <div className="mx-auto grid max-w-[1400px] gap-12 px-4 py-14 sm:px-6 md:grid-cols-[1.1fr_1.9fr] lg:px-8 lg:py-20">
+      <div className="px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-[1400px] gap-12 py-14 md:grid-cols-[1.1fr_1.9fr] lg:py-20">
         <div>
           <BrandMark />
           <p className="mt-5 max-w-[31ch] text-sm leading-relaxed text-[var(--muted-strong)]">
@@ -101,8 +102,9 @@ export function MarketingFooter() {
           ))}
         </div>
       </div>
-      <div className="border-t border-[var(--line)]">
-        <div className="mx-auto flex max-w-[1400px] flex-col gap-2 px-4 py-5 text-[11px] font-semibold text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+      </div>
+      <div className="border-t border-[var(--line)] px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-2 py-5 text-[11px] font-semibold text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
           <span>© 2026 KYPStamping.</span>
           <span>Built for neighborhood businesses everywhere.</span>
         </div>

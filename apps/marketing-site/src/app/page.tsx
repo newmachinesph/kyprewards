@@ -20,6 +20,7 @@ import {
   TextLink,
 } from "@/components/MarketingUi";
 import { ProductPreview } from "@/components/ProductPreview";
+import { VirtualCard } from "@/components/VirtualCard";
 import { industries, resources } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -49,7 +50,9 @@ export default function HomePage() {
           aria-hidden="true"
           className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent,var(--paper))]"
         />
-        <div className="relative mx-auto grid min-h-[760px] max-w-[1400px] items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:py-24">
+        {/* Gutter outside the 1400px box, like every section below. */}
+        <div className="relative px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto grid min-h-[760px] max-w-[1400px] items-center gap-14 py-16 lg:grid-cols-[1.08fr_0.92fr] lg:py-24">
           <div className="relative z-10">
             <div className="inline-flex items-center rounded-full border border-[var(--line)] bg-[rgb(255_254_251/72%)] px-4 py-2 text-[11px] font-bold text-[var(--muted-strong)] backdrop-blur">
               Built for the businesses people remember
@@ -97,6 +100,7 @@ export default function HomePage() {
               <ReceiptDemo />
             </div>
           </div>
+        </div>
         </div>
       </section>
 
@@ -255,6 +259,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <VirtualCard />
 
       <section className="border-y border-[var(--line)] bg-[var(--surface)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">

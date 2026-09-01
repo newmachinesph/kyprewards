@@ -3,11 +3,10 @@
 /**
  * One mutation wrapper, rather than a hook per endpoint.
  *
- * There are no write accessors on the seam yet, so a `useCreateProgram` today
- * would be a hook with nothing behind it. What every write will need instead
- * is the same three things, and those are worth settling now: which keys to
- * invalidate when it succeeds, an idempotency key when a replay would double
- * a charge, and a route for the API's per-field errors back into the form.
+ * Every write needs the same three things: which keys to invalidate when it
+ * succeeds, an idempotency key when a replay would double a charge, and a
+ * route for the API's per-field errors back into the form. One wrapper means
+ * no call site has to remember all three, and none of them can forget.
  */
 
 import {

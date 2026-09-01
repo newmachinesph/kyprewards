@@ -27,6 +27,7 @@ import type {
   Billing,
   Branding,
   CatalogItem,
+  CounterTransaction,
   Coupon,
   CustomField,
   Administrator,
@@ -61,6 +62,7 @@ import type {
   PlanEconomics,
   PlatformMetrics,
   Program,
+  ProgramTier,
   NearbyNudge,
   PartnerApplication,
   OnboardingRow,
@@ -316,7 +318,15 @@ export type CampaignAttribution = {
   conversionRate: number;
   revenueCentavos: number;
   costCentavos: number;
-  returnOnSpend: number;
+  /**
+   * Null when the send cost nothing.
+   *
+   * An in-app or push campaign has no spend, and revenue over zero is not a
+   * ratio - the API returns null rather than infinity or a zero that reads
+   * like a failure. This was typed `number` while nothing rendered it, and the
+   * first screen that did crashed on `.toFixed`.
+   */
+  returnOnSpend: number | null;
   /** "attributed", never "incremental" - the API is careful about the claim. */
   basis: string;
 };
@@ -627,6 +637,15 @@ export const recordVisit = (
 export const voidVisit = (transactionId: string, idempotencyKey: string): Promise<VisitResult> =>
   http(`/transactions/${transactionId}/void`, { method: "POST", idempotencyKey });
 
+/**
+ * The till's own history, newest first.
+ *
+ * Written because `refundVisit` had nothing to name: every reversal path
+ * existed, but no screen in the product could point at a settled sale.
+ */
+export const getTransactions = (limit = 50): Promise<CounterTransaction[]> =>
+  http("/business/transactions", { query: { limit } });
+
 export const refundVisit = (transactionId: string, idempotencyKey: string): Promise<VisitResult> =>
   http(`/transactions/${transactionId}/refund`, { method: "POST", idempotencyKey });
 
@@ -684,11 +703,25 @@ export const importCustomers = (file: File): Promise<{
 };
 
 /** Adds someone at the counter who has no wallet yet. */
+/**
+ * A walk-in, added at the till.
+ *
+ * The response carries the member code the API minted. It used to be typed as
+ * `{id, name}` and the counter rebuilt the code from the id - which stopped
+ * being possible the moment the code became a column of its own.
+ */
 export const createCustomer = (body: {
   name: string;
   mobile?: string;
   email?: string;
-}): Promise<{ id: string; name: string }> => http("/customers", { method: "POST", body });
+}): Promise<{
+  id: string;
+  name: string;
+  email: string | null;
+  mobile: string | null;
+  memberCode: string;
+  isMember: boolean;
+}> => http("/customers", { method: "POST", body });
 
 /** The onboarding wizard's "prove it works" step. */
 export const recordTestStamp = (): Promise<VisitResult> =>
@@ -768,6 +801,16 @@ export const redeemCatalogItem = (body: {
   itemId: string;
   customerId: string;
 }): Promise<CatalogItem> => http("/catalog/redeem", { method: "POST", body });
+
+export const getTiers = (programId: string): Promise<ProgramTier[]> =>
+  http(`/business/programs/${programId}/tiers`);
+
+/** 409 for any other program type: only Points and Discount have a ladder. */
+export const addTier = (
+  programId: string,
+  body: { name: string; threshold: number; rateBps: number },
+): Promise<ProgramTier> =>
+  http(`/business/programs/${programId}/tiers`, { method: "POST", body });
 
 export const issueGiftCard = (body: {
   amountCentavos: number;
@@ -1092,6 +1135,10 @@ export const rotateWebhookSecret = (endpointId: string): Promise<{ secret: strin
 export const revealWebhookSecret = (endpointId: string): Promise<{ secret: string }> =>
   http(`/webhook-endpoints/${endpointId}/secret`);
 
+/** Stops delivering. The history stays: it is the record of what was sent. */
+export const removeWebhookEndpoint = (endpointId: string): Promise<void> =>
+  http(`/webhook-endpoints/${endpointId}`, { method: "DELETE" });
+
 export const sendTestDelivery = (endpointId: string): Promise<Delivery> =>
   http(`/webhook-endpoints/${endpointId}/test`, { method: "POST" });
 
@@ -1124,6 +1171,15 @@ export const updateSupportTicket = (
   ticketId: string,
   body: { owner?: string; status?: string; note?: string },
 ): Promise<SupportTicket> => http(`/admin/support/${ticketId}`, { method: "PATCH", body });
+
+/**
+ * Every network-wide flag and where it currently stands.
+ *
+ * The console used to seed its switches from four hardcoded `true`s, so a
+ * flag turned off in the database still rendered as on, and a reload put an
+ * admin's own change back the way it was.
+ */
+export const getPlatformFlags = (): Promise<ToggleResult[]> => http("/admin/flags");
 
 export const setPlatformFlag = (key: string, value: boolean): Promise<ToggleResult> =>
   http("/admin/flags", { method: "PATCH", body: { key, value } });

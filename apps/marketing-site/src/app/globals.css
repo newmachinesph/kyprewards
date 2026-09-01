@@ -145,3 +145,56 @@ button:disabled {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Two sides of one card.
+
+   The front stays in the flow and is what gives the card its height; the back
+   is absolutely stacked on top of it, so the two sides are the same size
+   without anything measuring them.
+
+   The turned-away face is hidden with `visibility`, not `display` or the
+   `hidden` attribute: those take it out of the layout, and with the front
+   gone the mover collapses and the absolute back has nothing to fill.
+   `visibility: hidden` still removes the face from the tab order and the
+   accessibility tree, which `backface-visibility` alone does not - a face
+   turned away from the reader is still focusable, and a keyboard user would
+   otherwise tab into a QR code nobody can see.
+
+   The visibility swap is delayed to the middle of the turn so the face does
+   not vanish before the card has rotated far enough to hide it. */
+.flip-card {
+  perspective: 1400px;
+}
+.flip-card-mover {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flip-card[data-flipped="true"] .flip-card-mover {
+  transform: rotateY(180deg);
+}
+.flip-card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: visibility 0s linear 260ms;
+}
+.flip-card-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  visibility: hidden;
+}
+.flip-card[data-flipped="true"] .flip-card-front {
+  visibility: hidden;
+}
+.flip-card[data-flipped="true"] .flip-card-back {
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The card still turns over - it just stops spinning to do it. */
+  .flip-card-mover,
+  .flip-card-face {
+    transition: none;
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import type { DiscoverPlace, WalletCard } from "@kypstamping/api";
 import {
   ApiError,
@@ -14,11 +15,12 @@ import {
   useWallet,
   useNotifications,
 } from "@kypstamping/api";
-import { BrandMark, DemoBadge, Eyebrow, StampDots } from "@kypstamping/ui";
+import { brandColor, BrandMark, DemoBadge, Eyebrow, StampDots } from "@kypstamping/ui";
 import { signOut } from "@kypstamping/ui/auth";
 import { Toast, useToast } from "@kypstamping/ui/shell";
 import {
   formatDistance,
+  formatMemberCode,
   greeting,
   relativeTime,
   todayLabel,
@@ -61,6 +63,7 @@ import {
   Phone,
   Printer,
   QrCode,
+  RefreshCw,
   Search,
   ShieldCheck,
   SlidersHorizontal,
@@ -101,22 +104,36 @@ const categoryIcons: Record<string, typeof Coffee> = {
 
 
 
-// The saved or printed image is the offline fallback, so it has to be a real,
-// scannable symbol. A hand-drawn bitmap is not — QR needs finder patterns and
-// Reed-Solomon error correction, which is not worth hand-rolling.
-async function renderQrDataUrl(memberCode: string, size: number) {
+/**
+ * The member code as a real, scannable symbol.
+ *
+ * A hand-drawn bitmap is not one - QR needs finder patterns and Reed-Solomon
+ * correction, which is not worth hand-rolling.
+ *
+ * `forPrint` raises the correction level from M (15%) to Q (25%) and widens
+ * the quiet zone. A symbol on a screen is pristine and gets one scan attempt
+ * on a clean surface; the same symbol saved, printed and carried in a wallet
+ * is creased and scuffed, and the extra redundancy is what still reads it. It
+ * costs a denser symbol, which only matters when the print is small.
+ *
+ * Black on white, always. Amber bars would be invisible to a red-light laser
+ * scanner, which sees anything in the red end of the spectrum as background.
+ */
+async function renderQrDataUrl(memberCode: string, size: number, forPrint = false) {
   const QRCode = (await import("qrcode")).default;
   return QRCode.toDataURL(memberCode, {
     width: size,
-    margin: 2,
-    errorCorrectionLevel: "M",
+    // Four modules is the spec minimum for a printed symbol; two is fine on a
+    // screen, where nothing crops it.
+    margin: forPrint ? 4 : 2,
+    errorCorrectionLevel: forPrint ? "Q" : "M",
     color: { dark: "#181210", light: "#ffffff" },
   });
 }
 
 async function saveQrImage(memberCode: string) {
   try {
-    const url = await renderQrDataUrl(memberCode, 720);
+    const url = await renderQrDataUrl(memberCode, 720, true);
     const link = document.createElement("a");
     link.download = `kypstamping-${memberCode}.png`;
     link.href = url;
@@ -138,6 +155,45 @@ async function saveQrImage(memberCode: string) {
 function usePrefetchQrCodec() {
   useEffect(() => {
     void import("qrcode").catch(() => undefined);
+  }, []);
+}
+
+/**
+ * Keep the screen awake and lit while the code is on it.
+ *
+ * The web cannot set brightness, but it can stop the screen dimming - and a
+ * screen that dims mid-queue is the ordinary reason a phone QR will not scan.
+ * Released on unmount, and re-taken when the tab comes back, because the
+ * browser drops the lock whenever the page is hidden.
+ *
+ * Unsupported everywhere except Chromium, so every call is guarded: on a
+ * browser without it the code still shows, it just dims as usual.
+ */
+function useScreenAwake() {
+  useEffect(() => {
+    let sentinel: WakeLockSentinel | null = null;
+    let released = false;
+
+    const take = async () => {
+      try {
+        sentinel = (await navigator.wakeLock?.request("screen")) ?? null;
+      } catch {
+        // Denied, unsupported, or the tab was already hidden. Nothing to do -
+        // this is a convenience, not a requirement.
+      }
+    };
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible" && !released) void take();
+    };
+
+    void take();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      released = true;
+      document.removeEventListener("visibilitychange", onVisible);
+      void sentinel?.release().catch(() => undefined);
+    };
   }, []);
 }
 
@@ -199,7 +255,7 @@ function QrImage() {
     // eslint-disable-next-line @next/next/no-img-element -- a generated data: URI, not an optimisable asset
     <img
       src={src}
-      alt={`Loyalty code ${memberCode}`}
+      alt={`Loyalty code ${formatMemberCode(memberCode)}`}
       width={196}
       height={196}
       className="size-[196px]"
@@ -225,6 +281,32 @@ function percentOf(card: WalletCard): number | null {
   return Math.min(100, Math.round((card.progress / card.target) * 100));
 }
 
+/**
+ * Ink at a given strength, against whatever ground this card is on.
+ *
+ * The card used to be one fixed dark ticket, so every secondary line was
+ * `text-white/50`. A merchant on the paper or amber token would have had white
+ * text on a near-white card. Everything soft is now mixed from the card's own
+ * foreground instead.
+ */
+const walletIcons: Record<string, typeof Coins> = {
+  Stamps: Croissant,
+  Points: Coins,
+  Membership: Crown,
+  "Gift card": Gift,
+};
+
+const cardInk = (percent: number) =>
+  `color-mix(in oklab, var(--card-ink) ${percent}%, transparent)`;
+
+/**
+ * One shop's card, with both sides of it.
+ *
+ * The progress is the side worth seeing while scrolling a wallet; the member
+ * code is the side worth having at the counter, and it used to live on a
+ * different screen entirely - so a customer paying for coffee had to leave
+ * their card to show who they were. Now it is the same object, turned over.
+ */
 function LoyaltyCard({
   card,
   compact = false,
@@ -232,47 +314,180 @@ function LoyaltyCard({
   card: WalletCard;
   compact?: boolean;
 }) {
+  const { data: profile } = useCustomerProfile();
+  const [flipped, setFlipped] = useState(false);
+  // The QR codec is a dynamic import and a card that is never turned over
+  // never needs it. A wallet of eight cards would otherwise render eight
+  // symbols nobody asked to see.
+  const [everFlipped, setEverFlipped] = useState(false);
+  const brand = brandColor(card.color);
+
   // Null on a programme with no target: "0 more visits, then ." is what the
   // subtraction produced for a points balance before this.
   const remaining = card.target > 0 ? Math.max(0, card.target - card.progress) : null;
+  const Icon = walletIcons[card.kind] ?? WalletCards;
 
-  return (
-    <article className="loyalty-ticket overflow-hidden rounded-2xl px-5 py-5 text-[var(--paper)]">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-2xl bg-white/10 text-[var(--accent)]">
-            <Croissant size={22} />
-          </span>
-          <div>
-            <p className="text-base font-extrabold tracking-[-0.025em]">{card.business}</p>
-            <p className="mt-0.5 text-[11px] text-white/50">{card.category}</p>
-          </div>
-        </div>
-        <span className="rounded-full border border-white/15 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/60">
-          {card.status}
-        </span>
-      </div>
-      {!compact && (
-        <p className="mt-7 max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em]">
-          {remaining === null
-            ? card.balance
-            : remaining === 0
-              ? `${card.reward} is ready.`
-              : `${remaining} more ${remaining === 1 ? "visit" : "visits"}, then ${card.reward.toLowerCase()}.`}
-        </p>
+  const surface = (
+    <article
+      className="loyalty-ticket relative overflow-hidden rounded-2xl px-5 py-5"
+      style={
+        {
+          "--card-brand": brand.background,
+          "--card-ink": brand.foreground,
+          color: "var(--card-ink)",
+        } as CSSProperties
+      }
+    >
+      {/* The shop's own storefront, if they gave one. Low enough that the
+          card stays a card rather than a photo with text on it, and absent
+          entirely rather than a placeholder when they have not. */}
+      {card.imageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element -- a presigned URL that changes on every sign, not an optimisable asset
+        <img
+          src={card.imageUrl}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 size-full object-cover opacity-[0.18]"
+        />
       )}
-      <div className={compact ? "mt-5" : "mt-7"}>
-        {card.target > 0 && (
-          <div className="overflow-x-auto pb-1">
-            <StampDots filled={card.progress} total={card.target} dark />
+      <div className="relative">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <span
+              className="grid size-11 place-items-center rounded-2xl"
+              style={{ background: cardInk(12) }}
+            >
+              <Icon size={22} />
+            </span>
+            <div>
+              <p className="text-base font-extrabold tracking-[-0.025em]">{card.business}</p>
+              <p className="mt-0.5 text-[11px]" style={{ color: cardInk(62) }}>
+                {card.category}
+              </p>
+            </div>
           </div>
+          <span
+            className="rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em]"
+            style={{ border: `1px solid ${cardInk(24)}`, color: cardInk(72) }}
+          >
+            {card.status}
+          </span>
+        </div>
+        {!compact && (
+          <p className="mt-7 max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em]">
+            {remaining === null
+              ? card.balance
+              : remaining === 0
+                ? `${card.reward} is ready.`
+                : `${remaining} more ${remaining === 1 ? "visit" : "visits"}, then ${card.reward.toLowerCase()}.`}
+          </p>
         )}
-        <div className="mt-3 flex items-center justify-between text-[11px] font-semibold">
-          <span className="text-white/50">{card.balance}</span>
-          <span className="text-[var(--accent)]">{card.reward}</span>
+        <div className={compact ? "mt-5" : "mt-7"}>
+          {card.target > 0 && (
+            <div className="overflow-x-auto pb-1">
+              <StampDots filled={card.progress} total={card.target} dark />
+            </div>
+          )}
+          <div className="mt-3 flex items-center justify-between text-[11px] font-semibold">
+            <span style={{ color: cardInk(62) }}>{card.balance}</span>
+            <span>{card.reward}</span>
+          </div>
         </div>
       </div>
     </article>
+  );
+
+  // In a dense list the card is a summary, not something to operate.
+  if (compact || !profile) return surface;
+
+  return (
+    <div className="flip-card" data-flipped={flipped}>
+      <div className="flip-card-mover">
+        <div className="flip-card-face flip-card-front">{surface}</div>
+        <div className="flip-card-face flip-card-back">
+          <article
+            className="loyalty-ticket flex h-full flex-col justify-between overflow-hidden rounded-2xl px-5 py-5"
+            style={
+              {
+                "--card-brand": brand.background,
+                "--card-ink": brand.foreground,
+                color: "var(--card-ink)",
+              } as CSSProperties
+            }
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.14em]" style={{ color: cardInk(62) }}>
+                  Member
+                </p>
+                <p className="mt-1 text-base font-extrabold tracking-[-0.025em]">
+                  {profile.name}
+                </p>
+                <p className="mt-1 font-mono text-[11px]" style={{ color: cardInk(72) }}>
+                  {formatMemberCode(profile.memberCode)}
+                </p>
+              </div>
+              {/* White plate under the symbol on purpose: a scanner needs the
+                  contrast, and an amber or ink ground would not give it one. */}
+              {everFlipped && (
+                <span className="shrink-0 rounded-xl bg-white p-1.5">
+                  <MemberQr size={72} />
+                </span>
+              )}
+            </div>
+            <p className="mt-5 text-[11px] font-semibold" style={{ color: cardInk(62) }}>
+              Show this at the counter &middot; no expiry
+            </p>
+          </article>
+        </div>
+      </div>
+      <button
+        type="button"
+        aria-pressed={flipped}
+        onClick={() => {
+          setEverFlipped(true);
+          setFlipped((current) => !current);
+        }}
+        className="focus-ring mt-2 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl text-[11px] font-extrabold text-[var(--muted-strong)] transition hover:text-[var(--ink)]"
+      >
+        <RefreshCw size={13} aria-hidden="true" />
+        {flipped ? `Show ${card.program} progress` : "Show my member code"}
+      </button>
+    </div>
+  );
+}
+
+/** The customer's own code, rendered at whatever size the caller needs. */
+function MemberQr({ size }: { size: number }) {
+  const { data: profile } = useCustomerProfile();
+  const memberCode = profile?.memberCode ?? "";
+  const [src, setSrc] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    if (!memberCode) return;
+    renderQrDataUrl(memberCode, size * 3)
+      .then((url) => {
+        if (active) setSrc(url);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [memberCode, size]);
+
+  if (!src) {
+    return (
+      <span
+        className="block rounded bg-[var(--surface-2)] motion-safe:animate-pulse"
+        style={{ width: size, height: size }}
+        aria-hidden="true"
+      />
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- a generated data: URI
+    <img src={src} alt={`Loyalty code ${formatMemberCode(memberCode)}`} width={size} height={size} />
   );
 }
 
@@ -569,12 +784,6 @@ const walletCategoriesFrom = (cards: WalletCard[], places: DiscoverPlace[]) => [
   ),
 ];
 
-const walletIcons: Record<string, typeof Coins> = {
-  Stamps: Croissant,
-  Points: Coins,
-  Membership: Crown,
-  "Gift card": Gift,
-};
 
 function WalletView({
   onCard,
@@ -1088,6 +1297,8 @@ function QrModal({
   const { data: profile } = useCustomerProfile();
   const memberCode = profile?.memberCode ?? "";
   const closeRef = useRef<HTMLButtonElement>(null);
+  // The screen is the card while this is open.
+  useScreenAwake();
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -1139,7 +1350,7 @@ function QrModal({
           <span className="scan-pass absolute inset-x-4 top-8 h-px bg-[var(--accent)] shadow-[0_0_10px_var(--accent)]" />
         </div>
         <span className="qr-printable-code mt-5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 font-mono text-xs font-bold tracking-[0.08em]">
-          {memberCode}
+          {formatMemberCode(memberCode)}
         </span>
 
         <div className="mt-6 grid w-full max-w-[34ch] grid-cols-2 gap-2">

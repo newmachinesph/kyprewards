@@ -192,6 +192,8 @@ export type BusinessCustomer = {
   id: string;
   name: string;
   initials: string;
+  /** The number on their card. Thirteen digits, never derived from the id. */
+  memberCode: string;
   segment: CustomerSegment;
   visits: number;
   lifetimeValueCentavos: number;
@@ -364,7 +366,15 @@ export type WalletCard = {
   balance: string;
   reward: string;
   status: string;
+  /** A design token from packages/ui - `brandColor()` resolves it. */
   color: string;
+  /**
+   * The merchant's storefront photo, presigned and short-lived.
+   *
+   * Null until they upload one, and the card falls back to their colour alone
+   * rather than to a placeholder that looks like a broken image.
+   */
+  imageUrl: string | null;
   /** Metres from the position the caller sent, or null when none was. */
   distanceMetres: number | null;
 };
@@ -647,6 +657,41 @@ export type CatalogItem = {
   active: boolean;
 };
 
+/**
+ * A rung on the earning ladder of a Points or Discount program.
+ *
+ * `rateBps` is basis points: 10000 is a 1x multiplier for points and 100% for
+ * a discount, so 12500 earns a member half again as much. The API multiplies
+ * the program's base rate by the highest tier the member's lifetime visits
+ * have cleared, so tiers compose with the base rule rather than replacing it.
+ */
+export type ProgramTier = {
+  id: string;
+  name: string;
+  /** Lifetime visits that unlock this tier. */
+  threshold: number;
+  rateBps: number;
+};
+
+/**
+ * One recorded sale in the counter's history.
+ *
+ * `status` matters: a reversed sale keeps its row, so a merchant looking for
+ * what they refunded finds it rather than its absence.
+ */
+export type CounterTransaction = {
+  id: string;
+  customer: string;
+  branch: string;
+  /** A staff member's name, or the credential id when a POS wrote the sale. */
+  staff: string;
+  amountCentavos: number;
+  /** recorded | voided | refunded. Only `recorded` can still be reversed. */
+  status: string;
+  occurredAt: string;
+  reference: string;
+};
+
 export type GiftCard = {
   id: string;
   code: string;
@@ -662,6 +707,8 @@ export type GiftCardEntry = {
   id: string;
   kind: string;
   amountCentavos: number;
+  /** Running balance after this entry, which is what makes it a statement. */
+  balanceAfterCentavos: number;
   reason: string;
   occurredAt: string;
 };

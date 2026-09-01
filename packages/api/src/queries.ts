@@ -26,11 +26,14 @@ import type {
   Branding,
   BusinessCustomer,
   CatalogItem,
+  CounterTransaction,
   Coupon,
   CustomField,
   CustomFieldValue,
   DataRequest,
   Feedback,
+  GiftCard,
+  GiftCardEntry,
   HeldProgram,
   MessagingPolicy,
   NearbyNudge,
@@ -52,6 +55,7 @@ import type {
   PlanEconomics,
   PlatformMetrics,
   Program,
+  ProgramTier,
   RecoveryItem,
   Redemption,
   ServiceHealth,
@@ -146,6 +150,16 @@ export const useDelivery = (deliveryId: string) =>
     enabled: Boolean(deliveryId),
   });
 
+export const useTransactions = (
+  limit?: number,
+  options?: Options<CounterTransaction[]>,
+): Query<CounterTransaction[]> =>
+  useQuery({
+    queryKey: keys.business.transactions(),
+    queryFn: () => api.getTransactions(limit),
+    ...options,
+  });
+
 export const useCoupons = (options?: Options<Coupon[]>): Query<Coupon[]> =>
   useQuery({ queryKey: keys.business.coupons(), queryFn: api.getCoupons, ...options });
 
@@ -154,6 +168,45 @@ export const useCatalog = (programId: string, options?: Options<CatalogItem[]>):
     queryKey: keys.business.catalog(programId),
     queryFn: () => api.getCatalog(programId),
     enabled: Boolean(programId),
+    ...options,
+  });
+
+/** Points and Discount programs only; anything else answers with an empty ladder. */
+export const useTiers = (programId: string, options?: Options<ProgramTier[]>): Query<ProgramTier[]> =>
+  useQuery({
+    queryKey: keys.business.tiers(programId),
+    queryFn: () => api.getTiers(programId),
+    enabled: Boolean(programId),
+    ...options,
+  });
+
+/**
+ * One gift card by its printed code, and the ledger behind it.
+ *
+ * Both are counter reads: a cashier holding a card should see what is on it
+ * and where it went before charging against it, rather than typing a code and
+ * finding out from the error.
+ */
+export const useGiftCard = (code: string, options?: Options<GiftCard>): Query<GiftCard> =>
+  useQuery({
+    queryKey: keys.business.giftCard(code),
+    queryFn: () => api.getGiftCard(code),
+    enabled: Boolean(code),
+    // A wrong code is a 404 and retrying it three times only delays the
+    // message the cashier needs.
+    retry: false,
+    ...options,
+  });
+
+export const useGiftCardEntries = (
+  code: string,
+  options?: Options<GiftCardEntry[]>,
+): Query<GiftCardEntry[]> =>
+  useQuery({
+    queryKey: keys.business.giftCardEntries(code),
+    queryFn: () => api.getGiftCardEntries(code),
+    enabled: Boolean(code),
+    retry: false,
     ...options,
   });
 
@@ -476,6 +529,10 @@ export const useOnboarding = () =>
 
 export const useProviderPolicy = () =>
   useQuery({ queryKey: keys.admin.providerPolicy(), queryFn: api.getProviderPolicy });
+
+/** The network-wide switches, as the database has them. */
+export const usePlatformFlags = () =>
+  useQuery({ queryKey: keys.admin.flags(), queryFn: api.getPlatformFlags });
 
 export const useAdministrators = () =>
   useQuery({ queryKey: keys.admin.administrators(), queryFn: api.getAdministrators });

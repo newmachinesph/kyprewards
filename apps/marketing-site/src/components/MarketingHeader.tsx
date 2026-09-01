@@ -25,7 +25,12 @@ export function MarketingHeader({
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[rgb(250_248_243/88%)] backdrop-blur-xl">
-      <div className="mx-auto flex h-[72px] max-w-[1400px] items-center gap-4 px-4 sm:px-6 lg:px-8 min-[1360px]:gap-6">
+      {/* Padding outside the 1400px box, which is how every section on the
+          site is built. Inside it, the gutter came out of the content instead
+          of off the edge, so the nav sat 64px narrower than everything under
+          it and nothing lined up down the left. */}
+      <div className="px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-[72px] max-w-[1400px] items-center gap-4 min-[1360px]:gap-6">
         <Link href="/" className="focus-ring shrink-0 rounded-xl">
           <BrandMark />
         </Link>
@@ -73,13 +78,14 @@ export function MarketingHeader({
           {open ? <X size={19} /> : <Menu size={19} />}
         </button>
       </div>
+      </div>
       {open && (
-        <div className="border-t border-[var(--line)] bg-[var(--surface)] min-[1360px]:hidden">
+        <div className="border-t border-[var(--line)] bg-[var(--surface)] px-4 sm:px-6 lg:px-8 min-[1360px]:hidden">
           {/* Held to the same container as the row above. This panel now
               covers laptop widths too, and buttons stretched across 1300px
               read as a mistake rather than a menu. */}
           <nav
-            className="mx-auto max-w-[1400px] p-4 sm:px-6 lg:px-8"
+            className="mx-auto max-w-[1400px] py-4"
             aria-label="Site navigation"
           >
             <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">

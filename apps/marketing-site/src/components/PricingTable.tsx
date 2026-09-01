@@ -60,12 +60,15 @@ export function PricingTable() {
             Full feature comparison across the Launch, Core, Grow, and Scale
             plans
           </caption>
-          {/* Sticky only once the table fits without sideways scrolling.
-              A thead sticking to the page's vertical scroll while sitting
-              inside a horizontal scroller leaks the table's full 860px onto
-              the document - a 406px overflow on a phone - and a pinned
-              header is no use on a table you are dragging sideways anyway. */}
-          <thead className="z-20 min-[900px]:sticky min-[900px]:top-[72px]">
+          {/* Not sticky, and it never usefully was.
+              The wrapper above scrolls horizontally, which makes it the
+              sticky containing block - so `top: 72px` never measured against
+              the page, it just pushed the header 72px down inside the table
+              and left an empty band at the top. The featured column's
+              collapsed side borders painted straight through that band, which
+              is the stray outlined box above the Grow header. A pinned header
+              is no use on a table you drag sideways anyway. */}
+          <thead className="z-20">
             <tr>
               <th
                 scope="col"

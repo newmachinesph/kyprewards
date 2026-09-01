@@ -39,7 +39,6 @@ import {
 } from "lucide-react";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import { useDemoState } from "@/components/DemoState";
-import { sharedScenario } from "@kypstamping/demo-data";
 import type { Automation } from "@kypstamping/api";
 import {
   useAutomations,
@@ -48,6 +47,7 @@ import {
   useLocations,
   usePrograms,
   useStaff,
+  useTimeToSecondVisit,
   useVisitTrend,
   EMPTY_BUSINESS_METRICS,
 } from "@kypstamping/api";
@@ -170,6 +170,13 @@ export function BusinessDashboard({
   const workspaceName = workspace?.businessName ?? profile?.shortName ?? "";
   const locationCount = workspace?.locations ?? locations.length;
   const livePrograms = programs.filter((program) => program.status === "Live");
+  /*
+   * The card names a live program, so its dots have to be that program's.
+   * They were the demo scenario's stamp count, which meant a shop running an
+   * 8-visit card could be shown 5 of 6 under its own program's name.
+   */
+  const liveTarget = livePrograms[0]?.target ?? 0;
+  const liveFilled = Math.round((liveTarget * (livePrograms[0]?.completion ?? 0)) / 100);
 
   return (
     <main
@@ -248,6 +255,8 @@ export function BusinessDashboard({
         />
       </section>
 
+      <ReturnScore />
+
       <section
         id="section-analytics"
         className="mt-3 grid scroll-mt-24 gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(340px,0.75fr)]"
@@ -324,11 +333,7 @@ export function BusinessDashboard({
               Your simplest reward is also your strongest performer this month.
             </p>
             <div className="mt-8 overflow-x-auto pb-1">
-              <StampDots
-                filled={sharedScenario.loyaltyEvent.afterStamps}
-                total={sharedScenario.loyaltyEvent.target}
-                dark
-              />
+              <StampDots filled={liveFilled} total={liveTarget} dark />
             </div>
             <div className="mt-8 flex items-end justify-between border-t border-dashed border-white/20 pt-5">
               <div>
@@ -826,5 +831,110 @@ export function BusinessDashboard({
         </div>
       )}
     </main>
+  );
+}
+
+/**
+ * How many members come back, banded so it reads at a glance.
+ *
+ * Deliberately the repeat rate and not a blended index. The RFM scores are
+ * quintiles against the merchant's own customers, which means their average
+ * is near the middle for every merchant on the platform by construction - a
+ * headline built from them would move for nobody and compare to nothing. The
+ * repeat rate is an absolute: it goes up when more people return, and this
+ * month's can be set against last month's.
+ *
+ * The median days to a second visit sits beside it because a rate on its own
+ * does not say whether "returning" means next week or next quarter.
+ */
+const RETURN_BANDS = [
+  { floor: 0, label: "Starting", detail: "Most members visit once and stop." },
+  { floor: 25, label: "Emerging", detail: "A few are starting to come back." },
+  { floor: 45, label: "Growing", detail: "Repeat visits are building." },
+  { floor: 65, label: "Strong", detail: "Members return consistently." },
+  { floor: 85, label: "Elite", detail: "Most members are regulars." },
+] as const;
+
+function bandFor(rate: number) {
+  // Last band whose floor the rate clears. Written this way rather than as a
+  // chain of ifs so the thresholds stay in one readable table.
+  return [...RETURN_BANDS].reverse().find((band) => rate >= band.floor) ?? RETURN_BANDS[0];
+}
+
+function ReturnScore() {
+  const { data: metrics = EMPTY_BUSINESS_METRICS } = useBusinessMetrics();
+  const { data: secondVisit } = useTimeToSecondVisit();
+  const rate = Math.max(0, Math.min(100, metrics.repeatRate));
+  const band = bandFor(rate);
+
+  // A ring rather than a bar: the number is the point and the arc is the
+  // context, so the figure sits inside it instead of beside it.
+  const radius = 52;
+  const circumference = 2 * Math.PI * radius;
+
+  return (
+    <section className="mt-3 grid gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+      <div className="mx-auto sm:mx-0">
+        <svg width="132" height="132" viewBox="0 0 132 132" role="img" aria-label={`${rate}% of members return. ${band.label}.`}>
+          <circle cx="66" cy="66" r={radius} fill="none" stroke="var(--surface-2)" strokeWidth="12" />
+          <circle
+            cx="66"
+            cy="66"
+            r={radius}
+            fill="none"
+            stroke="var(--accent)"
+            strokeWidth="12"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference * (1 - rate / 100)}
+            transform="rotate(-90 66 66)"
+          />
+          <text
+            x="66"
+            y="64"
+            textAnchor="middle"
+            className="fill-[var(--ink)] text-[26px] font-extrabold"
+            style={{ fontSize: 26, fontWeight: 800 }}
+          >
+            {rate}%
+          </text>
+          <text
+            x="66"
+            y="84"
+            textAnchor="middle"
+            className="fill-[var(--muted-strong)]"
+            style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em" }}
+          >
+            {band.label.toUpperCase()}
+          </text>
+        </svg>
+      </div>
+      <div>
+        <Eyebrow>Return rate</Eyebrow>
+        <h2 className="mt-1 text-lg font-extrabold">{band.detail}</h2>
+        <p className="mt-2 max-w-[62ch] text-xs leading-relaxed text-[var(--muted-strong)]">
+          The share of your members who have come back at least once
+          {secondVisit && secondVisit.members > 0
+            ? `, and a median of ${secondVisit.medianDays} day${secondVisit.medianDays === 1 ? "" : "s"} to that second visit across ${secondVisit.members} member${secondVisit.members === 1 ? "" : "s"}`
+            : ""}
+          . Counted from your own ledger, not compared against anybody else&apos;s.
+        </p>
+        <ol className="mt-4 flex flex-wrap gap-1.5">
+          {RETURN_BANDS.map((step) => (
+            <li
+              key={step.label}
+              aria-current={step.label === band.label ? "true" : undefined}
+              className={`rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] ${
+                step.label === band.label
+                  ? "bg-[var(--ink)] text-[var(--paper)]"
+                  : "bg-[var(--surface-2)] text-[var(--muted-strong)]"
+              }`}
+            >
+              {step.label}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
   );
 }

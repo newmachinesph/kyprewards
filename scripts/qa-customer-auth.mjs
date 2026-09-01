@@ -5,8 +5,23 @@ import { join } from "node:path";
 import { chromium } from "playwright";
 
 const baseUrl = process.env.CUSTOMER_APP_URL ?? "http://localhost:3002";
-/** Mirrors DEMO_CODE in packages/ui/src/auth.tsx and the README. */
-const DEMO_CODE = "424242";
+const apiBase = process.env.KYP_TEST_API ?? "http://localhost:8000/api/v1";
+
+/**
+ * The code the API actually sent, read back from the dev sink.
+ *
+ * There used to be a fixed "424242" the browser compared for itself. Sign-in
+ * is the server's answer now, so the only way to know the code is to read the
+ * message that carried it - which is what a person does, from their phone.
+ */
+async function latestOtp() {
+  const response = await fetch(`${apiBase}/_dev/messages?purpose=otp&limit=1`);
+  assert.ok(response.ok, `dev sink answered ${response.status}`);
+  const [message] = await response.json();
+  const code = /\d{6}/.exec(message?.body ?? "")?.[0];
+  assert.ok(code, "no OTP reached the dev sink");
+  return code;
+}
 const artifactDirectory = join(tmpdir(), "kypstamping-customer-auth-qa");
 await mkdir(artifactDirectory, { recursive: true });
 
@@ -16,7 +31,23 @@ const runtimeErrors = [];
 function watchRuntime(page, surface) {
   page.on("pageerror", (error) => runtimeErrors.push(`${surface}: ${error.message}`));
   page.on("console", (message) => {
-    if (message.type() === "error") runtimeErrors.push(`${surface}: ${message.text()}`);
+    // The browser logs "Failed to load resource: …" for every non-2xx and
+    // names neither the route nor the reason. The response listener reports
+    // those properly, so this only carries real page errors.
+    if (message.type() !== "error") return;
+    if (message.text().startsWith("Failed to load resource")) return;
+    runtimeErrors.push(`${surface}: ${message.text()}`);
+  });
+  page.on("response", (response) => {
+    if (response.status() < 400) return;
+    if (!response.url().includes("/api/")) return;
+    const path = new URL(response.url()).pathname;
+    // Signed out is the whole point of this journey: the shell asks who is
+    // signed in before anybody is, and 401 is the answer, not a fault. A
+    // refused one-time code is deliberate too - the suite sends a wrong one.
+    if (response.status() === 401 && path.endsWith("/auth/session")) return;
+    if (response.status() === 401 && path.endsWith("/auth/otp/verify")) return;
+    runtimeErrors.push(`${surface}: ${response.status()} ${path}`);
   });
 }
 
@@ -76,7 +107,18 @@ try {
   await mobilePage.getByRole("button", { name: "Text me a code" }).click();
   await mobilePage.getByText("Enter your mobile number.").waitFor();
   await mobileField.fill("+63 917 555 0182");
-  await mobilePage.getByRole("button", { name: "Text me a code" }).click();
+  const [otpResponse] = await Promise.all([
+    mobilePage.waitForResponse((response) => response.url().includes("/auth/otp/request")),
+    mobilePage.getByRole("button", { name: "Text me a code" }).click(),
+  ]);
+  // Three codes per destination per ten minutes, by design. Running this suite
+  // in a tight loop trips it, and without saying so the failure reads like a
+  // broken sign-in.
+  assert.notEqual(
+    otpResponse.status(),
+    429,
+    "OTP throttled: three codes per ten minutes per destination. Wait, or reseed the stack.",
+  );
   await mobilePage.waitForURL(/\/verify$/);
 
   await mobilePage.getByRole("heading", { name: "Enter your code." }).waitFor();
@@ -96,13 +138,15 @@ try {
     await mobilePage.getByRole("button", { name: "Verify and continue" }).isDisabled(),
     true,
   );
-  // Must match DEMO_CODE in packages/ui/src/auth.tsx, which the README also
-  // documents. This previously read "123456" and the journey never completed.
+  // The refusal is the API's now, not a string this app compares for itself,
+  // so the assertion is that the wrong code is refused and the journey stays
+  // put - not that it is refused in one particular wording.
   await codeField.fill("999999");
   await mobilePage.getByRole("button", { name: "Verify and continue" }).click();
-  await mobilePage.getByText("That code is not correct.").waitFor();
+  await mobilePage.getByText(/not valid|not correct|expired/i).waitFor();
+  assert.match(new URL(mobilePage.url()).pathname, /\/verify$/);
 
-  await codeField.fill(DEMO_CODE);
+  await codeField.fill(await latestOtp());
   await mobilePage.getByRole("button", { name: "Verify and continue" }).click();
   await mobilePage.waitForURL(/#home$/);
 
@@ -116,12 +160,19 @@ try {
     path: join(artifactDirectory, "create-mobile.png"),
     fullPage: false,
   });
+  // A real registration now: name and mobile are required, and the button is
+  // "Create wallet" - there is nothing demo about it any more.
+  await mobilePage.getByLabel("Full name").fill("Tessa Cruz");
+  // Unique per run: the API answers the same whether or not the number is
+  // known, but a fresh one keeps repeated runs from piling onto one account.
+  const newMobile = `+63 917 ${String(Date.now()).slice(-7, -4)} ${String(Date.now()).slice(-4)}`;
+  await mobilePage.getByLabel("Mobile number").fill(newMobile);
   const consent = mobilePage.getByRole("checkbox");
   await consent.uncheck();
-  await mobilePage.getByRole("button", { name: "Create demo wallet" }).click();
+  await mobilePage.getByRole("button", { name: "Create wallet" }).click();
   await mobilePage.getByText("Accept the terms to continue.").waitFor();
   await consent.check();
-  await mobilePage.getByRole("button", { name: "Create demo wallet" }).click();
+  await mobilePage.getByRole("button", { name: "Create wallet" }).click();
   await mobilePage.waitForURL(/\/verify$/);
   const createFit = await viewportState(mobilePage);
   assert.equal(createFit.horizontalOverflow, false, "Mobile signup must not overflow horizontally");

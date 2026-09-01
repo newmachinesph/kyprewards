@@ -40,6 +40,7 @@ import {
   retryDelivery as retryDelivery_,
   revealWebhookSecret,
   rotateWebhookSecret,
+  removeWebhookEndpoint,
   saveWebhookEndpoint,
   sendTestDelivery,
   useApiMutation,
@@ -56,7 +57,6 @@ import {
   type WebhookEndpoint,
 } from "@kypstamping/api";
 import { relativeTime } from "@kypstamping/ui/format";
-import { useDemoState } from "@/components/DemoState";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
 type CredentialStatus = Credential["status"];
@@ -224,15 +224,6 @@ export function IntegrationsView({
   const [connection, setConnection] = useState<(typeof connectionOptions)[number]["id"]>(
     "custom",
   );
-  const {
-    webhookUrl,
-    setWebhookUrl,
-    savedWebhookUrl,
-    saveWebhookUrl,
-    subscribedEvents,
-    setSubscribedEvents,
-  } = useDemoState();
-
   const { data: credentials = [] } = useCredentials(environment);
   const { data: deliveries = [], refetch: refetchDeliveries } =
     useWebhookDeliveries(environment);
@@ -240,6 +231,22 @@ export function IntegrationsView({
   // The merchant has one outbound endpoint per environment. Its signing
   // secret is separate from the client keys and has its own rotation.
   const outbound = endpoints[0];
+  /*
+   * The endpoint the API holds is the saved state; these two hold only what
+   * the merchant has typed since. Null means "nothing typed yet — show the
+   * server's". They used to be client state seeded with a fixture URL, so the
+   * form claimed a saved endpoint that did not exist and hid the one that did.
+   */
+  const [draftUrl, setDraftUrl] = useState<string | null>(null);
+  const [draftEvents, setDraftEvents] = useState<string[] | null>(null);
+  const savedWebhookUrl = outbound?.url ?? "";
+  const webhookUrl = draftUrl ?? savedWebhookUrl;
+  const subscribedEvents = draftEvents ?? outbound?.events ?? [];
+  /** Back to showing whatever the endpoint now says. */
+  const clearDraft = () => {
+    setDraftUrl(null);
+    setDraftEvents(null);
+  };
   const revealSecret = useApiMutation<{ secret: string }, string>(revealWebhookSecret);
   const rotateEndpointSecret = useApiMutation<{ secret: string }, string>(
     rotateWebhookSecret,
@@ -269,6 +276,9 @@ export function IntegrationsView({
   });
   const sendTest = useApiMutation<Delivery, string>(sendTestDelivery, {
     invalidates: [keys.integrations.webhookDeliveries(environment)],
+  });
+  const removeEndpoint = useApiMutation<void, string>(removeWebhookEndpoint, {
+    invalidates: [keys.integrations.webhookEndpoints(environment)],
   });
   const retry = useApiMutation<Delivery, string>(retryDelivery_, {
     invalidates: [keys.integrations.webhookDeliveries(environment)],
@@ -310,7 +320,13 @@ export function IntegrationsView({
   const visibleCredentials = credentials.filter(
     (credential) => credential.environment === environment,
   );
-  const webhookDirty = webhookUrl.trim() !== savedWebhookUrl;
+  // Events count too: subscribing to one more and pressing Save has to work.
+  // Sorted, because a toggle appends and the API returns its own order.
+  const sameEvents = (left: string[], right: string[]) =>
+    [...left].sort().join() === [...right].sort().join();
+  const webhookDirty =
+    webhookUrl.trim() !== savedWebhookUrl ||
+    !sameEvents(subscribedEvents, outbound?.events ?? []);
 
   async function copyValue(value: string, label: string) {
     try {
@@ -325,6 +341,9 @@ export function IntegrationsView({
     setEnvironment(next);
     setOneTimeSecret(null);
     setInboundSecret(null);
+    // Each environment has its own endpoint. Carrying a typed URL across
+    // would offer to save the sandbox destination over the production one.
+    clearDraft();
     notify(
       `${next === "sandbox" ? "Sandbox" : "Production preview"} selected. No live connection was changed.`,
     );
@@ -392,10 +411,10 @@ export function IntegrationsView({
   }
 
   function toggleEvent(eventName: string) {
-    setSubscribedEvents((current) =>
-      current.includes(eventName)
-        ? current.filter((item) => item !== eventName)
-        : [...current, eventName],
+    setDraftEvents(
+      subscribedEvents.includes(eventName)
+        ? subscribedEvents.filter((item) => item !== eventName)
+        : [...subscribedEvents, eventName],
     );
   }
 
@@ -416,7 +435,7 @@ export function IntegrationsView({
       { url: webhookUrl, events: subscribedEvents },
       {
         onSuccess: (endpoint) => {
-          saveWebhookUrl();
+          clearDraft();
           sendTest.mutate(endpoint.id, {
             onSuccess: (delivery) => {
               setTestSending(false);
@@ -974,7 +993,8 @@ export function IntegrationsView({
               <input
                 type="url"
                 value={webhookUrl}
-                onChange={(event) => setWebhookUrl(event.target.value)}
+                placeholder="https://your-system.example/webhooks/kypstamping"
+                onChange={(event) => setDraftUrl(event.target.value)}
                 className="min-h-11 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-xs font-semibold"
               />
             </label>
@@ -1022,11 +1042,17 @@ export function IntegrationsView({
                     notify("An outbound endpoint has to be HTTPS.", "error");
                     return;
                   }
+                  // The API refuses an endpoint subscribed to nothing. Saying
+                  // so here beats a 422 under a button that looked ready.
+                  if (subscribedEvents.length === 0) {
+                    notify("Select at least one outbound event.", "error");
+                    return;
+                  }
                   saveEndpoint.mutate(
                     { url: webhookUrl.trim(), events: subscribedEvents },
                     {
                       onSuccess: () => {
-                        saveWebhookUrl();
+                        clearDraft();
                         notify("Outbound endpoint saved.");
                       },
                       onError: (failure) => notify(failure.message, "error"),
@@ -1034,7 +1060,7 @@ export function IntegrationsView({
                   );
                 }}
               >
-                {webhookDirty ? "Save endpoint" : "Endpoint saved"}
+                {webhookDirty || !outbound ? "Save endpoint" : "Endpoint saved"}
               </Button>
               {outbound && (
                 <>
@@ -1074,10 +1100,34 @@ export function IntegrationsView({
                   >
                     Rotate signing secret
                   </Button>
+                  <Button
+                    tone="quiet"
+                    icon={<X size={15} />}
+                    disabled={removeEndpoint.isPending}
+                    onClick={() => {
+                      if (
+                        !window.confirm(
+                          `Stop delivering to ${outbound.url}? The delivery history stays.`,
+                        )
+                      ) {
+                        return;
+                      }
+                      removeEndpoint.mutate(outbound.id, {
+                        onSuccess: () => {
+                          clearDraft();
+                          setOneTimeSecret(null);
+                          notify("Outbound endpoint removed. Nothing is being delivered.");
+                        },
+                        onError: (failure) => notify(failure.message, "error"),
+                      });
+                    }}
+                  >
+                    Stop deliveries
+                  </Button>
                 </>
               )}
             </div>
-            {webhookDirty && (
+            {webhookDirty && outbound && (
               <p className="text-[10px] font-bold text-[var(--accent-strong)]">
                 Unsaved change. Deliveries still go to {savedWebhookUrl}.
               </p>

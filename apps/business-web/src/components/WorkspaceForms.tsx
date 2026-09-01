@@ -35,14 +35,16 @@ import {
   keys,
   updateStaff,
   useApiMutation,
+  useBranding,
   type Billing,
   type BusinessLocation,
   type BusinessProfile,
   type StaffMember,
 } from "@kypstamping/api";
-import { Button, Dialog, FieldLabel } from "@kypstamping/ui";
+import { BRAND_COLORS, Button, Dialog, FieldLabel } from "@kypstamping/ui";
 import {
   useCreateProgram,
+  useSetBrandingColor,
   useUpdateLocation,
   useUpdateProfile,
   useUploadBrandingImage,
@@ -242,6 +244,8 @@ export function EditProfileDialog({
 }) {
   const update = useUpdateProfile();
   const uploadImage = useUploadBrandingImage();
+  const { data: branding } = useBranding();
+  const setColor = useSetBrandingColor();
   const [banner, setBanner] = useState("");
   const form = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
@@ -311,6 +315,46 @@ export function EditProfileDialog({
             }}
           />
         </Field>
+        {/* The other half of "custom branding". The photo was the only part
+            with a control, so the colour token the API stores and the wallet
+            card reads could not be changed from anywhere in the product. */}
+        {/* A fieldset, not the Field wrapper: that renders a <label>, and a
+            label around several buttons hands its whole text to the first one
+            as an accessible name ("Card colour Amber Green Paper"). */}
+        <fieldset className="grid gap-2">
+          <legend className="mb-2">
+            <FieldLabel>Card colour</FieldLabel>
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(BRAND_COLORS).map(([token, swatch]) => {
+              const active = (branding?.color ?? "ink") === token;
+              return (
+                <button
+                  key={token}
+                  type="button"
+                  aria-pressed={active}
+                  disabled={setColor.isPending}
+                  title={swatch.label}
+                  className={`min-h-11 rounded-xl border px-4 text-xs font-extrabold transition disabled:opacity-45 ${
+                    active
+                      ? "border-[var(--ink)] ring-2 ring-[var(--accent)] ring-offset-2"
+                      : "border-[var(--line-strong)] hover:border-[var(--ink)]"
+                  }`}
+                  style={{ background: swatch.background, color: swatch.foreground }}
+                  onClick={() => {
+                    setBanner("");
+                    setColor.mutate(token, {
+                      onSuccess: () => notify(`Card colour set to ${swatch.label}.`),
+                      onError: (failure) => setBanner(failure.message),
+                    });
+                  }}
+                >
+                  {swatch.label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
         <div className="grid gap-2 sm:grid-cols-2">
           <Button tone="quiet" type="button" onClick={onClose}>
             Cancel

@@ -108,7 +108,9 @@ for (const file of files) {
         if (!click && !submitsForm) {
           findings.push(`${relative}:${line} ${tag} has no action or form type`);
         }
-        if (click?.initializer?.getText(source).includes("undefined")) {
+        // Exactly `onClick={undefined}` - a substring test also flagged
+        // legitimate calls like `mutate(undefined, {...})` and `x || undefined`.
+        if (/^\{\s*undefined\s*\}$/.test(click?.initializer?.getText(source) ?? "")) {
           findings.push(`${relative}:${line} ${tag} has an undefined action`);
         }
       }

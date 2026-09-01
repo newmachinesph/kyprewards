@@ -98,6 +98,21 @@ function totp(secret: string, at = Date.now()): string {
   return String(code % 1_000_000).padStart(6, "0");
 }
 
+/**
+ * The check digit the counter relies on, computed independently here.
+ *
+ * Deliberately not imported from anywhere the API shares: a checksum verified
+ * with the same function that produced it verifies nothing.
+ */
+function isEan13(code: string): boolean {
+  if (!/^\d{13}$/.test(code)) return false;
+  const total = [...code.slice(0, 12)].reduce(
+    (sum, digit, index) => sum + Number(digit) * (index % 2 ? 3 : 1),
+    0,
+  );
+  return Number(code[12]) === (10 - (total % 10)) % 10;
+}
+
 async function post(path: string, body: unknown) {
   const response = await fetch(`${API}${path}`, {
     method: "POST",
@@ -265,6 +280,89 @@ describe("business workspace", () => {
     assert.equal("lifetimeValue" in first, false);
   });
 
+  live("the sales ledger names a settled transaction, in centavos", async () => {
+    const transactions = await api.getTransactions(20);
+
+    assert.ok(Array.isArray(transactions));
+    if (transactions.length === 0) return;
+    const [first] = transactions;
+    assert.ok(isCentavos(first.amountCentavos), "amountCentavos");
+    assert.ok(isIso(first.occurredAt), `occurredAt was ${first.occurredAt}`);
+    // The screen's Refund button keys off this exact vocabulary.
+    assert.ok(["recorded", "voided", "refunded"].includes(first.status), first.status);
+    // Newest first: the ledger is read from the top.
+    const stamps = transactions.map((row) => row.occurredAt);
+    assert.deepEqual(stamps, [...stamps].sort().reverse());
+  });
+
+  live("a gift card reads back as a statement, not just a balance", async () => {
+    // Issued here rather than read from the seed: there is no list route, so
+    // the only stable way to have a code is to make one.
+    const issued = await api.issueGiftCard({
+      amountCentavos: 50_000,
+      issuedToName: "Contract test",
+    });
+
+    const card = await api.getGiftCard(issued.code);
+    assert.equal(card.code, issued.code);
+    assert.ok(isCentavos(card.balanceCentavos), "balanceCentavos");
+    assert.ok(isCentavos(card.initialCentavos), "initialCentavos");
+
+    // The counter shows the last few movements before charging the card.
+    const entries = await api.getGiftCardEntries(card.code);
+    assert.ok(Array.isArray(entries));
+    for (const entry of entries) {
+      assert.ok(isCentavos(entry.amountCentavos), "amountCentavos");
+      assert.ok(isCentavos(entry.balanceAfterCentavos), "balanceAfterCentavos");
+      assert.ok(isIso(entry.occurredAt), `occurredAt was ${entry.occurredAt}`);
+    }
+  });
+
+  live("a program without a visit target is patchable without one", async () => {
+    const programs = await api.getPrograms();
+    // Coupon, Gift card, Membership and Discount all carry target 0. The
+    // editor used to seed its draft from that and send it back, and the API
+    // refuses anything below 1 - so publishing any of them failed on a field
+    // the merchant never touched.
+    const targetless = programs.find((program) => program.target === 0);
+    if (!targetless) return;
+
+    const renamed = await api.updateProgram(targetless.id, { name: targetless.name });
+    assert.equal(renamed.id, targetless.id);
+    assert.equal(renamed.name, targetless.name);
+  });
+
+  live("the analytics the paid tiers promise all answer", async () => {
+    const [segments, staff, branches, campaigns] = await Promise.all([
+      api.getSegments(),
+      api.getStaffPerformance(),
+      api.getBranchPerformance(),
+      api.getCampaignAttribution(),
+    ]);
+
+    // Four reads that were written, tested and rendered by no screen, so the
+    // pricing page promised them and the product never showed them.
+    assert.ok(segments.length > 0, "no segments");
+    assert.ok(
+      Math.abs(segments.reduce((sum, row) => sum + row.share, 0) - 100) < 1.5,
+      "segment shares should account for the whole tenant",
+    );
+    for (const member of staff) assert.ok(isCentavos(member.valueCentavos), "staff value");
+    for (const branch of branches) assert.ok(isCentavos(branch.valueCentavos), "branch value");
+
+    for (const campaign of campaigns) {
+      assert.equal(campaign.basis, "attributed");
+      assert.ok(isCentavos(campaign.revenueCentavos), "campaign revenue");
+      // Null when the send cost nothing. This was typed `number`, and the
+      // first screen to render it crashed on `.toFixed` of a free in-app send.
+      assert.ok(
+        campaign.returnOnSpend === null || typeof campaign.returnOnSpend === "number",
+        `returnOnSpend was ${campaign.returnOnSpend}`,
+      );
+      if (campaign.costCentavos === 0) assert.equal(campaign.returnOnSpend, null);
+    }
+  });
+
   live("the customer segment union is closed", async () => {
     const segments = new Set(
       (await api.getBusinessCustomers()).map((customer) => customer.segment),
@@ -293,6 +391,45 @@ describe("business workspace", () => {
     }
   });
 
+  live("a points program answers with its earning ladder", async () => {
+    const programs = await api.getPrograms();
+    const points = programs.find((program) => program.type === "Points");
+    assert.ok(points, "the seed runs a points program");
+
+    const tiers = await api.getTiers(points.id);
+
+    assert.ok(tiers.length > 0, "a points program is seeded with tiers");
+    // Basis points, not a float multiplier: 10000 is 1x. A tier that arrived
+    // as 1.5 would silently earn a member 1.5 points per peso instead of 15000.
+    for (const tier of tiers) {
+      assert.ok(Number.isInteger(tier.rateBps), `${tier.id} rate ${tier.rateBps}`);
+      assert.ok(Number.isInteger(tier.threshold), `${tier.id} threshold`);
+      assert.ok(tier.name.length > 0);
+    }
+    assert.deepEqual(
+      tiers.map((tier) => tier.threshold),
+      [...tiers.map((tier) => tier.threshold)].sort((left, right) => left - right),
+      "the ladder arrives in threshold order, so the UI can render it as read",
+    );
+  });
+
+  live("a stamp card refuses a tier rather than storing an unreachable one", async () => {
+    const programs = await api.getPrograms();
+    const stamps = programs.find((program) => program.type === "Stamps");
+    assert.ok(stamps, "the seed runs a stamp card");
+
+    // Only points and discount programs read a ladder. Writing one onto a
+    // stamp card would be accepted config that nothing ever applies.
+    const refused = await api
+      .addTier(stamps.id, { name: "Contract", threshold: 5, rateBps: 15000 })
+      .then(() => null)
+      .catch((error: unknown) => error);
+
+    assert.ok(refused instanceof ApiError, "expected an ApiError");
+    assert.equal(refused.status, 409);
+    assert.deepEqual(await api.getTiers(stamps.id), [], "and nothing was written");
+  });
+
   live("metrics are centavos", async () => {
     const metrics = await api.getBusinessMetrics();
 
@@ -315,7 +452,20 @@ describe("business workspace", () => {
       api.getMessages(),
     ]);
 
-    assert.ok(isIso(staff[0].lastActiveAt));
+    // Null is a documented answer: a member who was invited and has never
+    // signed in has no last-active instant. Asserting on staff[0] passed only
+    // while the roster happened to hold no pending invitation.
+    assert.ok(staff.length > 0, "no staff to check");
+    for (const member of staff) {
+      assert.ok(
+        member.lastActiveAt === null || isIso(member.lastActiveAt),
+        `lastActiveAt was ${member.lastActiveAt}`,
+      );
+    }
+    assert.ok(
+      staff.some((member) => isIso(member.lastActiveAt)),
+      "no staff member has ever been active",
+    );
     assert.ok(isIso(redemptions[0].occurredAt));
     assert.ok(isCentavos(redemptions[0].valueCentavos));
     assert.ok(isIso(messages[0].sentAt));
@@ -384,9 +534,12 @@ describe("customer wallet", () => {
   live("the profile carries the scannable member code", async () => {
     const profile = await api.getCustomerProfile();
 
-    // The customer's one identity across every business they join - the whole
-    // point of the wallet, and absent from the fixture.
-    assert.match(profile.memberCode, /^KYP-/);
+    // The customer's one identity across every business they join, and the
+    // number printed on a physical card. Thirteen digits with a valid EAN-13
+    // check digit - it was `KYP-` plus the primary key until the card became
+    // something you can hold.
+    assert.match(profile.memberCode, /^\d{13}$/);
+    assert.ok(isEan13(profile.memberCode), profile.memberCode);
   });
 
   live("discover and consent history answer", async () => {
@@ -436,6 +589,18 @@ describe("platform administration", () => {
     assert.ok(isIso(audit[0].occurredAt));
   });
 
+  live("platform flags answer with the switches the console renders", async () => {
+    const flags = await api.getPlatformFlags();
+
+    assert.ok(flags.length > 0, "no flags to render");
+    // The console used to seed these from four hardcoded `true`s, so a flag
+    // disabled network-wide still rendered as on.
+    for (const flag of flags) {
+      assert.equal(typeof flag.id, "string");
+      assert.equal(typeof flag.enabled, "boolean");
+    }
+  });
+
   live("economics report both sides of the margin in centavos", async () => {
     const [plans, channels] = await Promise.all([
       api.getPlanEconomics(),
@@ -477,7 +642,7 @@ describe("counter writes", () => {
     const byEmail = await api.lookupCustomer({ email: CUSTOMER_EMAIL });
 
     assert.equal(byPhone.id, byEmail.id);
-    assert.match(byPhone.memberCode, /^KYP-/);
+    assert.ok(isEan13(byPhone.memberCode), byPhone.memberCode);
     assert.equal(byPhone.isMember, true);
   });
 

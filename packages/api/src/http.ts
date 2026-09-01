@@ -1,12 +1,9 @@
 /**
- * The transport, ready and deliberately unwired.
+ * The transport every request in the product goes through.
  *
- * `@kypstamping/demo-data`'s `api.ts` is still the seam every hook resolves
- * through, and it still returns the fixture. This file is what each of those
- * 31 accessor bodies becomes: one `http()` call. Nothing imports it yet, and
- * that is the point — the fetch layer is written, typed and tested before a
- * single screen depends on it, so integration is a body swap rather than a
- * design exercise under deadline.
+ * It was written and tested before any screen depended on it, so integration
+ * was a body swap rather than a design exercise under deadline. The fixture
+ * seam it replaced is gone; `endpoints.ts` is the only caller.
  *
  * Everything here was derived from the live API, not from guesswork:
  * `backend/INTEGRATION.md` and `CONTRACT.md` for the envelope and headers,

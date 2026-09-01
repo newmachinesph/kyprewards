@@ -7,13 +7,13 @@ Four Next.js applications share a design package and one typed local JSON demo d
 - Customer PWA: http://localhost:3002
 - Public marketing site: http://localhost:3003
 
-The demos are frontend-only. No live API, account, payment, email, SMS, or push provider is connected yet. Navigation and local interactions are intentionally complete enough to review the product before building the shared FastAPI service and background worker.
+All four apps read and write the live FastAPI service. Start the backend first (`cd ../backend && make up && make migrate && make seed`); with it down, every screen shows its error state rather than a fixture. Email is delivered to Mailpit (`http://localhost:8025`); SMS and push have no transport yet, so an SMS one-time code is mirrored to Mailpit and readable from `GET /api/v1/_dev/messages?purpose=otp`.
 
 ## Start the connected demo
 
-Open `http://localhost:3003/product#apps` for the list of all four surfaces and the way into each one. One Sweet Crumbs visit runs through every product: the same customer, branch, purchase, loyalty balance, event ID, request ID, and delivery state from `packages/demo-data/src/kypstamping-demo.json`.
+Open `http://localhost:3003/product#apps` for the list of all four surfaces and the way into each one. One Sweet Crumbs visit runs through every product: the same customer, branch, purchase, loyalty balance, event ID, request ID, and delivery state, seeded into the API from `packages/demo-data/src/kypstamping-demo.json`.
 
-The three private apps sit behind a simulated session gate, so start at the login screen — a bare hash link cannot survive the redirect:
+The three private apps sit behind a real session cookie the browser code cannot read, so start at the login screen — a bare hash link cannot survive the redirect:
 
 - Customer wallet: `http://localhost:3002/login`, then Wallet, Discover, or the QR button
 - Business counter: `http://localhost:3000/login`, then Scan
@@ -22,19 +22,21 @@ The three private apps sit behind a simulated session gate, so start at the logi
 
 Once signed in, the in-app hash routes (`#scan`, `#integrations`, `#discover`) are linkable and the browser back button works.
 
-The shared fixture proves information architecture and cross-product consistency. It does not pretend to provide live cross-origin synchronization; that begins when the shared FastAPI API and background worker are connected. `packages/demo-data/src/api.ts` is where that switch happens — every store hydrates through it, and `types.ts` beside it declares the shapes the service has to return.
+Cross-product consistency is the API's now, not a shared fixture's: a stamp taken at the counter is in the customer's wallet on the next request. `@kypstamping/api` is the whole data layer — `endpoints.ts` is one function per call, `queries.ts` and `mutations.ts` are the hooks, `keys.ts` is what invalidation targets, and `contract.test.ts` runs all of it against the live service. What remains of `packages/demo-data` is one narrated scenario used by the marketing site.
 
 ## Demo authentication
 
-The three private products now include complete simulated entry and exit journeys. Demo credentials never leave the browser session.
+Sign-in is the API's answer, not a browser flag: the session is an httpOnly cookie this code cannot read.
 
-- Business: `http://localhost:3000/login` → sign in → choose a workspace → dashboard. Recovery, verification, and invitation routes are also available at `/forgot-password`, `/verify`, and `/accept-invite`.
-- Platform admin: `http://localhost:3001/login` → password or SSO preview → MFA at `/verify` → control room.
-- Customer: `http://localhost:3002/login` → mobile/email verification → wallet. New-account setup is available at `/create-account`.
-- Shared verification code: `424242`.
-- Business password example: `DemoPass123!`.
+- Business: `http://localhost:3000/login` → sign in → dashboard. An owner with one workspace does not pass a picker. Recovery, verification, and invitation routes are at `/forgot-password`, `/verify`, and `/accept-invite`.
+- Platform admin: `http://localhost:3001/login` → password → TOTP at `/verify` → control room.
+- Customer: `http://localhost:3002/login` → one-time code → wallet. New-account setup is at `/create-account`.
+- The member code is a thirteen-digit EAN-13 (`2974 0128 0548 0`), stored on the account and reissuable - it is no longer derived from the customer id. `formatMemberCode` in `packages/ui/src/format.ts` groups it for display; it is always stored and sent bare.
+- Seeded accounts: `mara@sweetcrumbs.ph` (business owner) and `admin@kypstamping.ph` (platform), both with password `DemoPass123!`.
+- The admin's second factor is a real TOTP over the seeded secret; the customer's code is the one the API sent, readable at `GET /api/v1/_dev/messages?purpose=otp` or in Mailpit. Set `OTP_DEV_CODE=123456` in the backend `.env` to pin it instead — local only, and the API refuses to start with it set anywhere else.
+- One-time codes are limited to three per destination per ten minutes, so a tight rerun loop is throttled by design.
 
-Logout is available from each product account menu or profile. It clears that app's simulated browser session and prevents the private root screen from reopening until the demo user signs in again.
+Logout is available from each product account menu or profile. It ends the session on the server and prevents the private root screen from reopening until the user signs in again.
 
 ## Demo coverage
 
@@ -74,18 +76,27 @@ npm.cmd run typecheck
 npm.cmd run lint
 npm.cmd run test:format
 npm.cmd run audit:controls
+npm.cmd run test              # contract tests against the running API
 npm.cmd run qa:customer-auth
 npm.cmd run qa:private-apps
 npm.cmd run build
 ```
 
+Everything below `audit:controls` needs the API up and freshly seeded, and each
+one writes to the database it reads. Run them **one at a time, in this order**,
+and reseed (`cd ../backend && make seed`) before a run you intend to trust —
+the backend's own `pytest` uses the same database, so running the two together
+is how a suite fails on the other's leftovers. Sign-in is rate limited (and
+one-time codes are three per destination per ten minutes), so a tight rerun
+loop answers 429; each suite says so rather than failing as a broken app.
+
 `test:format` checks the shared money, greeting, relative-time, and birthday-window helpers in `packages/ui/src/format.ts`.
 
 `audit:controls` checks that every rendered button has an action and every link has a destination — and that internal destinations resolve to a route the app actually serves. That last check exists because two homepage buttons pointed at a deleted `/demo` route for a full release without failing anything.
 
-`qa:customer-auth` runs the customer login, verification, and signup journeys in Playwright at phone and desktop widths. Set `CUSTOMER_APP_URL` to run the same suite against a deployed PWA.
+`qa:customer-auth` runs the customer login, verification, and signup journeys in Playwright at phone and desktop widths, against the real API: it reads the one-time code the service actually sent. Set `CUSTOMER_APP_URL` to run the same suite against a deployed PWA, and `KYP_TEST_API` if the API is not on `localhost:8000`. Codes are limited to three per destination per ten minutes, so back-to-back runs are throttled and the suite says so rather than failing as a broken sign-in.
 
-`qa:private-apps` signs into the business and platform workspaces, walks all 24 views, and re-checks the interactions that have to outlive navigation: a staff invitation, a program rule edit, support triage, and replaying the recovery queue. Both apps have to be running; set `BUSINESS_APP_URL` and `ADMIN_APP_URL` to point it at a deployment.
+`qa:private-apps` signs into the business and platform workspaces — a real password, and a live TOTP for the administrator's second factor — walks all 24 views, and re-checks the interactions that have to outlive navigation: a staff invitation, a published program rule, support triage, and replaying the recovery queue. It also fails on any 4xx or 5xx the apps provoke, naming the route; a 402 is excepted because a plan gate is an answer a card renders rather than a fault. Both apps and the API have to be running; set `BUSINESS_APP_URL` and `ADMIN_APP_URL` to point it at a deployment. It writes to the database it walks, so reseed (`cd ../backend && make seed`) before measuring anything from the demo data.
 
 The latest measured release results and scope boundary are recorded in [docs/frontend-release-audit.md](docs/frontend-release-audit.md). The cross-app consistency review that produced the current round of fixes is in [docs/frontend-synergy-audit.md](docs/frontend-synergy-audit.md).
 

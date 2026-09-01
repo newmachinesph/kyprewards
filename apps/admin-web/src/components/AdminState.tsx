@@ -14,10 +14,17 @@ import {
   setPlatformFlag,
   updateSupportTicket,
   useApiMutation,
+  usePlatformFlags,
+  useQueryClient,
   useRecoveryQueue,
   useSupportQueue,
 } from "@kypstamping/api";
-import type { Environment, RecoveryItem, SupportTicket } from "@kypstamping/api";
+import type {
+  Environment,
+  RecoveryItem,
+  SupportTicket,
+  ToggleResult,
+} from "@kypstamping/api";
 
 /**
  * The control room's state, above the view switch.
@@ -37,9 +44,21 @@ type AdminState = {
   /** Support queue with local triage applied. */
   tickets: TriagedTicket[];
   openTicketCount: number;
-  assignTicket: (id: string, owner: string) => void;
-  setTicketNote: (id: string, note: string) => void;
-  setTicketStatus: (id: string, status: string) => void;
+  /**
+   * Several triage fields at once.
+   *
+   * The API refuses "Investigating" without a note, so a status change that
+   * depends on a note still being written has to carry it - two PATCHes race,
+   * and the status one loses.
+   */
+  updateTicket: (
+    id: string,
+    patch: Partial<TriagedTicket>,
+    onFailure?: (message: string) => void,
+  ) => void;
+  assignTicket: (id: string, owner: string, onFailure?: (message: string) => void) => void;
+  setTicketNote: (id: string, note: string, onFailure?: (message: string) => void) => void;
+  setTicketStatus: (id: string, status: string, onFailure?: (message: string) => void) => void;
 
   /** Network-wide safety defaults. */
   flags: Record<string, boolean>;
@@ -65,12 +84,15 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
     () => queue.map((ticket) => ({ ...ticket, ...triage[ticket.id] })),
     [queue, triage],
   );
-  const [flags, setFlags] = useState<Record<string, boolean>>({
-    automaticPausing: true,
-    publicStatus: true,
-    newTenantReview: true,
-    adminMfa: true,
-  });
+  const queryClient = useQueryClient();
+  // The switches are the database's, not four hardcoded `true`s: a flag
+  // disabled network-wide used to render as on, and a reload put an admin's
+  // own change back the way it was.
+  const { data: platformFlags = [] } = usePlatformFlags();
+  const flags = useMemo(
+    () => Object.fromEntries(platformFlags.map((flag) => [flag.id, flag.enabled])),
+    [platformFlags],
+  );
   const { data: pendingRecovery = [] } = useRecoveryQueue();
   const [replayed, setReplayed] = useState<string[]>([]);
   const recoveryQueue = useMemo<RecoveryItem[]>(
@@ -92,48 +114,88 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
     { invalidates: [keys.admin.support()] },
   );
   const patchTicket = useCallback(
-    (id: string, patch: Partial<TriagedTicket>) => {
+    (id: string, patch: Partial<TriagedTicket>, onFailure?: (message: string) => void) => {
       setTriage((current) => ({ ...current, [id]: { ...current[id], ...patch } }));
-      write.mutate({ id, patch });
+      write.mutate(
+        { id, patch },
+        {
+          /**
+           * The API refuses some transitions - "Investigating" without an
+           * internal note is one - and the overlay kept showing the move
+           * regardless: nothing cleared it, and the refetch only runs on
+           * success. The console went on reporting a status the database
+           * never accepted.
+           */
+          onError: (failure) => {
+            setTriage((current) => {
+              const existing = current[id];
+              if (!existing) return current;
+              const reverted = { ...existing };
+              for (const field of Object.keys(patch)) {
+                delete reverted[field as keyof TriagedTicket];
+              }
+              const next = { ...current };
+              if (Object.keys(reverted).length) next[id] = reverted;
+              else delete next[id];
+              return next;
+            });
+            onFailure?.(failure.message);
+          },
+        },
+      );
     },
     [write],
   );
 
+  const updateTicket = patchTicket;
   const assignTicket = useCallback(
-    (id: string, owner: string) => patchTicket(id, { owner }),
+    (id: string, owner: string, onFailure?: (message: string) => void) =>
+      patchTicket(id, { owner }, onFailure),
     [patchTicket],
   );
   const setTicketNote = useCallback(
-    (id: string, note: string) => patchTicket(id, { note }),
+    (id: string, note: string, onFailure?: (message: string) => void) =>
+      patchTicket(id, { note }, onFailure),
     [patchTicket],
   );
   const setTicketStatus = useCallback(
-    (id: string, status: string) => patchTicket(id, { status }),
+    (id: string, status: string, onFailure?: (message: string) => void) =>
+      patchTicket(id, { status }, onFailure),
     [patchTicket],
   );
 
   /**
    * A platform flag is network-wide, so it is the server's answer that counts.
-   * Flipped locally first so the switch moves, and put back if the API
-   * refuses - an admin has to be able to see that it did not take.
+   *
+   * Written straight into the cached list rather than invalidated: the switch
+   * has to move on the press, and a refetch racing the optimistic flip is
+   * what makes a toggle appear to bounce back on its own. The API returns the
+   * value it settled on, so that replaces the guess; a refusal restores it.
    */
+  const patchFlag = useCallback(
+    (key: string, enabled: boolean) =>
+      queryClient.setQueryData<ToggleResult[]>(keys.admin.flags(), (current) =>
+        (current ?? []).map((flag) => (flag.id === key ? { ...flag, enabled } : flag)),
+      ),
+    [queryClient],
+  );
   const flagWrite = useApiMutation(
     ({ key, value }: { key: string; value: boolean }) => setPlatformFlag(key, value),
   );
   const toggleFlag = useCallback(
     (key: string) => {
-      let next = false;
-      setFlags((current) => {
-        next = !current[key];
-        return { ...current, [key]: next };
-      });
+      const next = !flags[key];
+      patchFlag(key, next);
       flagWrite.mutate(
         { key, value: next },
-        { onError: () => setFlags((current) => ({ ...current, [key]: !next })) },
+        {
+          onSuccess: (result) => patchFlag(result.id, result.enabled),
+          onError: () => patchFlag(key, !next),
+        },
       );
       return next;
     },
-    [flagWrite],
+    [flags, flagWrite, patchFlag],
   );
 
   /** Moving deliveries into replay empties the queue, so the count that drove
@@ -163,6 +225,7 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
     () => ({
       tickets,
       openTicketCount,
+      updateTicket,
       assignTicket,
       setTicketNote,
       setTicketStatus,
@@ -176,6 +239,7 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
     [
       tickets,
       openTicketCount,
+      updateTicket,
       assignTicket,
       setTicketNote,
       setTicketStatus,

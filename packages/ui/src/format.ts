@@ -176,3 +176,25 @@ export function daysUntilBirthday(
   const until = Math.round((next.getTime() - today.getTime()) / 86400000);
   return until <= days ? until : null;
 }
+
+/**
+ * `2974 0128 0548 0` - the member code, grouped the way a card is read.
+ *
+ * Stored and sent bare. Grouping is presentation, and a stored copy carrying
+ * spaces is a second format that eventually fails to match the first - the
+ * counter normalizes whatever it is given back to digits before looking it up.
+ *
+ * Fours because that is how every card number a person has ever held is
+ * printed, and thirteen digits divides into 4-4-4-1 rather than evenly. The
+ * odd last group is the check digit standing on its own, which is fine: it is
+ * the digit nobody needs to read aloud carefully.
+ */
+export function formatMemberCode(code: string | null | undefined): string {
+  if (!code) return "";
+  const digits = code.replace(/\D/g, "");
+  // Anything that is not the thirteen-digit format goes back untouched rather
+  // than being chopped into fours - a legacy code or a typo should look wrong,
+  // not look formatted.
+  if (digits.length !== 13) return code;
+  return digits.replace(/(\d{4})(?=\d)/g, "$1 ");
+}

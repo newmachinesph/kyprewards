@@ -23,8 +23,11 @@ import {
   toggleAutomation,
   toggleIntegration,
   addCatalogItem,
+  addTier,
   addCustomField,
+  cancelMembership,
   cancelRedemption,
+  claimReferral,
   createCustomer,
   createReferral,
   decideApproval,
@@ -35,12 +38,16 @@ import {
   redeemCatalogItem,
   raiseSupportRequest,
   redeemCoupon,
+  refundVisit,
   requestFeedback,
   sendCampaignTest,
   redeemGiftCard,
+  qualifyReferral,
   requestApproval,
+  setBrandingColor,
   setCustomFieldValues,
   subscribeMembership,
+  transferGiftCard,
   useMembershipBenefit,
   useMultipass,
   commitRedemption,
@@ -126,6 +133,20 @@ export const useVoidVisit = () =>
   );
 
 /**
+ * Give a settled sale back.
+ *
+ * `void` is the counter cancelling what it just took; this is the reversal of
+ * something already settled, which is why it lives on the ledger screen and
+ * not on the till. Same idempotency rule: a double tap must not refund twice.
+ */
+export const useRefundVisit = () =>
+  useApiMutation(
+    ({ id, idempotencyKey }: { id: string; idempotencyKey: string }) =>
+      refundVisit(id, idempotencyKey),
+    { invalidates: [keys.business.all] },
+  );
+
+/**
  * Take a reward out of circulation without spending it.
  *
  * Nothing leaves the customer's balance until the commit, so a counter that
@@ -181,6 +202,14 @@ export const useRequestFeedback = () =>
 export const useRedeemCoupon = () =>
   useApiMutation(redeemCoupon, { invalidates: [keys.business.all] });
 
+/** Hands a card to a different holder. Balance and history travel with it. */
+export const useTransferGiftCard = () =>
+  useApiMutation(
+    ({ code, ...body }: { code: string; toAccountId: string; toName?: string }) =>
+      transferGiftCard(code, body),
+    { invalidates: [keys.business.giftCards()] },
+  );
+
 export const useRedeemGiftCard = () =>
   useApiMutation(
     ({ code, ...body }: { code: string; amountCentavos: number; reason?: string }) =>
@@ -196,6 +225,16 @@ export const useUseBenefit = () =>
 
 export const useSubscribeMembership = () =>
   useApiMutation(subscribeMembership, { invalidates: [keys.business.all] });
+
+/**
+ * End a recurring membership.
+ *
+ * A staff capability rather than a customer one - the API asks for
+ * `customers:write` - so the till is where it belongs, next to the benefit it
+ * stops paying out.
+ */
+export const useCancelMembership = () =>
+  useApiMutation(cancelMembership, { invalidates: [keys.business.all] });
 
 export const usePurchaseMultipass = () =>
   useApiMutation(purchaseMultipass, { invalidates: [keys.business.all] });
@@ -213,11 +252,34 @@ export const useAddCatalogItem = () =>
     { invalidates: [keys.business.programs()] },
   );
 
+export const useAddTier = () =>
+  useApiMutation(
+    ({ programId, ...body }: { programId: string; name: string; threshold: number; rateBps: number }) =>
+      addTier(programId, body),
+    // The programs prefix covers every program's tier list; the ladder a tier
+    // joins also changes what the program earns, so both want refetching.
+    { invalidates: [keys.business.programs()] },
+  );
+
 export const useRedeemCatalogItem = () =>
   useApiMutation(redeemCatalogItem, { invalidates: [keys.business.all] });
 
 export const useCreateReferral = () =>
   useApiMutation(createReferral, { invalidates: [keys.business.referrals()] });
+
+/**
+ * The other two thirds of a two-sided referral.
+ *
+ * Issuing a code was wired and nothing could ever redeem one: a friend's
+ * claim and the qualifying visit that actually pays both sides had no way in.
+ * Both are counter actions - the API asks for staff capabilities, not the
+ * customer's.
+ */
+export const useClaimReferral = () =>
+  useApiMutation(claimReferral, { invalidates: [keys.business.referrals()] });
+
+export const useQualifyReferral = () =>
+  useApiMutation(qualifyReferral, { invalidates: [keys.business.all] });
 
 export const useAddCustomField = () =>
   useApiMutation(addCustomField, { invalidates: [keys.business.customFields()] });
@@ -254,6 +316,16 @@ export const useUpdateLocation = () =>
       updateLocation(id, body),
     { invalidates: [keys.business.locations()] },
   );
+
+/**
+ * The wallet card's colour token.
+ *
+ * `PUT /business/branding` and its accessor both existed; the profile dialog
+ * only ever sent the photo, so the colour half of "Custom branding" could not
+ * be changed from anywhere in the product.
+ */
+export const useSetBrandingColor = () =>
+  useApiMutation(setBrandingColor, { invalidates: [keys.business.branding()] });
 
 export const useUploadBrandingImage = () =>
   useApiMutation(uploadBrandingImage, { invalidates: [keys.business.branding()] });

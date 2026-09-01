@@ -27,7 +27,10 @@ export const keys = {
     coupons: () => [...keys.business.all, "coupons"] as const,
     giftCards: () => [...keys.business.all, "gift-cards"] as const,
     giftCard: (code: string) => [...keys.business.giftCards(), code] as const,
+    giftCardEntries: (code: string) =>
+      [...keys.business.giftCard(code), "entries"] as const,
     catalog: (programId: string) => [...keys.business.program(programId), "catalog"] as const,
+    tiers: (programId: string) => [...keys.business.program(programId), "tiers"] as const,
     referrals: () => [...keys.business.all, "referrals"] as const,
     feedback: () => [...keys.business.all, "feedback"] as const,
     customFields: () => [...keys.business.all, "custom-fields"] as const,
@@ -47,6 +50,7 @@ export const keys = {
     campaigns: () => [...keys.business.all, "campaigns"] as const,
     messages: () => [...keys.business.all, "messages"] as const,
     redemptions: () => [...keys.business.all, "redemptions"] as const,
+    transactions: () => [...keys.business.all, "transactions"] as const,
     integrations: () => [...keys.business.all, "integrations"] as const,
     favoriteOrders: () => [...keys.business.all, "favorite-orders"] as const,
     /**
@@ -107,6 +111,7 @@ export const keys = {
     administrators: () => [...keys.admin.all, "administrators"] as const,
     onboarding: () => [...keys.admin.all, "onboarding"] as const,
     providerPolicy: () => [...keys.admin.all, "provider-policy"] as const,
+    flags: () => [...keys.admin.all, "flags"] as const,
     economics: {
       plans: () => [...keys.admin.all, "economics", "plans"] as const,
       channels: () => [...keys.admin.all, "economics", "channels"] as const,

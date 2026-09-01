@@ -28,6 +28,7 @@ import {
 import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, howTo, webPage } from "@/lib/schema";
 import { ProductPreview } from "@/components/ProductPreview";
+import { VirtualCard } from "@/components/VirtualCard";
 import { adminAppUrl, businessAppUrl, customerAppUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -239,6 +240,8 @@ export default function ProductPage() {
           </div>
         </div>
       </section>
+
+      <VirtualCard />
 
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">

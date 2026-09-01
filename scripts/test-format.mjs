@@ -17,6 +17,7 @@ import {
   pesoCompactFromCentavos,
   pesoFromCentavos,
   relativeTime,
+  formatMemberCode,
   longDate,
   timeOfDay,
 } from "../packages/ui/src/format.ts";
@@ -134,5 +135,17 @@ assert.equal(formatDistance(0), "0 m");
 
 // No position, no distance - and nothing pretending otherwise.
 assert.equal(formatDistance(null), "");
+
+/* ── Member code ──────────────────────────────────────────────────────
+   The number on a physical card. Grouped for reading, never stored grouped. */
+
+assert.equal(formatMemberCode("2974012805480"), "2974 0128 0548 0");
+// Already grouped, or scanned with stray characters: same card.
+assert.equal(formatMemberCode("2974 0128 0548 0"), "2974 0128 0548 0");
+// Not our format - handed back as-is rather than chopped into fours, so a
+// wrong code looks wrong instead of looking formatted.
+assert.equal(formatMemberCode("KYP-CUS_1001"), "KYP-CUS_1001");
+assert.equal(formatMemberCode(""), "");
+assert.equal(formatMemberCode(null), "");
 
 console.log("format checks passed");

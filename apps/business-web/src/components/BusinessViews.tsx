@@ -10,12 +10,20 @@ import {
   useBusinessProfile,
   useDiscountQuote,
   useCatalog,
+  useTiers,
   useCustomFieldValues,
   useApprovals,
   useCustomFields,
   useCoupons,
   useFeedback,
+  useGiftCard,
+  useGiftCardEntries,
+  useBranchPerformance,
+  useCampaignAttribution,
   useReferrals,
+  useSegments,
+  useStaffPerformance,
+  useTransactions,
   useHeldPrograms,
   useMessagingPolicy,
   useRfm,
@@ -71,6 +79,7 @@ import {
   useSetMessagingPolicy,
   useCancelRedemption,
   useAddCatalogItem,
+  useAddTier,
   useAddCustomField,
   useDecideApproval,
   useCreateCustomer,
@@ -84,6 +93,11 @@ import {
   useRequestFeedback,
   useSendCampaignTest,
   useRedeemGiftCard,
+  useCancelMembership,
+  useRefundVisit,
+  useClaimReferral,
+  useQualifyReferral,
+  useTransferGiftCard,
   useUseBenefit,
   useUseMultipass,
   usePurchaseMultipass,
@@ -93,10 +107,11 @@ import {
   useSetSetting,
   useVoidVisit,
 } from "@/components/mutations";
-import { Button, Eyebrow, Pill, StampDots, ViewFrame } from "@kypstamping/ui";
+import { brandColor, Button, Eyebrow, Pill, StampDots, ViewFrame } from "@kypstamping/ui";
 import {
   daysUntilBirthday,
   longDate,
+  formatMemberCode,
   peso,
   pesoCompactFromCentavos,
   pesoFromCentavos,
@@ -104,6 +119,7 @@ import {
   timeOfDay,
 } from "@kypstamping/ui/format";
 import {
+  Ban,
   BadgeCheck,
   BellRing,
   CakeSlice,
@@ -198,10 +214,12 @@ function initialsOf(name: string) {
  */
 function OtherProgramActions({
   customerId,
+  customerName,
   amountCentavos,
   notify,
 }: {
   customerId: string;
+  customerName: string;
   amountCentavos: number;
   notify: Notify;
 }) {
@@ -213,11 +231,25 @@ function OtherProgramActions({
   const giftCard = useRedeemGiftCard();
   const pass = useUseMultipass();
   const benefit = useUseBenefit();
+  const cancelMembership = useCancelMembership();
   const buyPass = usePurchaseMultipass();
   const subscribe = useSubscribeMembership();
   const { data: held = [] } = useHeldPrograms(customerId);
+  const transfer = useTransferGiftCard();
+  const claim = useClaimReferral();
+  const { data: referrals = [] } = useReferrals();
   const [couponCode, setCouponCode] = useState("");
   const [cardCode, setCardCode] = useState("");
+  const [referralCode, setReferralCode] = useState("");
+  /**
+   * The code a cashier asked about, not the one they are typing.
+   *
+   * Looking up on every keystroke would fire a request per character and 404
+   * on all but the last, so the read waits to be asked for.
+   */
+  const [lookupCode, setLookupCode] = useState("");
+  const { data: card, error: cardError } = useGiftCard(lookupCode);
+  const { data: cardEntries = [] } = useGiftCardEntries(card ? lookupCode : "");
 
   const discount = live("Discount");
   const { data: quote } = useDiscountQuote(
@@ -232,7 +264,8 @@ function OtherProgramActions({
     held.length > 0 ||
     live("Multipass") ||
     live("Coupon") ||
-    live("Gift card");
+    live("Gift card") ||
+    referrals.some((referral) => referral.status === "pending");
   if (!anything) return null;
 
   return (
@@ -309,6 +342,104 @@ function OtherProgramActions({
           >
             {amountCentavos > 0 ? `Pay ${pesoFromCentavos(amountCentavos)}` : "Enter an amount"}
           </Button>
+          <Button
+            tone="quiet"
+            disabled={!cardCode.trim()}
+            onClick={() => setLookupCode(cardCode.trim())}
+          >
+            Check
+          </Button>
+        </div>
+      )}
+
+      {/* What is actually on the card, before it is charged. The till used to
+          take a code and a peso amount and find out from the error. */}
+      {lookupCode && (cardError || card) && (
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3">
+          {cardError ? (
+            <p className="text-xs font-bold text-[var(--danger,var(--accent-strong))]">
+              No gift card with code {lookupCode}.
+            </p>
+          ) : (
+            card && (
+              <>
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-mono text-xs font-bold">{card.code}</span>
+                  <span className="text-sm font-extrabold">
+                    {pesoFromCentavos(card.balanceCentavos)}
+                  </span>
+                </div>
+                <p className="mt-1 text-[11px] text-[var(--muted-strong)]">
+                  {card.issuedToName} &middot; {card.status}
+                  {card.expiresOn ? ` · expires ${longDate(card.expiresOn)}` : ""}
+                </p>
+                {cardEntries.length > 0 && (
+                  <ul className="mt-2 space-y-1 border-t border-[var(--line)] pt-2">
+                    {cardEntries.slice(-3).reverse().map((entry) => (
+                      <li key={entry.id} className="flex justify-between gap-3 text-[11px]">
+                        <span className="min-w-0 truncate text-[var(--muted-strong)]">
+                          {entry.reason || entry.kind}
+                        </span>
+                        <span className="shrink-0 font-semibold">
+                          {pesoFromCentavos(entry.amountCentavos)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {card.status === "active" && card.holderAccountId !== customerId && (
+                  <Button
+                    tone="quiet"
+                    className="mt-3 w-full"
+                    disabled={transfer.isPending}
+                    onClick={() =>
+                      transfer.mutate(
+                        { code: card.code, toAccountId: customerId, toName: customerName },
+                        {
+                          onSuccess: () => notify(`Card ${card.code} is now ${customerName}'s.`),
+                          onError: (failure) => notify(failure.message, "error"),
+                        },
+                      )
+                    }
+                  >
+                    Transfer to {customerName}
+                  </Button>
+                )}
+              </>
+            )
+          )}
+        </div>
+      )}
+
+      {/* A friend arriving with somebody's code. Issuing one was wired and
+          claiming one was not, so the second half of every referral was
+          unreachable from the product. */}
+      {referrals.some((referral) => referral.status === "pending") && (
+        <div className="flex gap-2">
+          <input
+            value={referralCode}
+            onChange={(event) => setReferralCode(event.target.value.toUpperCase())}
+            placeholder="Referral code"
+            className="min-h-10 flex-1 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-mono outline-none focus:border-[var(--accent-strong)]"
+          />
+          <Button
+            tone="quiet"
+            disabled={!referralCode.trim() || claim.isPending}
+            onClick={() =>
+              claim.mutate(
+                { code: referralCode.trim(), customerId },
+                {
+                  onSuccess: () => {
+                    setReferralCode("");
+                    notify("Referral claimed. Both sides pay on the qualifying visit.");
+                  },
+                  onError: (failure) => notify(failure.message, "error"),
+                },
+              )
+            }
+          >
+            Claim
+          </Button>
         </div>
       )}
 
@@ -382,6 +513,24 @@ function OtherProgramActions({
             >
               Use a benefit
             </Button>
+            {/* A member asking to stop asks the counter, not an app: the API
+                wants a staff capability for this, so there was nowhere in the
+                product it could be done. */}
+            {item.status === "active" && (
+              <Button
+                tone="quiet"
+                icon={<Ban size={14} />}
+                disabled={cancelMembership.isPending}
+                onClick={() =>
+                  cancelMembership.mutate(item.subscriptionId, {
+                    onSuccess: () => notify(`${item.programName} cancelled.`),
+                    onError: (failure) => notify(failure.message, "error"),
+                  })
+                }
+              >
+                Cancel
+              </Button>
+            )}
           </div>
         ),
       )}
@@ -429,7 +578,8 @@ function AddWalkIn({
   name: string;
   onName: (value: string) => void;
   onCancel: () => void;
-  onAdded: (customer: { id: string; name: string }) => void;
+  /** The API's answer, member code included - the till scans it next. */
+  onAdded: (customer: { id: string; name: string; memberCode: string }) => void;
   notify: Notify;
 }) {
   const add = useCreateCustomer();
@@ -485,6 +635,8 @@ function ScanView({
 }) {
   const { data: customers = [] } = useBusinessCustomers();
   const { data: redemptions = [] } = useRedemptions();
+  // The header named the demo fixture's branch, which is not this shop's.
+  const { data: locations = [] } = useLocations();
   // The dashboard scanner already picked a customer; arriving here and being
   // asked to pick again broke the flow.
   const { scanHandoff, consumeScanHandoff } = useDemoState();
@@ -530,10 +682,13 @@ function ScanView({
     consumeScanHandoff();
     const first = customers[0];
     if (first && !scanned) {
+      // The API's code, not one rebuilt from the id. The member code is its
+      // own column now precisely so a lost card can be reissued without the
+      // id moving, and rebuilding it here would undo that.
       scan({
         id: first.id,
         name: first.name,
-        memberCode: `KYP-${first.id.toUpperCase()}`,
+        memberCode: first.memberCode,
         isMember: true,
       });
     }
@@ -694,7 +849,7 @@ function ScanView({
                     A hardware scanner types here and presses Enter.
                   </span>
                 </label>
-                <Button tone="accent" className="mt-4 w-full" disabled={looking}>
+                <Button type="submit" tone="accent" className="mt-4 w-full" disabled={looking}>
                   {looking ? "Looking up\u2026" : "Find customer"}
                 </Button>
               </form>
@@ -714,7 +869,7 @@ function ScanView({
                     scan({
                       id: created.id,
                       name: created.name,
-                      memberCode: `KYP-${created.id.toUpperCase()}`,
+                      memberCode: created.memberCode,
                       isMember: true,
                     });
                   }}
@@ -728,7 +883,7 @@ function ScanView({
                     scan({
                       id: customers[0].id,
                       name: customers[0].name,
-                      memberCode: `KYP-${customers[0].id.toUpperCase()}`,
+                      memberCode: customers[0].memberCode,
                       isMember: true,
                     })
                   }
@@ -750,7 +905,7 @@ function ScanView({
                   <div className="min-w-0 flex-1">
                     <p className="font-extrabold">{scanned.name}</p>
                     <p className="mt-1 font-mono text-xs text-[var(--muted)]">
-                      {scanned.memberCode}
+                      {formatMemberCode(scanned.memberCode)}
                     </p>
                   </div>
                   <BadgeCheck className="text-[var(--success)]" />
@@ -872,6 +1027,7 @@ function ScanView({
 
                 <OtherProgramActions
                   customerId={scanned.id}
+                  customerName={scanned.name}
                   amountCentavos={
                     Number.isFinite(Number.parseFloat(amount))
                       ? Math.round(Number.parseFloat(amount) * 100)
@@ -960,7 +1116,7 @@ function ScanView({
             <div>
               <Eyebrow>Recent counter activity</Eyebrow>
               <h2 className="mt-1 text-lg font-extrabold">
-                Today at {sharedScenario.branch}
+                {locations[0] ? `Today at ${locations[0].name}` : "Today at the counter"}
               </h2>
             </div>
             <button
@@ -1373,6 +1529,7 @@ function CustomerExtras({
   const { data: referrals = [] } = useReferrals();
   const save = useSetCustomFieldValues();
   const invite = useCreateReferral();
+  const qualify = useQualifyReferral();
   const [draft, setDraft] = useState<Record<string, string> | null>(null);
 
   // Keyed by customer: switching selection drops a half-typed draft rather
@@ -1438,9 +1595,28 @@ function CustomerExtras({
         {theirs.length > 0 ? (
           <ul className="mt-3 space-y-1.5">
             {theirs.slice(0, 3).map((referral) => (
-              <li key={referral.id} className="flex justify-between gap-3 text-xs">
+              <li key={referral.id} className="flex items-center justify-between gap-3 text-xs">
                 <span className="font-mono text-white/75">{referral.code}</span>
-                <span className="shrink-0 text-white/50">{referral.status}</span>
+                {/* Both sides are paid here, not at sign-up. A claimed code
+                    sat at "claimed" forever because nothing in the product
+                    could say the friend had actually come back. */}
+                {referral.status === "claimed" ? (
+                  <button
+                    type="button"
+                    disabled={qualify.isPending}
+                    className="shrink-0 rounded-full border border-white/20 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-white/75 transition hover:bg-white/10 disabled:opacity-45"
+                    onClick={() =>
+                      qualify.mutate(referral.id, {
+                        onSuccess: () => notify(`${referral.code} qualified. Both sides paid.`),
+                        onError: (failure) => notify(failure.message, "error"),
+                      })
+                    }
+                  >
+                    Mark qualified
+                  </button>
+                ) : (
+                  <span className="shrink-0 text-white/50">{referral.status}</span>
+                )}
               </li>
             ))}
           </ul>
@@ -1830,6 +2006,20 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
                 <span className="font-bold">{value}</span>
               </div>
             ))}
+            {/* Shown here so the picker in the dialog has somewhere to land:
+                the token is stored and editable, and the wallet card that
+                will paint with it is still on one fixed dark ground. */}
+            <div className="flex items-center justify-between gap-4 py-3 text-sm">
+              <span className="text-white/55">Card colour</span>
+              <span className="flex items-center gap-2 font-bold">
+                {brandColor(branding?.color ?? "ink").label}
+                <span
+                  aria-hidden="true"
+                  className="size-4 rounded-full border border-white/25"
+                  style={{ background: brandColor(branding?.color ?? "ink").background }}
+                />
+              </span>
+            </div>
           </div>
           <Button
             tone="accent"
@@ -1924,14 +2114,20 @@ function ProgramStock({ program, notify }: { program: Program; notify: Notify })
   const issueCouponFor = useIssueCoupon();
   const issueCard = useIssueGiftCard();
   const addItem = useAddCatalogItem();
+  const addTierRung = useAddTier();
   const { data: coupons = [] } = useCoupons({ enabled: program.type === "Coupon" });
   const { data: catalog = [] } = useCatalog(program.type === "Rewards" ? program.id : "");
+  const hasTiers = program.type === "Points" || program.type === "Discount";
+  const { data: tiers = [] } = useTiers(hasTiers ? program.id : "");
   const [couponName, setCouponName] = useState("");
   const [couponValue, setCouponValue] = useState("");
   const [cardValue, setCardValue] = useState("");
   const [cardFor, setCardFor] = useState("");
   const [itemName, setItemName] = useState("");
   const [itemCost, setItemCost] = useState("");
+  const [tierName, setTierName] = useState("");
+  const [tierThreshold, setTierThreshold] = useState("");
+  const [tierRate, setTierRate] = useState("");
 
   const pesosToCentavos = (typed: string) => Math.round(Number.parseFloat(typed) * 100);
   const onlyMoney = (typed: string) => typed.replace(/[^0-9.]/g, "");
@@ -2112,6 +2308,89 @@ function ProgramStock({ program, notify }: { program: Program; notify: Notify })
     );
   }
 
+  if (program.type === "Points" || program.type === "Discount") {
+    const isPoints = program.type === "Points";
+    return (
+      <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
+        <Eyebrow>Earning tiers</Eyebrow>
+        <p className="mt-2 text-xs text-white/55">
+          {isPoints
+            ? "A member who has cleared a tier earns at its multiplier instead of the base rate."
+            : "A member who has cleared a tier is charged at its rate instead of the base discount."}{" "}
+          Tiers unlock on lifetime visits, and the API applies the highest one
+          cleared.
+        </p>
+        {tiers.length > 0 && (
+          <ul className="mt-4 space-y-1.5">
+            {tiers.map((tier) => (
+              <li key={tier.id} className="flex justify-between gap-3 text-xs">
+                <span className="truncate">
+                  {tier.name}
+                  <span className="text-white/45"> · from {tier.threshold} visits</span>
+                </span>
+                <span className="shrink-0 font-bold">
+                  {isPoints
+                    ? `${(tier.rateBps / 10000).toFixed(2)}x`
+                    : `${(tier.rateBps / 100).toFixed(1)}%`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="mt-4 grid gap-2">
+          <input
+            value={tierName}
+            onChange={(event) => setTierName(event.target.value)}
+            placeholder="Tier name, for example Gold"
+            className={field}
+          />
+          <input
+            value={tierThreshold}
+            onChange={(event) => setTierThreshold(onlyDigits(event.target.value))}
+            inputMode="numeric"
+            placeholder="Unlocks at how many visits"
+            className={field}
+          />
+          <input
+            value={tierRate}
+            onChange={(event) => setTierRate(onlyMoney(event.target.value))}
+            inputMode="decimal"
+            placeholder={isPoints ? "Multiplier, for example 1.5" : "Percent off, for example 12.5"}
+            className={field}
+          />
+          <Button
+            tone="accent"
+            disabled={!tierName.trim() || !tierThreshold || !tierRate || addTierRung.isPending}
+            onClick={() =>
+              addTierRung.mutate(
+                {
+                  programId: program.id,
+                  name: tierName.trim(),
+                  threshold: Number(tierThreshold),
+                  // Basis points either way: 10000 is one multiplier or 100%.
+                  rateBps: Math.round(
+                    Number.parseFloat(tierRate) * (isPoints ? 10000 : 100),
+                  ),
+                },
+                {
+                  onSuccess: (tier) => {
+                    setTierName("");
+                    setTierThreshold("");
+                    setTierRate("");
+                    notify(`${tier.name} unlocks at ${tier.threshold} visits.`);
+                  },
+                  onError: (failure) => notify(failure.message, "error"),
+                },
+              )
+            }
+          >
+            Add a tier
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return null;
 }
 
@@ -2138,7 +2417,12 @@ function ProgramsView({ notify }: { notify: Notify }) {
     setDraft({
       name: selected.name,
       status: selected.status,
-      target: selected.target,
+      // A Coupon, Gift card, Membership or Discount carries target 0, and the
+      // API refuses anything below 1. Seeding the draft with that 0 meant
+      // publishing any non-stamp program answered "target: Input should be
+      // greater than or equal to 1" over a field its editor never touched.
+      // The patch field is optional, so an unused target is simply not sent.
+      target: selected.target || undefined,
       rewardName: selected.rewardName,
       rewardValueCentavos: selected.rewardValueCentavos,
     });
@@ -2753,9 +3037,115 @@ function RedemptionsView({ notify }: { notify: Notify }) {
           </article>
         ))}
       </div>
+      <SalesLedger notify={notify} />
     </ViewFrame>
   );
 }
+
+/**
+ * Recorded sales, and the only place a settled one can be given back.
+ *
+ * The counter can void the stamp it has just taken; an hour later that path
+ * is gone, and `POST /transactions/{id}/refund` could only be reached by a
+ * POS holding a machine credential. This is the screen that names a
+ * transaction, so a merchant can too.
+ */
+function SalesLedger({ notify }: { notify: Notify }) {
+  const { data: transactions = [], isPending, error, refetch } = useTransactions();
+  const refund = useRefundVisit();
+
+  return (
+    <section className="mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+      <div className="flex items-baseline justify-between gap-4 border-b border-[var(--line)] px-5 py-4">
+        <Eyebrow>Recorded sales</Eyebrow>
+        <span className="text-xs text-[var(--muted-strong)]">
+          A settled sale can be refunded; a reversed one keeps its row.
+        </span>
+      </div>
+      <QueryBoundary
+        isPending={isPending}
+        error={error}
+        onRetry={refetch}
+        label="the sales ledger"
+        rows={3}
+      >
+        {transactions.length === 0 ? (
+          <p className="px-5 py-6 text-sm text-[var(--muted-strong)]">
+            No sales recorded yet.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-left">
+              <thead>
+                <tr className="border-b border-[var(--line)] text-[10px] uppercase tracking-[0.12em] text-[var(--muted)]">
+                  <th className="px-5 py-4">Customer</th>
+                  <th className="px-4 py-4">Location</th>
+                  <th className="px-4 py-4">Taken by</th>
+                  <th className="px-4 py-4">Amount</th>
+                  <th className="px-4 py-4">Status</th>
+                  <th className="px-4 py-4">Time</th>
+                  <th className="px-4 py-4" />
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((item) => (
+                  <tr key={item.id} className="border-b border-[var(--line)] last:border-0">
+                    <td className="px-5 py-4 text-sm font-extrabold">{item.customer}</td>
+                    <td className="px-4 py-4 text-xs text-[var(--muted-strong)]">
+                      {item.branch}
+                    </td>
+                    <td className="px-4 py-4 text-xs text-[var(--muted-strong)]">
+                      {item.staff || "Unattributed"}
+                    </td>
+                    <td className="px-4 py-4 text-sm font-bold">
+                      {item.amountCentavos ? pesoFromCentavos(item.amountCentavos) : "—"}
+                    </td>
+                    <td className="px-4 py-4">
+                      <Pill tone={item.status === "recorded" ? "success" : "warning"}>
+                        {item.status}
+                      </Pill>
+                    </td>
+                    <td className="px-4 py-4 text-xs text-[var(--muted)]">
+                      {relativeTime(item.occurredAt)}
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      {item.status === "recorded" && (
+                        <Button
+                          tone="quiet"
+                          icon={<Undo2 size={14} />}
+                          disabled={refund.isPending}
+                          onClick={() =>
+                            refund.mutate(
+                              {
+                                id: item.id,
+                                // Stable per transaction: a second tap on a
+                                // slow connection replays the first refund
+                                // rather than taking the money back twice.
+                                idempotencyKey: idempotencyKey("refund", item.id),
+                              },
+                              {
+                                onSuccess: () =>
+                                  notify(`Refunded ${item.customer}'s sale.`),
+                                onError: (failure) => notify(failure.message, "error"),
+                              },
+                            )
+                          }
+                        >
+                          Refund
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </QueryBoundary>
+    </section>
+  );
+}
+
 /** Per-campaign delivery ceiling quoted in the preflight copy. */
 const SMS_CEILING = 1000;
 /**
@@ -3394,19 +3784,34 @@ function MessageLogView({ notify }: { notify: Notify }) {
  */
 function SegmentBreakdown() {
   const { data: scored = [] } = useRfm();
+  /**
+   * The counts are the server's, the faces are the page's.
+   *
+   * `useRfm` answers one capped page - 200 members - so counting segments from
+   * it was right only for a merchant small enough that the cap never bit. A
+   * shop with 5,000 members read "48 VIPs" because that was how many VIPs
+   * happened to be on page one. `/analytics/segments` counts the whole tenant
+   * in the database, which is the number the heading is claiming.
+   */
+  const { data: shares = [] } = useSegments();
   if (scored.length === 0) return null;
 
   const bySegment = new Map<string, typeof scored>();
   for (const member of scored) {
     bySegment.set(member.segment, [...(bySegment.get(member.segment) ?? []), member]);
   }
-  const segments = [...bySegment.entries()].sort((a, b) => b[1].length - a[1].length);
+  const countOf = new Map(shares.map((row) => [row.segment, row.members]));
+  const shareOf = new Map(shares.map((row) => [row.segment, row.share]));
+  const total = shares.reduce((sum, row) => sum + row.members, 0) || scored.length;
+  const segments = [...bySegment.entries()].sort(
+    (a, b) => (countOf.get(b[0]) ?? b[1].length) - (countOf.get(a[0]) ?? a[1].length),
+  );
 
   return (
     <section className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
       <Eyebrow>Who returns</Eyebrow>
       <h2 className="mt-1 text-lg font-extrabold">
-        {scored.length} scored member{scored.length === 1 ? "" : "s"}
+        {total} scored member{total === 1 ? "" : "s"}
       </h2>
       <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
         Recency, frequency and spend, each scored one to five against your own
@@ -3420,7 +3825,14 @@ function SegmentBreakdown() {
           >
             <div className="flex items-baseline justify-between gap-2">
               <p className="text-xs font-extrabold">{segment}</p>
-              <p className="text-lg font-extrabold">{members.length}</p>
+              <p className="text-lg font-extrabold">
+                {countOf.get(segment) ?? members.length}
+                {shareOf.has(segment) && (
+                  <span className="ml-1 text-[11px] font-bold text-[var(--muted-strong)]">
+                    {shareOf.get(segment)}%
+                  </span>
+                )}
+              </p>
             </div>
             <ul className="mt-3 space-y-1">
               {members.slice(0, 4).map((member) => (
@@ -3669,8 +4081,201 @@ function AnalyticsView() {
         </div>
       </section>
       <SegmentBreakdown />
+      <CampaignAttributionTable />
+      <div className="mt-3 grid gap-3 xl:grid-cols-2">
+        <StaffPerformanceTable />
+        <BranchPerformanceTable />
+      </div>
       <WhatTheySaid />
     </ViewFrame>
+  );
+}
+
+/**
+ * Which sends actually brought somebody back, and what that cost.
+ *
+ * The API measures this and nothing rendered it, so "campaign attribution" was
+ * a row on the pricing page and nowhere else. `basis` is printed rather than
+ * hidden: the number is every member who visited after a send, not the ones
+ * who visited *because* of it, and a merchant deciding a budget deserves to
+ * know which claim they are reading.
+ */
+function CampaignAttributionTable() {
+  const { data: campaigns = [], isPending, error, refetch } = useCampaignAttribution();
+
+  return (
+    <section className="mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+      <div className="flex flex-wrap items-end justify-between gap-3 px-6 pb-4 pt-6">
+        <div>
+          <Eyebrow>Campaign attribution</Eyebrow>
+          <h2 className="mt-1 text-lg font-extrabold">What each send brought back</h2>
+        </div>
+        <p className="text-xs text-[var(--muted-strong)]">
+          Attributed, not incremental &mdash; a visit after a send, not proof it
+          caused one.
+        </p>
+      </div>
+      <QueryBoundary
+        isPending={isPending}
+        error={error}
+        onRetry={refetch}
+        label="campaign attribution"
+        rows={3}
+      >
+        {campaigns.length === 0 ? (
+          <p className="px-6 pb-6 text-sm text-[var(--muted-strong)]">
+            No campaign has been sent yet.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] text-left">
+              <thead>
+                <tr className="border-y border-[var(--line)] text-[10px] uppercase tracking-[0.12em] text-[var(--muted)]">
+                  <th className="px-6 py-3">Campaign</th>
+                  <th className="px-4 py-3">Sent</th>
+                  <th className="px-4 py-3">Returned</th>
+                  <th className="px-4 py-3">Rate</th>
+                  <th className="px-4 py-3">Revenue</th>
+                  <th className="px-4 py-3">Cost</th>
+                  <th className="px-4 py-3">Return on spend</th>
+                </tr>
+              </thead>
+              <tbody>
+                {campaigns.map((campaign) => (
+                  <tr key={campaign.id} className="border-b border-[var(--line)] last:border-0">
+                    <td className="px-6 py-4 text-sm font-extrabold">{campaign.name}</td>
+                    <td className="px-4 py-4 text-sm">{campaign.sent}</td>
+                    <td className="px-4 py-4 text-sm">{campaign.visited}</td>
+                    <td className="px-4 py-4 text-sm font-bold">
+                      {campaign.conversionRate}%
+                    </td>
+                    <td className="px-4 py-4 text-sm font-bold">
+                      {pesoFromCentavos(campaign.revenueCentavos)}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-[var(--muted-strong)]">
+                      {pesoFromCentavos(campaign.costCentavos)}
+                    </td>
+                    <td className="px-4 py-4">
+                      {/* A free send has no return on spend, and printing 0x
+                          for an in-app campaign that worked reads as a failure.
+                          Otherwise: below 1x the send cost more than it brought
+                          back, which is the only reading that changes a
+                          decision. */}
+                      {campaign.returnOnSpend === null ? (
+                        <span className="text-xs text-[var(--muted-strong)]">
+                          No spend
+                        </span>
+                      ) : (
+                        <Pill tone={campaign.returnOnSpend >= 1 ? "success" : "warning"}>
+                          {campaign.returnOnSpend.toFixed(1)}&times;
+                        </Pill>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </QueryBoundary>
+    </section>
+  );
+}
+
+/**
+ * Who is at the till when the visit happens.
+ *
+ * A sale a POS credential wrote has no staff member, and the API names that
+ * case Unattributed rather than picking somebody - so the column can be read
+ * as "who served this" instead of "who happened to be rostered".
+ */
+function StaffPerformanceTable() {
+  const { data: staff = [], isPending, error, refetch } = useStaffPerformance();
+
+  return (
+    <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+      <Eyebrow>Staff performance</Eyebrow>
+      <h2 className="mt-1 text-lg font-extrabold">Visits taken at the counter</h2>
+      <QueryBoundary
+        isPending={isPending}
+        error={error}
+        onRetry={refetch}
+        label="staff performance"
+        rows={3}
+      >
+        {staff.length === 0 ? (
+          <p className="mt-4 text-sm text-[var(--muted-strong)]">
+            No visits recorded yet.
+          </p>
+        ) : (
+          <ul className="mt-5 divide-y divide-[var(--line)]">
+            {staff.map((member) => (
+              <li key={member.staffId} className="flex items-center gap-3 py-3">
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-extrabold">{member.name}</span>
+                  <span className="text-[11px] text-[var(--muted-strong)]">{member.role}</span>
+                </span>
+                <span className="shrink-0 text-right">
+                  <span className="block text-sm font-extrabold">
+                    {pesoFromCentavos(member.valueCentavos)}
+                  </span>
+                  <span className="text-[11px] text-[var(--muted-strong)]">
+                    {member.visits} visit{member.visits === 1 ? "" : "s"}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </QueryBoundary>
+    </section>
+  );
+}
+
+/** One row per branch, which is what makes cross-location a comparison. */
+function BranchPerformanceTable() {
+  const { data: branches = [], isPending, error, refetch } = useBranchPerformance();
+
+  return (
+    <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+      <Eyebrow>Branch performance</Eyebrow>
+      <h2 className="mt-1 text-lg font-extrabold">How each location is doing</h2>
+      <QueryBoundary
+        isPending={isPending}
+        error={error}
+        onRetry={refetch}
+        label="branch performance"
+        rows={3}
+      >
+        {branches.length === 0 ? (
+          <p className="mt-4 text-sm text-[var(--muted-strong)]">
+            No visits recorded yet.
+          </p>
+        ) : (
+          <ul className="mt-5 divide-y divide-[var(--line)]">
+            {branches.map((branch) => (
+              <li key={branch.branchId} className="flex items-center gap-3 py-3">
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-extrabold">{branch.name}</span>
+                  <span className="text-[11px] text-[var(--muted-strong)]">
+                    {branch.city} &middot; {branch.members} member
+                    {branch.members === 1 ? "" : "s"}
+                  </span>
+                </span>
+                <span className="shrink-0 text-right">
+                  <span className="block text-sm font-extrabold">
+                    {pesoFromCentavos(branch.valueCentavos)}
+                  </span>
+                  <span className="text-[11px] text-[var(--muted-strong)]">
+                    {branch.visits} visit{branch.visits === 1 ? "" : "s"}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </QueryBoundary>
+    </section>
   );
 }
 const STAFF_ROLES = [

@@ -95,7 +95,11 @@ export function PageHero({
           />
         </>
       )}
-      <div className="relative mx-auto grid min-h-[540px] max-w-[1400px] items-end gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-28">
+      {/* Gutter outside the 1400px box, matching every section below it.
+          Inside, the hero's left edge sat 32px in from the sections under it
+          and the page read as two different layouts stacked. */}
+      <div className="relative px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto grid min-h-[540px] max-w-[1400px] items-end gap-12 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:py-28">
         <div>
           <SiteEyebrow>{eyebrow}</SiteEyebrow>
           <h1 className="mt-5 max-w-[14ch] text-5xl font-extrabold leading-[0.96] tracking-[-0.03em] sm:text-6xl lg:text-7xl">
@@ -110,6 +114,7 @@ export function PageHero({
             <div className="mt-7 flex flex-wrap gap-3">{children}</div>
           )}
         </div>
+      </div>
       </div>
     </section>
   );
@@ -214,8 +219,8 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
 // These are the demo fixture businesses, not customers. The caption is required.
 export function ProofStrip() {
   return (
-    <div className="border-y border-[var(--line)] bg-[var(--surface)]">
-      <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-x divide-[var(--line)] px-4 sm:px-6 md:grid-cols-4 lg:px-8">
+    <div className="border-y border-[var(--line)] bg-[var(--surface)] px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-x divide-[var(--line)] md:grid-cols-4">
         {["Sweet Crumbs", "Sage & Steam", "Rooted Studio", "Corner Thread"].map(
           (name) => (
             <div
@@ -227,7 +232,7 @@ export function ProofStrip() {
           ),
         )}
       </div>
-      <p className="mx-auto max-w-[1400px] px-4 pb-4 text-center text-[11px] font-semibold text-[var(--muted)] sm:px-6 lg:px-8">
+      <p className="mx-auto max-w-[1400px] pb-4 text-center text-[11px] font-semibold text-[var(--muted)]">
         Example businesses used throughout this demo. KYPStamping has no
         production customers yet.
       </p>

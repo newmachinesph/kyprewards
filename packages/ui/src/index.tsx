@@ -13,6 +13,27 @@ import {
   X,
 } from "lucide-react";
 
+/**
+ * The colour tokens a merchant may pick for their card.
+ *
+ * Names rather than hex values, because the API stores a token and the
+ * palette lives here: an arbitrary colour would break the contrast the design
+ * system guarantees. `ink` is the default every merchant starts on.
+ */
+export const BRAND_COLORS = {
+  ink: { label: "Ink", background: "var(--ink)", foreground: "var(--paper)" },
+  accent: { label: "Amber", background: "var(--accent)", foreground: "var(--ink)" },
+  green: { label: "Green", background: "var(--success)", foreground: "var(--paper)" },
+  paper: { label: "Paper", background: "var(--surface-2)", foreground: "var(--ink)" },
+} as const;
+
+export type BrandColor = keyof typeof BRAND_COLORS;
+
+/** Falls back to `ink` for a token this build does not know. */
+export function brandColor(token: string) {
+  return BRAND_COLORS[token as BrandColor] ?? BRAND_COLORS.ink;
+}
+
 type BrandMarkProps = {
   compact?: boolean;
   inverse?: boolean;

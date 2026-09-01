@@ -7,9 +7,7 @@ import {
   useMemo,
   useState,
   useSyncExternalStore,
-  type Dispatch,
   type ReactNode,
-  type SetStateAction,
 } from "react";
 /**
  * Client state, and only client state.
@@ -22,12 +20,12 @@ import {
  *
  * What is left is what the API has never heard of. Views are unmounted when
  * the merchant navigates, so anything they own is destroyed on the next
- * click; these five things have to outlive that.
+ * click; these four things have to outlive that.
  *
- * The integration credentials and webhook deliveries that used to live here
- * moved out with the rest: both are the API's, and holding a copy of a
- * credential list beside the one the server keeps is how a revoked key goes
- * on looking active.
+ * The integration credentials, webhook deliveries and the outbound endpoint
+ * that used to live here moved out with the rest: all of them are the API's,
+ * and holding a copy of a credential list beside the one the server keeps is
+ * how a revoked key goes on looking active.
  */
 
 /** What the onboarding wizard wrote to session storage before handing over. */
@@ -39,8 +37,6 @@ export type WorkspaceProfile = {
   program: string;
   method: string;
 };
-
-const DEFAULT_WEBHOOK_URL = "https://pos.sweetcrumbs.ph/webhooks/kypstamping";
 
 /**
  * The onboarding wizard writes the merchant's answers to session storage
@@ -74,18 +70,6 @@ function readWorkspace(): WorkspaceProfile | null {
 const noWorkspaceOnServer = () => null;
 
 type DemoState = {
-  settings: Record<string, boolean>;
-  setSetting: (key: string, value: boolean) => void;
-
-  /** The input the merchant is editing. */
-  webhookUrl: string;
-  setWebhookUrl: Dispatch<SetStateAction<string>>;
-  /** The last value they committed with Save, so the button means something. */
-  savedWebhookUrl: string;
-  saveWebhookUrl: () => void;
-
-  subscribedEvents: string[];
-  setSubscribedEvents: Dispatch<SetStateAction<string[]>>;
 
   /** Dashboard setup ledger — owned here so it survives navigation. */
   testStampDone: boolean;
@@ -105,16 +89,6 @@ type DemoState = {
 const DemoStateContext = createContext<DemoState | null>(null);
 
 export function DemoStateProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<Record<string, boolean>>({
-    autoTopUpSms: true,
-    invoiceEmails: true,
-  });
-  const [webhookUrl, setWebhookUrl] = useState(DEFAULT_WEBHOOK_URL);
-  const [savedWebhookUrl, setSavedWebhookUrl] = useState(DEFAULT_WEBHOOK_URL);
-  const [subscribedEvents, setSubscribedEvents] = useState([
-    "visit.recorded",
-    "reward.redeemed",
-  ]);
   const [testStampDone, setTestStampDone] = useState(false);
   const [scanHandoff, setScanHandoff] = useState(false);
   const workspace = useSyncExternalStore(
@@ -123,31 +97,12 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
     noWorkspaceOnServer,
   );
 
-  const setSetting = useCallback((key: string, value: boolean) => {
-    setSettings((current) => ({ ...current, [key]: value }));
-  }, []);
-
-  const saveWebhookUrl = useCallback(() => {
-    setWebhookUrl((current) => {
-      setSavedWebhookUrl(current);
-      return current;
-    });
-  }, []);
-
   const completeTestStamp = useCallback(() => setTestStampDone(true), []);
   const startScanHandoff = useCallback(() => setScanHandoff(true), []);
   const consumeScanHandoff = useCallback(() => setScanHandoff(false), []);
 
   const value = useMemo<DemoState>(
     () => ({
-      settings,
-      setSetting,
-      webhookUrl,
-      setWebhookUrl,
-      savedWebhookUrl,
-      saveWebhookUrl,
-      subscribedEvents,
-      setSubscribedEvents,
       testStampDone,
       completeTestStamp,
       scanHandoff,
@@ -156,12 +111,6 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
       workspace,
     }),
     [
-      settings,
-      setSetting,
-      webhookUrl,
-      savedWebhookUrl,
-      saveWebhookUrl,
-      subscribedEvents,
       testStampDone,
       completeTestStamp,
       scanHandoff,
