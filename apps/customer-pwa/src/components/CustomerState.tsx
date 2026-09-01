@@ -12,6 +12,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  ApiError,
   joinBusiness as joinBusinessCall,
   keys,
   leaveBusiness as leaveBusinessCall,
@@ -147,9 +148,15 @@ const CustomerStateContext = createContext<CustomerState | null>(null);
  * waits in sessionStorage across the sign-up and the OTP screen and is
  * redeemed here, on the first render that has a session.
  *
- * Failures are swallowed deliberately. The common ones are "already a
- * member" and an expired token, and neither is worth interrupting somebody
- * who has just arrived in their wallet; staff can stamp them at the counter.
+ * A refusal is swallowed deliberately. The common ones are "already a member"
+ * and an expired token, and neither is worth interrupting somebody who has
+ * just arrived in their wallet; staff can stamp them at the counter.
+ *
+ * A failure to *reach* the server is a different thing and the token is kept
+ * for it. This used to drop the token whatever happened, so a customer who
+ * scanned the poster in the shop, signed up, and hit one dropped request lost
+ * the stamp for good and was told nothing about it. A server that answered is
+ * an answer; a server that did not is worth asking again on the next load.
  */
 function usePendingFirstStamp() {
   const queryClient = useQueryClient();
@@ -166,13 +173,19 @@ function usePendingFirstStamp() {
     if (!token) return;
     settled.current = true;
 
+    // Kept on anything that is not the server's own answer, so the next load
+    // asks again. One request per load, so a server that stays down costs a
+    // retry a page rather than a loop.
     claimFirstStamp(token)
-      .catch(() => {})
-      .finally(() => {
-        try {
-          window.sessionStorage.removeItem(PENDING_CLAIM_KEY);
-        } catch {
-          // Nothing to do; the guard above stops a retry loop either way.
+      .then(() => true)
+      .catch((failure) => failure instanceof ApiError)
+      .then((settledByServer) => {
+        if (settledByServer) {
+          try {
+            window.sessionStorage.removeItem(PENDING_CLAIM_KEY);
+          } catch {
+            // Nothing to do; the guard above stops a retry loop either way.
+          }
         }
         void queryClient.invalidateQueries({ queryKey: keys.customer.all });
       });
