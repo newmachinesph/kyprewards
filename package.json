@@ -19,7 +19,10 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint apps packages",
     "test": "npm run test --workspaces --if-present",
-    "sweep": "node tools/sweep.mjs"
+    "sweep": "node tools/sweep.mjs",
+    "qa:merchant": "node scripts/qa-merchant.mjs",
+    "qa:wallet": "node scripts/qa-customer.mjs",
+    "qa:edges": "node scripts/qa-deep.mjs"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",

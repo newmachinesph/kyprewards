@@ -79,6 +79,9 @@ npm.cmd run audit:controls
 npm.cmd run test              # contract tests against the running API
 npm.cmd run qa:customer-auth
 npm.cmd run qa:private-apps
+npm.cmd run qa:merchant       # a shop owner's day, end to end
+npm.cmd run qa:wallet         # a customer's wallet, end to end
+npm.cmd run qa:edges          # the awkward paths, through the API
 npm.cmd run build
 ```
 
@@ -97,6 +100,18 @@ loop answers 429; each suite says so rather than failing as a broken app.
 `qa:customer-auth` runs the customer login, verification, and signup journeys in Playwright at phone and desktop widths, against the real API: it reads the one-time code the service actually sent. Set `CUSTOMER_APP_URL` to run the same suite against a deployed PWA, and `KYP_TEST_API` if the API is not on `localhost:8000`. Codes are limited to three per destination per ten minutes, so back-to-back runs are throttled and the suite says so rather than failing as a broken sign-in.
 
 `qa:private-apps` signs into the business and platform workspaces — a real password, and a live TOTP for the administrator's second factor — walks all 24 views, and re-checks the interactions that have to outlive navigation: a staff invitation, a published program rule, support triage, and replaying the recovery queue. It also fails on any 4xx or 5xx the apps provoke, naming the route; a 402 is excepted because a plan gate is an answer a card renders rather than a fault. Both apps and the API have to be running; set `BUSINESS_APP_URL` and `ADMIN_APP_URL` to point it at a deployment. It writes to the database it walks, so reseed (`cd ../backend && make seed`) before measuring anything from the demo data.
+
+`qa:merchant` and `qa:wallet` walk the two journeys a real person makes - sign
+in, stamp, redeem, refund, join, leave - and fail on any console error, page
+error or unexpected 4xx/5xx along the way. `qa:edges` drives the awkward paths
+through the API instead of the UI, so one failure does not hide the twenty
+checks behind it: doing a thing twice, the eight program types at the till,
+and whether what the merchant just did shows up for the customer.
+
+Between them they found four bugs the typecheck and the build could not see -
+Discover offering businesses that could not be joined, an invitation accepted
+for an address that cannot receive one, a blank tile where a shop had no
+photo, and a seed that was not repeatable.
 
 The latest measured release results and scope boundary are recorded in [docs/frontend-release-audit.md](docs/frontend-release-audit.md). The cross-app consistency review that produced the current round of fixes is in [docs/frontend-synergy-audit.md](docs/frontend-synergy-audit.md).
 

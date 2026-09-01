@@ -1082,7 +1082,15 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
                     className="absolute inset-0 size-full object-cover"
                   />
                 ) : null}
-                <Icon size={22} className="opacity-0" />
+                {/* Visible only when there is no photo behind it. It used to
+                    be opacity-0 always, which reserved the space and left a
+                    shop with no storefront image showing a blank white box. */}
+                <Icon
+                  size={22}
+                  className={
+                    business.image ? "opacity-0" : "text-[var(--muted-strong)]"
+                  }
+                />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">
@@ -1638,8 +1646,10 @@ function BusinessSheet({
               ? ""
               : ` · ${formatDistance(business.distanceMetres)}`}
           </p>
-          <div className="mt-6 h-40 overflow-hidden rounded-2xl border border-white/12">
-            {business.image ? (
+          {/* No photo, no frame. An empty bordered band reads as an image
+              that failed to load rather than a shop that has not added one. */}
+          {business.image && (
+            <div className="mt-6 h-40 overflow-hidden rounded-2xl border border-white/12">
               <img
                 src={business.image}
                 alt={`Inside ${business.name}`}
@@ -1647,8 +1657,8 @@ function BusinessSheet({
                 height={533}
                 className="size-full object-cover"
               />
-            ) : null}
-          </div>
+            </div>
+          )}
           <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-5">
             <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent)]">
               Program
