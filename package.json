@@ -22,7 +22,8 @@
     "sweep": "node tools/sweep.mjs",
     "qa:merchant": "node scripts/qa-merchant.mjs",
     "qa:wallet": "node scripts/qa-customer.mjs",
-    "qa:edges": "node scripts/qa-deep.mjs"
+    "qa:edges": "node scripts/qa-deep.mjs",
+    "qa:tenants": "node scripts/qa-tenants.mjs"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",

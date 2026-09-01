@@ -82,6 +82,7 @@ npm.cmd run qa:private-apps
 npm.cmd run qa:merchant       # a shop owner's day, end to end
 npm.cmd run qa:wallet         # a customer's wallet, end to end
 npm.cmd run qa:edges          # the awkward paths, through the API
+npm.cmd run qa:tenants        # six shops, five feature mixes, three plans
 npm.cmd run build
 ```
 
@@ -108,10 +109,20 @@ through the API instead of the UI, so one failure does not hide the twenty
 checks behind it: doing a thing twice, the eight program types at the till,
 and whether what the merchant just did shows up for the customer.
 
-Between them they found four bugs the typecheck and the build could not see -
+`qa:tenants` is the one that needs the seed to be multi-tenant. Sweet Crumbs
+runs all eight program types, so it was the only shop anything was tested
+against, and a bug that only bites a shop running two of them had nowhere to
+surface. The seed now creates six merchants on three plans with five different
+mixes, each with its own owner login, and this walks every one of them through
+the features it actually runs - then asks the question no single tenant can
+ask of itself: whether it can read, stamp or spend anything belonging to
+another.
+
+Between them they found five bugs the typecheck and the build could not see -
 Discover offering businesses that could not be joined, an invitation accepted
 for an address that cannot receive one, a blank tile where a shop had no
-photo, and a seed that was not repeatable.
+photo, a seed that was not repeatable, and a shop running only a multipass and
+a membership being offered in Discover and then refusing to be joined.
 
 The latest measured release results and scope boundary are recorded in [docs/frontend-release-audit.md](docs/frontend-release-audit.md). The cross-app consistency review that produced the current round of fixes is in [docs/frontend-synergy-audit.md](docs/frontend-synergy-audit.md).
 
