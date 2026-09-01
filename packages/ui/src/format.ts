@@ -198,3 +198,23 @@ export function formatMemberCode(code: string | null | undefined): string {
   if (digits.length !== 13) return code;
   return digits.replace(/(\d{4})(?=\d)/g, "$1 ");
 }
+
+/**
+ * Which of the three things the counter field accepts was typed.
+ *
+ * The field says "Member code, mobile number, or email" and a hardware
+ * scanner types the code straight into it. Everything that was not an email
+ * used to be sent as a phone number, so a scanned card came back "Enter a
+ * valid Philippine mobile number" while the cashier was holding it.
+ *
+ * Thirteen digits is the whole rule. A Philippine mobile has eleven of them,
+ * or twelve with the country code - never thirteen - and a leading `+` means
+ * somebody is typing a country code rather than reading a card, so that goes
+ * to the phone branch and gets the phone error. The API validates the check
+ * digit; this only picks the field to send it in.
+ */
+export function looksLikeMemberCode(typed: string): boolean {
+  const trimmed = typed.trim();
+  if (trimmed.startsWith("+")) return false;
+  return trimmed.replace(/\D/g, "").length === 13;
+}

@@ -83,6 +83,7 @@ npm.cmd run qa:merchant       # a shop owner's day, end to end
 npm.cmd run qa:wallet         # a customer's wallet, end to end
 npm.cmd run qa:edges          # the awkward paths, through the API
 npm.cmd run qa:tenants        # six shops, five feature mixes, three plans
+npm.cmd run qa:refusals       # what the screen says when the API says no
 npm.cmd run build
 ```
 
@@ -117,6 +118,20 @@ mixes, each with its own owner login, and this walks every one of them through
 the features it actually runs - then asks the question no single tenant can
 ask of itself: whether it can read, stamp or spend anything belonging to
 another.
+
+`qa:refusals` goes the other way. The suites above walk the paths that are
+meant to work and treat any 4xx as a fault, which leaves the refusals - the
+ones the API is right to send - untested. A refusal the interface swallows is
+worse than a crash: the cashier is standing at the till having been told
+nothing, and the most likely thing they do next is press the button again. So
+this one provokes refusals on purpose and checks the screen says so.
+
+It found the counter answering a scanned card with "Enter a valid Philippine
+mobile number". Worth knowing about its own first run: it accused the counter
+of swallowing an error that was in fact being shown, because it read
+`#main-content` and the toast renders outside it. A harness that cries wolf
+about silence is worse than no harness, so it reads the whole page and reads
+it while the toast is still up.
 
 Between them they found five bugs the typecheck and the build could not see -
 Discover offering businesses that could not be joined, an invitation accepted

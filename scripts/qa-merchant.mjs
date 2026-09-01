@@ -66,6 +66,29 @@ await step("find a customer at the counter", async () => {
   if (!/Jacqueline/i.test(text)) throw new Error("customer not found");
 });
 
+await step("find the same customer by the printed card", async () => {
+  // The flow the physical card exists for: a scanner types the number into
+  // the counter's field. The lookup took only a phone number and an email, so
+  // a scanned card came back "Enter a valid Philippine mobile number".
+  const code = await p.evaluate(async () => {
+    const r = await fetch("http://localhost:8000/api/v1/customers/lookup?phone=%2B639175550182", {
+      credentials: "include",
+    });
+    return (await r.json()).memberCode;
+  });
+  if (!code) throw new Error("no member code to scan");
+
+  // Reloaded, not navigated: the previous step left a customer on the scan
+  // screen and a hash change does not clear it.
+  await p.goto(`${BASE}/#scan`, { waitUntil: "networkidle" });
+  await p.reload({ waitUntil: "networkidle" });
+  await p.getByPlaceholder("0917 555 0182").fill(code);
+  await p.getByRole("button", { name: "Find customer" }).click();
+  await p.waitForTimeout(2500);
+  const text = await p.locator("#main-content").innerText();
+  if (!/Jacqueline/i.test(text)) throw new Error(`card ${code} did not find the customer`);
+});
+
 await step("take a stamp", async () => {
   await p.getByLabel(/Purchase amount/i).first().fill("180");
   await p.waitForTimeout(300);

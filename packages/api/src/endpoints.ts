@@ -579,9 +579,11 @@ export type CustomerLookup = {
   isMember: boolean;
 };
 
-/** One of phone or email; the API refuses a request carrying neither. */
+/** One of member code, phone or email; the API refuses a request carrying
+ *  none of them. The counter field takes all three - see
+ *  `looksLikeMemberCode` for which one a given entry is. */
 export const lookupCustomer = (
-  identifier: { phone: string } | { email: string },
+  identifier: { phone: string } | { email: string } | { memberCode: string },
 ): Promise<CustomerLookup> => http("/customers/lookup", { query: identifier });
 
 export type CustomerBalance = {

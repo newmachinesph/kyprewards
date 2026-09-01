@@ -112,6 +112,7 @@ import {
   daysUntilBirthday,
   longDate,
   formatMemberCode,
+  looksLikeMemberCode,
   peso,
   pesoCompactFromCentavos,
   pesoFromCentavos,
@@ -714,7 +715,11 @@ function ScanView({
     setLooking(true);
     try {
       const found = await lookupCustomer(
-        typed.includes("@") ? { email: typed } : { phone: typed },
+        typed.includes("@")
+          ? { email: typed }
+          : looksLikeMemberCode(typed)
+            ? { memberCode: typed }
+            : { phone: typed },
       );
       scan(found);
       setIdentifier("");
