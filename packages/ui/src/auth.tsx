@@ -66,6 +66,13 @@ import { BrandMark, StampDots } from "./index";
  */
 const OTP_IDENTIFIER_KEY = "kypstamping-otp-identifier";
 
+/** Where the terms and privacy notice live. The four apps already agree on
+ *  NEXT_PUBLIC_SITE_URL; the fallback is the production marketing site so a
+ *  build without the variable still links somewhere real rather than to a
+ *  relative path these apps do not serve. */
+const marketingSiteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://kypstamping.ph";
+
 export type DemoAuthRole = "business" | "admin" | "customer";
 export type DemoAuthMode =
   | "login"
@@ -941,6 +948,7 @@ export function DemoAuthFlow({
                 name: name.trim(),
                 email: identifier.trim(),
                 password,
+                acceptedTerms: accepted,
               });
               // Carried so the wizard can open with the name already typed.
               window.sessionStorage.setItem("kypstamping-business-signup", businessName);
@@ -985,7 +993,27 @@ export function DemoAuthFlow({
           </label>
           <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">
             <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-0.5 size-4 accent-[var(--ink)]" />
-            <span>I agree to the terms and the privacy notice.</span>
+            <span>
+              I agree to the{" "}
+              <a
+                href={`${marketingSiteUrl}/terms`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold underline underline-offset-2"
+              >
+                terms
+              </a>{" "}
+              and the{" "}
+              <a
+                href={`${marketingSiteUrl}/privacy`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold underline underline-offset-2"
+              >
+                privacy notice
+              </a>
+              .
+            </span>
           </label>
           {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
           <PrimaryButton disabled={busy}>
@@ -1018,6 +1046,7 @@ export function DemoAuthFlow({
                 name: name.trim(),
                 mobile: identifier.trim(),
                 email: email.trim() || undefined,
+                acceptedTerms: accepted,
               });
               window.sessionStorage.setItem("kypstamping-customer-signup-name", name);
               window.sessionStorage.setItem(OTP_IDENTIFIER_KEY, identifier.trim());
@@ -1036,7 +1065,27 @@ export function DemoAuthFlow({
           <Field label="Email, optional" type="email" value={email} onChange={setEmail} autoComplete="email" required={false} />
           <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">
             <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-0.5 size-4 accent-[var(--ink)]" />
-            <span>I agree to the terms and the privacy notice.</span>
+            <span>
+              I agree to the{" "}
+              <a
+                href={`${marketingSiteUrl}/terms`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold underline underline-offset-2"
+              >
+                terms
+              </a>{" "}
+              and the{" "}
+              <a
+                href={`${marketingSiteUrl}/privacy`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold underline underline-offset-2"
+              >
+                privacy notice
+              </a>
+              .
+            </span>
           </label>
           {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
           <PrimaryButton disabled={busy}>

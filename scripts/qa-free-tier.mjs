@@ -113,6 +113,7 @@ await step("register a business and open a workspace", async () => {
         email: shop.email,
         password: shop.password,
         businessName: shop.name,
+        acceptedTerms: true,
       },
     }),
     201,
@@ -349,7 +350,7 @@ await step("a customer signs in with a real one-time code", async () => {
   ok(
     await customer.call("/auth/register/customer", {
       method: "POST",
-      body: { name: "Free Tier Customer", mobile, city: "Pasig" },
+      body: { name: "Free Tier Customer", mobile, city: "Pasig", acceptedTerms: true },
     }),
     200,
     201,

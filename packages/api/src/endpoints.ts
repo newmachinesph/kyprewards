@@ -170,12 +170,17 @@ export const registerBusiness = (body: {
   name: string;
   email: string;
   password: string;
+  /** The sign-up form's terms checkbox. Sent so the acceptance is recorded
+   *  against the account, with the version they accepted. */
+  acceptedTerms: boolean;
 }): Promise<LoginResult> => http("/auth/register/business", { method: "POST", body });
 
 export const registerCustomer = (body: {
   name: string;
   mobile: string;
   email?: string;
+  /** As above: the checkbox the form already enforces, now recorded. */
+  acceptedTerms: boolean;
 }): Promise<{ sent: boolean }> =>
   http("/auth/register/customer", { method: "POST", body });
 

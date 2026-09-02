@@ -116,17 +116,26 @@ await step("a real join code shows the shop, an unknown one does not", async () 
 
   // A poster code is scanned by somebody standing in the shop, so "this page
   // is not part of the route" is the wrong sentence: the page is fine, the
-  // code is not. The <title> already knows - it says "Join code not found" -
-  // but the body falls through to the site-wide 404.
-  if (!/code/i.test(missing)) {
-    problems.push(
-      "COPY: an unknown join code shows the generic 404 and never mentions the code",
-    );
+  // code is not.
+  if (!/join code/i.test(missing)) {
+    problems.push("COPY: an unknown join code does not say the code was not found");
   }
 
-  // And it answers 200, so a search engine indexes a not-found page as real.
-  if (missed?.status() === 200) {
-    problems.push("SOFT 404: /join/<unknown> renders the 404 page with HTTP 200");
+  // The 200 is deliberate and documented on the route: the check runs inside
+  // the Suspense boundary, by which point the response has begun streaming and
+  // the status can no longer change. `noindex` is the prescribed remedy, and a
+  // poster is scanned rather than crawled - so what has to hold is the meta
+  // tag, not the status code. This asserts the mitigation instead of
+  // complaining about the trade-off.
+  const robots = await p
+    .locator('meta[name="robots"]')
+    .first()
+    .getAttribute("content")
+    .catch(() => null);
+  if (!robots || !/noindex/i.test(robots)) {
+    throw new Error(
+      `an unknown join code answers ${missed?.status()} and is indexable: robots=${robots}`,
+    );
   }
 });
 
