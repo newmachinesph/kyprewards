@@ -11,9 +11,9 @@ import { AdminViewContent } from "@/components/AdminViews";
 
 export function AdminDemo() {
   const { view, navigate } = useHashView(ADMIN_VIEWS, "overview");
-  const { toast, setToast, dismiss } = useToast();
   const [action, setAction] = useState<string | null>(null);
   const [toastTone, setToastTone] = useState<"success" | "error">("success");
+  const { toast, setToast, dismiss } = useToast(toastTone === "error" ? 0 : 2800);
 
   // Behaviour is chosen by the caller, not by matching words in the copy.
   function notify(message: string, intent: NotifyIntent = "info") {

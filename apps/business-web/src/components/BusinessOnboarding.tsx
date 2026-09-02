@@ -104,6 +104,10 @@ const STEPS = ["Business", "Program", "Counter"] as const;
 // created on.
 const LAUNCH_LOCATIONS = 1;
 
+// localStorage, not session: a merchant interrupted mid-setup closes the tab,
+// and sessionStorage dies with it. The draft survived a refresh and not the
+// thing people actually do. Cleared on Finish, so it cannot outlive the
+// workspace it was describing.
 const DRAFT_KEY = "kypstamping-onboarding-draft";
 
 type Draft = {
@@ -148,7 +152,7 @@ export function BusinessOnboarding() {
   // save effect below overwrite the draft before it had been read.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    const saved = window.sessionStorage.getItem(DRAFT_KEY);
+    const saved = window.localStorage.getItem(DRAFT_KEY);
     const name = window.sessionStorage.getItem("kypstamping-business-signup");
     const draft = saved ? (JSON.parse(saved) as Partial<Draft>) : null;
     if (draft?.businessName || name) setBusinessName(draft?.businessName || name || "");
@@ -164,7 +168,7 @@ export function BusinessOnboarding() {
 
   useEffect(() => {
     if (!restored) return;
-    window.sessionStorage.setItem(
+    window.localStorage.setItem(
       DRAFT_KEY,
       JSON.stringify({ step, businessName, category, city, locations, program, method }),
     );
@@ -198,7 +202,7 @@ export function BusinessOnboarding() {
         JSON.stringify({ businessName, category, city, locations, program, method }),
       );
       window.sessionStorage.removeItem("kypstamping-business-signup");
-      window.sessionStorage.removeItem(DRAFT_KEY);
+      window.localStorage.removeItem(DRAFT_KEY);
       window.location.replace("/#dashboard");
     } catch (failure) {
       setNotice(

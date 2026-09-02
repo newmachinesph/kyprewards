@@ -137,7 +137,11 @@ export function NewProgramDialog({
               const needs = PROGRAM_TYPE_MIN_PLAN[type];
               const locked = PLAN_RANK.indexOf(needs) > held;
               return (
-                <option key={type} value={type}>
+                // Labelled but selectable, so a free shop could create a
+                // Points program, save it as a Draft, and only discover on
+                // Publish that its plan would never allow it - leaving dead
+                // drafts behind. The onboarding wizard already disables these.
+                <option key={type} value={type} disabled={locked}>
                   {locked ? `${type} — needs ${needs}` : type}
                 </option>
               );
@@ -255,6 +259,12 @@ export function EditProfileDialog({
   const uploadImage = useUploadBrandingImage();
   const { data: branding } = useBranding();
   const setColor = useSetBrandingColor();
+  // Branding is a Core feature and the API enforces it, but this dialog
+  // offered the swatches anyway. Picking one 402'd into the banner, and then
+  // Save profile cleared that banner, saved the unrelated profile fields,
+  // reported success and closed - so the whole sequence read as "I chose
+  // amber, it said saved, nothing changed."
+  const brandingLocked = profile.plan === "Launch";
   const [banner, setBanner] = useState("");
   const form = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
@@ -333,6 +343,11 @@ export function EditProfileDialog({
         <fieldset className="grid gap-2">
           <legend className="mb-2">
             <FieldLabel>Card colour</FieldLabel>
+            {brandingLocked && (
+              <p className="text-[11px] font-semibold text-[var(--muted-strong)]">
+                Your card stays on the default until you move to Core.
+              </p>
+            )}
           </legend>
           <div className="flex flex-wrap gap-2">
             {Object.entries(BRAND_COLORS).map(([token, swatch]) => {
@@ -342,7 +357,7 @@ export function EditProfileDialog({
                   key={token}
                   type="button"
                   aria-pressed={active}
-                  disabled={setColor.isPending}
+                  disabled={setColor.isPending || brandingLocked}
                   title={swatch.label}
                   className={`min-h-11 rounded-xl border px-4 text-xs font-extrabold transition disabled:opacity-45 ${
                     active

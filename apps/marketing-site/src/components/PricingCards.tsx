@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { SiteButton } from "@/components/MarketingUi";
 import { plans } from "@/lib/plans";
+import { businessAppUrl } from "@/lib/site";
 
 export function PricingCards() {
   const [annual, setAnnual] = useState(true);
@@ -107,7 +108,7 @@ export function PricingCards() {
               <div className="mt-auto pt-8">
                 {plan.available ? (
                   <SiteButton
-                    href="/partners"
+                    href={`${businessAppUrl}/create-account`}
                     tone={plan.featured ? "accent" : "outline"}
                   >
                     {plan.cta}

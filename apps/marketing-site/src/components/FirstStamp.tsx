@@ -1,5 +1,6 @@
 import { ArrowRight, QrCode, ScanLine, Smartphone, UserRoundCheck } from "lucide-react";
 import { SiteEyebrow } from "@/components/MarketingUi";
+import { businessAppUrl } from "@/lib/site";
 
 /**
  * The onboarding story: value first, registration second.
@@ -102,7 +103,7 @@ export function FirstStamp() {
               Turn first-time buyers into regulars without slowing the queue.
             </p>
             <a
-              href="/partners"
+              href={`${businessAppUrl}/create-account`}
               className="focus-ring mt-8 inline-flex min-h-12 w-fit items-center gap-2 rounded-xl bg-[var(--accent)] px-5 text-sm font-extrabold text-[var(--ink)] transition hover:-translate-y-0.5"
             >
               Start your program <ArrowRight size={16} />

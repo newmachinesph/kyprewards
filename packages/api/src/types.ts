@@ -304,6 +304,14 @@ export type Integration = {
   detail: string;
 };
 
+/** How many members a campaign could actually reach on one channel. Both
+ *  consents count: the shop's record for that member, and the customer's own
+ *  account preference — the same pair the sender enforces. */
+export type AudienceChannel = {
+  channel: string;
+  reachable: number;
+};
+
 export type BusinessMetrics = {
   visitsToday: number;
   newRegulars: number;

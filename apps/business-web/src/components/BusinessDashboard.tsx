@@ -41,10 +41,12 @@ import type { NotifyIntent } from "@kypstamping/ui/shell";
 import { useDemoState } from "@/components/DemoState";
 import type { Automation } from "@kypstamping/api";
 import {
+  useAudience,
   useAutomations,
   useBusinessMetrics,
   useBusinessProfile,
   useLocations,
+  useMessagingPolicy,
   usePrograms,
   useStaff,
   useTimeToSecondVisit,
@@ -95,6 +97,15 @@ const programPresentation: Record<
   "Gift card": { icon: CreditCard, rule: "₱500", suggestion: "Partial redemption and live balance" },
 };
 
+/** `21` → `9 PM`. The guardrail card printed a fixed "8 PM-8 AM" over a shop
+ *  whose policy said something else. */
+const hourLabel = (hour: number | undefined) => {
+  if (hour === undefined) return "--";
+  const suffix = hour < 12 ? "AM" : "PM";
+  const twelve = hour % 12 === 0 ? 12 : hour % 12;
+  return `${twelve} ${suffix}`;
+};
+
 const automationIcons: Record<string, typeof Gift> = {
   auto_birthday: CakeSlice,
   auto_reward: Gift,
@@ -141,6 +152,9 @@ export function BusinessDashboard({
   const { data: programs = [], isPending: programsPending } = usePrograms();
   const { data: automationRows = [] } = useAutomations();
   const { data: visits } = useVisitTrend(period);
+  const { data: policy } = useMessagingPolicy();
+  const { data: audienceRows = [] } = useAudience();
+  const widestReach = Math.max(...audienceRows.map((row) => row.reachable), 0);
   // Never zero: dividing by it would make every bar NaN tall.
   const busiest = Math.max(1, ...(visits?.bars ?? []).map((bar) => bar.visits));
 
@@ -190,8 +204,10 @@ export function BusinessDashboard({
             {greeting()}, {workspaceName}.
           </h1>
           <p className="mt-2 max-w-[58ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-            Your regulars are picking up. Here is what is moving in the shop
-            today.
+            {/* "Your regulars are picking up" was asserted to every shop on
+                every load, including one that had opened an hour earlier with
+                no customers at all. */}
+            Here is what is moving in the shop today.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -338,8 +354,14 @@ export function BusinessDashboard({
             <h2 className="mt-8 max-w-[10ch] text-3xl font-extrabold leading-[1.02] tracking-[-0.03em]">
               {livePrograms[0]?.name ?? "No live program yet"}
             </h2>
+            {/* Was "Your simplest reward is also your strongest performer
+                this month" - a comparison, stated as fact, on workspaces
+                running exactly one program and none at all. The card can say
+                what the program is instead of ranking it against nothing. */}
             <p className="mt-3 max-w-[34ch] text-sm leading-relaxed text-white/60">
-              Your simplest reward is also your strongest performer this month.
+              {livePrograms[0]
+                ? `${livePrograms[0].target} ${livePrograms[0].target === 1 ? "visit" : "visits"} for ${livePrograms[0].rewardName || "a reward"}.`
+                : "Publish a program and it will show here."}
             </p>
             <div className="mt-8 overflow-x-auto pb-1">
               <StampDots filled={liveFilled} total={liveTarget} dark />
@@ -659,11 +681,15 @@ export function BusinessDashboard({
             Reach people without wearing out the welcome.
           </p>
           <div className="mt-8 divide-y divide-[rgb(24_18_12/14%)] border-y border-[rgb(24_18_12/14%)]">
+            {/* All three were constants, and all three were wrong: the shop's
+                actual policy was 9 PM-9 AM and 3 a week, and "28 eligible"
+                stood over a workspace with no customers. The Settings screen
+                and the campaign studio each showed a different third answer. */}
             {[
               "Channel consent checked",
-              "Quiet hours · 8 PM–8 AM",
-              "Promotion cap · 2 per week",
-              "28 eligible in this audience",
+              `Quiet hours · ${hourLabel(policy?.quietFromHour)}–${hourLabel(policy?.quietToHour)}`,
+              `Promotion cap · ${policy?.maxPerWeek ?? 0} per week`,
+              `${widestReach} eligible in this audience`,
             ].map((item) => (
               <div
                 key={item}
@@ -694,9 +720,9 @@ export function BusinessDashboard({
               One flow, even when the tools change
             </h2>
           </div>
-          <p className="text-xs font-semibold text-[var(--muted)]">
-            Last sync 18 seconds ago
-          </p>
+          {/* "Last sync 18 seconds ago" was byte-identical on every reload,
+              for every shop, for ever. Nothing here measures a sync, so
+              nothing here claims one. */}
         </div>
         <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[
@@ -876,7 +902,7 @@ export function BusinessDashboard({
  * does not say whether "returning" means next week or next quarter.
  */
 const RETURN_BANDS = [
-  { floor: 0, label: "Starting", detail: "Most members visit once and stop." },
+  { floor: 0, label: "Starting", detail: "Not enough return visits to read yet." },
   { floor: 25, label: "Emerging", detail: "A few are starting to come back." },
   { floor: 45, label: "Growing", detail: "Repeat visits are building." },
   { floor: 65, label: "Strong", detail: "Members return consistently." },

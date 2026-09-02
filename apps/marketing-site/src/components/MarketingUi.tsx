@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check, QrCode, Stamp } from "lucide-react";
+import { businessAppUrl } from "@/lib/site";
 
 export function SiteEyebrow({
   children,
@@ -141,7 +142,7 @@ export function MarketingCta({
           </p>
         </div>
         <div className="relative mt-8 flex flex-wrap gap-3 lg:mt-0 lg:pl-20">
-          <SiteButton href="/partners" tone="accent">
+          <SiteButton href={`${businessAppUrl}/create-account`} tone="accent">
             Start your program
           </SiteButton>
           <SiteButton href="/product" tone="light">

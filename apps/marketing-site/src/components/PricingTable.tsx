@@ -1,6 +1,7 @@
 import { Check, Minus } from "lucide-react";
 import { SiteButton } from "@/components/MarketingUi";
 import { channelRates, featureMatrix, plans, type Cell } from "@/lib/plans";
+import { businessAppUrl } from "@/lib/site";
 
 function CellValue({ value }: { value: Cell }) {
   if (value === true) {
@@ -184,7 +185,7 @@ export function PricingTable() {
                       that is not open yet. */}
                   {plan.available ? (
                     <SiteButton
-                      href="/partners"
+                      href={`${businessAppUrl}/create-account`}
                       tone={plan.featured ? "accent" : "outline"}
                     >
                       {plan.cta}

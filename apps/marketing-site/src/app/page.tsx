@@ -22,6 +22,7 @@ import {
 import { ProductPreview } from "@/components/ProductPreview";
 import { VirtualCard } from "@/components/VirtualCard";
 import { industries, resources } from "@/lib/content";
+import { businessAppUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Loyalty, made local",
@@ -66,7 +67,7 @@ export default function HomePage() {
               learn from.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <SiteButton href="/partners" tone="dark">
+              <SiteButton href={`${businessAppUrl}/create-account`} tone="dark">
                 Start your loyalty program
               </SiteButton>
               <SiteButton href="/product" tone="outline">

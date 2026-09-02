@@ -39,6 +39,7 @@ import type {
   NearbyNudge,
   Referral,
   BusinessLocation,
+  AudienceChannel,
   BusinessMetrics,
   BusinessProfile,
   Campaign,
@@ -300,6 +301,13 @@ export const useIntegrations = (options?: Options<Integration[]>): Query<Integra
 
 /** The dashboard's headline counters. Short stale time — this is the number a
  *  merchant watches move while stamping. */
+export const useAudience = (options?: Options<AudienceChannel[]>): Query<AudienceChannel[]> =>
+  useQuery({
+    queryKey: keys.business.analytics.audience(),
+    queryFn: api.getAudience,
+    ...options,
+  });
+
 export const useBusinessMetrics = (options?: Options<BusinessMetrics>): Query<BusinessMetrics> =>
   useQuery({
     queryKey: keys.business.metrics(),

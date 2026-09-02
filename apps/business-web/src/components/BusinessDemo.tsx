@@ -29,9 +29,11 @@ const VIEWS: readonly BusinessView[] = [
 
 export function BusinessDemo() {
   const { view, navigate } = useHashView(VIEWS, "dashboard");
-  const { toast, setToast, dismiss } = useToast();
   const [action, setAction] = useState<string | null>(null);
+  // Errors stay until dismissed; a plan refusal that fades in under three
+  // seconds reads as a button that does nothing.
   const [toastTone, setToastTone] = useState<"success" | "error">("success");
+  const { toast, setToast, dismiss } = useToast(toastTone === "error" ? 0 : 2800);
 
   // Behaviour is chosen by the caller, not by matching words in the copy.
   // "review" opens the confirm dialog; everything else is a passive toast.

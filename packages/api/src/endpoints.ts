@@ -45,6 +45,7 @@ import type {
   MessagingPolicy,
   BusinessCustomer,
   BusinessLocation,
+  AudienceChannel,
   BusinessMetrics,
   BusinessProfile,
   Campaign,
@@ -341,6 +342,8 @@ export type TimeToSecondVisit = {
   averageDays: number;
   medianDays: number;
 };
+
+export const getAudience = (): Promise<AudienceChannel[]> => http("/business/audience");
 
 export const getRetention = (): Promise<Retention> => http("/business/analytics/retention");
 

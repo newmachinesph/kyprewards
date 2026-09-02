@@ -64,6 +64,7 @@ export const keys = {
       all: () => [...keys.business.all, "analytics"] as const,
       visits: (period = "week") => [...keys.business.analytics.all(), "visits", period] as const,
       retention: () => [...keys.business.analytics.all(), "retention"] as const,
+      audience: () => [...keys.business.analytics.all(), "audience"] as const,
       rfm: () => [...keys.business.analytics.all(), "rfm"] as const,
       segments: () => [...keys.business.analytics.all(), "segments"] as const,
       staff: () => [...keys.business.analytics.all(), "staff"] as const,

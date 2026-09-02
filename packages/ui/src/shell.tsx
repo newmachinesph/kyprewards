@@ -20,11 +20,20 @@ export type NotifyIntent = "info" | "review" | "error";
  *  every shell already imports from this module. */
 export { greeting, peso, pesoCompact, pesoFromCentavos, relativeTime, todayLabel } from "./format";
 
+/**
+ * A toast that clears itself, unless it is carrying a refusal.
+ *
+ * Pass `0` to keep it up until dismissed. Every plan wall in the merchant app
+ * reports through here, and at 2.8 seconds the answer was gone before it
+ * could be read: a tester searched a whole rendered page for "higher plan",
+ * "Launch" and "upgrade" and found none of them, and concluded the button
+ * simply did nothing. A refusal has to outlast the glance that follows it.
+ */
 export function useToast(timeoutMs = 2800) {
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!toast) return;
+    if (!toast || timeoutMs <= 0) return;
     const timeout = window.setTimeout(() => setToast(null), timeoutMs);
     return () => window.clearTimeout(timeout);
   }, [toast, timeoutMs]);

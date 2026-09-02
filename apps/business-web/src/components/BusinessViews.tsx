@@ -31,6 +31,7 @@ import {
   type MessagingPolicy,
   type Program,
   type RedemptionResult,
+  useAudience,
   useCampaigns,
   useFavoriteOrders,
   useIntegrations,
@@ -3226,66 +3227,75 @@ function channelCost(
   return (count - free) * unit;
 }
 type ChannelStatus = "ready" | "planned";
+/**
+ * The channels, their prices, and how each maps to what the API can count.
+ *
+ * `eligible` used to live here as a constant per channel - 1,280 in-app,
+ * 1,120 push, 1,060 email - so a workspace with no customers at all was shown
+ * an audience of 1,280, given a cost and a predicted-visits figure derived
+ * from it, and allowed to schedule the send. Reach is measured now.
+ */
 const channelConfig: {
   name: string;
   icon: typeof BellRing;
-  eligible: number;
+  /** Key in GET /business/audience, or null where nothing can send yet. */
+  audienceKey: string | null;
   unit: number;
   note: string;
   status: ChannelStatus;
 }[] = [
   {
     name: "In-app",
+    audienceKey: "in-app",
     icon: MessageSquareText,
-    eligible: 1280,
     unit: 0,
     note: "Included",
     status: "ready",
   },
   {
     name: "Push",
+    audienceKey: "push",
     icon: BellRing,
-    eligible: 1120,
     unit: 0,
     note: "Included",
     status: "ready",
   },
   {
     name: "Email",
+    audienceKey: "email",
     icon: Mail,
-    eligible: 1060,
     unit: 0.025,
     note: "₱0.025 / email",
     status: "ready",
   },
   {
     name: "Viber",
+    audienceKey: null,
     icon: MessageCircle,
-    eligible: 610,
     unit: 0.42,
     note: "₱0.42 / message",
     status: "ready",
   },
   {
     name: "SMS",
+    audienceKey: "sms",
     icon: Phone,
-    eligible: 780,
     unit: 0.95,
     note: "₱0.95 / segment",
     status: "ready",
   },
   {
     name: "WhatsApp",
+    audienceKey: null,
     icon: Send,
-    eligible: 240,
     unit: 0.55,
     note: "Needs Meta Business verification",
     status: "planned",
   },
   {
     name: "Messenger",
+    audienceKey: null,
     icon: MessagesSquare,
-    eligible: 430,
     unit: 0.35,
     note: "Needs Meta Business verification",
     status: "planned",
@@ -3301,8 +3311,16 @@ function CampaignsView({ notify }: { notify: Notify }) {
     () => allowanceRemainingFrom(billing?.allowances ?? []),
     [billing],
   );
+  const { data: audienceRows = [] } = useAudience();
+  // The most any selected channel can reach. The slider used to start at 1,280
+  // with a floor of 100, so a shop with three customers could not express its
+  // own audience and was shown someone else's.
+  const widestReach = Math.max(
+    ...audienceRows.map((row) => row.reachable),
+    0,
+  );
   const [campaignName, setCampaignName] = useState("Tuesday treat");
-  const [audience, setAudience] = useState(1280);
+  const [audience, setAudience] = useState<number | null>(null);
   // These three were uncontrolled selects, so the composer showed choices that
   // never reached the scheduled campaign.
   const [audienceSegment, setAudienceSegment] = useState("Almost regulars");
@@ -3316,9 +3334,22 @@ function CampaignsView({ notify }: { notify: Notify }) {
     SMS: false,
   });
   const [smartRouting, setSmartRouting] = useState(true);
+  // Blank. This was pre-filled with the seeded demo bakery's advert, so a new
+  // shop's composer opened holding another business's promotion, ready to
+  // schedule.
   const [message, setMessage] = useState(
-    "A warm pastry is waiting. Visit Sweet Crumbs before 4 PM this Tuesday and your next stamp counts twice.",
+    "",
   );
+  // Measured reach per channel. A channel with no transport yet (Viber,
+  // WhatsApp, Messenger) has no audience key and so reaches nobody, rather
+  // than borrowing a number from a fixture.
+  // Null means "not touched", so the slider follows the real audience as it
+  // grows instead of pinning itself to whatever it was on first render.
+  const audienceSize = audience ?? widestReach;
+  const reachOf = (channel: { audienceKey: string | null }) =>
+    channel.audienceKey
+      ? (audienceRows.find((row) => row.channel === channel.audienceKey)?.reachable ?? 0)
+      : 0;
   const selectedChannels = channelConfig.filter(
     (channel) => channel.status === "ready" && channels[channel.name],
   );
@@ -3327,9 +3358,9 @@ function CampaignsView({ notify }: { notify: Notify }) {
   // ponytail: routing only ever diverts SMS to the cheaper messaging app. One
   // subtraction beats modelling a full per-recipient channel waterfall.
   const smsAudience =
-    smsChannel && channels.SMS ? Math.min(audience, smsChannel.eligible) : 0;
+    smsChannel && channels.SMS ? Math.min(audienceSize, reachOf(smsChannel)) : 0;
   const divertedToViber =
-    smartRouting && viberChannel ? Math.min(smsAudience, viberChannel.eligible) : 0;
+    smartRouting && viberChannel ? Math.min(smsAudience, reachOf(viberChannel)) : 0;
   const routingSavings =
     smsChannel && viberChannel
       ? divertedToViber * (smsChannel.unit - viberChannel.unit)
@@ -3342,15 +3373,15 @@ function CampaignsView({ notify }: { notify: Notify }) {
         channelCost(
           channel.name,
           channel.unit,
-          Math.min(audience, channel.eligible),
+          Math.min(audienceSize, reachOf(channel)),
           allowanceRemaining,
         ),
       0,
     ) - routingSavings,
   );
   const reachable = Math.min(
-    audience,
-    Math.max(...selectedChannels.map((channel) => channel.eligible), 0),
+    audienceSize,
+    Math.max(...selectedChannels.map(reachOf), 0),
   );
   const predictedVisits = Math.round(reachable * 0.118);
   // deliveryCost is pesos, from the published channel rates in plans.ts; the
@@ -3423,16 +3454,16 @@ function CampaignsView({ notify }: { notify: Notify }) {
                 Audience size
               </label>
               <span className="text-sm font-extrabold">
-                {audience.toLocaleString()}
+                {audienceSize.toLocaleString()}
               </span>
             </div>
             <input
               id="audience-size"
               type="range"
-              min="100"
-              max="2000"
-              step="20"
-              value={audience}
+              min="0"
+              max={widestReach}
+              step="1"
+              value={audienceSize}
               onChange={(event) => setAudience(Number(event.target.value))}
               className="mt-3 w-full accent-[var(--accent-strong)]"
             />
@@ -3476,7 +3507,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
                       <span
                         className={`mt-0.5 block text-[10px] ${active ? "text-white/60" : "text-[var(--muted)]"}`}
                       >
-                        {channel.eligible.toLocaleString()} reachable ·{" "}
+                        {reachOf(channel).toLocaleString()} reachable ·{" "}
                         {allowanceRemaining[channel.name]
                           ? `${allowanceRemaining[channel.name].toLocaleString()} left in plan, then ${channel.note.toLowerCase()}`
                           : channel.note}
@@ -3626,18 +3657,37 @@ function CampaignsView({ notify }: { notify: Notify }) {
                   notify("Choose at least one channel before scheduling.", "error");
                   return;
                 }
+                // Nobody to send to is a reason not to send. The composer
+                // showed a fixed audience of 1,280 and would happily schedule
+                // against it on a workspace with no customers at all.
+                if (reachable === 0) {
+                  notify(
+                    "Nobody on your list has agreed to this channel yet, so there is no one to send to.",
+                    "error",
+                  );
+                  return;
+                }
+                if (!message.trim()) {
+                  notify("Write the message before scheduling it.", "error");
+                  return;
+                }
                 schedule.mutate(
                   {
                     name: campaignName.trim() || "Untitled campaign",
-                    audience: `${audienceSegment} · ${audience.toLocaleString()} selected`,
+                    audience: `${audienceSegment} · ${reachable.toLocaleString()} selected`,
                     channels: selectedChannels.map((channel) => channel.name),
                     sendTime,
                     frequencyPolicy,
                   },
-                  { onError: (failure) => notify(failure.message, "error") },
-                );
-                notify(
-                  `${campaignName.trim() || "Untitled campaign"} scheduled for ${sendTime.toLowerCase()} · ${reachable.toLocaleString()} reachable customers.`,
+                  {
+                    onError: (failure) => notify(failure.message, "error"),
+                    // Was fired outside the mutation, so the screen said
+                    // "scheduled" whether or not the request succeeded.
+                    onSuccess: () =>
+                      notify(
+                        `${campaignName.trim() || "Untitled campaign"} scheduled for ${sendTime.toLowerCase()} · ${reachable.toLocaleString()} reachable customers.`,
+                      ),
+                  },
                 );
               }}
               icon={<Send size={15} />}
