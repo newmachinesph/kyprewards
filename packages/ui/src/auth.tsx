@@ -69,7 +69,7 @@ const OTP_IDENTIFIER_KEY = "kypstamping-otp-identifier";
  *  is the empty string. */
 const subscribeToOtpIdentifier = () => () => {};
 
-function readOtpIdentifier(): string {
+function readOtpIdentifier(): string | null {
   try {
     return window.sessionStorage.getItem(OTP_IDENTIFIER_KEY) ?? "";
   } catch {
@@ -77,7 +77,11 @@ function readOtpIdentifier(): string {
   }
 }
 
-const noOtpIdentifierOnServer = () => "";
+/** Null means "not known yet", which is not the same as "nowhere". Returning
+ *  the empty string here made the server snapshot indistinguishable from a
+ *  cold open, so the first paint of a perfectly normal sign-in flashed "We
+ *  have lost track of where that code was sent." before settling. */
+const noOtpIdentifierOnServer = () => null;
 
 /** Where the terms and privacy notice live. The four apps already agree on
  *  NEXT_PUBLIC_SITE_URL; the fallback is the production marketing site so a
@@ -155,7 +159,11 @@ function CustomerAuthVisual({ mode }: { mode: DemoAuthMode }) {
           <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--muted-strong)]">
             Code ready
           </p>
-          <p className="mt-1 text-sm font-extrabold tracking-[-0.02em]">Sent to your mobile</p>
+          {/* It said "Sent to your mobile" on the email path too, so somebody
+              who signed in with an address sat waiting for an SMS. The line
+              under the input names the real destination; this one no longer
+              contradicts it. */}
+          <p className="mt-1 text-sm font-extrabold tracking-[-0.02em]">Check your messages</p>
         </div>
         <div className="flex gap-1" aria-hidden="true">
           {Array.from({ length: 6 }).map((_, index) => (
@@ -891,13 +899,16 @@ export function DemoAuthFlow({
             <span id="code-help" className="text-[10px] font-semibold text-[var(--muted)]">
               {role === "admin"
                 ? "From your authenticator app"
-                : sentTo
-                  // Naming it. "The address you signed in with" was wrong half
-                  // the time - a customer who used the mobile tab signed in
-                  // with a number - and told somebody who had lost track of
-                  // which of their two numbers they used exactly nothing.
-                  ? `Sent to ${sentTo}`
-                  : "We have lost track of where that code was sent."}
+                : sentTo === null
+                  ? "Sent a moment ago"
+                  : sentTo
+                    // Naming it. "The address you signed in with" was wrong
+                    // half the time - a customer who used the mobile tab
+                    // signed in with a number - and told somebody who had
+                    // lost track of which of their two numbers they used
+                    // exactly nothing.
+                    ? `Sent to ${sentTo}`
+                    : "We have lost track of where that code was sent."}
             </span>
           </label>
           {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--muted-strong)]">{notice}</p>}
@@ -927,7 +938,7 @@ export function DemoAuthFlow({
           {/* The way out. When the code cannot be checked at all this is the
               only thing on the screen that does anything, so it says what it
               is for instead of offering a choice of account nobody is making. */}
-          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> {role === "customer" && !sentTo ? "Back to sign-in for a fresh code" : "Use another account"}</a>
+          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> {role === "customer" && sentTo === "" ? "Back to sign-in for a fresh code" : "Use another account"}</a>
         </form>
       </AuthShell>
     );

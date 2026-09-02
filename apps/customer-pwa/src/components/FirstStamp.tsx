@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 import {
   ApiError,
+  claimFirstStamp,
   getSession,
   offerFirstStamp,
   readFirstStamp,
@@ -88,14 +90,63 @@ export function FirstStamp({ slug }: { slug: string }) {
     };
   }, []);
 
+  const [busy, setBusy] = useState(false);
+
+  /**
+   * Mint the claim, then carry on to `destination`.
+   *
+   * Both onward paths mint. Only "Save my stamp" used to: somebody who tapped
+   * "I already have a wallet" went to sign-in with nothing remembered, so the
+   * stamp they had just been shown was dropped on the floor - and that is the
+   * returning customer, which is most of them once a shop has regulars.
+   *
+   * A mint that fails is now said out loud rather than swallowed. It used to
+   * navigate on regardless, so a 429 during a queue - the busiest moment the
+   * poster ever sees, on an endpoint that shares the anonymous budget - sent
+   * people through a full sign-up that granted them nothing.
+   */
   async function keep(destination: string) {
+    setBusy(true);
+    setFailed("");
     try {
       const claimed = await offerFirstStamp(slug);
       rememberClaim(claimed.claimToken);
-    } catch {
-      // Nothing to remember; the wallet still gets created.
+    } catch (failure) {
+      setBusy(false);
+      setFailed(
+        failure instanceof ApiError
+          ? failure.message
+          : "We could not hold that stamp just now. Ask staff to scan you in.",
+      );
+      return;
     }
     router.push(destination);
+  }
+
+  /**
+   * The signed-in path: claim it here rather than parking a token for the
+   * wallet to settle, so the answer can be shown on this screen.
+   *
+   * An existing member gets a 409 with a message worth reading - "You are
+   * already a member here. Ask staff to scan your code." - which used to be
+   * thrown away while the app navigated home as though it had worked.
+   */
+  async function keepOnExistingWallet() {
+    setBusy(true);
+    setFailed("");
+    try {
+      const claimed = await offerFirstStamp(slug);
+      await claimFirstStamp(claimed.claimToken);
+    } catch (failure) {
+      setBusy(false);
+      setFailed(
+        failure instanceof ApiError
+          ? failure.message
+          : "We could not add that stamp just now. Ask staff to scan you in.",
+      );
+      return;
+    }
+    router.push("/");
   }
 
   return (
@@ -103,7 +154,7 @@ export function FirstStamp({ slug }: { slug: string }) {
       <div className="w-full">
         <BrandMark />
 
-        {failed ? (
+        {failed && !offer ? (
           <div
             aria-live="polite"
             className="mt-8 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-7"
@@ -112,6 +163,20 @@ export function FirstStamp({ slug }: { slug: string }) {
               Something went sideways.
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">{failed}</p>
+            {/* This page is what a printed poster points at, and it had no
+                link, no button, nothing - on a phone the only way out was to
+                type a URL by hand. A mis-scan is the likeliest cause, and
+                either way no visit is lost: staff can add it at the till. */}
+            <p className="mt-3 text-xs leading-relaxed text-[var(--muted)]">
+              A code can be misread by a camera. Staff can add your visit at
+              the counter, so nothing is lost either way.
+            </p>
+            <Link
+              href="/"
+              className="focus-ring mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
+            >
+              Open my wallet <ArrowRight size={16} />
+            </Link>
           </div>
         ) : !offer ? (
           <div className="mt-8 grid place-items-center rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-12">
@@ -127,7 +192,10 @@ export function FirstStamp({ slug }: { slug: string }) {
                 <Check size={26} strokeWidth={3} />
               </span>
               <h1 className="mt-6 text-3xl font-extrabold tracking-[-0.03em]">
-                That&rsquo;s your first stamp.
+                {/* Only the anonymous visitor is definitely new. A signed-in
+                    member with four stamps was being told this was their
+                    first, above a card reading 1 of 8. */}
+                {signedIn ? "A stamp for you." : "That’s your first stamp."}
               </h1>
               <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
                 At {offer.business} · {offer.branch}
@@ -160,24 +228,40 @@ export function FirstStamp({ slug }: { slug: string }) {
                   request fails the journey continues anyway: staff can scan
                   them in, which is the fallback the error copy already
                   points at. */}
-              <a
-                href={signedIn ? "/" : "/create-account"}
-                onClick={async (event) => {
-                  event.preventDefault();
-                  await keep(signedIn ? "/" : "/create-account");
-                }}
-                className="focus-ring mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() =>
+                  signedIn ? keepOnExistingWallet() : keep("/create-account")
+                }
+                className="focus-ring mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-60"
               >
-                {signedIn ? "Add it to my wallet" : "Save my stamp"}{" "}
-                <ArrowRight size={16} />
-              </a>
+                {busy
+                  ? "Holding it…"
+                  : signedIn
+                    ? "Add it to my wallet"
+                    : "Save my stamp"}{" "}
+                {!busy && <ArrowRight size={16} />}
+              </button>
               {!signedIn && (
-                <a
-                  href="/login"
-                  className="focus-ring mt-2 flex min-h-11 items-center justify-center text-xs font-extrabold text-[var(--muted-strong)]"
+                <button
+                  type="button"
+                  disabled={busy}
+                  // Mints first. This was a bare link to sign-in, so the
+                  // returning customer's stamp was never held at all.
+                  onClick={() => keep("/login")}
+                  className="focus-ring mt-2 flex min-h-11 w-full items-center justify-center text-xs font-extrabold text-[var(--muted-strong)] disabled:opacity-60"
                 >
                   I already have a wallet
-                </a>
+                </button>
+              )}
+              {failed && (
+                <p
+                  aria-live="polite"
+                  className="mt-3 rounded-xl bg-[var(--surface-2)] px-4 py-3 text-xs font-bold text-[var(--muted-strong)]"
+                >
+                  {failed}
+                </p>
               )}
             </div>
           </div>

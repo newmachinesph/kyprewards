@@ -628,7 +628,10 @@ export type VisitResult = {
   stampsAfter: number;
   target: number;
   programId: string;
-  rewardEarned: string | null;
+  // An object, not a string. Declared as a string, the till's busiest
+  // message - the one naming what to hand over - interpolated it and read
+  // "[object Object] is ready to redeem."
+  rewardEarned: { id: string; name: string; valueCentavos: number } | null;
   occurredAt: string;
   status: string;
 };

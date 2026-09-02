@@ -375,11 +375,17 @@ function LoyaltyCard({
         </div>
         {!compact && (
           <p className="mt-7 max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em]">
+            {/* "Ready" means a reward exists, not that the bar looks full.
+                Rewards are minted when they are earned, so a shop that lowers
+                its target below what people already hold leaves them all
+                reading a finished card that the till then refuses. */}
             {remaining === null
               ? card.balance
-              : remaining === 0
+              : card.rewardsAvailable > 0
                 ? `${card.reward} is ready.`
-                : `${remaining} more ${remaining === 1 ? "visit" : "visits"}, then ${card.reward.toLowerCase()}.`}
+                : remaining === 0
+                  ? `${card.reward} on your next visit.`
+                  : `${remaining} more ${remaining === 1 ? "visit" : "visits"}, then ${card.reward.toLowerCase()}.`}
           </p>
         )}
         <div className={compact ? "mt-5" : "mt-7"}>
@@ -544,8 +550,12 @@ function DataRequests() {
                 ? "Account deletion is queued for identity review. You can still use your wallet until it completes."
                 : request.status === "ready"
                   ? "Your export is ready."
+                  // An email address is optional at sign-up - a wallet is a
+                  // number and a code - so promising to write was a promise
+                  // we could not keep for anyone who signed up with only a
+                  // mobile. Everybody is told here; email is the extra.
                   : "Your export is being prepared. It is usually ready within "
-                    + "ten minutes, and we will email you when it is."}
+                    + "ten minutes, and we will let you know here."}
               <span className="mt-0.5 block text-[10px] text-[var(--muted-strong)]">
                 Asked for {relativeTime(request.requestedAt)}
               </span>

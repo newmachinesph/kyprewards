@@ -376,6 +376,10 @@ export type WalletCard = {
   balance: string;
   reward: string;
   status: string;
+  /** Rewards actually waiting to be handed over. A full-looking progress bar
+   *  is not the same thing: lower a card's target below what people already
+   *  hold and every one of them reads "2 of 2" while the counter refuses. */
+  rewardsAvailable: number;
   /** A design token from packages/ui - `brandColor()` resolves it. */
   color: string;
   /**

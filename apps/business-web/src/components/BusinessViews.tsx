@@ -1066,7 +1066,7 @@ function ScanView({
                   {done.amountCentavos
                     ? ` from a ${pesoFromCentavos(done.amountCentavos)} purchase`
                     : ""}
-                  .{done.rewardEarned ? ` ${done.rewardEarned} is ready to redeem.` : ""}
+                  .{done.rewardEarned ? ` ${done.rewardEarned.name} is ready to redeem.` : ""}
                 </p>
                 <p className="mt-4 font-mono text-[10px] text-white/40">{done.id}</p>
                 <Button tone="accent" className="mt-7" onClick={startOver}>
@@ -1186,8 +1186,17 @@ function ScanView({
 const POSTER_ORIGIN =
   process.env.NEXT_PUBLIC_CUSTOMER_APP_URL ?? "https://app.kypstamping.ph";
 
-/** The slug form the poster and /public/join/{slug} both use. */
-const slugify = (value: string) => value.toLowerCase().replaceAll(" ", "-");
+/**
+ * The slug form the poster and /public/join/{slug} both use.
+ *
+ * Must stay identical to `_slugify` in the API's public router, or a printed
+ * code resolves to nothing. This swapped spaces and left every other
+ * character alone, so a shop called "Milk Tea #1" printed a QR pointing at
+ * /join/milk-tea-#1-..., where everything from the # is a fragment the
+ * browser never sends. The poster was dead and the merchant was never told.
+ */
+const slugify = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 /**
  * The scannable poster code for one branch.
@@ -3042,7 +3051,9 @@ function RedemptionsView({ notify }: { notify: Notify }) {
         {[
           [
             "Reward value in this ledger",
-            peso(rewardValue),
+            // peso() takes pesos; these are centavos. Both tiles read 100x
+            // high - a ledger of 900 pesos announced itself as 90,000.
+            pesoFromCentavos(rewardValue),
             `${approved.length} approved redemption${approved.length === 1 ? "" : "s"}`,
           ],
           [
@@ -3052,7 +3063,7 @@ function RedemptionsView({ notify }: { notify: Notify }) {
           ],
           [
             "Outstanding stamp-card liability",
-            peso(stampLiability),
+            pesoFromCentavos(stampLiability),
             "What unredeemed stamps would cost",
           ],
         ].map(([label, value, detail]) => (
@@ -5029,7 +5040,7 @@ function SettingsView({ notify }: { notify: Notify }) {
                       Issued {longDate(invoice.issuedOn)}
                     </p>
                   </div>
-                  <span className="text-xs font-bold">{peso(invoice.amountCentavos)}</span>
+                  <span className="text-xs font-bold">{pesoFromCentavos(invoice.amountCentavos)}</span>
                   <Pill tone="success">{invoice.status}</Pill>
                   <button
                     type="button"
