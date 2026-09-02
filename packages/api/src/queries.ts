@@ -80,6 +80,7 @@ import type {
   VisitTrend,
   WebhookEndpoint,
 } from "./endpoints";
+import type { Workspace } from "./types";
 
 /**
  * What a caller may override per hook: everything except the two things that
@@ -103,6 +104,10 @@ export const useContract = (options?: Options<ApiContract>): Query<ApiContract> 
 
 export const useBusinessProfile = (options?: Options<BusinessProfile>): Query<BusinessProfile> =>
   useQuery({ queryKey: keys.business.profile(), queryFn: api.getBusinessProfile, ...options });
+
+/** The workspaces this session can open, each with the role it holds there. */
+export const useWorkspaces = (options?: Options<Workspace[]>): Query<Workspace[]> =>
+  useQuery({ queryKey: keys.session.workspaces(), queryFn: api.getWorkspaces, ...options });
 
 export const useBranding = (options?: Options<Branding>): Query<Branding> =>
   useQuery({ queryKey: keys.business.branding(), queryFn: api.getBranding, ...options });

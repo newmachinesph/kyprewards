@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { useBusinessProfile } from "@kypstamping/api";
+import { useBusinessProfile, useWorkspaces } from "@kypstamping/api";
 import { BrandMark } from "@kypstamping/ui";
 import { signOut } from "@kypstamping/ui/auth";
 import { useDemoState } from "@/components/DemoState";
@@ -109,6 +109,21 @@ const navigation = [
   },
 ];
 
+/**
+ * Screens a Cashier has no use for and should not be offered.
+ *
+ * The API is the boundary and holds - every write is refused with "A Cashier
+ * cannot do that" - but a nav that lists Billing, Analytics and Staff for a
+ * front-line role invites somebody to go looking, and the pages that do
+ * render leak the shape of the business: plan, renewal date, the roster.
+ */
+const OWNER_ONLY: ReadonlySet<BusinessView> = new Set<BusinessView>([
+  "analytics",
+  "campaigns",
+  "integrations",
+  "settings",
+]);
+
 export function BusinessShell({
   children,
   activeView,
@@ -126,6 +141,9 @@ export function BusinessShell({
   // The wizard's answer wins while it is still in session storage; after that
   // the workspace is whatever the API says it is.
   const { data: profile } = useBusinessProfile();
+  const { data: workspaces = [] } = useWorkspaces();
+  const frontLine =
+    workspaces.find((entry) => entry.merchantId === profile?.merchantId)?.role === "Cashier";
   const workspaceName = workspace?.businessName ?? profile?.shortName ?? "";
   const workspaceInitials = workspaceName
     .split(/\s+/)
@@ -158,6 +176,7 @@ export function BusinessShell({
           </p>
           <div className="space-y-1">
             {group.items.map((item) => {
+              if (frontLine && OWNER_ONLY.has(item.view)) return null;
               const Icon = item.icon;
               const active = activeView === item.view;
               return (

@@ -1,7 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { QueryBoundary, Skeleton } from "@kypstamping/ui";
-import { sharedScenario } from "@kypstamping/demo-data";
 import {
   useBilling,
   useBusinessCustomers,
@@ -1132,24 +1131,6 @@ function ScanView({
               View ledger
             </button>
           </div>
-          <article className="mt-5 rounded-2xl border border-[rgb(15_118_85/24%)] bg-[rgb(15_118_85/7%)] p-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--success)]">
-                  Shared demo event · recorded
-                </p>
-                <p className="mt-1 text-sm font-extrabold">
-                  {sharedScenario.customer} · {sharedScenario.purchase.display}
-                </p>
-                <p className="mt-1 text-xs text-[var(--muted-strong)]">
-                  {sharedScenario.loyaltyEvent.effect} · {sharedScenario.loyaltyEvent.after} · approved by {sharedScenario.staff}
-                </p>
-              </div>
-              <code className="rounded-lg bg-[var(--surface)] px-2.5 py-1.5 text-[10px] font-extrabold text-[var(--muted-strong)]">
-                {sharedScenario.loyaltyEvent.id}
-              </code>
-            </div>
-          </article>
           <div className="mt-5 divide-y divide-[var(--line)]">
             {redemptions.slice(0, 4).map((item) => (
               <div
@@ -2937,6 +2918,8 @@ function RedemptionsView({ notify }: { notify: Notify }) {
   const { runExport, busy: exporting } = useExport(notify);
   const { data: redemptions = [] } = useRedemptions();
   const { data: programs = [] } = usePrograms();
+  const commit = useCommitRedemption();
+  const cancel = useCancelRedemption();
   // These were three hardcoded figures, one of which quoted the stamp-card
   // liability under a "reward value" label. All three now say what they count.
   const approved = redemptions.filter((item) => item.status === "Approved");
@@ -2975,6 +2958,7 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                 <th className="px-4 py-4">Value</th>
                 <th className="px-4 py-4">Status</th>
                 <th className="px-4 py-4">Time</th>
+                <th className="px-4 py-4" />
               </tr>
             </thead>
             <tbody>
@@ -3005,6 +2989,48 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                   </td>
                   <td className="px-4 py-4 text-xs text-[var(--muted)]">
                     {relativeTime(item.occurredAt)}
+                  </td>
+                  {/* A reservation staff cannot resolve is a reward nobody can
+                      hand over and nobody can put back. The counter offers
+                      these two buttons on the screen where the reward was
+                      reserved, and loses them the moment anything else is
+                      served - so the row sat here reading RESERVED with no
+                      action column at all, and only a raw API call could
+                      move it. */}
+                  <td className="px-4 py-4">
+                    {item.status === "Reserved" && (
+                      <span className="flex flex-wrap gap-2">
+                        <Button
+                          tone="quiet"
+                          disabled={commit.isPending || cancel.isPending}
+                          onClick={() =>
+                            commit.mutate(
+                              { id: item.id, idempotencyKey: idempotencyKey("commit", item.id) },
+                              {
+                                onSuccess: () =>
+                                  notify(`Handed ${item.reward} to ${item.customer}.`),
+                                onError: (failure) => notify(failure.message, "error"),
+                              },
+                            )
+                          }
+                        >
+                          Handed over
+                        </Button>
+                        <Button
+                          tone="quiet"
+                          disabled={commit.isPending || cancel.isPending}
+                          onClick={() =>
+                            cancel.mutate(item.id, {
+                              onSuccess: () =>
+                                notify(`Put ${item.reward} back on ${item.customer}'s card.`),
+                              onError: (failure) => notify(failure.message, "error"),
+                            })
+                          }
+                        >
+                          Put it back
+                        </Button>
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}

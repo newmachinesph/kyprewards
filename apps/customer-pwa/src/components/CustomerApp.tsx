@@ -544,7 +544,8 @@ function DataRequests() {
                 ? "Account deletion is queued for identity review. You can still use your wallet until it completes."
                 : request.status === "ready"
                   ? "Your export is ready."
-                  : "Your export is being prepared."}
+                  : "Your export is being prepared. It is usually ready within "
+                    + "ten minutes, and we will email you when it is."}
               <span className="mt-0.5 block text-[10px] text-[var(--muted-strong)]">
                 Asked for {relativeTime(request.requestedAt)}
               </span>

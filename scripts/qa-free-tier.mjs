@@ -35,6 +35,14 @@ const did = [];
 // by ten digits starting with 9. A base-36 run id put letters in them and the
 // API refused all twenty, correctly.
 const run = String(Date.now()).slice(-6);
+// A real Globe prefix, then enough of the run id to stay unique.
+//
+// Numbers used to be built as `+639` plus the run id, which is a slice of the
+// clock - so whenever the timestamp happened to end in digits that are not a
+// Philippine mobile prefix (anything starting 0, say) every enrolment came
+// back 422 and the whole suite failed on the time of day rather than on the
+// product.
+const mobile = (suffix) => `+63917${run.slice(-5)}${suffix}`;
 
 const step = async (label, fn) => {
   const before = problems.length;
@@ -167,7 +175,7 @@ await step("unlimited customers: add twenty and none is refused", async () => {
   for (let i = 0; i < 20; i += 1) {
     const created = await merchant.call("/customers", {
       method: "POST",
-      body: { name: `Regular ${i}`, mobile: `+639${run}${String(i).padStart(3, "0")}` },
+      body: { name: `Regular ${i}`, mobile: mobile(String(i).padStart(2, "0")) },
     });
     if (created.status === 402) throw new Error(`refused customer ${i + 1} on a plan with no cap`);
     ok(created, 201);
@@ -346,23 +354,35 @@ await step("a second live program is refused: one at a time on free", async () =
 /* ── 4. The customer half ────────────────────────────────────────────── */
 
 await step("a customer signs in with a real one-time code", async () => {
-  const mobile = `+639${run}999`;
+  const walletMobile = mobile("99");
   ok(
     await customer.call("/auth/register/customer", {
       method: "POST",
-      body: { name: "Free Tier Customer", mobile, city: "Pasig", acceptedTerms: true },
+      body: { name: "Free Tier Customer", mobile: walletMobile, city: "Pasig", acceptedTerms: true },
     }),
     200,
     201,
     202,
   );
-  ok(await customer.call("/auth/otp/request", { method: "POST", body: { identifier: mobile } }), 200);
+  ok(
+    await customer.call("/auth/otp/request", {
+      method: "POST",
+      body: { identifier: walletMobile },
+    }),
+    200,
+  );
 
   const sent = ok(await customer.call("/_dev/messages?purpose=otp&limit=1"), 200);
   const code = sent.body[0]?.body?.match(/\d{6}/)?.[0];
   if (!code) throw new Error("no one-time code was sent");
-  ok(await customer.call("/auth/otp/verify", { method: "POST", body: { identifier: mobile, code } }), 200);
-  return mobile;
+  ok(
+    await customer.call("/auth/otp/verify", {
+      method: "POST",
+      body: { identifier: walletMobile, code },
+    }),
+    200,
+  );
+  return walletMobile;
 });
 
 await step("the free shop is findable in Discover and joinable", async () => {

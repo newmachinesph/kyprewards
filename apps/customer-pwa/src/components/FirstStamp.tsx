@@ -1,8 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
-import { ApiError, offerFirstStamp, type FirstStampOffer } from "@kypstamping/api";
+import {
+  ApiError,
+  offerFirstStamp,
+  readFirstStamp,
+  type FirstStampOffer,
+} from "@kypstamping/api";
 import { BrandMark, StampDots } from "@kypstamping/ui";
 
 /**
@@ -33,6 +39,7 @@ export function rememberClaim(token: string) {
 }
 
 export function FirstStamp({ slug }: { slug: string }) {
+  const router = useRouter();
   const [offer, setOffer] = useState<FirstStampOffer | null>(null);
   const [failed, setFailed] = useState("");
   // StrictMode invokes an effect twice in development, and this one has a
@@ -48,11 +55,8 @@ export function FirstStamp({ slug }: { slug: string }) {
     // the second is blocked by the guard - and the answer is thrown away.
     // Setting state after unmount is a no-op here, which is the cheaper
     // trade.
-    offerFirstStamp(slug)
-      .then((found) => {
-        rememberClaim(found.claimToken);
-        setOffer(found);
-      })
+    readFirstStamp(slug)
+      .then(setOffer)
       .catch((failure) => {
         setFailed(
           failure instanceof ApiError && failure.status === 404
@@ -115,8 +119,24 @@ export function FirstStamp({ slug }: { slug: string }) {
                 One number, no app, no password. It saves this stamp and every
                 one after it.
               </p>
+              {/* The claim is minted here, on the tap, rather than when the
+                  page loaded - so opening a poster link costs nothing and
+                  only somebody who wants the stamp creates one. If the
+                  request fails the journey continues anyway: staff can scan
+                  them in, which is the fallback the error copy already
+                  points at. */}
               <a
                 href="/create-account"
+                onClick={async (event) => {
+                  event.preventDefault();
+                  try {
+                    const claimed = await offerFirstStamp(slug);
+                    rememberClaim(claimed.claimToken);
+                  } catch {
+                    // Nothing to remember; the wallet still gets created.
+                  }
+                  router.push("/create-account");
+                }}
                 className="focus-ring mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
               >
                 Save my stamp <ArrowRight size={16} />

@@ -38,7 +38,16 @@ export type CustomerSegment =
 export type RiskLevel = "Healthy" | "Watch" | "High";
 export type TenantRisk = "Healthy" | "Watch" | "At risk";
 export type StaffRole = "Owner" | "Manager" | "Cashier" | "Analyst" | "Campaign";
-export type RedemptionStatus = "Approved" | "Reversed";
+/**
+ * Every state the ledger can show, not only the settled ones.
+ *
+ * The API title-cases the stored status, so a reservation waiting at the
+ * counter arrives as "Reserved" and an abandoned one as "Cancelled". Naming
+ * only the two end states meant the ledger could render a row this type says
+ * cannot exist - which is how "Reserved" ended up displayed with no way to
+ * act on it.
+ */
+export type RedemptionStatus = "Reserved" | "Approved" | "Cancelled" | "Reversed";
 export type CampaignStatus = "Completed" | "Running" | "Scheduled";
 export type ChannelName =
   | "In-app"

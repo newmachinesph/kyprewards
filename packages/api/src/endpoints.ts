@@ -393,6 +393,16 @@ export const getNearby = (near: { lat: number; lng: number }): Promise<NearbyNud
 export const offerFirstStamp = (slug: string): Promise<FirstStampOffer> =>
   http(`/public/join/${encodeURIComponent(slug)}/first-stamp`, { method: "POST" });
 
+/**
+ * The same poster, read rather than claimed.
+ *
+ * Rendering the offer needs no token; only taking it does. The page used to
+ * POST on mount, so a link shared on Facebook minted a row for the preview
+ * crawler and for everyone who opened it and changed their mind.
+ */
+export const readFirstStamp = (slug: string): Promise<FirstStampOffer> =>
+  http(`/public/join/${encodeURIComponent(slug)}/first-stamp`);
+
 /** Turns the offered stamp into a real one. Needs a wallet. */
 export const claimFirstStamp = (claimToken: string): Promise<WalletCard> =>
   http("/customer/first-stamp/claim", { method: "POST", body: { claimToken } });

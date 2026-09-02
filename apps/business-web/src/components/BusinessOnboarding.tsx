@@ -104,6 +104,18 @@ const STEPS = ["Business", "Program", "Counter"] as const;
 // created on.
 const LAUNCH_LOCATIONS = 1;
 
+const DRAFT_KEY = "kypstamping-onboarding-draft";
+
+type Draft = {
+  step: number;
+  businessName: string;
+  category: string;
+  city: string;
+  locations: number;
+  program: string;
+  method: string;
+};
+
 export function BusinessOnboarding() {
   const [step, setStep] = useState(0);
   // Blank. This held the seeded demo bakery's name, so a merchant who had
@@ -119,12 +131,32 @@ export function BusinessOnboarding() {
   const [method, setMethod] = useState("terminal");
   const [notice, setNotice] = useState("");
 
+  // Every answer, not only the name, and every step - so a reload does not
+  // throw away a form somebody has already filled in. Nothing is saved
+  // server-side until Finish, so a refresh at step three used to drop them
+  // back at step one with empty fields and no explanation.
   useEffect(() => {
-    const saved = window.sessionStorage.getItem("kypstamping-business-signup");
-    if (!saved) return;
-    const timer = window.setTimeout(() => setBusinessName(saved), 0);
+    const saved = window.sessionStorage.getItem(DRAFT_KEY);
+    const name = window.sessionStorage.getItem("kypstamping-business-signup");
+    const draft = saved ? (JSON.parse(saved) as Partial<Draft>) : null;
+    const timer = window.setTimeout(() => {
+      if (draft?.businessName || name) setBusinessName(draft?.businessName || name || "");
+      if (draft?.category) setCategory(draft.category);
+      if (draft?.city) setCity(draft.city);
+      if (draft?.locations) setLocations(draft.locations);
+      if (draft?.program) setProgram(draft.program);
+      if (draft?.method) setMethod(draft.method);
+      if (typeof draft?.step === "number") setStep(draft.step);
+    }, 0);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    window.sessionStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({ step, businessName, category, city, locations, program, method }),
+    );
+  }, [step, businessName, category, city, locations, program, method]);
 
   function next() {
     if (step === 0 && !businessName.trim()) {
@@ -154,6 +186,7 @@ export function BusinessOnboarding() {
         JSON.stringify({ businessName, category, city, locations, program, method }),
       );
       window.sessionStorage.removeItem("kypstamping-business-signup");
+      window.sessionStorage.removeItem(DRAFT_KEY);
       window.location.replace("/#dashboard");
     } catch (failure) {
       setNotice(
