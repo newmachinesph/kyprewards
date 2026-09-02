@@ -23,7 +23,6 @@ const plans = sourcePlans.map((plan, index) => ({
 const topPlan = plans[plans.length - 1];
 
 export function PricingEstimator() {
-  const [members, setMembers] = useState(1200);
   const [locations, setLocations] = useState(1);
   const [email, setEmail] = useState(5000);
   const [sms, setSms] = useState(300);
@@ -33,9 +32,10 @@ export function PricingEstimator() {
   const estimate = useMemo(() => {
     // Beyond the top published plan we quote the top plan and say so, rather
     // than inventing a tier that appears on no price list.
-    const matched = plans.find(
-      (item) => members <= item.members && locations <= item.locations,
-    );
+    // Customers are not an input: they are unlimited on every tier, so the
+    // only published allowances that can pick a plan are locations and the two
+    // metered channels.
+    const matched = plans.find((item) => locations <= item.locations);
     const plan = matched ?? topPlan;
     const beyondPublishedPlans = !matched;
     const paidSms = Math.max(0, sms - plan.sms);
@@ -52,7 +52,7 @@ export function PricingEstimator() {
       total,
       breakEven: profitPerVisit > 0 ? Math.ceil(total / profitPerVisit) : 0,
     };
-  }, [connectedBudget, email, locations, members, profitPerVisit, sms]);
+  }, [connectedBudget, email, locations, profitPerVisit, sms]);
 
   return (
     <div className="grid gap-3 lg:grid-cols-[1.08fr_0.92fr]">
@@ -72,14 +72,6 @@ export function PricingEstimator() {
         </div>
         <div className="mt-7 grid gap-6 sm:grid-cols-2">
           {[
-            {
-              label: "Active members",
-              value: members,
-              set: setMembers,
-              min: 100,
-              max: 60000,
-              step: 100,
-            },
             {
               label: "Locations",
               value: locations,

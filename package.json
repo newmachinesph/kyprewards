@@ -24,7 +24,8 @@
     "qa:wallet": "node scripts/qa-customer.mjs",
     "qa:edges": "node scripts/qa-deep.mjs",
     "qa:tenants": "node scripts/qa-tenants.mjs",
-    "qa:refusals": "node scripts/qa-refusals.mjs"
+    "qa:refusals": "node scripts/qa-refusals.mjs",
+    "qa:marketing": "node scripts/qa-marketing.mjs"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",

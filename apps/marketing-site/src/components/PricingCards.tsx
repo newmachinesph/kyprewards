@@ -45,10 +45,19 @@ export function PricingCards() {
               key={plan.name}
               className={`relative flex min-h-[590px] flex-col rounded-[var(--radius-card)] p-7 ${plan.featured ? "bg-[var(--ink)] text-[var(--paper)] xl:-my-4 xl:min-h-[622px] xl:py-10" : "border border-[var(--line)] bg-[var(--surface)]"}`}
             >
-              {plan.featured && (
-                <span className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--ink)]">
-                  <Sparkles size={12} /> Most useful
+              {/* A tier that cannot be bought yet says so where the badge
+                  goes, rather than wearing "Most useful" over a button that
+                  does nothing. */}
+              {!plan.available ? (
+                <span className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full border border-current px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] opacity-70">
+                  Coming soon
                 </span>
+              ) : (
+                plan.featured && (
+                  <span className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-[var(--accent)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--ink)]">
+                    <Sparkles size={12} /> Most useful
+                  </span>
+                )
               )}
               <p
                 className={`font-mono text-[10px] font-bold uppercase tracking-[0.15em] ${plan.featured ? "text-white/70" : "text-[var(--muted)]"}`}
@@ -91,12 +100,23 @@ export function PricingCards() {
                 ))}
               </div>
               <div className="mt-auto pt-8">
-                <SiteButton
-                  href="/partners"
-                  tone={plan.featured ? "accent" : "outline"}
-                >
-                  {plan.cta}
-                </SiteButton>
+                {plan.available ? (
+                  <SiteButton
+                    href="/partners"
+                    tone={plan.featured ? "accent" : "outline"}
+                  >
+                    {plan.cta}
+                  </SiteButton>
+                ) : (
+                  // Not a button. There is no action to perform, so a disabled
+                  // control would only add something to announce and skip past.
+                  // A plain statement reads the same to everyone - which is
+                  // also what the control audit was telling us by refusing a
+                  // button with nothing behind it.
+                  <p className="w-full rounded-xl border border-current px-5 py-3 text-center text-sm font-bold opacity-50">
+                    Coming soon
+                  </p>
+                )}
               </div>
             </article>
           );
@@ -104,8 +124,9 @@ export function PricingCards() {
       </div>
       <p className="mt-8 text-center text-xs leading-relaxed text-[var(--muted)]">
         Yearly prices are per month and billed annually. Prices exclude
-        applicable taxes. Active-member limits reset as people leave programs;
-        archived records do not count.
+        applicable taxes. Customers are unlimited on every plan, including the
+        free one — we do not charge you for growing. Only Launch is available
+        today; the paid tiers are published so you can see where this goes.
       </p>
     </div>
   );

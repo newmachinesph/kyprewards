@@ -103,9 +103,10 @@ export default async function ComparisonPage({ params }: Props) {
             </div>
             <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
               Comparison facts use publicly documented pages available on August
-              25, 2026. Product offers can change; verify current terms with
-              each provider. KYPStamping descriptions refer to this frontend demo and
-              stated product direction.
+              25, 2026, with pricing re-checked on September 2, 2026. Product
+              offers can change; verify current terms with each provider.
+              KYPStamping descriptions cover what is built today and what is
+              stated direction, and say which is which.
             </p>
           </div>
           <div className="mt-10 overflow-x-auto rounded-2xl border border-[var(--line)]">

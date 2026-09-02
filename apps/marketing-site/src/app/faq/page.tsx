@@ -14,11 +14,11 @@ const groups = [
     questions: [
       [
         "What is KYPStamping?",
-        "KYPStamping is a loyalty platform concept for Philippine local businesses. It combines a customer PWA, business and staff workspace, public business website, and platform administration experience.",
+        "KYPStamping is a loyalty platform for Philippine local businesses. It combines a customer wallet that runs in the browser, a business and staff workspace, a public page for each shop, and platform administration.",
       ],
       [
         "Is the product live today?",
-        "This build is a complete frontend demo powered by local JSON data. It is designed to validate navigation, workflows, pricing, and visual direction before the FastAPI backend and delivery providers are connected.",
+        "The product is built and running end to end - the API, the background workers, the counter, and the customer wallet - but it is not open to the public yet. The database holds seeded demonstration records rather than real shops, and the paid plans are published without being sellable while we finish onboarding and the legal review.",
       ],
       [
         "Do customers need an app-store download?",
@@ -26,7 +26,7 @@ const groups = [
       ],
       [
         "Do we need to replace our POS?",
-        "No. A business can begin with QR scanning beside its existing checkout. POS and commerce adapters are planned for the Scale tier.",
+        "No. A business can begin with QR scanning beside its existing checkout, then connect the register through the API, signed webhooks, or a POS adapter from the Grow plan upward.",
       ],
     ],
   },
@@ -35,19 +35,19 @@ const groups = [
     questions: [
       [
         "Which loyalty programs can we run?",
-        "The demo supports stamps, cashback, discounts, membership, coupons, points-based rewards, multipass, and gift certificates.",
+        "Eight formats from one program engine: stamp cards, points and cashback, tiered discounts, memberships, coupons, a reward catalog, prepaid multipasses, and gift cards. Every format is included from the Core plan, and a stamp card runs on the free plan.",
       ],
       [
         "Can multiple locations share a program?",
-        "Yes. Grow models up to three locations and Scale up to ten, with location-level staff, activity, and performance views.",
+        "Yes. Grow covers up to three locations and Scale up to ten, with location-level staff, activity, and performance views.",
       ],
       [
         "What happens if the internet drops at the counter?",
-        "The business demo includes an offline queue and reconciliation state. Production must sign events, prevent duplicates, and replay them through the shared API when connectivity returns.",
+        "The counter keeps a signed local queue and shows what is pending. When the connection returns the visits replay through the API, and idempotency keys stop a replayed visit becoming a second stamp.",
       ],
       [
         "Can owners limit staff access?",
-        "Yes. The demo includes owner, manager, marketer, and counter roles with distinct permissions and an activity ledger.",
+        "Yes. Owner, manager, marketer, and counter roles carry distinct permissions, and every privileged action is written to an activity ledger.",
       ],
     ],
   },
@@ -56,7 +56,7 @@ const groups = [
     questions: [
       [
         "Which messaging channels are included?",
-        "Campaign planning covers the in-app inbox, web push, email, Viber, and SMS. Campaigns reach customers on Viber before falling back to SMS, which lowers delivery cost without losing reach. WhatsApp and Messenger are planned and require a verified Meta Business account before they can be built.",
+        "Today: the in-app inbox, web push, email, and SMS. Viber, WhatsApp and Messenger are planned rather than built - each needs a provider relationship, and Meta requires a verified Business account before work can start. When Viber lands, campaigns will try it before falling back to SMS, because it costs a fraction as much to deliver.",
       ],
       [
         "Why is SMS not unlimited?",
@@ -77,7 +77,7 @@ const groups = [
     questions: [
       [
         "Who controls customer information?",
-        "Customers can review joined businesses, shared fields, communication choices, loyalty history, exports, and deletion or leave requests in the PWA demo.",
+        "Customers can review joined businesses, shared fields, communication choices, loyalty history, exports, and deletion or leave requests in the privacy center of the wallet.",
       ],
       [
         "Does KYPStamping guarantee legal compliance?",
@@ -89,7 +89,7 @@ const groups = [
       ],
       [
         "Can an administrator read every customer profile?",
-        "The admin demo uses aggregate views. Scoped support access is time-limited, reason-bound, and written to the audit ledger.",
+        "No. Platform administration works from aggregate views. Scoped support access is time-limited, reason-bound, and written to the audit ledger.",
       ],
     ],
   },
@@ -100,7 +100,7 @@ const allQuestions = groups.flatMap((group) => group.questions);
 export const metadata: Metadata = {
   title: "Loyalty Platform FAQ",
   description:
-    "Answers about KYPStamping setup, digital loyalty programs, customer PWA access, staff operations, SMS and email pricing, privacy, and the frontend demo.",
+    "Answers about KYPStamping setup, digital loyalty programs, customer wallet access, staff operations, SMS and email pricing, privacy, and what is live today.",
   alternates: { canonical: "/faq" },
 };
 
@@ -123,7 +123,7 @@ export default function FaqPage() {
         image="/images/hero-pricing.webp"
         eyebrow="Buyer and operator answers"
         title="Everything important, answered plainly."
-        description="A practical reference for owners, staff, customers, technical evaluators, and answer engines—without hiding the fact that this release is a frontend demo."
+        description="A practical reference for owners, staff, customers, technical evaluators, and answer engines—including a straight answer about what is running today and what is not."
       >
         <SiteButton href="/pricing">See transparent pricing</SiteButton>
         <SiteButton href="/contact" tone="outline">

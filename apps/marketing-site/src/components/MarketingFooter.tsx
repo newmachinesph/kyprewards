@@ -48,8 +48,20 @@ const groups = [
       ["About", "/about"],
       ["Resources", "/resources"],
       ["Contact", "/contact"],
+    ],
+  },
+  // Its own column rather than two links at the end of Company. A merchant
+  // deciding whether to put their customer list on this platform reads these,
+  // and burying the data sharing terms under "Company" hides the answer.
+  {
+    title: "Legal",
+    links: [
       ["Privacy", "/privacy"],
       ["Terms", "/terms"],
+      ["Merchant agreement", "/merchant-terms"],
+      ["Data sharing", "/data-sharing"],
+      ["Sub-processors", "/subprocessors"],
+      ["Cookies", "/cookies"],
     ],
   },
 ];

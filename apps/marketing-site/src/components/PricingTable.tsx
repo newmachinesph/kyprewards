@@ -173,12 +173,19 @@ export function PricingTable() {
                       : ""
                   }`}
                 >
-                  <SiteButton
-                    href="/partners"
-                    tone={plan.featured ? "accent" : "outline"}
-                  >
-                    {plan.cta}
-                  </SiteButton>
+                  {/* The cards at the top of the page and this row at the
+                      bottom both sell, so both have to stop selling a tier
+                      that is not open yet. */}
+                  {plan.available ? (
+                    <SiteButton
+                      href="/partners"
+                      tone={plan.featured ? "accent" : "outline"}
+                    >
+                      {plan.cta}
+                    </SiteButton>
+                  ) : (
+                    <p className="text-sm font-bold opacity-50">Coming soon</p>
+                  )}
                 </td>
               ))}
             </tr>

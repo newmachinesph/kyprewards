@@ -28,11 +28,11 @@ const questions = [
   ],
   [
     "What should a Philippine small business budget?",
-    "A useful entry point is ₱0–₱499 per month for a single location. Budget SMS separately because each segment has a delivery cost; use in-app, push, and email first when they fit the message.",
+    "A useful entry point is ₱0–₱499 per month for a single location, and a free tier should not cap how many customers join - a loyalty program exists to accumulate members, so paying per member is paying for your own success. Budget SMS separately because each segment has a real delivery cost; use in-app, push and email first when they fit the message.",
   ],
   [
     "Which program type is best?",
-    "Frequent, predictable visits suit stamps or points. Higher-value services may suit membership, cashback, multipass, or a carefully timed coupon. Gift certificates work when customers buy for someone else.",
+    "Frequent, predictable visits suit stamps or points. Higher-value services may suit membership, cashback, multipass, or a carefully timed coupon. Gift cards work when customers buy value for someone else.",
   ],
   [
     "How quickly can a business launch?",
@@ -102,6 +102,7 @@ export default function LoyaltyPhilippinesPage() {
         facts={[
           { label: "App store install", value: "Not required" },
           { label: "Typical entry cost", value: "₱0 – ₱499 / month" },
+          { label: "Per-customer fee", value: "None, on any plan" },
           { label: "Common formats", value: "Stamps, points, discounts" },
           { label: "Privacy law", value: "Data Privacy Act of 2012" },
         ]}
@@ -118,9 +119,11 @@ export default function LoyaltyPhilippinesPage() {
               The best digital loyalty program is easy to explain in one
               sentence, takes seconds at checkout, gives customers control of
               their contact choices, and costs less than the gross profit
-              created by the return visits it influences. KYPStamping’s recommended
-              starting price is ₱499/month for one established location, with a
-              free validation tier and separately metered SMS.
+              created by the return visits it influences. KYPStamping starts at
+              ₱0 for one location with no limit on customers, rises to ₱499/month
+              for an established shop running every program type, and meters SMS
+              separately because it is the only channel with a real per-message
+              carrier cost.
             </p>
           </div>
         </div>
@@ -159,7 +162,7 @@ export default function LoyaltyPhilippinesPage() {
                   "Prepaid classes, treatments, meals, or services",
                 ],
                 [
-                  "Gift certificates",
+                  "Gift cards",
                   "One customer purchasing value for another",
                 ],
                 [
@@ -336,7 +339,7 @@ export default function LoyaltyPhilippinesPage() {
       </section>
       <MarketingCta
         title="Build loyalty around profitable returns."
-        description="Start with the free validation tier, then choose a plan and channel mix that your returning visits can comfortably pay back."
+        description="Start on the free plan with unlimited customers, then choose a tier and channel mix that your returning visits can comfortably pay back."
       />
     </main>
   );

@@ -60,6 +60,50 @@ const sections = [
     ],
   },
   {
+    title: "Your rights under Philippine law",
+    paragraphs: [
+      "KYPStamping operates in the Philippines, and personal information here is protected by the Data Privacy Act of 2012 (Republic Act No. 10173). The Act gives every data subject a specific set of rights, and naming them is more use than a general promise to respect your privacy.",
+    ],
+    bullets: [
+      "To be informed that your personal data is being collected and processed, and why.",
+      "To access what is held about you, and to receive a copy in a portable form.",
+      "To correct anything inaccurate or out of date.",
+      "To object to processing, including withdrawing consent for marketing at any time and per channel.",
+      "To erasure or blocking, where the law provides for it.",
+      "To be indemnified for damage arising from inaccurate, incomplete or unlawfully obtained data.",
+      "To complain to the National Privacy Commission if you believe your rights have not been honored.",
+    ],
+  },
+  {
+    title: "Data Protection Officer",
+    paragraphs: [
+      "The Act requires a Personal Information Controller to appoint a Data Protection Officer accountable for compliance. Ours is being appointed as part of pre-launch preparation, and this section will carry their name and direct contact details before the platform opens commercially.",
+      "Until then, privacy questions and rights requests reach the team at hello@kypsolutions.com.ph and are handled on the same timescales.",
+    ],
+  },
+  {
+    title: "If something goes wrong",
+    paragraphs: [
+      "Where a security incident affects personal data and is likely to give rise to a real risk to the people involved, the Act requires notification to the National Privacy Commission and to those affected within seventy-two hours of us knowing about it. We commit to that timescale.",
+      "A notification will say what happened, what data was involved, what we are doing about it, and what you can do - not merely that an incident occurred.",
+    ],
+  },
+  {
+    title: "How long information is kept",
+    paragraphs: [
+      "Personal data is kept while it is needed for the purpose it was collected for, and then deleted or anonymized. Account data is held while the account is open; loyalty history is held while the customer is a member of that program; and a closed business workspace is retained briefly so it can be restored or exported before removal.",
+      "One-time codes, sessions and password-reset tokens are short-lived by design and are swept automatically rather than accumulating.",
+      "Specific retention periods for each category are being fixed as part of the same pre-launch review, and will be published here rather than left to be inferred.",
+    ],
+  },
+  {
+    title: "Businesses you join",
+    paragraphs: [
+      "Joining a business's program shares a defined set of your details with that business, and both they and KYPStamping then make decisions about that data. What moves, when it moves, and who answers for what is set out on the data sharing page.",
+      "Leaving a program stops that sharing and removes you from that business's member list. Your account, and your membership of any other business, is unaffected.",
+    ],
+  },
+  {
     title: "Changes and contact",
     paragraphs: [
       "We will update this notice when our practices or legal obligations change. Material changes will be communicated through the service or by another appropriate method.",

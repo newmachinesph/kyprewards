@@ -54,16 +54,77 @@ This is the product-coverage baseline for KYPStamping. It inventories publicly d
 
 ## Sustainable pricing recommendation
 
-Public anchors span from GoBalik at ₱399–₱499 per month, through Suki Cards at roughly ₱450–₱917 per month when its annual PHP plans are divided by 12, to ZAP Premium at ₱4,800 per month. KYPStamping should occupy the space between a narrow stamp-card tool and a full established engagement suite.
+Revisited 2 September 2026 after re-checking every competitor's published
+pricing. The conclusion changed, and it changed the axis rather than the
+numbers.
 
-| Plan   | Monthly | Annual commitment, shown monthly | Designed limit and role                                                                                                |
-| ------ | ------: | -------------------------------: | ---------------------------------------------------------------------------------------------------------------------- |
-| Launch |      ₱0 |                               ₱0 | Acquisition tier: 250 active members, one location, one program, two staff                                             |
-| Core   |    ₱499 |                             ₱399 | Main single-location tier: 1,500 members, two programs, 5,000 emails, three staff                                      |
-| Grow   |  ₱1,290 |                             ₱990 | Retention tier: 10,000 members, three locations, all program types, automation, 25,000 emails, 100 SMS credits         |
-| Scale  |  ₱3,490 |                           ₱2,790 | Integration tier: 50,000 members, ten locations, 50 staff, API/webhooks/POS direction, 100,000 emails, 500 SMS credits |
+### What the market charges for
 
-The free tier needs hard usage limits because it is a customer-acquisition expense. Core and Grow are the primary profitable plans. Scale stays below ZAP Premium's public price while preserving room for higher support and integration cost.
+| Vendor      | Free tier                        | Paid entry                    | Customer cap |
+| ----------- | -------------------------------- | ----------------------------- | ------------ |
+| GoBalik     | Starter, no card required        | Growth ₱499/month             | none advertised |
+| Suki Cards  | none — 14-day trial              | Grow ~₱667/month (₱7,999/yr)  | **unlimited, stated explicitly** |
+| ZAP         | Express, "free for a limited time" | Premium ₱4,800/month        | unlimited branches, employees, transactions |
+| Rush        | none                             | Essentials ₱15,000/month      | 300k monthly active |
+
+Rush is not a competitor at this stage; it is the enterprise ceiling and is
+useful only as the top of the range. GoBalik and Suki are the real comparison.
+
+**Not one of them prices on customer count.** They price on capability —
+locations, card types, staff logins, message volume. Suki says outright that it
+charges no per-customer fee.
+
+### The change
+
+KYPStamping used to price on members: 250 / 1,500 / 10,000 / 50,000. That was
+the weakest position on the page. Two competitors offer an unlimited free tier,
+so a 250-member free plan was the first number a prospect compared and lost on.
+
+It was also the wrong thing to meter. A loyalty program exists to accumulate
+members, and members never leave the count, so a member-based bill only
+ratchets upward and the merchant's rational move is to enrol fewer customers —
+the exact opposite of what they bought. Worse, the caps were never enforced in
+code: `included_members` was written to a usage counter that nothing ever
+incremented or checked. They protected no revenue and cost us deals.
+
+Members are unlimited on every tier now, including the free one. The axis is
+locations, capability and metered channels.
+
+| Plan   | Monthly | Annual, shown monthly | Role and limits                                                                                     |
+| ------ | ------: | --------------------: | --------------------------------------------------------------------------------------------------- |
+| Launch |      ₱0 |                    ₱0 | Unlimited customers, one location, one stamp card, 500 emails, no SMS, our badge on the card         |
+| Core   |    ₱499 |                  ₱399 | Unlimited customers, all eight program types, own branding, 5,000 emails, SMS from the merchant's own phone |
+| Grow   |  ₱1,290 |                  ₱990 | Three locations, unlimited concurrent programs, API and webhooks, 25,000 emails, 100 SMS credits      |
+| Scale  |  ₱3,490 |                ₱2,790 | Ten locations, 50 staff, approvals, 100,000 emails, 500 SMS credits                                  |
+
+### What a free merchant costs us
+
+The point of the free tier is that it costs almost nothing marginal.
+
+- **Members: nothing.** A member is a database row.
+- **Email: about ₱0.75 a month.** At roughly ₱0.0015 per email, the whole
+  500-email allowance is under a peso. Keeping it is cheaper than most
+  acquisition channels and it gives the free tier a reason to convert.
+- **SMS: none included, deliberately.** At ₱0.56 per segment it is the only
+  channel that would make a free merchant expensive.
+
+The one real cost that free merchants already incur is customer
+authentication. Every sign-in code sent to a mobile number is a paid Semaphore
+SMS, it carries no merchant attribution, and it is counted against no
+allowance. With a twelve-hour session a daily visitor re-authenticates daily.
+Preferring email for the code where the customer has one, and lengthening the
+session, are worth more than any other saving available here — and neither is
+done yet.
+
+Core and Grow remain the primary profitable plans. Scale stays below ZAP
+Premium's public price while leaving room for support and integration cost.
+
+### The tier that still needs a reason
+
+At ₱1,290 Grow is roughly twice Suki's ₱667 for the same three locations. The
+candidate justification is the centralised wallet — one member code working at
+every business on the platform, which none of the four competitors offer — but
+that should be validated with real merchants before it is priced on.
 
 ### Channel unit economics
 

@@ -41,7 +41,7 @@ export function GET() {
 
 - The four apps read a live API. Messaging providers are stubbed locally, wallet passes are not implemented, and there is no production tenant yet.
 - Anything described as planned, direction, or ready for provider connection is not a claim of a live production service.
-- Privacy workflows are built to support Philippine data-protection practice under the Data Privacy Act of 2012. Software alone does not make an organisation compliant.
+- Privacy workflows are built to support Philippine data-protection practice under the Data Privacy Act of 2012. Software alone does not make an organization compliant.
 - Competitor comparisons use public information observed on 25 August 2026 and link to primary sources. Verify current terms with each provider.
 - Pricing below is generated from the same source the pricing page renders, so the two cannot disagree.
 

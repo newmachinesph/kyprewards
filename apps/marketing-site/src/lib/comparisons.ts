@@ -120,7 +120,7 @@ export const comparisons: Comparison[] = [
       {
         label: "Entry price",
         competitor: "Free Express tier",
-        kypstamping: "Free Launch demo plan for 250 active members",
+        kypstamping: "Free Launch plan, unlimited customers",
       },
       {
         label: "Paid growth",

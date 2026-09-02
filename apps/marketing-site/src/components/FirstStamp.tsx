@@ -89,7 +89,7 @@ export function FirstStamp() {
               <div>
                 <dt className="text-sm font-extrabold">The customer&rsquo;s code earns</dt>
                 <dd className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
-                  Every visit after the first is authorised by your staff, by
+                  Every visit after the first is authorized by your staff, by
                   scanning the customer&rsquo;s own code or finding them by mobile
                   number. Nobody stamps themselves.
                 </dd>

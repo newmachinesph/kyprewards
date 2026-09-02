@@ -23,6 +23,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/partners",
     "/privacy",
     "/terms",
+    "/merchant-terms",
+    "/data-sharing",
+    "/subprocessors",
+    "/cookies",
   ];
   return [
     ...core.map((path) => ({

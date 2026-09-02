@@ -1,11 +1,29 @@
 /**
  * Single source of truth for plan pricing and the feature matrix.
  *
- * Prices and limits come from docs/philippines-loyalty-benchmark.md: GoBalik
- * anchors the entry tier at ₱499, Suki Cards sits around ₱450–₱917 once its
- * annual PHP plans are divided by 12, and ZAP Premium caps the market at
- * ₱4,800. Channel rates are cost-plus over Semaphore (₱0.56/segment ex-VAT)
- * and SES, and are modelled in the admin Revenue & margin view.
+ * Prices come from docs/philippines-loyalty-benchmark.md: GoBalik anchors the
+ * entry tier at ₱499, Suki Cards sits around ₱667 once its annual PHP plan is
+ * divided by 12, and ZAP Premium caps the market at ₱4,800. Channel rates are
+ * cost-plus over Semaphore (₱0.56/segment ex-VAT) and SES, and are modelled in
+ * the admin Revenue & margin view.
+ *
+ * Customers are unlimited on every tier, including the free one. That used to
+ * be the axis - 250 / 1,500 / 10,000 / 50,000 - and nothing else in this market
+ * prices that way: GoBalik and ZAP both give an unlimited free tier, and Suki
+ * says outright that it charges no per-customer fee. A 250-customer free plan
+ * was the worst number on this page.
+ *
+ * It also measured the wrong thing. A loyalty program exists to accumulate
+ * members and they never leave the count, so a member-based bill only ratchets
+ * up, and the merchant's incentive becomes enrolling fewer customers - the
+ * opposite of what they bought. A member is a database row. A text message
+ * costs real pesos through Semaphore, which is why the channel allowances are
+ * the ones that stayed.
+ *
+ * `available: false` marks a tier as announced but not yet sellable. Only
+ * Launch is live today. The others stay on the page deliberately - a merchant
+ * choosing a loyalty platform is asking where this goes once their shop grows,
+ * and hiding the ladder answers that with silence.
  */
 
 export type PlanKey = "launch" | "core" | "grow" | "scale";
@@ -13,12 +31,15 @@ export type PlanKey = "launch" | "core" | "grow" | "scale";
 /**
  * Numeric allowances behind the estimator, in plan order (Launch, Core, Grow,
  * Scale). These mirror the Limits rows of `featureMatrix` — keep them together.
+ *
+ * No `members` row: it is unlimited everywhere, so it cannot select a plan and
+ * the estimator no longer asks for a number it would ignore.
  */
 export const planLimits = [
-  { members: 250, locations: 1, email: 500, sms: 0, push: 1000 },
-  { members: 1500, locations: 1, email: 5000, sms: 0, push: 10000 },
-  { members: 10000, locations: 3, email: 25000, sms: 100, push: 50000 },
-  { members: 50000, locations: 10, email: 100000, sms: 500, push: 200000 },
+  { locations: 1, email: 500, sms: 0, push: 1000 },
+  { locations: 1, email: 5000, sms: 0, push: 10000 },
+  { locations: 3, email: 25000, sms: 100, push: 50000 },
+  { locations: 10, email: 100000, sms: 500, push: 200000 },
 ] as const;
 
 /** Published overage rates. Mirrors `channelRates`. */
@@ -32,24 +53,25 @@ export const plans = [
   {
     key: "launch" as const,
     highlights: [
-      "250 active members",
-      "One location and one program",
+      "Unlimited customers, no per-member fee",
+      "One location and one stamp card",
+      "500 emails a month, campaigns included",
       "QR join, earn, and redeem",
-      "Customer PWA and in-app updates",
       "Two staff accounts",
     ],
     name: "Launch",
     monthly: 0,
     yearly: 0,
-    description: "Prove the return-visit loop before paying.",
+    description: "Everything you need to run one stamp card, at no cost and with no limit on how many customers join it.",
     cta: "Start free",
     featured: false,
+    available: true,
   },
   {
     key: "core" as const,
     highlights: [
-      "1,500 active members",
-      "Two concurrent programs",
+      "Unlimited customers",
+      "All eight program types, two running at once",
       "QR, NFC, and printable counter modes",
       "5,000 emails each month",
       "Scheduled and birthday campaigns",
@@ -60,12 +82,13 @@ export const plans = [
     description: "For one local business building a dependable customer base.",
     cta: "Choose Core",
     featured: false,
+    available: false,
   },
   {
     key: "grow" as const,
     highlights: [
-      "10,000 active members",
-      "Three locations and all eight program types",
+      "Unlimited customers",
+      "Three locations and unlimited concurrent programs",
       "Segments, referrals, reviews, and automations",
       "25,000 emails + 100 SMS credits monthly",
       "RFM, cohort, and reward-liability analytics",
@@ -76,11 +99,12 @@ export const plans = [
     description: "For teams ready to automate retention across locations.",
     cta: "Choose Grow",
     featured: true,
+    available: false,
   },
   {
     key: "scale" as const,
     highlights: [
-      "50,000 active members",
+      "Unlimited customers",
       "Ten locations and 50 staff",
       "API, webhooks, POS, and commerce adapters",
       "100,000 emails + 500 SMS credits monthly",
@@ -92,6 +116,7 @@ export const plans = [
     description: "For established multi-location operations and integrations.",
     cta: "Choose Scale",
     featured: false,
+    available: false,
   },
 ];
 
@@ -117,9 +142,9 @@ export const featureMatrix: FeatureGroup[] = [
         cells: ["2", "3", "10", "50"],
       },
       {
-        label: "Active loyalty members",
-        hint: "People currently enrolled in a live program. Archived records do not count.",
-        cells: ["250", "1,500", "10,000", "50,000"],
+        label: "Customers",
+        hint: "Never capped, never charged for. Growing your membership is the point of the product, not a reason to send you a bigger bill.",
+        cells: ["Unlimited", "Unlimited", "Unlimited", "Unlimited"],
       },
       {
         label: "Stamp, point, and redemption transactions",
@@ -141,11 +166,11 @@ export const featureMatrix: FeatureGroup[] = [
       { label: "Coupons", cells: [false, true, true, true] },
       {
         label: "Memberships with recurring billing",
-        cells: [false, false, true, true],
+        cells: [false, true, true, true],
       },
-      { label: "Reward catalog", cells: [false, false, true, true] },
-      { label: "Prepaid multipass", cells: [false, false, true, true] },
-      { label: "Gift cards", cells: [false, false, true, true] },
+      { label: "Reward catalog", cells: [false, true, true, true] },
+      { label: "Prepaid multipass", cells: [false, true, true, true] },
+      { label: "Gift cards", cells: [false, true, true, true] },
     ],
   },
   {
@@ -216,7 +241,7 @@ export const featureMatrix: FeatureGroup[] = [
         hint: "Every send shows eligible recipients, estimated spend, predicted return visits, and break-even.",
         cells: [true, true, true, true],
       },
-      { label: "Scheduled campaigns", cells: [false, true, true, true] },
+      { label: "Scheduled campaigns", cells: ["Email only", true, true, true] },
       {
         label: "Birthday and anniversary journeys",
         cells: [false, true, true, true],
@@ -249,11 +274,25 @@ export const featureMatrix: FeatureGroup[] = [
         label: "Push notifications",
         cells: ["1,000", "10,000", "50,000", "200,000"],
       },
-      { label: "Emails", cells: ["500", "5,000", "25,000", "100,000"] },
+      {
+        label: "Emails",
+        hint: "What a campaign or a journey costs against your month. Sign-in codes, receipts, reward notices and password resets are transactional — they always send, on every plan, and never count against this.",
+        cells: ["500", "5,000", "25,000", "100,000"],
+      },
       {
         label: "SMS credits",
-        hint: "SMS has a real per-message carrier cost, so it is credit-based on every plan.",
+        hint: "Sent by us, through a carrier gateway. SMS has a real per-message cost, so it is credit-based on every plan and none is included below Grow.",
         cells: ["—", "—", "100", "500"],
+      },
+      {
+        label: "SMS from your own phone",
+        hint: "A companion app that sends from your shop's own SIM and load, so a text costs what your telco charges rather than a per-message platform fee. Android only — iOS does not let an app send SMS. You are the sender: your number, your telco's terms, your responsibility for consent. Sign-in codes never use this route.",
+        cells: [false, "Android app", "Android app", "Android app"],
+      },
+      {
+        label: "Automatic fallback to our gateway",
+        hint: "When your phone is off, out of load, or out of signal, the message goes out through our carrier gateway against your included credits instead of failing quietly.",
+        cells: [false, false, true, true],
       },
     ],
   },
@@ -295,8 +334,14 @@ export const featureMatrix: FeatureGroup[] = [
     group: "Operations and integrations",
     rows: [
       {
-        label: "Business profile in Discover",
+        label: "Listed in Discover",
+        hint: "Every shop running a live program is findable in the customer app, on every plan including the free one. A marketplace that only lists paying shops is empty on the day it launches, which helps nobody.",
         cells: [true, true, true, true],
+      },
+      {
+        label: "Featured placement in Discover",
+        hint: "Priority position in the customer app's Discover list, above the ordinary distance ordering.",
+        cells: [false, false, true, true],
       },
       { label: "Data export", cells: [true, true, true, true] },
       {
@@ -304,22 +349,22 @@ export const featureMatrix: FeatureGroup[] = [
         cells: [false, true, true, true],
       },
       {
-        label: "Custom branding",
-        cells: [false, "Basic", true, true],
+        label: "Your own branding on the card",
+        cells: [false, true, true, true],
       },
       {
         label: "KYPStamping badge on customer cards",
-        hint: "The free plan carries our badge. Paid plans shrink it, then remove it.",
-        cells: ["Shown", "Small", "Hidden", "Hidden"],
+        hint: "The free plan carries our badge. Every paid plan removes it — your customers should be looking at your shop, not at us.",
+        cells: ["Shown", "Hidden", "Hidden", "Hidden"],
+      },
+      { label: "API access", cells: [false, false, true, true] },
+      { label: "Webhooks", cells: [false, false, true, true] },
+      {
+        label: "POS and commerce adapters",
+        cells: [false, false, true, true],
       },
       {
         label: "Approval controls for privileged actions",
-        cells: [false, false, false, true],
-      },
-      { label: "API access", cells: [false, false, false, true] },
-      { label: "Webhooks", cells: [false, false, false, true] },
-      {
-        label: "POS and commerce adapters",
         cells: [false, false, false, true],
       },
       {
