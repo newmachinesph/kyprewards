@@ -98,7 +98,13 @@ try {
   const emailField = mobilePage.locator('input[type="email"]').first();
   await emailField.waitFor();
   assert.equal(await emailField.getAttribute("type"), "email");
-  assert.match(await emailField.inputValue(), /@/);
+  // Empty, with an email-shaped hint. This used to assert the field arrived
+  // holding jacqueline.daniel@example.com - a real value, not a placeholder -
+  // which is how a brand new wallet ended up sending its one-time code to a
+  // stranger. The toggle still has to switch the field; it just must not
+  // answer the question for you.
+  assert.equal(await emailField.inputValue(), "");
+  assert.match(await emailField.getAttribute("placeholder"), /@/);
   await mobilePage.getByRole("button", { name: "Email me a code" }).waitFor();
 
   await mobilePage.getByRole("button", { name: /^mobile$/i }).click();

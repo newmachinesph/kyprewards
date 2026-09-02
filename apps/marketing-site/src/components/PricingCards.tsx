@@ -72,7 +72,12 @@ export function PricingCards() {
                   <span
                     className={`pb-1 text-xs ${plan.featured ? "text-white/70" : "text-[var(--muted)]"}`}
                   >
-                    / month
+                    {/* The toggle starts on Yearly, so the first number anybody
+                        sees is the discounted one. Labelling it "/ month" and
+                        stopping there reads as the monthly price, which is a
+                        hundred pesos higher - somebody comparing us against a
+                        competitor was quoting the wrong figure back to us. */}
+                    / month{annual ? ", billed yearly" : ""}
                   </span>
                 )}
               </div>

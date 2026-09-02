@@ -15,7 +15,7 @@ import {
   Store,
   Webhook,
 } from "lucide-react";
-import { BrandMark, DemoBadge, Eyebrow } from "@kypstamping/ui";
+import { BrandMark, Eyebrow } from "@kypstamping/ui";
 import { ApiError, createWorkspace } from "@kypstamping/api";
 
 // ponytail: city-level only. Exact coordinates are deliberately not collected —
@@ -54,6 +54,7 @@ const PROGRAMS = [
     icon: Coins,
     detail: "Earn points per peso spent, then redeem against a reward menu.",
     popular: false,
+    needsPlan: "Core",
   },
   {
     id: "membership",
@@ -61,6 +62,7 @@ const PROGRAMS = [
     icon: CreditCard,
     detail: "Recurring perks for regulars, tracked by visits or a paid tier.",
     popular: false,
+    needsPlan: "Grow",
   },
   {
     id: "coupon",
@@ -68,6 +70,7 @@ const PROGRAMS = [
     icon: Gift,
     detail: "One-off offers with an expiry, useful for winning lapsed customers back.",
     popular: false,
+    needsPlan: "Core",
   },
 ];
 
@@ -97,9 +100,18 @@ const COUNTER_METHODS = [
 
 const STEPS = ["Business", "Program", "Counter"] as const;
 
+// plans.included_locations for Launch, which is the plan every workspace is
+// created on.
+const LAUNCH_LOCATIONS = 1;
+
 export function BusinessOnboarding() {
   const [step, setStep] = useState(0);
-  const [businessName, setBusinessName] = useState("Sweet Crumbs Bakery");
+  // Blank. This held the seeded demo bakery's name, so a merchant who had
+  // just typed their own at sign-up arrived at step one already called Sweet
+  // Crumbs Bakery, and anyone who clicked Continue without reading provisioned
+  // their real shop under it. The effect below restores what they actually
+  // typed; the default is what shows when there is nothing to restore.
+  const [businessName, setBusinessName] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [city, setCity] = useState("Pasig");
   const [locations, setLocations] = useState(1);
@@ -160,7 +172,6 @@ export function BusinessOnboarding() {
       <div className="mx-auto w-full max-w-2xl">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <BrandMark />
-          <DemoBadge />
         </header>
 
         <ol className="mt-9 flex items-center gap-2" aria-label="Setup progress">
@@ -244,18 +255,28 @@ export function BusinessOnboarding() {
                   </label>
                   <label className="grid gap-2 text-xs font-extrabold">
                     Locations
+                    {/* Capped at what a new workspace can actually have. Every
+                        sign-up starts on Launch, which includes one location,
+                        and this accepted 99 - the number was honoured, so a
+                        free shop opened three branches during onboarding. */}
                     <input
                       type="number"
                       min={1}
-                      max={99}
+                      max={LAUNCH_LOCATIONS}
                       value={locations}
                       onChange={(event) =>
-                        setLocations(Math.max(1, Math.min(99, Number(event.target.value) || 1)))
+                        setLocations(
+                          Math.max(
+                            1,
+                            Math.min(LAUNCH_LOCATIONS, Number(event.target.value) || 1),
+                          ),
+                        )
                       }
                       className="min-h-12 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-sm font-semibold outline-none focus:border-[var(--accent-strong)]"
                     />
                     <span className="text-[10px] font-semibold text-[var(--muted)]">
-                      You can add branches later.
+                      The free plan runs one location. Add branches from
+                      Settings once you move up a plan.
                     </span>
                   </label>
                 </div>
@@ -278,13 +299,21 @@ export function BusinessOnboarding() {
                 {PROGRAMS.map((item) => {
                   const Icon = item.icon;
                   const selected = program === item.id;
+                  // Every workspace is created on Launch, and Launch runs stamp
+                  // cards. These were selectable, and picking one provisioned it
+                  // Live - the one route that skipped the plan gate every other
+                  // route enforces. Coupon drop was worse: provisioning has no
+                  // mapping for it, so it quietly handed over a stamp card.
+                  const locked = Boolean(item.needsPlan);
                   return (
                     <label
                       key={item.id}
-                      className={`flex cursor-pointer items-start gap-4 rounded-2xl border p-4 transition focus-within:border-[var(--accent-strong)] ${
-                        selected
-                          ? "border-[var(--ink)] bg-[var(--surface-2)]"
-                          : "border-[var(--line)] hover:border-[var(--line-strong)]"
+                      className={`flex items-start gap-4 rounded-2xl border p-4 transition focus-within:border-[var(--accent-strong)] ${
+                        locked
+                          ? "cursor-not-allowed border-[var(--line)] opacity-60"
+                          : selected
+                            ? "cursor-pointer border-[var(--ink)] bg-[var(--surface-2)]"
+                            : "cursor-pointer border-[var(--line)] hover:border-[var(--line-strong)]"
                       }`}
                     >
                       <input
@@ -293,6 +322,7 @@ export function BusinessOnboarding() {
                         value={item.id}
                         checked={selected}
                         onChange={() => setProgram(item.id)}
+                        disabled={locked}
                         className="sr-only"
                       />
                       <span
@@ -303,6 +333,11 @@ export function BusinessOnboarding() {
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-2">
                           <span className="text-sm font-extrabold">{item.name}</span>
+                          {item.needsPlan && (
+                            <span className="rounded-full border border-[var(--line-strong)] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted-strong)]">
+                              Needs {item.needsPlan}
+                            </span>
+                          )}
                           {item.popular && (
                             <span className="rounded-full bg-[rgb(232_163_61/16%)] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
                               Most popular
@@ -438,8 +473,8 @@ export function BusinessOnboarding() {
 
         <p className="mt-6 flex items-start gap-2 text-xs leading-relaxed text-[var(--muted-strong)]">
           <MapPin size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
-          Nothing here is saved to a server. This demo shows the sign-up path a real
-          merchant would take before the shared API is connected.
+          Finishing here creates your workspace, your first branch and a live
+          program. You can change any of it afterwards.
         </p>
       </div>
     </main>

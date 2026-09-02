@@ -2942,7 +2942,9 @@ function RedemptionsView({ notify }: { notify: Notify }) {
   const approved = redemptions.filter((item) => item.status === "Approved");
   const reversals = redemptions.length - approved.length;
   const rewardValue = approved.reduce((sum, item) => sum + item.valueCentavos, 0);
-  const approvalRate = (approved.length / redemptions.length) * 100;
+  const approvalRate = redemptions.length
+    ? (approved.length / redemptions.length) * 100
+    : null;
   const stampLiability =
     programs.find((program) => program.type === "Stamps")?.liabilityCentavos ?? 0;
   return (
@@ -3019,7 +3021,7 @@ function RedemptionsView({ notify }: { notify: Notify }) {
           ],
           [
             "Approval rate",
-            `${approvalRate.toFixed(1)}%`,
+            approvalRate === null ? "--" : `${approvalRate.toFixed(1)}%`,
             `${reversals} reversal${reversals === 1 ? "" : "s"}`,
           ],
           [
@@ -4410,9 +4412,9 @@ function StaffView({ notify }: { notify: Notify }) {
             </Button>
           </div>
           <p className="mt-4 text-[11px] leading-relaxed text-[var(--muted)]">
-            No email leaves the browser. The invited person would open{" "}
-            <code className="font-mono">/accept-invite</code> to review the role
-            before joining.
+            An invitation email goes out as soon as you send this. The invited
+            person opens <code className="font-mono">/accept-invite</code> to
+            review the role before joining.
           </p>
         </section>
       )}
@@ -4862,7 +4864,7 @@ function SettingsView({ notify }: { notify: Notify }) {
               <Pill tone="success">Active</Pill>
             </div>
             <p className="mt-7 text-3xl font-extrabold">
-              {billing.plan} · {peso(billing.monthlyCentavos)}
+              {billing.plan} · {pesoFromCentavos(billing.monthlyCentavos)}
             </p>
             <p className="mt-1 text-xs text-white/55">
               {billing.cycle} billing{profile ? ` · renews ${longDate(profile.renewalOn)}` : ""}

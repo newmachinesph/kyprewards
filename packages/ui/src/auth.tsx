@@ -9,14 +9,12 @@ import {
 import {
   ArrowLeft,
   ArrowRight,
-  BadgeCheck,
   Check,
   Croissant,
   Eye,
   EyeOff,
   Gift,
   KeyRound,
-  LockKeyhole,
   Mail,
   ShieldCheck,
   Smartphone,
@@ -223,9 +221,6 @@ function CustomerAuthShell({
       <section className="phone-shell relative mx-auto flex min-h-[100dvh] max-w-[460px] flex-col overflow-hidden border-x border-[rgb(24_18_12/8%)] bg-[var(--accent)] sm:min-h-[calc(100dvh-3rem)] sm:rounded-[var(--radius-card)] sm:border sm:shadow-[0_28px_90px_rgb(24_18_12/20%)]">
         <header className="flex items-center justify-between gap-4 px-5 pb-4 pt-[max(1.1rem,env(safe-area-inset-top))]">
           <BrandMark label="Wallet" />
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgb(24_18_12/12%)] bg-[rgb(255_254_251/42%)] px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--ink)]">
-            <LockKeyhole size={11} /> Demo only
-          </span>
         </header>
 
         <div className="px-5 pb-5">
@@ -380,8 +375,8 @@ function AuthShell({
         <div className="relative flex items-start gap-3 border-t border-white/12 pt-5">
           <ShieldCheck size={18} className="mt-0.5 shrink-0 text-[var(--accent)]" />
           <p className="max-w-[42ch] text-xs leading-relaxed text-white/62">
-            Frontend demo only. Credentials stay in this browser session and no
-            identity provider or backend receives them.
+            Sent over an encrypted connection and checked against your account.
+            Your password is never stored in a form the platform can read.
           </p>
         </div>
       </aside>
@@ -457,29 +452,6 @@ function PrimaryButton({ children, disabled = false }: { children: ReactNode; di
   );
 }
 
-function DemoBoundary({ compact = false }: { compact?: boolean }) {
-  if (compact) {
-    return (
-      <div className="mt-5 flex items-start gap-3 rounded-xl bg-[var(--surface-2)] px-3.5 py-3">
-        <BadgeCheck size={16} className="mt-0.5 shrink-0 text-[var(--success)]" />
-        <p className="text-[11px] leading-relaxed text-[var(--muted-strong)]">
-          Demo mode: nothing is sent or saved to a server.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mt-6 flex items-start gap-3 rounded-2xl border border-[rgb(15_118_85/18%)] bg-[rgb(15_118_85/7%)] p-4">
-      <BadgeCheck size={17} className="mt-0.5 shrink-0 text-[var(--success)]" />
-      <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
-        Any correctly formatted demo input works. Nothing is sent, stored on a
-        server, or used to contact a real person.
-      </p>
-    </div>
-  );
-}
-
 export function DemoAuthFlow({
   role,
   mode,
@@ -497,7 +469,13 @@ export function DemoAuthFlow({
   token?: string;
 }) {
   const config = roleConfig[role];
-  const [identifier, setIdentifier] = useState<string>(config.identifier);
+  // Blank, with the sample as a placeholder.
+  //
+  // This arrived as a real value, so the mobile field of a brand new wallet
+  // came pre-filled with +63 917 555 0182 - somebody else's number. Anyone who
+  // did not notice sent their one-time code to a stranger, paid for the SMS,
+  // and waited on a verify screen for a code that could never arrive.
+  const [identifier, setIdentifier] = useState<string>("");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [invite, setInvite] = useState<InvitePreview | null>(null);
@@ -523,7 +501,10 @@ export function DemoAuthFlow({
   // still supplies.
   const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
-  const [accepted, setAccepted] = useState(true);
+  // Unticked. A box that arrives already ticked records an agreement nobody
+  // made: the account gets a terms_accepted_at and a terms_version proving
+  // consent that was never given, which is worse evidence than none.
+  const [accepted, setAccepted] = useState(false);
   const [notice, setNotice] = useState("");
   const [sent, setSent] = useState(false);
   const [channel, setChannel] = useState<"mobile" | "email">("mobile");
@@ -680,7 +661,7 @@ export function DemoAuthFlow({
                 aria-pressed={channel === item}
                 onClick={() => {
                   setChannel(item);
-                  setIdentifier(item === "mobile" ? "+63 917 555 0182" : "jacqueline.daniel@example.com");
+                  setIdentifier("");
                 }}
                 className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg text-xs font-extrabold capitalize transition ${channel === item ? "bg-[var(--ink)] text-[var(--paper)] shadow-sm" : "text-[var(--muted-strong)]"}`}
               >
@@ -696,6 +677,13 @@ export function DemoAuthFlow({
             type={role === "customer" && channel === "mobile" ? "tel" : "email"}
             value={identifier}
             onChange={setIdentifier}
+            // The hint follows the toggle. A customer who switched to email
+            // was still shown a mobile number as the example.
+            placeholder={
+              role === "customer" && channel === "email"
+                ? "jacqueline.daniel@example.com"
+                : config.identifier
+            }
             autoComplete={role === "customer" && channel === "mobile" ? "tel" : "email"}
           />
           {role !== "customer" && (
@@ -772,7 +760,6 @@ export function DemoAuthFlow({
             </a>
           </p>
         )}
-        <DemoBoundary compact={role === "customer"} />
       </AuthShell>
     );
   }
@@ -817,7 +804,6 @@ export function DemoAuthFlow({
             <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)] hover:text-[var(--ink)]"><ArrowLeft size={14} /> Back to sign in</a>
           </form>
         )}
-        <DemoBoundary compact={role === "customer"} />
       </AuthShell>
     );
   }
@@ -922,7 +908,6 @@ export function DemoAuthFlow({
           )}
           <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> Use another account</a>
         </form>
-        <DemoBoundary compact={role === "customer"} />
       </AuthShell>
     );
   }
@@ -1021,7 +1006,6 @@ export function DemoAuthFlow({
           </PrimaryButton>
           <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> I already have an account</a>
         </form>
-        <DemoBoundary />
       </AuthShell>
     );
   }

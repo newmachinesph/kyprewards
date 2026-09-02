@@ -28,6 +28,8 @@ const adminUrl = process.env.ADMIN_APP_URL ?? "http://localhost:3001";
  * became real, so this script has to type a password and compute a live TOTP
  * exactly as a person with an authenticator would.
  */
+const OWNER_EMAIL = process.env.DEMO_EMAIL ?? "mara@sweetcrumbs.ph";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@kypstamping.ph";
 const OWNER_PASSWORD = process.env.DEMO_PASSWORD ?? "DemoPass123!";
 const ADMIN_MFA_SECRET = process.env.ADMIN_MFA_SECRET ?? "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
 
@@ -99,9 +101,12 @@ async function openApp(label, baseUrl, views, signIn) {
 /* ── Business workspace ───────────────────────────────────────────── */
 
 const business = await openApp("business", businessUrl, BUSINESS_VIEWS, async (page) => {
-  // The email is prefilled; the password never is. An owner with exactly one
+  // Both typed. The email field used to arrive pre-filled with the demo
+  // owner's address; it is a placeholder now, because a real person signing up
+  // was being handed somebody else's identity. An owner with exactly one
   // workspace no longer passes a picker - the API says `needsWorkspace: false`
   // and the app goes straight to the dashboard.
+  await page.getByLabel(/email/i).first().fill(OWNER_EMAIL);
   await page.locator('input[type="password"]').fill(OWNER_PASSWORD);
   await page.getByRole("button", { name: "Continue securely" }).click();
   // The app lands on its root and picks the default view; the hash only
@@ -143,6 +148,7 @@ checks.push("business: program edits survive navigation");
 /* ── Platform control room ────────────────────────────────────────── */
 
 const admin = await openApp("admin", adminUrl, ADMIN_VIEWS, async (page) => {
+  await page.getByLabel(/email/i).first().fill(ADMIN_EMAIL);
   await page.locator('input[type="password"]').fill(OWNER_PASSWORD);
   await page.getByRole("button", { name: "Continue securely" }).click();
   await page.waitForURL(/verify/);

@@ -53,6 +53,10 @@ const saysSomethingFailed = async () => {
 
 await step("sign in", async () => {
   await p.goto(`${BASE}/login`, { waitUntil: "networkidle" });
+  // Typed, not assumed. The email field used to arrive holding the demo
+  // owner's address, so this only ever filled the password - which meant the
+  // harness signed in as whoever the form happened to be pre-filled with.
+  await p.getByLabel(/email/i).first().fill("mara@sweetcrumbs.ph");
   await p.locator('input[type="password"]').fill("DemoPass123!");
   await p.getByRole("button", { name: "Continue securely" }).click();
   await p.waitForURL((u) => !u.pathname.startsWith("/login"));

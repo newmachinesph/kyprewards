@@ -15,7 +15,7 @@ import {
   useWallet,
   useNotifications,
 } from "@kypstamping/api";
-import { brandColor, BrandMark, DemoBadge, Eyebrow, StampDots } from "@kypstamping/ui";
+import { brandColor, BrandMark, Eyebrow, Skeleton, StampDots } from "@kypstamping/ui";
 import { signOut } from "@kypstamping/ui/auth";
 import { Toast, useToast } from "@kypstamping/ui/shell";
 import {
@@ -583,7 +583,7 @@ function HomeView({
   const { profile } = useCustomerState();
   const where = useCoordinates(true);
   const { data: discover = [] } = useDiscover(where);
-  const { data: cards = [] } = useWallet();
+  const { data: cards = [], isPending: walletPending } = useWallet();
   const { data: nudges = [] } = useNearby(where);
 
   // Two places the customer has not joined. The API returns discover
@@ -659,7 +659,14 @@ function HomeView({
             My wallet
           </button>
         </div>
-        {best ? (
+        {/* Loading is not the same as empty. Somebody who has just scanned a
+            poster and finished signing up lands here while the wallet is still
+            in flight, and for about a second the screen told them they had no
+            cards - the one thing that reads as "the scan did not work" to a
+            person holding a phone at a counter with a queue behind them. */}
+        {walletPending ? (
+          <Skeleton className="h-[168px] rounded-2xl" />
+        ) : best ? (
           <LoyaltyCard card={best} />
         ) : (
           <p className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 text-sm text-[var(--muted-strong)]">
@@ -945,9 +952,13 @@ function WalletView({
       {visibleCount === 0 && (
         <div className="mt-5 rounded-2xl border border-dashed border-[var(--line-strong)] p-7 text-center">
           <Search className="mx-auto text-[var(--muted)]" />
-          <p className="mt-3 text-sm font-extrabold">No wallet cards found.</p>
+          <p className="mt-3 text-sm font-extrabold">
+            {query ? "No wallet cards found." : "Nothing in your wallet yet."}
+          </p>
           <p className="mt-1 text-xs text-[var(--muted)]">
-            Try a different name or card category.
+            {query
+              ? "Try a different name or card category."
+              : "Scan a counter code or join a shop from Discover to start one."}
           </p>
         </div>
       )}
@@ -1283,7 +1294,6 @@ function ProfileView({
       </section>
       <DataRequests />
       <div className="mt-5 flex justify-center">
-        <DemoBadge label="Frontend demo only" />
       </div>
       <button
         type="button"
@@ -1352,7 +1362,8 @@ function QrModal({
           Show this at the counter
         </h2>
         <p className="mt-2 max-w-[30ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-          Staff scan this to add a stamp. Redeeming a reward asks you to approve it first.
+          Staff scan this to add a stamp, and to hand over a reward once you have
+          earned one.
         </p>
         <div className="qr-printable relative mt-8 overflow-hidden rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_20px_50px_rgb(24_18_12/12%)]">
           <QrImage />
@@ -1395,8 +1406,8 @@ function QrModal({
         </div>
         <div className="mt-3 flex max-w-[34ch] items-start gap-2 text-left text-[11px] leading-relaxed text-[var(--muted)]">
           <ShieldCheck size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> The code
-          identifies your account only. It carries no contact details, and rewards
-          cannot be redeemed without your approval.
+          identifies your account only. It carries no contact details, and it
+          cannot be used to spend money or change your account.
         </div>
         <div className="mt-3 flex items-center gap-2 text-[11px] font-bold text-[var(--muted)]">
           <Nfc size={15} aria-hidden="true" /> You can also tap at supported counters.

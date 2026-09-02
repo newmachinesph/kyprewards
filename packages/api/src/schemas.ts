@@ -149,7 +149,10 @@ export const PROGRAM_TYPES = [
   "Membership",
   "Rewards",
   "Multipass",
-  "Gift",
+  // "Gift card", not "Gift". The picker offered a value the API does not
+  // accept, so choosing it always failed with "Gift is not a program type" -
+  // a dead option on every plan, including the ones that pay for it.
+  "Gift card",
 ] as const;
 
 export const programSchema = z.object({

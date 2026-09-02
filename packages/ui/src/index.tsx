@@ -7,7 +7,6 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   Check,
-  FlaskConical,
   Minus,
   ShieldCheck,
   X,
@@ -418,14 +417,6 @@ export function FieldLabel({ children }: { children: ReactNode }) {
   return (
     <span className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted-strong)]">
       {children}
-    </span>
-  );
-}
-
-export function DemoBadge({ label = "Frontend demo only" }: { label?: string }) {
-  return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(143_85_16/30%)] bg-[rgb(232_163_61/14%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
-      <FlaskConical size={13} aria-hidden="true" /> {label}
     </span>
   );
 }

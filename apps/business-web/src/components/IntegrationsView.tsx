@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { sharedScenario } from "@kypstamping/demo-data";
 import type { Environment } from "@kypstamping/api";
-import { Button, DemoBadge, Dialog, Eyebrow, FieldLabel, Panel, Skeleton } from "@kypstamping/ui";
+import { Button, Dialog, Eyebrow, FieldLabel, Panel, Skeleton } from "@kypstamping/ui";
 import { PlanTag } from "@kypstamping/ui/shell";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import {
@@ -482,11 +482,10 @@ export function IntegrationsView({
           </h1>
           <p className="mt-2 max-w-[68ch] text-sm leading-relaxed text-[var(--muted-strong)]">
             Choose how sales reach KYPStamping, issue least-privilege keys, sign webhooks,
-            and trace every event without tying loyalty to one POS vendor. Sweet Crumbs is
-            on Grow, so this workspace has it switched on as a preview.
+            and trace every event without tying loyalty to one POS vendor. API
+            access and webhooks are included from the Grow plan.
           </p>
         </div>
-        <DemoBadge />
       </header>
 
       <section className="ticket-edge mt-6 overflow-hidden rounded-2xl px-5 py-6 text-[var(--paper)] sm:px-7">
@@ -494,7 +493,8 @@ export function IntegrationsView({
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em]">
-                <CircleDot size={12} className="text-[var(--accent)]" /> Sweet Crumbs
+                <CircleDot size={12} className="text-[var(--accent)]" />{" "}
+                {profile?.name ?? "This workspace"}
               </span>
               <span className="text-xs font-semibold text-white/60">
                 API base · /{contract?.version ?? ""}
