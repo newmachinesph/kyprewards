@@ -3943,7 +3943,7 @@ function AnalyticsView() {
   const { data: programs = [] } = usePrograms();
   // "Campaign-attributed" was hardcoded at ₱76.4k while the fixture's own
   // campaign revenue summed to ₱136.3k. Both now come from the same number.
-  const { data: metrics = EMPTY_BUSINESS_METRICS } = useBusinessMetrics();
+  const { data: metrics = EMPTY_BUSINESS_METRICS, error: metricsError } = useBusinessMetrics();
   const rewardIssued = programs.reduce(
     (sum, program) => sum + program.liabilityCentavos,
     0,
@@ -4001,6 +4001,12 @@ function AnalyticsView() {
         </section>
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <Eyebrow>Member economics</Eyebrow>
+          {metricsError ? (
+            <p className="mt-7 text-sm leading-relaxed text-white/65">
+              {metricsError.message}
+            </p>
+          ) : (
+            <>
           <p className="mt-7 text-4xl font-extrabold tracking-[-0.03em]">
             {pesoCompactFromCentavos(metrics.memberRevenueCentavos)}
           </p>
@@ -4027,6 +4033,8 @@ function AnalyticsView() {
               </div>
             ))}
           </div>
+            </>
+          )}
         </section>
       </div>
       <section className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
@@ -5025,7 +5033,6 @@ function SettingsView({ notify }: { notify: Notify }) {
         <ChangePlanDialog
           current={billing.plan}
           onClose={() => setChangingPlan(false)}
-          notify={notify}
         />
       )}
     </ViewFrame>

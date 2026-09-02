@@ -66,7 +66,7 @@ const navigation = [
         label: "Integrations",
         icon: PlugZap,
         view: "integrations" as BusinessView,
-        plan: "Scale",
+        plan: "Grow",
       },
     ],
   },

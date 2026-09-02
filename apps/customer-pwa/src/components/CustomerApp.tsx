@@ -611,9 +611,17 @@ function HomeView({
       <div className="mt-2 flex items-end justify-between gap-3">
         <div>
           <p className="text-sm text-[var(--muted-strong)]">{greeting()},</p>
-          <h1 className="text-3xl font-extrabold tracking-[-0.03em]">
-            {profile.name.split(" ")[0]}.
-          </h1>
+          {/* A lone "." until the profile answers. The placeholder profile
+              is deliberately blank rather than undefined, which every other
+              screen renders as empty space - but here it left the greeting
+              reading "Good afternoon, ." for a frame. */}
+          {profile.name ? (
+            <h1 className="text-3xl font-extrabold tracking-[-0.03em]">
+              {profile.name.split(" ")[0]}.
+            </h1>
+          ) : (
+            <Skeleton className="mt-1 h-8 w-32 rounded-lg" />
+          )}
         </div>
         {best && best.progress > 0 && (
           <span className="mb-1 flex items-center gap-2 rounded-full bg-[rgb(15_118_85/12%)] px-3 py-1.5 text-[11px] font-extrabold text-[var(--success)]">

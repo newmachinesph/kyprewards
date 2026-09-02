@@ -473,9 +473,10 @@ export function IntegrationsView({
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <Eyebrow>Connect your counter</Eyebrow>
-            {/* API, webhooks, and POS adapters are a Scale feature on the
-                pricing page — say so here instead of showing them unmarked. */}
-            <PlanTag plan="Scale" />
+            {/* Grow, matching permissions.FEATURE_MIN_PLAN and the pricing
+                table. This said Scale, two tiers and ~2,200 pesos a month
+                above where the feature actually unlocks. */}
+            <PlanTag plan="Grow" />
           </div>
           <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
             POS & API integrations

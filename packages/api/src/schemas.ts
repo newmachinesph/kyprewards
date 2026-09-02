@@ -155,6 +155,28 @@ export const PROGRAM_TYPES = [
   "Gift card",
 ] as const;
 
+/**
+ * The lowest plan that may run each program type.
+ *
+ * Mirrors `programs.PLAN_PROGRAMS` on the API, which is what actually refuses
+ * a publish. The onboarding wizard labelled its four choices and the Program
+ * Studio dropdown listed all eight unmarked, so the same shop was told "needs
+ * Core" on one screen and nothing at all on the other - and only found out at
+ * "Publish new version", after filling the whole form in.
+ */
+export const PROGRAM_TYPE_MIN_PLAN: Record<(typeof PROGRAM_TYPES)[number], string> = {
+  Stamps: "Launch",
+  Points: "Core",
+  Discount: "Core",
+  Coupon: "Core",
+  Membership: "Grow",
+  Rewards: "Grow",
+  Multipass: "Grow",
+  "Gift card": "Grow",
+};
+
+export const PLAN_RANK = ["Launch", "Core", "Grow", "Scale"];
+
 export const programSchema = z.object({
   type: z.enum(PROGRAM_TYPES, { error: "Pick a program type" }),
   name: z.string().trim().min(2, "Name this program"),

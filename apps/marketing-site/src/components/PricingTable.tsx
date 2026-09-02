@@ -91,10 +91,16 @@ export function PricingTable() {
                   <span className="font-display block text-base font-bold tracking-[-0.02em]">
                     {plan.name}
                   </span>
+                  {/* Always the monthly rate. The cards above default to the
+                      yearly one, so the same plan appeared at two prices on
+                      one page with nothing saying which was which - a buyer
+                      comparing us against a competitor quoted the wrong
+                      figure back to us. This table does not follow that
+                      toggle, so it says what it is showing. */}
                   <span className="mt-1 block text-xs text-[var(--muted)]">
                     {plan.monthly === 0
                       ? "Free"
-                      : `₱${plan.monthly.toLocaleString()}/mo`}
+                      : `₱${plan.monthly.toLocaleString()}/mo billed monthly`}
                   </span>
                 </th>
               ))}

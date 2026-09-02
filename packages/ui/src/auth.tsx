@@ -14,7 +14,6 @@ import {
   Eye,
   EyeOff,
   Gift,
-  KeyRound,
   Mail,
   ShieldCheck,
   Smartphone,
@@ -140,7 +139,7 @@ function CustomerAuthVisual({ mode }: { mode: DemoAuthMode }) {
           <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--muted-strong)]">
             Code ready
           </p>
-          <p className="mt-1 text-sm font-extrabold tracking-[-0.02em]">Sent to your demo mobile</p>
+          <p className="mt-1 text-sm font-extrabold tracking-[-0.02em]">Sent to your mobile</p>
         </div>
         <div className="flex gap-1" aria-hidden="true">
           {Array.from({ length: 6 }).map((_, index) => (
@@ -311,7 +310,7 @@ export function SessionGate({
   if (!ready) {
     return (
       <main className="grid min-h-[100dvh] place-items-center bg-[var(--paper)] px-5">
-        <div className="w-full max-w-sm" aria-label="Checking demo session">
+        <div className="w-full max-w-sm" aria-label="Checking your session">
           <div className="h-3 w-24 rounded-full bg-[var(--line-strong)] motion-safe:animate-pulse" />
           <div className="mt-5 h-10 w-3/4 rounded-2xl bg-[var(--line)] motion-safe:animate-pulse" />
           <div className="mt-3 h-4 w-full rounded-full bg-[var(--line)] motion-safe:animate-pulse" />
@@ -389,9 +388,6 @@ function AuthShell({
           <div className="flex items-center justify-between gap-4">
             <span className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-[var(--accent-strong)]">
               {config.eyebrow}
-            </span>
-            <span className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted-strong)]">
-              Frontend demo
             </span>
           </div>
           <h1 className="mt-5 max-w-[13ch] text-4xl font-extrabold leading-[0.98] tracking-[-0.03em] sm:text-5xl">
@@ -532,7 +528,7 @@ export function DemoAuthFlow({
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("loggedOut") === "1") {
       const noticeTimer = window.setTimeout(
-        () => setNotice("You signed out of the demo session."),
+        () => setNotice("You are signed out."),
         0,
       );
       return () => window.clearTimeout(noticeTimer);
@@ -631,7 +627,19 @@ export function DemoAuthFlow({
     setNotice("");
     try {
       if (role === "customer") {
-        const sentTo = window.sessionStorage.getItem(OTP_IDENTIFIER_KEY) ?? identifier.trim();
+        // Nothing to verify against if the page was opened cold: the number
+        // lives in session storage, not the URL, so a reload in a fresh
+        // context loses it. This used to fall back to the demo identifier,
+        // which verified somebody into a stranger's wallet; then it fell back
+        // to an empty string, which asked the API to validate "" and showed
+        // the customer the raw "identifier: String should have at least 3
+        // characters". Neither is an answer a person can act on.
+        const sentTo = window.sessionStorage.getItem(OTP_IDENTIFIER_KEY) ?? "";
+        if (!sentTo) {
+          setNotice("Start again from the sign-in screen so we can send you a fresh code.");
+          setBusy(false);
+          return;
+        }
         await verifyOtp(sentTo, code);
       } else {
         await verifyMfa(code);
@@ -729,29 +737,6 @@ export function DemoAuthFlow({
           </PrimaryButton>
         </form>
 
-        <div className="my-6 flex items-center gap-3 text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
-          <span className="h-px flex-1 bg-[var(--line)]" /> {role === "customer" ? "Or" : "Or use demo identity"} <span className="h-px flex-1 bg-[var(--line)]" />
-        </div>
-        <div className={`grid gap-2 ${role === "business" ? "sm:grid-cols-2" : ""}`}>
-          {role === "business" ? (
-            <>
-              <button type="button" onClick={() => go("/workspaces")} className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-extrabold transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
-                Continue with Google
-              </button>
-              <button type="button" onClick={() => go("/workspaces")} className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-extrabold transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
-                Continue with Microsoft
-              </button>
-            </>
-          ) : role === "admin" ? (
-            <button type="button" onClick={() => go("/verify")} className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-extrabold transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
-              Continue with platform SSO
-            </button>
-          ) : (
-            <button type="button" onClick={() => completeSession("/#home")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-xs font-extrabold transition hover:bg-[var(--surface-2)] active:scale-[0.98]">
-              <KeyRound size={15} /> Use a passkey on this device
-            </button>
-          )}
-        </div>
         {(role === "customer" || role === "business") && (
           <p className="mt-6 text-center text-xs text-[var(--muted-strong)]">
             New to KYPStamping?{" "}
@@ -867,7 +852,7 @@ export function DemoAuthFlow({
         : "/workspaces";
     }
     return (
-      <AuthShell role={role} mode="verify" title={role === "customer" ? "Enter your code." : "Confirm it is you."} description={role === "admin" ? "Enter the six-digit code from your administrator authenticator." : role === "customer" ? "Use the six-digit code prepared for your demo wallet." : "Enter the six-digit code prepared for your demo account."}>
+      <AuthShell role={role} mode="verify" title={role === "customer" ? "Enter your code." : "Confirm it is you."} description={role === "admin" ? "Enter the six-digit code from your administrator authenticator." : role === "customer" ? "Enter the six-digit code we just sent you." : "Enter the six-digit code we just sent you."}>
         <form onSubmit={(event) => submitVerify(event, verifyDestination())} className="space-y-5">
           <label className="grid gap-2 text-xs font-extrabold">
             Six-digit verification code
@@ -892,8 +877,11 @@ export function DemoAuthFlow({
               type="button"
               disabled={busy}
               onClick={async () => {
-                const sentTo =
-                  window.sessionStorage.getItem(OTP_IDENTIFIER_KEY) ?? identifier.trim();
+                const sentTo = window.sessionStorage.getItem(OTP_IDENTIFIER_KEY) ?? "";
+                if (!sentTo) {
+                  setNotice("Start again from the sign-in screen so we can send you a fresh code.");
+                  return;
+                }
                 try {
                   await requestOtp(sentTo);
                   setNotice("A new code is on its way.");

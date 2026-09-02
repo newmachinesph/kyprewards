@@ -136,7 +136,7 @@ export function BusinessDashboard({
   // that fills in.
   const { data: profile } = useBusinessProfile();
   const { data: locations = [] } = useLocations();
-  const { data: metrics = EMPTY_BUSINESS_METRICS } = useBusinessMetrics();
+  const { data: metrics = EMPTY_BUSINESS_METRICS, error: metricsError } = useBusinessMetrics();
   const { data: staff = [] } = useStaff();
   const { data: programs = [], isPending: programsPending } = usePrograms();
   const { data: automationRows = [] } = useAutomations();
@@ -249,7 +249,16 @@ export function BusinessDashboard({
           className="col-span-6 lg:col-span-3"
           label="Redemptions"
           value={String(metrics.redemptions)}
-          detail={`${pesoCompactFromCentavos(metrics.memberRevenueCentavos)} member revenue`}
+          detail={
+            // A refused request is not a zero. The API correctly blocks a
+            // Cashier from /business/metrics, and this rendered the fallback
+            // as fact: "P0 member revenue" on a shop that took P750 today.
+            // Worse at the counter - somebody who has just scanned a customer
+            // reads a zero as a failed scan and scans them again.
+            metricsError
+              ? "member revenue hidden for your role"
+              : `${pesoCompactFromCentavos(metrics.memberRevenueCentavos)} member revenue`
+          }
           icon={Gift}
           trend="flat"
         />
@@ -526,11 +535,20 @@ export function BusinessDashboard({
               <p className="mt-9 text-xs font-bold uppercase tracking-[0.12em] text-white/50">
                 {selectedProgram.status === "Live" ? "Active rule" : "Suggested rule"}
               </p>
+              {/* The program's own numbers, not the ones for its type.
+                  This read "8 visits - Free pastry on the eighth visit" under
+                  an "Active rule" heading no matter what the shop had actually
+                  published: an owner who set ten visits for a free rice meal
+                  was told, on their own dashboard, to give it away on the
+                  eighth. The type's suggestion is still the fallback for a
+                  program that has not set its own. */}
               <p className="mt-2 text-4xl font-extrabold tracking-[-0.03em]">
-                {presentation.rule}
+                {selectedProgram.target > 0
+                  ? `${selectedProgram.target} visits`
+                  : presentation.rule}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-white/65">
-                {presentation.suggestion}
+                {selectedProgram.rewardName || presentation.suggestion}
                 {selectedProgram.members > 0
                   ? ` · ${selectedProgram.completion}% average completion`
                   : ""}

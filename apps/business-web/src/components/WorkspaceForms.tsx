@@ -23,6 +23,8 @@ import {
   programSchema,
   zodResolver,
   LOCATION_STATUSES,
+  PLAN_RANK,
+  PROGRAM_TYPE_MIN_PLAN,
   PROGRAM_TYPES,
   STAFF_ROLES,
   type LocationInput,
@@ -30,13 +32,12 @@ import {
   type ProgramInput,
 } from "@kypstamping/api/forms";
 import {
-  changePlan,
   createLocation,
   keys,
   updateStaff,
   useApiMutation,
   useBranding,
-  type Billing,
+  useBusinessProfile,
   type BusinessLocation,
   type BusinessProfile,
   type StaffMember,
@@ -99,6 +100,8 @@ export function NewProgramDialog({
   notify: Notify;
 }) {
   const create = useCreateProgram();
+  const { data: profile } = useBusinessProfile();
+  const held = Math.max(0, PLAN_RANK.indexOf(profile?.plan ?? "Launch"));
   const [banner, setBanner] = useState("");
   const form = useForm<ProgramInput>({
     resolver: zodResolver(programSchema),
@@ -130,9 +133,15 @@ export function NewProgramDialog({
         <Banner message={banner} />
         <Field label="Program type" error={form.formState.errors.type?.message}>
           <select {...form.register("type")} className={inputClass}>
-            {PROGRAM_TYPES.map((type) => (
-              <option key={type}>{type}</option>
-            ))}
+            {PROGRAM_TYPES.map((type) => {
+              const needs = PROGRAM_TYPE_MIN_PLAN[type];
+              const locked = PLAN_RANK.indexOf(needs) > held;
+              return (
+                <option key={type} value={type}>
+                  {locked ? `${type} — needs ${needs}` : type}
+                </option>
+              );
+            })}
           </select>
         </Field>
         <Field label="Name" error={form.formState.errors.name?.message}>
@@ -577,22 +586,15 @@ const PLANS = ["Launch", "Core", "Grow", "Scale"] as const;
 export function ChangePlanDialog({
   current,
   onClose,
-  notify,
 }: {
   current: string;
   onClose: () => void;
-  notify: Notify;
 }) {
-  const upgrade = useApiMutation<Billing, string>(changePlan, {
-    invalidates: [keys.business.billing(), keys.business.profile()],
-  });
-  const [banner, setBanner] = useState("");
   const currentIndex = PLANS.indexOf(current as (typeof PLANS)[number]);
 
   return (
     <Dialog title="Manage plan" eyebrow="Billing" onClose={onClose}>
       <div className="grid gap-3">
-        <Banner message={banner} />
         {PLANS.map((plan, index) => {
           const isCurrent = index === currentIndex;
           const isDowngrade = index < currentIndex;
@@ -605,37 +607,26 @@ export function ChangePlanDialog({
             >
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-extrabold">{plan}</p>
+                {/* The paid tiers are published so a merchant can see where
+                    this goes - the pricing page marks them "Coming soon" -
+                    and nothing can be bought yet. This said "Available now"
+                    beside a working Upgrade button that changed the
+                    subscription on the spot: one click, no price shown, no
+                    payment taken, and the same on the way back down. */}
                 <p className="mt-1 text-xs text-[var(--muted-strong)]">
                   {isCurrent
                     ? "Your plan"
                     : isDowngrade
                       ? "Below your plan"
-                      : "Available now"}
+                      : "Coming soon"}
                 </p>
               </div>
-              {!isCurrent && !isDowngrade && (
-                <Button
-                  type="button"
-                  disabled={upgrade.isPending}
-                  onClick={() =>
-                    upgrade.mutate(plan, {
-                      onSuccess: (billing) => {
-                        notify(`Moved to ${billing.plan}.`);
-                        onClose();
-                      },
-                      onError: (failure) => setBanner(failure.message),
-                    })
-                  }
-                >
-                  Upgrade
-                </Button>
-              )}
             </div>
           );
         })}
         <p className="text-[11px] leading-relaxed text-[var(--muted-strong)]">
-          Downgrades are handled by support, so an allowance you are already
-          using is never removed underneath you.
+          The paid plans are not open for sign-up yet. We will email you before
+          they are, and nothing about your workspace changes in the meantime.
         </p>
       </div>
     </Dialog>
