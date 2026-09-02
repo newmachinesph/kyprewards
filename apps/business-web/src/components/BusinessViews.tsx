@@ -3982,7 +3982,7 @@ function AnalyticsView() {
    * The API measures both from the ledger, so a merchant reading "54% return
    * in week two" is reading their own customers.
    */
-  const { data: retentionData } = useRetention();
+  const { data: retentionData, isPending: retentionPending, error: retentionError, refetch: refetchRetention } = useRetention();
   const { data: secondVisit } = useTimeToSecondVisit();
   const retention = retentionData?.weeks ?? [];
   const cohorts = retentionData?.cohorts ?? [];
@@ -4005,24 +4005,37 @@ function AnalyticsView() {
               </Pill>
             ) : null}
           </div>
-          <div className="mt-10 flex h-64 items-end gap-3">
-            {retention.map((value, index) => (
-              <div
-                key={index}
-                className="flex h-full flex-1 flex-col justify-end"
-              >
-                <span className="mb-2 text-center text-xs font-extrabold">
-                  {value}%
-                </span>
-                <div
-                  className={`rounded-t-xl ${index === 0 ? "bg-[var(--accent)]" : "bg-[var(--ink)]"}`}
-                  style={{ height: `${value}%` }}
-                />
-                <span className="mt-2 text-center text-[10px] text-[var(--muted)]">
-                  W{index}
-                </span>
+          {/* This chart used to read its data and ignore its error, so a tier
+              that does not include cohorts drew six empty bars rather than
+              saying why. */}
+          <div className="mt-10">
+            <QueryBoundary
+              isPending={retentionPending}
+              error={retentionError}
+              onRetry={refetchRetention}
+              label="retention"
+              rows={1}
+            >
+              <div className="flex h-64 items-end gap-3">
+                {retention.map((value, index) => (
+                  <div
+                    key={index}
+                    className="flex h-full flex-1 flex-col justify-end"
+                  >
+                    <span className="mb-2 text-center text-xs font-extrabold">
+                      {value}%
+                    </span>
+                    <div
+                      className={`rounded-t-xl ${index === 0 ? "bg-[var(--accent)]" : "bg-[var(--ink)]"}`}
+                      style={{ height: `${value}%` }}
+                    />
+                    <span className="mt-2 text-center text-[10px] text-[var(--muted)]">
+                      W{index}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
+            </QueryBoundary>
           </div>
         </section>
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
@@ -4045,7 +4058,12 @@ function AnalyticsView() {
               ["Outstanding reward liability", pesoCompactFromCentavos(rewardIssued)],
               [
                 "Revenue / reward liability",
-                `${(metrics.memberRevenueCentavos / rewardIssued).toFixed(1)}×`,
+                // A shop that has issued no rewards yet has no ratio, and
+                // 0/0 rendered the literal string "NaN×" on the free tier's
+                // first-day analytics.
+                rewardIssued > 0
+                  ? `${(metrics.memberRevenueCentavos / rewardIssued).toFixed(1)}×`
+                  : "—",
               ],
               ["Average member order", pesoFromCentavos(metrics.averageOrderCentavos)],
               ["Repeat visit rate", `${metrics.repeatRate}%`],
@@ -4088,8 +4106,12 @@ function AnalyticsView() {
             </div>
             {cohorts.length === 0 ? (
               <p className="mt-4 text-xs text-[var(--muted-strong)]">
-                Not enough history yet. A cohort needs a few weeks of visits
-                before it says anything.
+                {/* Blaming thin history for what is actually a plan limit
+                    sends a merchant off to collect weeks of visits that were
+                    never going to make this grid appear. */}
+                {retentionError
+                  ? retentionError.message
+                  : "Not enough history yet. A cohort needs a few weeks of visits before it says anything."}
               </p>
             ) : (
               <div className="mt-1 grid grid-cols-[120px_repeat(6,1fr)] gap-1">
@@ -4946,13 +4968,33 @@ function SettingsView({ notify }: { notify: Notify }) {
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--surface-2)]">
                 <CreditCard size={17} />
               </span>
+              {/* A free workspace has never given us a card, and these are
+                  empty strings on it: the panel read " ending " above
+                  "Expires  · next charge 1 October", inventing both a card
+                  and a charge that is never coming. */}
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-extrabold">
-                  {billing.method.brand} ending {billing.method.last4}
-                </p>
-                <p className="mt-0.5 text-[11px] text-[var(--muted)]">
-                  Expires {billing.method.expiry} · next charge {longDate(billing.nextInvoiceOn)}
-                </p>
+                {billing.method.last4 ? (
+                  <>
+                    <p className="text-sm font-extrabold">
+                      {billing.method.brand} ending {billing.method.last4}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-[var(--muted)]">
+                      Expires {billing.method.expiry}
+                      {billing.monthlyCentavos > 0
+                        ? ` · next charge ${longDate(billing.nextInvoiceOn)}`
+                        : ""}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-extrabold">No card on file</p>
+                    <p className="mt-0.5 text-[11px] text-[var(--muted)]">
+                      {billing.monthlyCentavos > 0
+                        ? `Needed before the next charge on ${longDate(billing.nextInvoiceOn)}`
+                        : "Your plan is free. Nothing will be charged."}
+                    </p>
+                  </>
+                )}
               </div>
               <button
                 type="button"

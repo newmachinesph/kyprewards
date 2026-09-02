@@ -118,6 +118,16 @@ type CustomerState = {
   requestDeletion: () => void;
   exportRequested: boolean;
   requestExport: () => void;
+
+  /**
+   * A first stamp from the counter poster is still being settled.
+   *
+   * The wallet loads before the claim lands, so somebody who scanned the
+   * poster, signed up and arrived home was shown an empty wallet for a beat
+   * before their stamp appeared - at the exact moment they are deciding
+   * whether this thing works.
+   */
+  claimSettling: boolean;
 };
 
 /**
@@ -158,9 +168,10 @@ const CustomerStateContext = createContext<CustomerState | null>(null);
  * the stamp for good and was told nothing about it. A server that answered is
  * an answer; a server that did not is worth asking again on the next load.
  */
-function usePendingFirstStamp() {
+function usePendingFirstStamp(): boolean {
   const queryClient = useQueryClient();
   const settled = useRef(false);
+  const [claiming, setClaiming] = useState(false);
 
   useEffect(() => {
     if (settled.current) return;
@@ -172,6 +183,9 @@ function usePendingFirstStamp() {
     }
     if (!token) return;
     settled.current = true;
+    // Marks the start of an async job this effect owns, not derived state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setClaiming(true);
 
     // Kept on anything that is not the server's own answer, so the next load
     // asks again. One request per load, so a server that stays down costs a
@@ -188,8 +202,11 @@ function usePendingFirstStamp() {
           }
         }
         void queryClient.invalidateQueries({ queryKey: keys.customer.all });
+        setClaiming(false);
       });
   }, [queryClient]);
+
+  return claiming;
 }
 
 
@@ -224,7 +241,7 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
   // list reports is computed from it, and without one the "Nearby only"
   // filter has nothing to compare against.
   const where = useCoordinates(true);
-  usePendingFirstStamp();
+  const claimSettling = usePendingFirstStamp();
   const { data: discover = [] } = useDiscover(where);
   const [joinedLocally, setJoinedLocally] = useState<string[]>([]);
   const joinedIds = useMemo(
@@ -358,7 +375,7 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
     );
   const deletionRequested = outstanding("delete");
   const exportRequested = outstanding("export");
-  const requestDeletion = useCallback(() => dataRequest.mutate("delete"), [dataRequest]);
+  const requestDeletion = useCallback(() => dataRequest.mutate("deletion"), [dataRequest]);
   const requestExport = useCallback(() => dataRequest.mutate("export"), [dataRequest]);
 
   const { data: cards = [] } = useWallet();
@@ -384,6 +401,7 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
       requestDeletion,
       exportRequested,
       requestExport,
+      claimSettling,
     }),
     [
       profile,
@@ -401,6 +419,7 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
       requestDeletion,
       exportRequested,
       requestExport,
+      claimSettling,
     ],
   );
 

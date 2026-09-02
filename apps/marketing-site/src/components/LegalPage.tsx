@@ -9,9 +9,15 @@ export type LegalSection = {
 };
 
 // Rights requests are a legal obligation; the address must be actionable.
+// The domain used to end in [\w.]+, which is greedy about dots: an address at
+// the end of a sentence took the full stop with it, and "privacy@kypstamping.ph."
+// is not an address anyone's mail client can send to. Each label is matched
+// separately so the match can only end on a word character.
+const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/;
+
 function linkifyEmails(text: string) {
-  return text.split(/([\w.+-]+@[\w-]+\.[\w.]+)/g).map((part, index) =>
-    /^[\w.+-]+@[\w-]+\.[\w.]+$/.test(part) ? (
+  return text.split(new RegExp(`(${EMAIL.source})`, "g")).map((part, index) =>
+    new RegExp(`^${EMAIL.source}$`).test(part) ? (
       <a
         key={index}
         href={`mailto:${part}`}

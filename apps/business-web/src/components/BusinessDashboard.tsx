@@ -436,18 +436,28 @@ export function BusinessDashboard({
               <Sparkles size={18} />
             </span>
           </div>
+          {/* Was "Thirty-two customers are one visit away", on every
+              dashboard, for every shop, forever - including one with three
+              customers. The count is measured now; a regular is someone with
+              more than one visit, so one visit away is exactly the members
+              sitting on their first. */}
           <p className="mt-3 max-w-[58ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-            Thirty-two customers are one visit away from becoming regulars. A
-            quiet Tuesday note could nudge them back.
+            {metrics.almostRegulars > 0
+              ? `${metrics.almostRegulars} ${metrics.almostRegulars === 1 ? "customer has" : "customers have"} been in once and not come back. A quiet note could nudge them into a second visit.`
+              : "Nobody is sitting on a single visit right now. When someone comes in once and stops, they will show up here."}
           </p>
+          {/* This offered a "Tuesday treat" campaign to review that had never
+              been written, on a workspace with no campaigns at all. The
+              button goes where it always went; it no longer claims there is
+              something waiting at the other end. */}
           <div className="mt-6 flex flex-col gap-3 rounded-2xl bg-[var(--surface-2)] p-4 sm:flex-row sm:items-center">
             <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--surface)]">
               <Megaphone size={18} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold">Tuesday treat</p>
-              <p className="mt-0.5 truncate text-xs text-[var(--muted)]">
-                A warm pastry is waiting. Drop in before 4 PM.
+              <p className="text-sm font-bold">Write them a message</p>
+              <p className="mt-0.5 text-xs text-[var(--muted)]">
+                One send, to the people who have been in once.
               </p>
             </div>
             <Button
@@ -455,7 +465,7 @@ export function BusinessDashboard({
               className="min-h-10 px-4"
               onClick={() => onNavigate("campaigns")}
             >
-              Review campaign
+              Go to campaigns
             </Button>
           </div>
         </article>

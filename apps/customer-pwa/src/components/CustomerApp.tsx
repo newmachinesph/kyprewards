@@ -534,13 +534,13 @@ function DataRequests() {
       <ul className="mt-2 space-y-2.5">
         {open.map((request) => (
           <li key={request.id} className="flex items-start gap-2 text-xs leading-relaxed">
-            {request.kind === "delete" ? (
+            {request.kind === "deletion" ? (
               <Trash2 size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
             ) : (
               <Download size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
             )}
             <span className="min-w-0 flex-1">
-              {request.kind === "delete"
+              {request.kind === "deletion"
                 ? "Account deletion is queued for identity review. You can still use your wallet until it completes."
                 : request.status === "ready"
                   ? "Your export is ready."
@@ -549,7 +549,7 @@ function DataRequests() {
               <span className="mt-0.5 block text-[10px] text-[var(--muted-strong)]">
                 Asked for {relativeTime(request.requestedAt)}
               </span>
-              {request.kind !== "delete" && request.status === "ready" && (
+              {request.kind !== "deletion" && request.status === "ready" && (
                 <button
                   type="button"
                   disabled={fetching === request.id}
@@ -581,11 +581,17 @@ function HomeView({
   onDiscover: () => void;
   onActivity: () => void;
 }) {
-  const { profile } = useCustomerState();
+  const { profile, claimSettling } = useCustomerState();
   const where = useCoordinates(true);
   const { data: discover = [] } = useDiscover(where);
   const { data: cards = [], isPending: walletPending } = useWallet();
   const { data: nudges = [] } = useNearby(where);
+  // "Fresh from your places" showed a hardcoded Sweet Crumbs promotion - the
+  // same afternoon batch, 18 minutes ago, to every customer of every shop,
+  // including customers who had never heard of Sweet Crumbs. This is the
+  // feed the section is named after; the newest entry is what is fresh.
+  const { data: activity = [] } = useActivity();
+  const latest = activity[0];
 
   // Two places the customer has not joined. The API returns discover
   // nearest-first when it is given a position, which is why it is given one.
@@ -673,7 +679,11 @@ function HomeView({
             in flight, and for about a second the screen told them they had no
             cards - the one thing that reads as "the scan did not work" to a
             person holding a phone at a counter with a queue behind them. */}
-        {walletPending ? (
+        {/* ...and the wallet resolving *empty* is not the same as empty
+            either. The claim from the poster settles a moment after the
+            wallet loads, so the pending branch below missed the case it was
+            written for: the query had finished, with nothing in it yet. */}
+        {walletPending || (claimSettling && !best) ? (
           <Skeleton className="h-[168px] rounded-2xl" />
         ) : best ? (
           <LoyaltyCard card={best} />
@@ -766,22 +776,27 @@ function HomeView({
             View activity
           </button>
         </div>
-        <article className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
-          <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)]">
-            <Megaphone size={17} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-extrabold">
-              An afternoon batch just landed.
-            </p>
-            <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-              Drop by Sweet Crumbs before 4 PM and your next stamp counts twice.
-            </p>
-            <p className="mt-2 text-[10px] font-semibold text-[var(--muted)]">
-              18 minutes ago
-            </p>
-          </div>
-        </article>
+        {latest ? (
+          <article className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
+            <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)]">
+              <Megaphone size={17} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-extrabold">{latest.action}</p>
+              <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+                {latest.detail}
+              </p>
+              <p className="mt-2 text-[10px] font-semibold text-[var(--muted)]">
+                {latest.business} · {relativeTime(latest.occurredAt)}
+              </p>
+            </div>
+          </article>
+        ) : (
+          <p className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs text-[var(--muted-strong)]">
+            Nothing yet. Stamps, rewards and notes from the shops you have
+            joined show up here.
+          </p>
+        )}
       </section>
     </div>
   );

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 import {
   ApiError,
+  getSession,
   offerFirstStamp,
   readFirstStamp,
   type FirstStampOffer,
@@ -42,6 +43,15 @@ export function FirstStamp({ slug }: { slug: string }) {
   const router = useRouter();
   const [offer, setOffer] = useState<FirstStampOffer | null>(null);
   const [failed, setFailed] = useState("");
+  /**
+   * Whether there is already a wallet to put this in.
+   *
+   * The poster is scanned by regulars too, and the flow sent every one of
+   * them to /create-account to register an account they already had. Null
+   * while it is being asked, so the button does not flicker between two
+   * different promises.
+   */
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
   // StrictMode invokes an effect twice in development, and this one has a
   // side effect on the server. Guarding by slug rather than a flag, so a
   // genuine change still re-runs.
@@ -65,6 +75,28 @@ export function FirstStamp({ slug }: { slug: string }) {
         );
       });
   }, [slug]);
+
+  useEffect(() => {
+    let live = true;
+    getSession()
+      .then((session) => live && setSignedIn(session.kind === "customer"))
+      // Not signed in is the overwhelmingly common answer here, and it comes
+      // back as a 401. Either way the sign-up path is the safe default.
+      .catch(() => live && setSignedIn(false));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  async function keep(destination: string) {
+    try {
+      const claimed = await offerFirstStamp(slug);
+      rememberClaim(claimed.claimToken);
+    } catch {
+      // Nothing to remember; the wallet still gets created.
+    }
+    router.push(destination);
+  }
 
   return (
     <main className="mx-auto grid min-h-dvh max-w-md place-items-center px-5 py-10">
@@ -114,10 +146,13 @@ export function FirstStamp({ slug }: { slug: string }) {
             {/* The ask, and only now. They can already see what they are
                 keeping, which is the whole reason it comes second. */}
             <div className="mt-4 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-7">
-              <p className="text-sm font-extrabold">Keep it with your number.</p>
+              <p className="text-sm font-extrabold">
+                {signedIn ? "Keep it." : "Keep it with your number."}
+              </p>
               <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                One number, no app, no password. It saves this stamp and every
-                one after it.
+                {signedIn
+                  ? "It goes on the card you already have."
+                  : "One number, no app, no password. It saves this stamp and every one after it."}
               </p>
               {/* The claim is minted here, on the tap, rather than when the
                   page loaded - so opening a poster link costs nothing and
@@ -126,27 +161,24 @@ export function FirstStamp({ slug }: { slug: string }) {
                   them in, which is the fallback the error copy already
                   points at. */}
               <a
-                href="/create-account"
+                href={signedIn ? "/" : "/create-account"}
                 onClick={async (event) => {
                   event.preventDefault();
-                  try {
-                    const claimed = await offerFirstStamp(slug);
-                    rememberClaim(claimed.claimToken);
-                  } catch {
-                    // Nothing to remember; the wallet still gets created.
-                  }
-                  router.push("/create-account");
+                  await keep(signedIn ? "/" : "/create-account");
                 }}
                 className="focus-ring mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
               >
-                Save my stamp <ArrowRight size={16} />
+                {signedIn ? "Add it to my wallet" : "Save my stamp"}{" "}
+                <ArrowRight size={16} />
               </a>
-              <a
-                href="/login"
-                className="focus-ring mt-2 flex min-h-11 items-center justify-center text-xs font-extrabold text-[var(--muted-strong)]"
-              >
-                I already have a wallet
-              </a>
+              {!signedIn && (
+                <a
+                  href="/login"
+                  className="focus-ring mt-2 flex min-h-11 items-center justify-center text-xs font-extrabold text-[var(--muted-strong)]"
+                >
+                  I already have a wallet
+                </a>
+              )}
             </div>
           </div>
         )}

@@ -307,6 +307,7 @@ export type Integration = {
 export type BusinessMetrics = {
   visitsToday: number;
   newRegulars: number;
+  almostRegulars: number;
   stampsIssued: number;
   redemptions: number;
   repeatRate: number;
@@ -557,6 +558,7 @@ export type ChannelEconomics = {
 export const EMPTY_BUSINESS_METRICS: BusinessMetrics = {
   visitsToday: 0,
   newRegulars: 0,
+  almostRegulars: 0,
   stampsIssued: 0,
   redemptions: 0,
   repeatRate: 0,
@@ -808,7 +810,9 @@ export type NearbyNudge = {
 /** An access, correction, export or deletion request under the DPA. */
 export type DataRequest = {
   id: string;
-  kind: "export" | "delete" | "access" | "correction";
+  // What the API stores, which is only these two. "access" and "correction"
+  // are named in the endpoint docstring but rejected by its own pattern.
+  kind: "export" | "deletion";
   status: "requested" | "processing" | "ready" | "completed" | "rejected";
   requestedAt: string;
   completedAt: string | null;

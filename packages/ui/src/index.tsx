@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+import { ApiError } from "@kypstamping/api";
 
 /**
  * The colour tokens a merchant may pick for their card.
@@ -514,6 +515,20 @@ export function QueryBoundary({
             <Skeleton key={index} className="h-14 w-full" />
           ))}
         </div>
+      </div>
+    );
+  }
+
+  // A plan limit is not a failure. Every gated panel routes its error through
+  // here, so all of them used to report "That did not load" over a working
+  // API and offer a Try again that could only fail the same way. 402 is the
+  // API saying the tier does not include this - which is an answer, not a
+  // fault, and the one case where retrying is guaranteed to be pointless.
+  if (error instanceof ApiError && error.status === 402) {
+    return (
+      <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] p-6">
+        <p className="text-sm font-extrabold">Not on your plan</p>
+        <p className="mt-1 text-sm text-[var(--muted-strong)]">{error.message}.</p>
       </div>
     );
   }

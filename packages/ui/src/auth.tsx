@@ -3,6 +3,7 @@
 import {
   useEffect,
   useState,
+  useSyncExternalStore,
   type FormEvent,
   type ReactNode,
 } from "react";
@@ -62,6 +63,21 @@ import { BrandMark, StampDots } from "./index";
  * a phone number in a query string ends up in browser history and logs.
  */
 const OTP_IDENTIFIER_KEY = "kypstamping-otp-identifier";
+
+/** Session storage does not change under us within a render, and there is no
+ *  event to subscribe to, so the subscribe is a no-op and the server snapshot
+ *  is the empty string. */
+const subscribeToOtpIdentifier = () => () => {};
+
+function readOtpIdentifier(): string {
+  try {
+    return window.sessionStorage.getItem(OTP_IDENTIFIER_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+const noOtpIdentifierOnServer = () => "";
 
 /** Where the terms and privacy notice live. The four apps already agree on
  *  NEXT_PUBLIC_SITE_URL; the fallback is the production marketing site so a
@@ -560,6 +576,14 @@ export function DemoAuthFlow({
     return () => window.cancelAnimationFrame(frame);
   }, [mode, role]);
 
+  // Where the code actually went. Read through useSyncExternalStore rather
+  // than an effect, because session storage does not exist while this renders
+  // on the server and that hook is built for exactly this: a client-only
+  // source with a server snapshot. Empty means the page was opened cold and
+  // there is nothing to verify against - the screen says so up front rather
+  // than waiting for six digits to be typed first.
+  const sentTo = useSyncExternalStore(subscribeToOtpIdentifier, readOtpIdentifier, noOtpIdentifierOnServer);
+
   function go(path: string) {
     window.location.assign(path);
   }
@@ -867,7 +891,13 @@ export function DemoAuthFlow({
             <span id="code-help" className="text-[10px] font-semibold text-[var(--muted)]">
               {role === "admin"
                 ? "From your authenticator app"
-                : "Sent to the address you signed in with"}
+                : sentTo
+                  // Naming it. "The address you signed in with" was wrong half
+                  // the time - a customer who used the mobile tab signed in
+                  // with a number - and told somebody who had lost track of
+                  // which of their two numbers they used exactly nothing.
+                  ? `Sent to ${sentTo}`
+                  : "We have lost track of where that code was sent."}
             </span>
           </label>
           {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--muted-strong)]">{notice}</p>}
@@ -894,7 +924,10 @@ export function DemoAuthFlow({
               Resend code
             </button>
           )}
-          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> Use another account</a>
+          {/* The way out. When the code cannot be checked at all this is the
+              only thing on the screen that does anything, so it says what it
+              is for instead of offering a choice of account nobody is making. */}
+          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> {role === "customer" && !sentTo ? "Back to sign-in for a fresh code" : "Use another account"}</a>
         </form>
       </AuthShell>
     );
@@ -961,7 +994,11 @@ export function DemoAuthFlow({
               </button>
             </span>
             <span className="text-[10px] font-semibold text-[var(--muted)]">
-              At least 12 characters, with an uppercase letter and a number.
+              {/* What is actually enforced. This promised twelve characters
+                  with an uppercase letter and a number; the form checked ten
+                  and the API checked ten, so every part of that sentence
+                  except "characters" was untrue. */}
+              At least 10 characters.
             </span>
           </label>
           <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">

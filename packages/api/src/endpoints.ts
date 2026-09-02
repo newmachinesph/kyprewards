@@ -463,7 +463,11 @@ export const getDataExportLink = (
 ): Promise<{ url: string; expiresInHours: number }> =>
   http(`/customer/data-requests/${requestId}/download`);
 
-export const requestData = (kind: "export" | "delete"): Promise<{ id: string; status: string }> =>
+// "deletion", which is what the API accepts. This said "delete", so every
+// erasure request under the Data Privacy Act was answered with a 422 and the
+// customer was told nothing. The union was wrong in the same direction, so
+// the compiler agreed with the bug.
+export const requestData = (kind: "export" | "deletion"): Promise<{ id: string; status: string }> =>
   http("/customer/data-requests", { method: "POST", body: { kind } });
 
 /* ── Platform administration ──────────────────────────────────────── */

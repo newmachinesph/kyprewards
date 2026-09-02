@@ -245,17 +245,22 @@ export default function IntegrationsPage() {
               <PlugZap size={20} className="text-[var(--accent)]" />
             </div>
             <pre className="overflow-x-auto p-6 font-mono text-[11px] leading-relaxed text-white/68 sm:p-7">
+              {/* Checked against the live endpoint. Every field here used to
+                  be wrong: snake_case against a camelCase API, an
+                  X-Merchant-ID header that does not exist (the key identifies
+                  the merchant), a customer_phone and a currency the schema
+                  has no room for, and a seeded demo merchant's real id. An
+                  integrator who copied it got a 422 on every line. */}
               <code>{`POST /api/v1/transactions
-Authorization: Bearer sk_test_••••••••
+Authorization: Bearer sk_live_••••••••
 Idempotency-Key: sale_sc_10482
-X-Merchant-ID: mrc_sweet_crumbs
 
 {
-  "external_transaction_id": "SC-10482",
-  "customer_phone": "+639171234567",
-  "branch_id": "br_legazpi",
-  "amount": 48500,
-  "currency": "PHP"
+  "memberCode": "2966093052778",
+  "branchId": "branch_legazpi",
+  "amountCentavos": 48500,
+  "items": 1,
+  "externalReference": "SC-10482"
 }`}</code>
             </pre>
             <div className="grid gap-px border-t border-white/12 bg-white/12 sm:grid-cols-2">

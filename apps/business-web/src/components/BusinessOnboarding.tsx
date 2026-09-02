@@ -135,28 +135,40 @@ export function BusinessOnboarding() {
   // throw away a form somebody has already filled in. Nothing is saved
   // server-side until Finish, so a refresh at step three used to drop them
   // back at step one with empty fields and no explanation.
+  // Nothing may be written back until the restore has run, or the save below
+  // - which fires on mount with the empty defaults - overwrites the draft
+  // before it has been read. That is exactly what happened: the restore was
+  // deferred a tick, React ran the save first, and the reload the merchant
+  // was worried about was the thing that threw their answers away.
+  const [restored, setRestored] = useState(false);
+
+  // Seeding a form from session storage, which cannot be read while this
+  // renders on the server. The previous version dodged this rule by setting
+  // state inside a setTimeout, and that deferral is precisely what let the
+  // save effect below overwrite the draft before it had been read.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const saved = window.sessionStorage.getItem(DRAFT_KEY);
     const name = window.sessionStorage.getItem("kypstamping-business-signup");
     const draft = saved ? (JSON.parse(saved) as Partial<Draft>) : null;
-    const timer = window.setTimeout(() => {
-      if (draft?.businessName || name) setBusinessName(draft?.businessName || name || "");
-      if (draft?.category) setCategory(draft.category);
-      if (draft?.city) setCity(draft.city);
-      if (draft?.locations) setLocations(draft.locations);
-      if (draft?.program) setProgram(draft.program);
-      if (draft?.method) setMethod(draft.method);
-      if (typeof draft?.step === "number") setStep(draft.step);
-    }, 0);
-    return () => window.clearTimeout(timer);
+    if (draft?.businessName || name) setBusinessName(draft?.businessName || name || "");
+    if (draft?.category) setCategory(draft.category);
+    if (draft?.city) setCity(draft.city);
+    if (draft?.locations) setLocations(draft.locations);
+    if (draft?.program) setProgram(draft.program);
+    if (draft?.method) setMethod(draft.method);
+    if (typeof draft?.step === "number") setStep(draft.step);
+    setRestored(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
+    if (!restored) return;
     window.sessionStorage.setItem(
       DRAFT_KEY,
       JSON.stringify({ step, businessName, category, city, locations, program, method }),
     );
-  }, [step, businessName, category, city, locations, program, method]);
+  }, [restored, step, businessName, category, city, locations, program, method]);
 
   function next() {
     if (step === 0 && !businessName.trim()) {
