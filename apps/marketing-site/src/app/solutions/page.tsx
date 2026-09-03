@@ -3,8 +3,10 @@ import Link from "next/link";
 import {
   ArrowRight,
   Coffee,
+  CupSoda,
   Dumbbell,
   ShoppingBag,
+  Store,
   UtensilsCrossed,
 } from "lucide-react";
 import {
@@ -18,13 +20,21 @@ import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, itemList } from "@/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Solutions",
+  title: "Loyalty Programs by Industry",
   description:
-    "Loyalty programs shaped for cafés, bakeries, salons, wellness studios, restaurants, and independent retail.",
+    "Loyalty shaped to how customers come back — daily for cafés, milk tea and sari-sari stores, every six weeks for salons, in between for restaurants and retail.",
   alternates: { canonical: "/solutions" },
+  openGraph: {
+    title: "Loyalty should feel native to the visit",
+    description:
+      "Cafés, salons, restaurants and independent retail do not share a rhythm. The reward should not either.",
+    url: "/solutions",
+    locale: "en_PH",
+    type: "article",
+  },
 };
 
-const icons = [Coffee, Dumbbell, UtensilsCrossed, ShoppingBag];
+const icons = [Coffee, Dumbbell, UtensilsCrossed, ShoppingBag, CupSoda, Store];
 
 export default function SolutionsPage() {
   return (
@@ -32,7 +42,7 @@ export default function SolutionsPage() {
       <StructuredData
         data={[
           itemList({
-            name: "KYPStamping loyalty solutions by industry",
+            name: "KYP Stamping loyalty solutions by industry",
             items: industries.map((industry) => ({
               name: industry.name,
               path: `/solutions/${industry.slug}`,
@@ -46,9 +56,9 @@ export default function SolutionsPage() {
         image="/images/hero-solutions.webp"
         eyebrow="Solutions by business rhythm"
         title="Loyalty should feel native to the visit."
-        description="A morning coffee, six-week appointment, dinner reservation, and considered purchase do not follow the same cadence. KYPStamping adapts to each one."
+        description="A morning coffee, six-week appointment, dinner reservation, and considered purchase do not follow the same cadence. KYP Stamping adapts to each one."
       >
-        <SiteButton href="/partners">Find your program</SiteButton>
+        <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="/pricing" tone="outline">
           Compare plans
         </SiteButton>

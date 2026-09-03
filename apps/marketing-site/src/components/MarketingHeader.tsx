@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { BrandMark } from "@kypstamping/ui";
 import { ArrowUpRight, Menu, X } from "lucide-react";
-import { businessAppUrl } from "@/lib/site";
 
 const links = [
   { href: "/product", label: "Product" },
@@ -29,12 +28,12 @@ export function MarketingHeader({
           of off the edge, so the nav sat 64px narrower than everything under
           it and nothing lined up down the left. */}
       <div className="px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto flex h-[72px] max-w-[1400px] items-center gap-4 min-[1360px]:gap-6">
+      <div className="mx-auto flex h-[72px] max-w-[1400px] items-center gap-4 min-[1180px]:gap-6">
         <Link href="/" className="focus-ring shrink-0 rounded-xl">
           <BrandMark />
         </Link>
         <nav
-          className="hidden items-center gap-0.5 min-[1360px]:flex"
+          className="hidden items-center gap-0.5 min-[1180px]:flex"
           aria-label="Primary navigation"
         >
           {links.map((link) => (
@@ -47,7 +46,7 @@ export function MarketingHeader({
             </Link>
           ))}
         </nav>
-        <div className="ml-auto hidden items-center gap-1 min-[1360px]:flex">
+        <div className="ml-auto hidden items-center gap-1 min-[1180px]:flex">
           <a
             href={businessUrl}
             className="focus-ring shrink-0 whitespace-nowrap rounded-full px-3 py-2.5 text-sm font-bold text-[var(--muted-strong)] transition hover:text-[var(--ink)]"
@@ -55,24 +54,24 @@ export function MarketingHeader({
             Business sign in
           </a>
           <Link
-            href={`${businessAppUrl}/create-account`}
+            href="/partners"
             className="focus-ring ml-1 inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(24_18_12/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
           >
-            Start your program <ArrowUpRight size={16} />
+            Apply to join <ArrowUpRight size={16} />
           </Link>
         </div>
         <button
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
           aria-label={open ? "Close navigation" : "Open navigation"}
-          className="focus-ring ml-auto grid size-11 shrink-0 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] min-[1360px]:hidden"
+          className="focus-ring ml-auto grid size-11 shrink-0 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] min-[1180px]:hidden"
         >
           {open ? <X size={19} /> : <Menu size={19} />}
         </button>
       </div>
       </div>
       {open && (
-        <div className="border-t border-[var(--line)] bg-[var(--surface)] px-4 sm:px-6 lg:px-8 min-[1360px]:hidden">
+        <div className="border-t border-[var(--line)] bg-[var(--surface)] px-4 sm:px-6 lg:px-8 min-[1180px]:hidden">
           {/* Held to the same container as the row above. This panel now
               covers laptop widths too, and buttons stretched across 1300px
               read as a mistake rather than a menu. */}
@@ -100,11 +99,11 @@ export function MarketingHeader({
                 Business sign in
               </a>
               <Link
-                href={`${businessAppUrl}/create-account`}
+                href="/partners"
                 onClick={() => setOpen(false)}
                 className="focus-ring flex min-h-11 items-center justify-center whitespace-nowrap rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)]"
               >
-                Start your program
+                Apply to join
               </Link>
             </div>
           </nav>

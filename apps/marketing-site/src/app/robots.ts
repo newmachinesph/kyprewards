@@ -4,7 +4,7 @@ import { siteUrl } from "@/lib/site";
 /**
  * `*` already allows every crawler; the named agents make the position on
  * generative engines a deliberate, reviewable choice rather than a default.
- * KYPStamping wants to be quotable, so training and answer crawlers are in.
+ * KYP Stamping wants to be quotable, so training and answer crawlers are in.
  */
 const answerEngines = [
   "GPTBot",

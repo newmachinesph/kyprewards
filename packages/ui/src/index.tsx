@@ -99,7 +99,7 @@ export function SealMark({
 export function BrandMark({
   compact = false,
   inverse = false,
-  label = "KYPStamping",
+  label = "KYP Stamping",
 }: BrandMarkProps) {
   return (
     <div className="flex items-center gap-3" role="img" aria-label={label}>
@@ -118,7 +118,10 @@ export function BrandMark({
                 >
                   KYP
                 </span>
-                {label.slice(3)}
+                {/* The brand is two words. A plain text node would lose the
+                    leading space to whitespace collapsing, so it is written
+                    as an entity. */}
+                {label.slice(3).replace(/^ /, " ")}
               </>
             ) : (
               label
@@ -199,10 +202,14 @@ export function StampDots({
   filled = 0,
   total = 8,
   dark = false,
+  mark,
 }: {
   filled?: number;
   total?: number;
   dark?: boolean;
+  /** The merchant's own stamp mark, e.g. their initials. Optional — a
+   *  collected stamp reads as a solid dot without one. */
+  mark?: React.ReactNode;
 }) {
   return (
     <div
@@ -221,7 +228,7 @@ export function StampDots({
                 : "border border-dashed border-[var(--line-strong)] text-[var(--muted)]"
           }`}
         >
-          {index < filled ? "K" : ""}
+          {index < filled ? mark : null}
         </span>
       ))}
     </div>

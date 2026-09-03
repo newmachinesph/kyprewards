@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { SiteButton } from "@/components/MarketingUi";
-import { plans } from "@/lib/plans";
-import { businessAppUrl } from "@/lib/site";
+import { foundingOffer, paymentMethods, plans } from "@/lib/plans";
 
 export function PricingCards() {
   const [annual, setAnnual] = useState(true);
@@ -76,7 +75,7 @@ export function PricingCards() {
                     {/* The toggle starts on Yearly, so the first number anybody
                         sees is the discounted one. Labelling it "/ month" and
                         stopping there reads as the monthly price, which is a
-                        hundred pesos higher - somebody comparing us against a
+                        hundred pesos higher — somebody comparing us against a
                         competitor was quoting the wrong figure back to us. */}
                     / month{annual ? ", billed yearly" : ""}
                   </span>
@@ -108,7 +107,7 @@ export function PricingCards() {
               <div className="mt-auto pt-8">
                 {plan.available ? (
                   <SiteButton
-                    href={`${businessAppUrl}/create-account`}
+                    href="/partners"
                     tone={plan.featured ? "accent" : "outline"}
                   >
                     {plan.cta}
@@ -116,7 +115,7 @@ export function PricingCards() {
                 ) : (
                   // Not a button. There is no action to perform, so a disabled
                   // control would only add something to announce and skip past.
-                  // A plain statement reads the same to everyone - which is
+                  // A plain statement reads the same to everyone — which is
                   // also what the control audit was telling us by refusing a
                   // button with nothing behind it.
                   <p className="w-full rounded-xl border border-current px-5 py-3 text-center text-sm font-bold opacity-50">
@@ -128,11 +127,20 @@ export function PricingCards() {
           );
         })}
       </div>
-      <p className="mt-8 text-center text-xs leading-relaxed text-[var(--muted)]">
-        Yearly prices are per month and billed annually. Prices exclude
-        applicable taxes. Customers are unlimited on every plan, including the
-        free one — we do not charge you for growing. Only Launch is available
-        today; the paid tiers are published so you can see where this goes.
+      <p className="mx-auto mt-8 max-w-[86ch] text-center text-xs leading-relaxed text-[var(--muted)]">
+        Yearly prices are shown per month and billed annually. Prices exclude
+        applicable taxes. Customers are unlimited on every plan including the
+        free one, and branches are unlimited on every plan too — we do not charge
+        you for growing, and we do not charge you for opening shops. Launch is
+        the plan you can join today; the paid tiers are published so you can see
+        where this goes, and they open after beta.
+      </p>
+      <p className="mx-auto mt-4 max-w-[86ch] rounded-2xl border border-[var(--accent)]/40 bg-[rgb(232_163_61/10%)] px-5 py-4 text-center text-sm leading-relaxed text-[var(--ink)]">
+        <strong className="font-extrabold">{foundingOffer.headline}</strong>{" "}
+        <span className="text-[var(--muted-strong)]">{foundingOffer.detail}</span>
+      </p>
+      <p className="mt-5 text-center font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--muted)]">
+        Paid in pesos by {paymentMethods.join(" \u00b7 ")}
       </p>
     </div>
   );

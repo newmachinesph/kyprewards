@@ -22,6 +22,7 @@ import {
   type PartnerDraft,
 } from "./draft";
 import { ChipGroup, Field, Remaining, inputClass, inputInvalidClass } from "./Fields";
+import { businessCategories } from "@/lib/content";
 
 /**
  * Partner intake.
@@ -38,19 +39,7 @@ import { ChipGroup, Field, Remaining, inputClass, inputInvalidClass } from "./Fi
  *    merchant makes better inside the dashboard than in front of a form.
  */
 
-const CATEGORIES = [
-  "Cafe or coffee shop",
-  "Restaurant or carinderia",
-  "Bakery",
-  "Milk tea or dessert",
-  "Salon or barbershop",
-  "Spa or wellness",
-  "Retail or convenience",
-  "Laundry",
-  "Pet services",
-  "Fitness studio",
-  "Other",
-];
+const CATEGORIES = businessCategories;
 
 const STEPS = [
   { id: "shop", label: "Your shop", stamp: "01" },
@@ -654,7 +643,7 @@ function ReviewStep({
   return (
     <>
       {/* Laid out like the receipt the product prints: label, a dotted run,
-          the value. Not decoration - it is the same object the merchant will
+          the value. Not decoration — it is the same object the merchant will
           hand a customer, which is the whole promise of the product. */}
       <dl className="grid gap-0.5">
         {lines.map((line) => (
@@ -788,7 +777,7 @@ function Submitted({
             One last thing, and it is for us rather than you.
           </p>
           <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-            How did you come across KYPStamping? It tells us where to keep
+            How did you come across KYP Stamping? It tells us where to keep
             showing up. Skip it freely.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">

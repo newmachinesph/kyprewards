@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Cookies",
   description:
-    "What KYPStamping stores in your browser. One sign-in cookie, a few saved drafts, and no tracking.",
+    "What KYP Stamping stores in your browser. One sign-in cookie, a few saved drafts, and no tracking.",
   alternates: { canonical: "/cookies" },
 };
 
@@ -24,14 +24,14 @@ const sections = [
   {
     title: "The short version",
     paragraphs: [
-      "We set one cookie, and only after you sign in. We do not use analytics, advertising, or third-party tracking scripts on any KYPStamping site or app. Nothing follows you to other websites, and nothing is sold or shared with an ad network.",
+      "We set one cookie, and only after you sign in. We do not use analytics, advertising, or third-party tracking scripts on any KYP Stamping site or app. Nothing follows you to other websites, and nothing is sold or shared with an ad network.",
       "That is why you are not being asked to accept a banner. There is nothing here to consent to beyond the sign-in itself.",
     ],
   },
   {
     title: "The sign-in cookie",
     paragraphs: [
-      "Signing in sets a cookie named kyp_session. It holds a random session identifier - not your name, your email, or anything readable about you - and it is what keeps you signed in as you move between pages.",
+      "Signing in sets a cookie named kyp_session. It holds a random session identifier — not your name, your email, or anything readable about you — and it is what keeps you signed in as you move between pages.",
     ],
     bullets: [
       "It is HttpOnly, so page scripts cannot read it, which is what stops a cross-site scripting flaw from stealing a session.",
@@ -55,8 +55,8 @@ const sections = [
   {
     title: "Managing it",
     paragraphs: [
-      "Your browser can block or clear cookies and site data at any time. Blocking the session cookie will stop you being able to sign in, because it is the mechanism that keeps you signed in - the signed-out marketing pages will still work normally.",
-      "Questions can be sent to hello@kypsolutions.com.ph.",
+      "Your browser can block or clear cookies and site data at any time. Blocking the session cookie will stop you being able to sign in, because it is the mechanism that keeps you signed in — the signed-out marketing pages will still work normally.",
+      "Questions can be sent to hello@kypstamping.ph.",
     ],
   },
   {

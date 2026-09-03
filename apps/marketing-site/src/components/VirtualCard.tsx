@@ -3,7 +3,7 @@
 /**
  * What the customer actually holds, and how they use it.
  *
- * The site described the wallet in prose and never showed it - a visitor
+ * The site described the wallet in prose and never showed it — a visitor
  * deciding whether to run a loyalty program could read "one private mobile
  * wallet" and still have no idea what lands on their customer's phone.
  *
@@ -17,15 +17,32 @@
 import { useState } from "react";
 import {
   Check,
+  Compass,
   QrCode,
   RefreshCw,
   ScanLine,
   Smartphone,
   Sparkles,
   Stamp,
+  User,
+  WalletCards,
 } from "lucide-react";
 import { BRAND_COLORS } from "@kypstamping/ui";
 import { SiteEyebrow } from "./MarketingUi";
+
+/**
+ * The customer app's tab bar. Icon above label, which is what the real one
+ * does — four words in a row read as a list, not as an app.
+ */
+const TABS = [
+  { label: "Wallet", icon: WalletCards },
+  { label: "Discover", icon: Compass },
+  { label: "Code", icon: QrCode },
+  { label: "Profile", icon: User },
+] as const;
+
+/** Which tab the walkthrough step is showing. */
+const TAB_FOR_STEP: Record<number, number> = { 2: 0, 3: 2 };
 
 /** Ink at a strength, against whatever ground the card is on. */
 const ink = (percent: number) =>
@@ -35,25 +52,25 @@ const STEPS = [
   {
     title: "Scan the code on the counter",
     detail:
-      "A poster or a card by the till. It opens in the browser they already have - no app store, no download, nothing to install.",
+      "A poster or a card by the till. It opens in the browser they already have — no app store, no download, nothing to install.",
     icon: ScanLine,
   },
   {
-    title: "The first stamp lands right away",
+    title: "Join, and a welcome stamp is waiting",
     detail:
-      "Before any sign-up. Most programs make somebody register to earn their first stamp, which is where most of them are abandoned. The stamp is already theirs; the account catches up later.",
+      "One mobile number. A pending stamp lands on the card straight away — they can see it before they have bought anything. It becomes real when staff confirm their first visit, so a photo of the poster earns nobody a thing.",
     icon: Stamp,
   },
   {
     title: "The card lives in their wallet",
     detail:
-      "Every shop they join keeps its own card in one place, with the shop's own colour and photo. Nothing to carry, nothing to lose, no expiry.",
+      "Every shop they join keeps its own card in one place, with the shop's own color and photo. Nothing to carry, nothing to lose, no expiry.",
     icon: Smartphone,
   },
   {
     title: "Show the code, collect the reward",
     detail:
-      "Turn the card over for a scannable member code. The same code works at every business they have joined, and the card says when a reward is ready.",
+      "Turn the card over for a scannable member code. The same code works at every business they have joined, and the card says when a reward is ready — and asks them to approve it before staff release it.",
     icon: QrCode,
   },
 ] as const;
@@ -82,7 +99,7 @@ function WalletCardVisual() {
       }}
     >
       {/* Low and to the right, behind the stamps rather than through the
-          status pill - the ring was cutting the pill in half. */}
+          status pill — the ring was cutting the pill in half. */}
       <div
         aria-hidden="true"
         className="absolute -bottom-20 -right-16 size-48 rounded-full border-[26px] border-[var(--accent)] opacity-25"
@@ -118,14 +135,14 @@ function WalletCardVisual() {
             {Array.from({ length: 8 }, (_, index) => (
               <span
                 key={index}
-                className="grid size-7 shrink-0 place-items-center rounded-full text-[10px] font-extrabold"
+                className="grid size-7 shrink-0 place-items-center rounded-full text-[9px] font-extrabold tracking-tight"
                 style={
                   index < 5
                     ? { background: "var(--accent)", color: "var(--ink)" }
                     : { border: `1px dashed ${ink(32)}`, color: ink(40) }
                 }
               >
-                {index < 5 ? "K" : ""}
+                {index < 5 ? "SC" : ""}
               </span>
             ))}
           </div>
@@ -222,19 +239,23 @@ function PhoneMock({ step }: { step: number }) {
               <Check size={32} strokeWidth={3} />
             </span>
             <p className="text-lg font-extrabold leading-tight">
-              That is your first stamp.
+              A welcome stamp is waiting for you.
             </p>
-            <div className="flex gap-1.5">
+            <div className="flex gap-1.5" role="img" aria-label="One pending stamp of eight">
               {Array.from({ length: 8 }, (_, index) => (
                 <span
                   key={index}
-                  className={`size-5 rounded-full ${index === 0 ? "bg-[var(--accent)]" : "border border-dashed border-[var(--line-strong)]"}`}
+                  className={`size-5 rounded-full ${
+                    index === 0
+                      ? "border-2 border-[var(--accent)] bg-[rgb(232_163_61/25%)]"
+                      : "border border-dashed border-[var(--line-strong)]"
+                  }`}
                 />
               ))}
             </div>
             <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
-              Kept for you now. Add your number whenever you like and it
-              follows you.
+              Show your code on your first visit and it&rsquo;s yours — plus
+              one for the visit. Valid 30 days.
             </p>
           </div>
         )}
@@ -261,7 +282,7 @@ function PhoneMock({ step }: { step: number }) {
               ))}
             </div>
             <p className="mt-4 px-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
-              Every shop, one place. Each card in that shop&apos;s own colour.
+              Every shop, one place. Each card in that shop&apos;s own color.
             </p>
           </div>
         )}
@@ -281,11 +302,29 @@ function PhoneMock({ step }: { step: number }) {
           </div>
         )}
 
-        <div className="mt-auto flex items-center justify-around border-t border-[var(--line)] bg-[var(--surface)] py-2.5 text-[9px] font-bold text-[var(--muted)]">
-          <span className={step === 2 ? "text-[var(--ink)]" : ""}>Wallet</span>
-          <span>Discover</span>
-          <span className={step === 3 ? "text-[var(--ink)]" : ""}>Code</span>
-          <span>Profile</span>
+        <div
+          className="mt-auto flex items-stretch justify-around border-t border-[var(--line)] bg-[var(--surface)] pb-2 pt-2"
+          role="img"
+          aria-label={`Customer app navigation, ${TABS[TAB_FOR_STEP[step] ?? 0].label} tab selected`}
+        >
+          {TABS.map((tab, index) => {
+            const Icon = tab.icon;
+            const active = index === (TAB_FOR_STEP[step] ?? 0);
+            return (
+              <span
+                key={tab.label}
+                aria-hidden="true"
+                className={`flex flex-1 flex-col items-center gap-1 transition-colors duration-200 ${
+                  active ? "text-[var(--accent-strong)]" : "text-[var(--muted)]"
+                }`}
+              >
+                <Icon size={17} strokeWidth={active ? 2.4 : 1.9} />
+                <span className="text-[9px] font-bold leading-none">
+                  {tab.label}
+                </span>
+              </span>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -307,7 +346,7 @@ export function VirtualCard() {
           </div>
           <p className="max-w-[56ch] self-end text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
             One side shows how close they are to the reward, the other is the
-            code the counter scans. It carries your colour and your storefront,
+            code the counter scans. It carries your color and your storefront,
             it never expires, and there is nothing to install.
           </p>
         </div>

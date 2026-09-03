@@ -1,28 +1,32 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
+  ArrowRight,
   BadgePercent,
   BarChart3,
-  BellRing,
   CalendarCheck2,
   Check,
   Coins,
   CreditCard,
   Crown,
-  DatabaseZap,
   Fingerprint,
   Gift,
   Globe2,
-  MessageSquareText,
+  HandCoins,
+  Languages,
+  Megaphone,
   Nfc,
-  PlugZap,
   QrCode,
-  RefreshCcw,
   ScanLine,
   ShieldCheck,
   Smartphone,
   Stamp,
   Store,
+  Target,
   TicketPercent,
+  Timer,
+  Users,
+  Wallet,
   WifiOff,
 } from "lucide-react";
 import {
@@ -33,144 +37,292 @@ import {
   SiteEyebrow,
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
+import { paymentMethods } from "@/lib/plans";
 import { breadcrumb, webPage } from "@/lib/schema";
-import { businessAppUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Features",
+  title: "Loyalty Program Features",
   description:
-    "Explore KYPStamping loyalty programs, QR and NFC visits, customer wallet, automations, analytics, integrations, offline tools, and privacy controls.",
+    "Stamp cards, suki tiers, missions, bonus windows, store credit, referrals and win-back — eight program types on one engine, built for Philippine shops.",
   alternates: { canonical: "/features" },
+  openGraph: {
+    title: "Every way to keep a customer. One card in their pocket.",
+    description:
+      "Acquire, keep, bring back, grow. Stamp cards to suki tiers, on one engine, built for Philippine shops.",
+    url: "/features",
+    locale: "en_PH",
+    type: "article",
+  },
 };
 
+/**
+ * Organised by what the owner is trying to do, not by mechanism. A list of
+ * forty features reads as a template and nobody finishes it; four outcomes
+ * with the levers under each is how an owner actually thinks about a slow
+ * Tuesday. The tier each lever arrives with is named in the row so this page
+ * and the pricing matrix say the same thing.
+ */
+const outcomes = [
+  {
+    key: "in",
+    eyebrow: "01 · Bring them in",
+    title: "Turn a stranger into a member before they have bought anything.",
+    lead: "Most programs open with a form at the worst possible moment. Yours opens with a stamp already waiting.",
+    levers: [
+      {
+        icon: QrCode,
+        title: "One public join code, everywhere",
+        detail:
+          "Poster, sticker, receipt, table tent, Facebook page, Instagram bio. It grants a membership and a pending welcome stamp — nothing of value — so it does not matter how far it spreads.",
+        tier: "Free",
+      },
+      {
+        icon: Stamp,
+        title: "The welcome stamp",
+        detail:
+          "Lands the moment they join, marked pending; becomes real when your staff confirm the first visit, which earns its own stamp too. Switch it off if your ticket is too high to give one away.",
+        tier: "Free",
+      },
+      {
+        icon: TicketPercent,
+        title: "Promo codes",
+        detail:
+          "WELCOME, FIESTA, the name of the barangay. A public code that grants a stamp, points or a coupon once per member — for a tarp, a flyer, a Facebook post.",
+        tier: "Core",
+      },
+      {
+        icon: Users,
+        title: "Two-sided referrals",
+        detail:
+          "The regular and the friend both get something — after the friend's first confirmed visit, not before, so nobody farms it.",
+        tier: "Grow",
+      },
+      {
+        icon: Store,
+        title: "Listed in Discover",
+        detail:
+          "Every shop with a live program is findable in the customer app by category and neighborhood, on every plan. Featured placement above the distance ordering on Grow, or as an add-on.",
+        tier: "Free",
+      },
+    ],
+  },
+  {
+    key: "keep",
+    eyebrow: "02 · Keep them coming",
+    title: "Make the next visit the obvious choice over the shop next door.",
+    lead: "A stamp card is the start. These are the levers that make it a habit.",
+    levers: [
+      {
+        icon: Timer,
+        title: "Bonus windows",
+        detail:
+          "Double stamps from 2 to 4 on a Tuesday. Triple through the Ber months. Extra on the slow branch. A schedule, a multiplier and an end date; the customer sees it on their card before they queue.",
+        tier: "Core",
+      },
+      {
+        icon: Target,
+        title: "Missions",
+        detail:
+          "“Visit three times this month.” “Try the three new drinks.” A goal, a window and a bonus, with progress on the customer's card. One bonus buys three visits a discount would have paid for one at a time.",
+        tier: "Grow",
+      },
+      {
+        icon: Crown,
+        title: "Suki tiers",
+        detail:
+          "Levels a customer climbs by visits or spend. You name them — three is plenty — and each carries a benefit that feels like recognition: a better earn rate, a reserved reward, first pick of a bonus window. Automatic up, gentle down.",
+        tier: "Grow",
+      },
+      {
+        icon: CalendarCheck2,
+        title: "Birthday and anniversary",
+        detail:
+          "A relevant reward at the right moment, with favorite-order context, sent only to members who asked for promotions.",
+        tier: "Core",
+      },
+      {
+        icon: ShieldCheck,
+        title: "Rules that keep the card honest",
+        detail:
+          "Minimum spend per stamp. A cooldown so a card is not filled in an afternoon. Rewards held until the customer approves them. Every one on the free plan.",
+        tier: "Free",
+      },
+    ],
+  },
+  {
+    key: "back",
+    eyebrow: "03 · Bring them back",
+    title: "Reach the right customer, at the right moment, for the least money.",
+    lead: "Every message shows its cost, its reach and its break-even before it sends. Consent is checked first, always.",
+    levers: [
+      {
+        icon: Users,
+        title: "Segments that update themselves",
+        detail:
+          "New, regular, VIP, lapsed, reward-ready, one visit from a mission. Basic segments on Core; on Grow, RFM scoring — how recently, how often and how much each customer buys.",
+        tier: "Core",
+      },
+      {
+        icon: Timer,
+        title: "Automated win-back",
+        detail:
+          "Someone passes their usual return window — 30, 60, 90 days, or the shop's own rhythm — and an offer goes out by itself. Includes the message that works best: “one more visit keeps your suki status.”",
+        tier: "Grow",
+      },
+      {
+        icon: Megaphone,
+        title: "Quiet-hour campaigns",
+        detail:
+          "Pick the audience, name the window, see the predicted visits and the cost, set a spend ceiling, send. Then measure the return visits against a normal day.",
+        tier: "Free",
+      },
+      {
+        icon: Smartphone,
+        title: "Five channels, priced in the open",
+        detail:
+          "In-app and push free on every plan. Email with the paid tiers. Viber and WhatsApp from ₱0.42, connecting now. SMS as credits at ₱0.95, cost shown first.",
+        tier: "Free",
+      },
+      {
+        icon: Fingerprint,
+        title: "Consent is per purpose",
+        detail:
+          "Joining is not consent to marketing. NPC Circular 2023-04 says so and the product is built that way: two permissions, stored apart, withdrawable per channel.",
+        tier: "Free",
+      },
+    ],
+  },
+  {
+    key: "grow",
+    eyebrow: "04 · Grow what they spend",
+    title: "Move from visits to value when the shop is ready for it.",
+    lead: "Seven more program types on the same engine, plus the peso-level tools a growing shop actually uses.",
+    levers: [
+      {
+        icon: Coins,
+        title: "Points and cashback",
+        detail:
+          "Earn by visit, item or peso. Optional earn-rate tiers. Redeem as a discount at the counter or against a reward catalog.",
+        tier: "Core",
+      },
+      {
+        icon: HandCoins,
+        title: "Store credit",
+        detail:
+          "Peso credit you issue by hand, apart from cashback: a refund, a make-good for a bad order, a thank-you. Spendable at the counter, with a reason and a name on every entry.",
+        tier: "Core",
+      },
+      {
+        icon: Gift,
+        title: "Send a reward as a gift",
+        detail:
+          "Pasalubong, digitally. A member sends a reward or points to another member at the same shop; both are told, both see it, the ledger keeps the trail.",
+        tier: "Grow",
+      },
+      {
+        icon: BadgePercent,
+        title: "Earn by category or item",
+        detail:
+          "Different rates for coffee and food, services and retail, or one hero item you want to move. Needs items at the counter or a connected register.",
+        tier: "Grow",
+      },
+      {
+        icon: CreditCard,
+        title: "Memberships, multipass, gift cards",
+        detail:
+          "Recurring benefits, prepaid visit bundles, and stored-value gift cards — kept apart from free reward vouchers, because RA 10962 treats them differently.",
+        tier: "Core",
+      },
+    ],
+  },
+] as const;
+
 const programs = [
-  {
-    icon: Stamp,
-    name: "Stamp cards",
-    detail: "Reward repeat visits with a clear target from 1 to 30 stamps.",
-  },
-  {
-    icon: Coins,
-    name: "Points & cashback",
-    detail: "Earn by visit, item, or peso spent with optional earning tiers.",
-  },
-  {
-    icon: BadgePercent,
-    name: "Member discounts",
-    detail: "Offer one rate or unlock better rates as loyalty grows.",
-  },
-  {
-    icon: Crown,
-    name: "Memberships",
-    detail: "Run VIP access, recurring plans, and monthly benefit limits.",
-  },
-  {
-    icon: TicketPercent,
-    name: "Coupons",
-    detail:
-      "Issue single-use offers with a clear window and redemption ledger.",
-  },
-  {
-    icon: Gift,
-    name: "Reward catalog",
-    detail:
-      "Let customers choose from milestones, perks, products, or services.",
-  },
-  {
-    icon: CalendarCheck2,
-    name: "Multipass",
-    detail:
-      "Sell prepaid visit bundles for classes, services, or regular orders.",
-  },
-  {
-    icon: CreditCard,
-    name: "Gift cards",
-    detail: "Track balances, partial redemptions, transfers, and expiry terms.",
-  },
-];
-
-const automations = [
-  [
-    "Birthday & anniversary",
-    "Celebrate at the right moment with a relevant, consented offer.",
-  ],
-  [
-    "Win-back journeys",
-    "Reach a customer when they move beyond their normal return window.",
-  ],
-  [
-    "Next-visit reminders",
-    "Use each business's real visit rhythm instead of arbitrary blasts.",
-  ],
-  [
-    "Reward-in-reach",
-    "Nudge customers who are one action away from a useful benefit.",
-  ],
-  [
-    "Referrals",
-    "Give both the regular and their friend a controlled reward after a real visit.",
-  ],
-  [
-    "Review requests",
-    "Ask after a confirmed good experience and route private feedback first.",
-  ],
-  [
-    "Location moments",
-    "Offer opt-in nearby reminders with quiet hours and frequency limits.",
-  ],
-  [
-    "Segment campaigns",
-    "Reach new, regular, VIP, at-risk, or custom audiences separately.",
-  ],
-];
-
-const insightRows = [
-  [
-    "Retention",
-    "Return rate, visit frequency, cohorts, and time to second visit",
-  ],
-  [
-    "Customers",
-    "RFM segments, lifecycle, custom fields, favorite orders, and consent",
-  ],
-  [
-    "Programs",
-    "Completion, breakage, reward cost, redemption, and tier movement",
-  ],
-  [
-    "Campaigns",
-    "Delivered, opened, visited, redeemed, unsubscribed, and revenue",
-  ],
-  [
-    "Operations",
-    "Branch, staff, channel, SKU, reversals, and suspicious activity",
-  ],
+  { icon: Stamp, name: "Stamp cards" },
+  { icon: Coins, name: "Points & cashback" },
+  { icon: BadgePercent, name: "Member discounts" },
+  { icon: Crown, name: "Memberships" },
+  { icon: TicketPercent, name: "Coupons" },
+  { icon: Gift, name: "Reward catalog" },
+  { icon: CalendarCheck2, name: "Multipass" },
+  { icon: CreditCard, name: "Gift cards" },
 ];
 
 const operations = [
   {
+    icon: Users,
+    title: "Staff roles and a ledger with names on it",
+    detail:
+      "Owner, manager, marketer, counter. Every stamp, reversal and redemption carries who, when and which branch. Stamps-per-staff is a number on your dashboard.",
+  },
+  {
     icon: Store,
-    title: "Branches & staff",
+    title: "Unlimited branches, one card",
     detail:
-      "Location-level programs, roles, limits, manager views, and an action audit trail.",
+      "A chain is one company. Customers earn and redeem anywhere; you see each branch on its own from Core, and where each member actually shops.",
   },
   {
-    icon: PlugZap,
-    title: "POS-ready connections",
+    icon: BarChart3,
+    title: "Analytics that decide the next move",
     detail:
-      "Start beside any checkout, then connect through API, webhooks, imports, and POS adapters.",
+      "Return rate, time to second visit, cohorts, reward liability in pesos, campaign attribution, and the branch and staff views that show where the program is working.",
   },
   {
-    icon: DatabaseZap,
-    title: "Portable customer records",
+    icon: WifiOff,
+    title: "A counter that survives the internet",
     detail:
-      "Permissioned import, export, correction, deletion, and consent history—not a data trap.",
+      "The customer's saved code works with no signal on every plan. The offline queue that holds and replays visits, with duplicate protection, arrives on Grow.",
+  },
+  {
+    icon: Nfc,
+    title: "QR, NFC, printed, and any register",
+    detail:
+      "Scan from a phone, tablet or browser beside whatever POS you own. NFC tap on Core. API, webhooks and POS adapters on Grow, for when the till should post the sale itself.",
   },
   {
     icon: ShieldCheck,
-    title: "Fraud-aware rewards",
+    title: "Fraud made visible, and where possible prevented",
     detail:
-      "Rotating codes, confirmation, rate limits, reversals, device signals, and review queues.",
+      "Cooldowns, minimum spend, rotating codes, customer-approved redemption, reversals, review queues. We say plainly which controls detect and which prevent.",
+  },
+];
+
+const philippines = [
+  {
+    icon: Wallet,
+    title: "Pesos, paid the way you already pay",
+    detail: `Priced in pesos, billed in pesos, settled by ${paymentMethods.slice(0, 2).join(" or ")}, card or bank transfer. Dollar-billed tools cannot say that.`,
+  },
+  {
+    icon: Languages,
+    title: "English or Filipino at the counter",
+    detail:
+      "The counter and owner screens in Filipino as well as English. The single biggest thing between this and a carinderia — on the roadmap, done properly, not machine-translated.",
+    roadmap: true,
+  },
+  {
+    icon: Smartphone,
+    title: "Viber and Facebook, not just email",
+    detail:
+      "Your join link lives happily in a Facebook page bio, and Viber is a campaign channel because that is where Filipino customers actually read.",
+  },
+  {
+    icon: Crown,
+    title: "Suki is the model",
+    detail:
+      "Filipino shops invented tiered loyalty long before software did. The tiers, the win-back message, the recognition — they are named for the culture, not translated into it.",
+  },
+  {
+    icon: Globe2,
+    title: "Works on a ₱5,000 Android with patchy data",
+    detail:
+      "A web app, nothing to install, and a saved code that works with no signal. The customer's phone is never the reason a stamp did not happen.",
+  },
+  {
+    icon: Fingerprint,
+    title: "Built for the Data Privacy Act",
+    detail:
+      "Every right RA 10173 gives a customer is a control in the product. No competitor in this market says that, because none of them built for it.",
   },
 ];
 
@@ -180,9 +332,9 @@ export default function FeaturesPage() {
       <StructuredData
         data={[
           webPage({
-            name: "KYPStamping features",
+            name: "KYP Stamping features",
             description:
-              "Eight program formats, counter methods, lifecycle automation, analytics, and Philippine operations.",
+              "Acquisition, retention, reactivation and growth levers for Philippine shops, on one loyalty engine.",
             path: "/features",
           }),
           breadcrumb([{ name: "Features", path: "/features" }]),
@@ -191,255 +343,131 @@ export default function FeaturesPage() {
       <PageHero
         image="/images/hero-features.webp"
         eyebrow="The full loyalty system"
-        title="Every way to reward. One local relationship."
-        description="Run simple stamps today, then add points, memberships, gift value, referrals, and automations without making customers juggle another account for every shop."
+        title="Every way to keep a customer. One card in their pocket."
+        description="Start with the stamp card — it is free, and most shops never need more. When you do: suki tiers, missions, bonus windows, store credit, referrals, win-back and seven more program types, all on the same engine and the same card."
       >
-        <SiteButton href={`${businessAppUrl}/create-account`}>Start free</SiteButton>
+        <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="/pricing" tone="outline">
-          See what each plan includes
+          Compare plans
         </SiteButton>
       </PageHero>
       <AnswerBlock
-        question="What types of loyalty program can a small business run?"
-        answer="KYPStamping runs eight formats from one program engine: stamp cards, points and cashback, tiered discounts, memberships, coupons, a reward catalog, prepaid multipasses, and gift cards. A business can run several at once — a stamp card for regulars and a birthday coupon for everyone else — without managing separate tools."
+        image="/images/answer-features.webp"
+        question="What can a small business actually do with a loyalty program?"
+        answer="Four things: bring strangers in, keep regulars coming, bring lapsed customers back, and grow what each one spends. KYP Stamping gives a Philippine shop a lever for each, all on one card the customer already carries."
+        points={[
+          {
+            label: "Bring them in:",
+            text: "public join code, welcome stamp, promo codes, two-sided referrals, Discover listing.",
+          },
+          {
+            label: "Keep them coming:",
+            text: "bonus windows, missions, suki tiers, birthday rewards, and the card rules that keep it honest.",
+          },
+          {
+            label: "Bring them back:",
+            text: "self-updating segments, automated win-back, quiet-hour campaigns, five channels priced first.",
+          },
+          {
+            label: "Grow what they spend:",
+            text: "points and cashback, store credit, gifting, category earning, memberships, multipass, gift cards.",
+          },
+        ]}
         facts={[
           { label: "Program formats", value: "8, one engine" },
-          { label: "Run at once", value: "Unlimited on Grow and up" },
-          { label: "Counter methods", value: "QR, NFC, printed, offline" },
-          { label: "Customer wallet", value: "PWA plus wallet pass" },
+          { label: "Levers on the free plan", value: "The whole stamp card" },
+          { label: "Channels", value: "In-app, push, email, Viber and WhatsApp, SMS" },
+          { label: "Built for", value: "The Philippines" },
         ]}
       />
 
-      <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <div className="mx-auto max-w-[1400px]">
-          <div className="grid gap-10 lg:grid-cols-[0.65fr_1.35fr]">
-            <div className="lg:sticky lg:top-28 lg:self-start">
-              <SiteEyebrow>Program studio</SiteEyebrow>
-              <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
-                Eight proven program shapes.
-              </h2>
-              <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                Choose the behavior you want to encourage. KYPStamping keeps the
-                experience consistent for staff and customers across every
-                program type.
-              </p>
-            </div>
-            <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)]">
-              {programs.map((program, index) => {
-                const Icon = program.icon;
-                return (
-                  <article
-                    key={program.name}
-                    className={`grid gap-4 p-5 sm:grid-cols-[52px_0.7fr_1.3fr] sm:items-center sm:p-6 ${index > 0 ? "border-t border-[var(--line)]" : ""} ${index === 0 ? "bg-[var(--accent)]" : ""}`}
-                  >
-                    <span className="grid size-12 place-items-center rounded-2xl bg-[var(--paper)]">
-                      <Icon size={20} />
-                    </span>
-                    <h3 className="text-lg font-extrabold tracking-[-0.02em]">
-                      {program.name}
-                    </h3>
-                    <p
-                      className={`text-sm leading-relaxed ${index === 0 ? "text-[var(--ink)]/75" : "text-[var(--muted-strong)]"}`}
+      {outcomes.map((outcome, index) => (
+        <section
+          key={outcome.key}
+          id={outcome.key}
+          className={`scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8 lg:py-28 ${
+            index % 2 === 1
+              ? "border-y border-[var(--line)] bg-[var(--surface)]"
+              : ""
+          }`}
+        >
+          <div className="mx-auto max-w-[1400px]">
+            <div className="grid gap-10 lg:grid-cols-[0.62fr_1.38fr]">
+              <div className="lg:sticky lg:top-28 lg:self-start">
+                <SiteEyebrow>{outcome.eyebrow}</SiteEyebrow>
+                <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
+                  {outcome.title}
+                </h2>
+                <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-[var(--muted-strong)]">
+                  {outcome.lead}
+                </p>
+              </div>
+              <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
+                {outcome.levers.map((lever) => {
+                  const Icon = lever.icon;
+                  return (
+                    <article
+                      key={lever.title}
+                      className="grid gap-4 py-6 sm:grid-cols-[52px_1fr_auto] sm:items-start"
                     >
-                      {program.detail}
-                    </p>
-                  </article>
-                );
-              })}
+                      <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(232_163_61/14%)] text-[var(--accent-strong)]">
+                        <Icon size={19} />
+                      </span>
+                      <div>
+                        <h3 className="text-lg font-extrabold tracking-[-0.02em]">
+                          {lever.title}
+                        </h3>
+                        <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
+                          {lever.detail}
+                        </p>
+                      </div>
+                      <span
+                        className={`w-fit rounded-full px-2.5 py-1 font-mono text-[9px] font-extrabold uppercase tracking-[0.1em] ${
+                          lever.tier === "Free"
+                            ? "bg-[var(--ink)] text-[var(--paper)]"
+                            : "border border-[var(--line-strong)] text-[var(--muted-strong)]"
+                        }`}
+                      >
+                        {lever.tier}
+                      </span>
+                    </article>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ))}
 
       <section className="bg-[var(--ink)] px-4 py-20 text-[var(--paper)] sm:px-6 lg:px-8 lg:py-28">
-        <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[0.84fr_1.16fr] lg:items-center">
-          <div>
-            <SiteEyebrow inverse>The counter flow</SiteEyebrow>
-            <h2 className="mt-5 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
-              Fast when online. Safe when it is not.
-            </h2>
-            <p className="mt-5 max-w-[50ch] text-base leading-relaxed text-white/70">
-              Customers can join from a poster, social link, NFC tap, or staff
-              scan. A visit takes seconds, and a planned encrypted offline queue keeps
-              the line moving through an internet outage.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-2">
-              {[
-                "No app-store download",
-                "Works without a signal",
-                "Printed cards available",
-                "Works beside any POS",
-              ].map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold text-white/80"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[var(--radius-card)] border border-white/12 bg-white/[0.055] p-5 sm:p-7">
-            <div className="flex items-center justify-between border-b border-white/10 pb-5">
-              <div>
-                <p className="text-sm font-extrabold">Visit capture</p>
-                <p className="mt-1 text-xs text-white/55">
-                  Choose the fastest method at each location
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--ink)]">
-                <WifiOff size={13} /> Offline ready
-              </span>
-            </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {[
-                {
-                  icon: QrCode,
-                  title: "One customer QR",
-                  text: "A secure ID across every business they join.",
-                },
-                {
-                  icon: Nfc,
-                  title: "NFC tap",
-                  text: "A quick second option for a busy counter.",
-                },
-                {
-                  icon: ScanLine,
-                  title: "Join code",
-                  text: "Poster and link enrollment with minimal fields.",
-                },
-                {
-                  icon: Smartphone,
-                  title: "PWA + wallet pass",
-                  text: "Full wallet in the browser; quick access in Apple or Google Wallet.",
-                },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <article
-                    key={item.title}
-                    className="rounded-2xl border border-white/10 bg-[var(--ink-soft)] p-5"
-                  >
-                    <Icon size={20} className="text-[var(--accent)]" />
-                    <h3 className="mt-7 text-base font-extrabold">{item.title}</h3>
-                    <p className="mt-2 text-xs leading-relaxed text-white/60">
-                      {item.text}
-                    </p>
-                  </article>
-                );
-              })}
-            </div>
-            <div className="mt-3 flex items-center gap-3 rounded-xl border border-white/10 p-4">
-              <RefreshCcw size={18} className="shrink-0 text-[var(--accent)]" />
-              <p className="text-xs leading-relaxed text-white/70">
-                <strong className="text-white">
-                  Automatic reconciliation.
-                </strong>{" "}
-                Offline visits will be signed, checked for duplicates, and synced
-                when the connection returns.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">
-          <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr]">
+          <div className="grid gap-10 lg:grid-cols-[0.62fr_1.38fr] lg:items-end">
             <div>
-              <SiteEyebrow>Lifecycle automation</SiteEyebrow>
+              <SiteEyebrow inverse>Eight formats, one engine</SiteEyebrow>
               <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
-                Useful timing, not noisy marketing.
+                The stamp card is one of eight.
               </h2>
-              <p className="mt-5 max-w-[45ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                Every journey respects channel consent, quiet hours, frequency
-                limits, and location relevance before a message can go out.
-              </p>
-              <div className="mt-8 flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
-                <BellRing
-                  className="mt-0.5 shrink-0 text-[var(--accent-strong)]"
-                  size={19}
-                />
-                <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
-                  <strong className="text-[var(--ink)]">
-                    In-app and push are built in.
-                  </strong>{" "}
-                  SMS, email, and messaging integrations can be added by channel
-                  without changing the customer record.
-                </p>
-              </div>
             </div>
-            <div className="border-y border-[var(--line)]">
-              {automations.map(([title, detail], index) => (
-                <article
-                  key={title}
-                  className={`grid gap-2 py-5 sm:grid-cols-[44px_0.72fr_1.28fr] sm:items-center ${index > 0 ? "border-t border-[var(--line)]" : ""}`}
-                >
-                  <span className="font-mono text-[10px] font-bold text-[var(--accent-strong)]">
-                    0{index + 1}
-                  </span>
-                  <h3 className="text-base font-extrabold">{title}</h3>
-                  <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
-                    {detail}
-                  </p>
-                </article>
-              ))}
-            </div>
+            <p className="max-w-[56ch] text-base leading-relaxed text-white/70">
+              Same card, same counter, same customer record. A shop runs one on
+              Launch, three at once on Core, as many as it likes on Grow — a
+              stamp card for regulars and a birthday coupon for everyone else,
+              without a second tool.
+            </p>
           </div>
-        </div>
-      </section>
-
-      <section className="border-y border-[var(--line)] bg-[var(--surface)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <div className="mx-auto max-w-[1400px]">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--paper)]">
-              <div className="flex items-center justify-between border-b border-[var(--line)] p-6">
-                <div>
-                  <SiteEyebrow>Analytics model</SiteEyebrow>
-                  <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.02em]">
-                    From visits to business value
-                  </h2>
-                </div>
-                <BarChart3 size={22} className="text-[var(--accent-strong)]" />
-              </div>
-              {insightRows.map(([label, value], index) => (
+          <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-white/12 bg-white/12 sm:grid-cols-4">
+            {programs.map((program, index) => {
+              const Icon = program.icon;
+              return (
                 <div
-                  key={label}
-                  className={`grid gap-2 p-5 sm:grid-cols-[0.55fr_1.45fr] sm:p-6 ${index > 0 ? "border-t border-[var(--line)]" : ""}`}
+                  key={program.name}
+                  className={`flex items-center gap-3 p-5 ${index === 0 ? "bg-[var(--accent)] text-[var(--ink)]" : "bg-[var(--ink)]"}`}
                 >
-                  <p className="text-sm font-extrabold">{label}</p>
-                  <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
-                    {value}
-                  </p>
+                  <Icon size={18} className={index === 0 ? "" : "text-[var(--accent)]"} />
+                  <span className="text-sm font-extrabold">{program.name}</span>
                 </div>
-              ))}
-            </div>
-            <div className="flex flex-col justify-between rounded-[var(--radius-card)] bg-[var(--accent)] p-7 sm:p-9">
-              <div>
-                <SiteEyebrow>Explainable actions</SiteEyebrow>
-                <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
-                  Know what to do next—and why.
-                </h2>
-                <p className="mt-5 max-w-[44ch] text-sm leading-relaxed text-[var(--ink)]/75">
-                  KYPStamping turns patterns into small, reviewable recommendations.
-                  Every suggested audience shows its reason, estimated reach,
-                  reward cost, and opt-in status before launch.
-                </p>
-              </div>
-              <div className="mt-12 rounded-2xl bg-[var(--surface)] p-5">
-                <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent-strong)]">
-                  <MessageSquareText size={14} /> Next best action
-                </div>
-                <p className="mt-4 text-lg font-extrabold">
-                  Bring back 32 almost-regulars
-                </p>
-                <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
-                  They have visited twice in 21 days and usually return on
-                  Tuesdays. 28 have promotion consent.
-                </p>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -447,89 +475,108 @@ export default function FeaturesPage() {
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">
           <div className="max-w-3xl">
-            <SiteEyebrow>Philippines-ready operations</SiteEyebrow>
+            <SiteEyebrow>Run it without thinking</SiteEyebrow>
             <h2 className="mt-4 max-w-[14ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
               Built for the whole business, not one QR poster.
             </h2>
           </div>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2">
-            {operations.map((item, index) => {
+          <div className="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2 lg:grid-cols-3">
+            {operations.map((item) => {
               const Icon = item.icon;
               return (
-                <article
-                  key={item.title}
-                  className={`bg-[var(--surface)] p-7 sm:p-9 ${index === 1 ? "md:bg-[var(--accent)]" : ""}`}
-                >
-                  <span className="grid size-12 place-items-center rounded-2xl bg-[var(--paper)]">
-                    <Icon size={20} />
+                <article key={item.title} className="bg-[var(--surface)] p-7">
+                  <span className="grid size-11 place-items-center rounded-2xl bg-[var(--paper)]">
+                    <Icon size={19} />
                   </span>
-                  <h3 className="mt-10 text-xl font-extrabold tracking-[-0.02em]">
+                  <h3 className="mt-8 text-lg font-extrabold tracking-[-0.02em]">
                     {item.title}
                   </h3>
-                  <p
-                    className={`mt-3 max-w-[48ch] text-sm leading-relaxed ${index === 1 ? "text-[var(--ink)]/75" : "text-[var(--muted-strong)]"}`}
-                  >
+                  <p className="mt-3 text-sm leading-relaxed text-[var(--muted-strong)]">
                     {item.detail}
                   </p>
                 </article>
               );
             })}
           </div>
+        </div>
+      </section>
 
-          <div className="mt-12 grid gap-5 rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-7 sm:grid-cols-[auto_1fr] sm:items-start sm:p-9">
-            <span className="grid size-13 place-items-center rounded-xl bg-[rgb(232_163_61/16%)] text-[var(--accent-strong)]">
-              <Fingerprint />
-            </span>
+      <section className="border-y border-[var(--line)] bg-[var(--surface)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid gap-10 lg:grid-cols-[0.62fr_1.38fr] lg:items-end">
             <div>
-              <h3 className="text-2xl font-extrabold tracking-[-0.02em]">
-                Customer rights are product controls.
-              </h3>
-              <p className="mt-3 max-w-[78ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                Customers can see which businesses they joined, change marketing
-                and location permissions, access or correct their profile,
-                export their records, leave a program, and request deletion.
-                Owners get consent history and role-based access—not
-                unrestricted customer data.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2">
-                {[
-                  "Transparency",
-                  "Legitimate purpose",
-                  "Proportionality",
-                  "Access & correction",
-                  "Portability",
-                  "Deletion requests",
-                ].map((item) => (
-                  <span
-                    key={item}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface-2)] px-3 py-2 text-xs font-bold text-[var(--muted-strong)]"
-                  >
-                    <Check size={13} className="text-[var(--accent-strong)]" />{" "}
-                    {item}
-                  </span>
-                ))}
-              </div>
+              <SiteEyebrow>Built for the Philippines</SiteEyebrow>
+              <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
+                Not translated for the market. Built in it.
+              </h2>
             </div>
-          </div>
-
-          <div className="mt-12 flex flex-col gap-5 border-t border-[var(--line)] pt-8 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <Globe2 size={20} className="text-[var(--accent-strong)]" />
-              <p className="text-sm font-extrabold">
-                API · webhooks · POS adapters · CSV import/export · Apple Wallet
-                · Google Wallet
-              </p>
-            </div>
-            <p className="text-xs text-[var(--muted)]">
-              Connect when the business is ready.
+            <p className="max-w-[56ch] text-base leading-relaxed text-[var(--muted-strong)]">
+              Every global loyalty tool bills in dollars, emails in English and
+              assumes a card reader. Here is what changes when the product is
+              made in Manila for shops in Manila, Cebu and Davao.
             </p>
           </div>
+          <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {philippines.map((item) => {
+              const Icon = item.icon;
+              return (
+                <article
+                  key={item.title}
+                  className="flex flex-col rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--paper)] p-7"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(232_163_61/14%)] text-[var(--accent-strong)]">
+                      <Icon size={19} />
+                    </span>
+                    {"roadmap" in item && item.roadmap && (
+                      <span className="rounded-full border border-[var(--line-strong)] px-2.5 py-1 font-mono text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted-strong)]">
+                        Roadmap
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="mt-7 text-lg font-extrabold tracking-[-0.02em]">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-[var(--muted-strong)]">
+                    {item.detail}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="flex items-center gap-2 text-sm font-extrabold">
+              <Check size={16} className="text-[var(--accent-strong)]" />
+              What is live and what is next, from the same data as the pricing table.
+            </p>
+            <Link
+              href="/roadmap"
+              className="focus-ring inline-flex items-center gap-2 rounded-full text-sm font-extrabold text-[var(--accent-strong)]"
+            >
+              Read the roadmap <ArrowRight size={15} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-5 border-t border-[var(--line)] pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <ScanLine size={20} className="text-[var(--accent-strong)]" />
+            <p className="text-sm font-extrabold">
+              API · webhooks · POS adapters · spreadsheet (CSV) import/export · Apple Wallet ·
+              Google Wallet
+            </p>
+          </div>
+          <p className="text-xs text-[var(--muted)]">
+            Connect when the business is ready. Most never need to.
+          </p>
         </div>
       </section>
 
       <MarketingCta
         title="Start simple. Keep every path open."
-        description="Launch a stamp card in one location, then grow into the program, automation, analytics, and integration depth your business actually needs."
+        description="Launch a stamp card in one shop, free, then grow into the tiers, missions, automation and analytics your business actually needs — never sooner."
       />
     </main>
   );

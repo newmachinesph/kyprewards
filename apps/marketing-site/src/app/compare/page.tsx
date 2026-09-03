@@ -5,6 +5,7 @@ import {
   AnswerBlock,
   MarketingCta,
   PageHero,
+  SiteButton,
   SiteEyebrow,
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
@@ -12,9 +13,9 @@ import { comparisons } from "@/lib/comparisons";
 import { breadcrumb, itemList, webPage } from "@/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Compare loyalty platforms in the Philippines",
+  title: "Compare Loyalty Platforms in the Philippines",
   description:
-    "Side-by-side comparisons of KYPStamping against GoBalik, Suki Cards, and ZAP, using each provider's public information with sources linked.",
+    "Honest side-by-side comparisons against every Philippine loyalty platform with peso pricing — ZAP, Qashier, StoreHub, Suki Cards, GoBalik. Sources linked.",
   alternates: { canonical: "/compare" },
 };
 
@@ -24,9 +25,9 @@ export default function ComparePage() {
       <StructuredData
         data={[
           itemList({
-            name: "KYPStamping platform comparisons",
+            name: "KYP Stamping platform comparisons",
             items: comparisons.map((comparison) => ({
-              name: `KYPStamping vs ${comparison.competitor}`,
+              name: `KYP Stamping vs ${comparison.competitor}`,
               path: `/compare/${comparison.slug}`,
               description: comparison.summary,
             })),
@@ -34,7 +35,7 @@ export default function ComparePage() {
           webPage({
             name: "Compare loyalty platforms in the Philippines",
             description:
-              "How KYPStamping compares with the Philippine loyalty platforms buyers shortlist most often.",
+              "How KYP Stamping compares with the Philippine loyalty platforms buyers shortlist most often.",
             path: "/compare",
           }),
           breadcrumb([{ name: "Compare", path: "/compare" }]),
@@ -45,10 +46,16 @@ export default function ComparePage() {
         eyebrow="Fair product comparison"
         title="See the shortlist honestly."
         description="Each comparison uses the competitor's own public information, links its sources, and says plainly where the other product is the better fit."
-      />
+      >
+        <SiteButton href="/partners">Apply to join</SiteButton>
+        <SiteButton href="/pricing" tone="outline">
+          See pricing
+        </SiteButton>
+      </PageHero>
       <AnswerBlock
+        image="/images/answer-compare.webp"
         question="Which loyalty platforms do Philippine businesses compare?"
-        answer="The shortlist is usually GoBalik, Suki Cards, and ZAP. GoBalik is the closest match on price for a single shop, Suki Cards leads on Apple and Google Wallet passes, and ZAP is the established enterprise option with deep POS integration. KYPStamping sits between a narrow stamp-card tool and a full engagement suite."
+        answer="The realistic shortlist is the platforms that quote in pesos: ZAP, the established local incumbent at ₱4,800 a month above a free tier; Qashier Treats at ₱590 a month but only on top of a Qashier POS subscription; StoreHub from ₱2,249 a month with loyalty bundled into a full POS; Suki Cards on annual peso pricing with Apple and Google Wallet passes; and GoBalik at ₱399 for a stamp card and little else. KYP Stamping is the one that costs nothing to start, replaces no part of your checkout, and publishes what each message costs to send."
         facts={comparisons.map((comparison) => ({
           label: comparison.competitor,
           value: comparison.publicPricing,
@@ -72,7 +79,7 @@ export default function ComparePage() {
                   {comparison.descriptor}
                 </p>
                 <h3 className="mt-3 flex items-start justify-between gap-3 text-xl font-extrabold tracking-[-0.02em]">
-                  KYPStamping vs {comparison.competitor}
+                  KYP Stamping vs {comparison.competitor}
                   <ArrowUpRight
                     size={18}
                     aria-hidden="true"
@@ -99,17 +106,20 @@ export default function ComparePage() {
               </Link>
             ))}
           </div>
-          <p className="mt-8 max-w-[80ch] text-xs leading-relaxed text-[var(--muted)]">
-            Comparisons use each provider&apos;s public information observed on
-            25 August 2026, with primary sources linked on every page. Verify
-            current terms with the provider before deciding.
+          <p className="mt-8 max-w-[86ch] text-xs leading-relaxed text-[var(--muted)]">
+            Every comparison uses the provider&apos;s own public pages, with the
+            date they were read and a link to the source on each page. We compare
+            against platforms that publish Philippine peso pricing: a monthly
+            figure in dollars is not a like-for-like number for a shop that earns
+            and banks in pesos. Offers change — verify current terms with the
+            provider before deciding.
           </p>
         </div>
       </section>
 
       <MarketingCta
         title="Still deciding? Talk it through."
-        description="Tell us how your best customers already return, and we will say honestly whether KYPStamping is the right fit."
+        description="Tell us how your best customers already return. If one of these is the better answer for your shop, we will say so."
       />
     </main>
   );

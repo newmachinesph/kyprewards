@@ -1,7 +1,6 @@
 import { Check, Minus } from "lucide-react";
 import { SiteButton } from "@/components/MarketingUi";
-import { channelRates, featureMatrix, plans, type Cell } from "@/lib/plans";
-import { businessAppUrl } from "@/lib/site";
+import { addOns, channelRates, featureMatrix, plans, type Cell } from "@/lib/plans";
 
 function CellValue({ value }: { value: Cell }) {
   if (value === true) {
@@ -38,7 +37,7 @@ function CellValue({ value }: { value: Cell }) {
  *
  * They are flat colours, not alpha: the group rows sit on a grey band and
  * the rest on paper, so an alpha that looks right over one is wrong over the
- * other - which is what made the column look striped.
+ * other — which is what made the column look striped.
  */
 const FEATURED = {
   head: "bg-[#f0dfbe]",
@@ -63,7 +62,7 @@ export function PricingTable() {
           </caption>
           {/* Not sticky, and it never usefully was.
               The wrapper above scrolls horizontally, which makes it the
-              sticky containing block - so `top: 72px` never measured against
+              sticky containing block — so `top: 72px` never measured against
               the page, it just pushed the header 72px down inside the table
               and left an empty band at the top. The featured column's
               collapsed side borders painted straight through that band, which
@@ -94,7 +93,7 @@ export function PricingTable() {
                   </span>
                   {/* Always the monthly rate. The cards above default to the
                       yearly one, so the same plan appeared at two prices on
-                      one page with nothing saying which was which - a buyer
+                      one page with nothing saying which was which — a buyer
                       comparing us against a competitor quoted the wrong
                       figure back to us. This table does not follow that
                       toggle, so it says what it is showing. */}
@@ -103,6 +102,14 @@ export function PricingTable() {
                       ? "Free"
                       : `₱${plan.monthly.toLocaleString()}/mo billed monthly`}
                   </span>
+                  {/* The cards above mark an unsellable tier and this header did
+                      not, so the amber column read as the recommended thing to
+                      buy while being the one thing you cannot. */}
+                  {!plan.available && (
+                    <span className="mt-1.5 inline-block rounded-full border border-current px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted)]">
+                      Coming soon
+                    </span>
+                  )}
                 </th>
               ))}
             </tr>
@@ -185,7 +192,7 @@ export function PricingTable() {
                       that is not open yet. */}
                   {plan.available ? (
                     <SiteButton
-                      href={`${businessAppUrl}/create-account`}
+                      href="/partners"
                       tone={plan.featured ? "accent" : "outline"}
                     >
                       {plan.cta}
@@ -251,6 +258,46 @@ export function ChannelRates() {
                 <td className="px-6 py-5 align-top text-sm font-bold text-[var(--accent-strong)]">
                   {rate.overage}
                 </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/** Bought on top of a plan. Same table shape as the channels so the eye reads both the same way. */
+export function AddOns() {
+  return (
+    <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)]">
+      <div className="relative -mx-px overflow-x-auto">
+        <table className="w-full min-w-[720px] border-collapse text-left">
+          <caption className="sr-only">Add-ons available on top of any plan</caption>
+          <thead>
+            <tr className="border-b border-[var(--line)]">
+              {["Add-on", "Available on", "Price"].map((heading) => (
+                <th
+                  key={heading}
+                  scope="col"
+                  className="px-6 py-4 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--muted)]"
+                >
+                  {heading}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {addOns.map((item) => (
+              <tr key={item.name} className="border-b border-[var(--line)] last:border-b-0">
+                <th scope="row" className="px-6 py-5 text-left align-top text-sm font-bold">
+                  {item.name}
+                  <span className="mt-1.5 block max-w-[52ch] text-xs font-normal leading-relaxed text-[var(--muted)]">
+                    {item.detail}
+                  </span>
+                </th>
+                <td className="px-6 py-5 align-top text-sm text-[var(--muted-strong)]">{item.plans}</td>
+                <td className="px-6 py-5 align-top text-sm font-bold text-[var(--accent-strong)]">{item.price}</td>
               </tr>
             ))}
           </tbody>

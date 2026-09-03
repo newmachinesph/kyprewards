@@ -3,6 +3,8 @@ import Link from "next/link";
 import {
   ArrowRight,
   BookOpen,
+  CalendarDays,
+  Crown,
   FileText,
   Lightbulb,
   ShieldCheck,
@@ -18,13 +20,23 @@ import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, itemList } from "@/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Resources",
+  title: "The Return-Visit Library",
   description:
-    "Practical guides for designing rewards, running local campaigns, protecting customer trust, and building repeat visits.",
+    "Guides for owners doing the work: a reward people finish, quiet hours without discounting, the Ber months, suki tiers, and privacy customers trust.",
   alternates: { canonical: "/resources" },
+  openGraph: {
+    title: "Practical ideas for becoming someone's regular place",
+    description:
+      "Written for owners doing the work, not loyalty-program specialists.",
+    url: "/resources",
+    locale: "en_PH",
+    type: "article",
+  },
 };
 
-const icons = [Lightbulb, FileText, ShieldCheck];
+// One per article, in `resources` order. An index past the end renders
+// `undefined` as a component and kills the whole build at prerender.
+const icons = [Lightbulb, FileText, ShieldCheck, CalendarDays, Crown];
 
 export default function ResourcesPage() {
   return (
@@ -32,7 +44,7 @@ export default function ResourcesPage() {
       <StructuredData
         data={[
           itemList({
-            name: "KYPStamping return-visit library",
+            name: "KYP Stamping return-visit library",
             items: resources.map((resource) => ({
               name: resource.title,
               path: `/resources/${resource.slug}`,
@@ -49,6 +61,9 @@ export default function ResourcesPage() {
         description="Clear guidance for designing rewards, reaching customers, and earning the kind of trust that lasts longer than a discount."
       >
         <SiteButton href="#guides">Browse the guides</SiteButton>
+        <SiteButton href="/partners" tone="outline">
+          Apply to join
+        </SiteButton>
       </PageHero>
 
       <section

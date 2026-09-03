@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { Check, LoaderCircle, Send } from "lucide-react";
 import { ApiError, submitContact } from "@kypstamping/api";
+import { businessCategories } from "@/lib/content";
 
 type FormState = "idle" | "sending" | "sent";
 
@@ -18,22 +19,28 @@ export function ContactForm() {
     const businessName = String(data.get("business") ?? "").trim();
     if (!name || !email || !businessName) {
       setError(
-        "Add your name, work email, and business name so we know how to reach you.",
+        "Add your name, email, and business name so we know how to reach you.",
       );
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Enter a valid work email so we can reply to your inquiry.");
+      setError("Enter a valid email so we can reply.");
       return;
     }
     setError("");
     setState("sending");
     try {
+      // The endpoint has no field for the business type, so the dropdown's
+      // value was being dropped on the floor. It rides at the top of the
+      // message instead — the person reading the inbox sees it first, and
+      // nothing on the backend has to change.
+      const type = String(data.get("type") ?? "").trim();
+      const message = String(data.get("message") ?? "").trim();
       await submitContact({
         name,
         email,
         business: businessName,
-        message: String(data.get("message") ?? "").trim(),
+        message: type ? `Business type: ${type}\n\n${message}` : message,
       });
       setState("sent");
     } catch (failure) {
@@ -58,11 +65,11 @@ export function ContactForm() {
             <Check size={24} strokeWidth={3} />
           </span>
           <h2 className="mt-6 text-3xl font-extrabold tracking-[-0.02em]">
-Inquiry sent.
+Message sent.
           </h2>
           <p className="mx-auto mt-3 max-w-[36ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-            We have it, and a copy is in your inbox. Someone will reply about
-            your business shortly.
+            We have it, and a copy is in your inbox. We reply the same working
+            day where we can, and never later than the next.
           </p>
           <button
             onClick={() => setState("idle")}
@@ -94,7 +101,7 @@ Send another
           />
         </label>
         <label className="grid gap-2 text-sm font-bold">
-          Work email
+          Email
           <input
             name="email"
             type="email"
@@ -122,11 +129,9 @@ Send another
             name="type"
             className="focus-ring min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 font-normal outline-none transition focus:border-[var(--accent-strong)]"
           >
-            <option>Café or bakery</option>
-            <option>Salon or wellness</option>
-            <option>Restaurant</option>
-            <option>Independent retail</option>
-            <option>Another local business</option>
+            {businessCategories.map((category) => (
+              <option key={category}>{category}</option>
+            ))}
           </select>
         </label>
         <label className="grid gap-2 text-sm font-bold sm:col-span-2">
@@ -150,7 +155,7 @@ Send another
       )}
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-[46ch] text-[11px] leading-relaxed text-[var(--muted)]">
-          By contacting us, you agree that KYPStamping may respond about your
+          By contacting us, you agree that KYP Stamping may respond about your
           inquiry. We do not add you to marketing lists without permission.
         </p>
         <button

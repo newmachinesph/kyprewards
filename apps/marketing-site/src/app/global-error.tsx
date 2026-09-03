@@ -27,7 +27,7 @@ export default function GlobalError({
           <div style={{ maxWidth: 440 }}>
             <div style={{ fontSize: 42 }}>✦</div>
             <h1 style={{ margin: "20px 0 8px", fontSize: 30 }}>
-              KYPStamping needs a fresh start.
+              KYP Stamping needs a fresh start.
             </h1>
             <p style={{ margin: 0, color: "#5f534b", lineHeight: 1.6 }}>
               Nothing was changed. Reload the experience and continue where you
@@ -48,7 +48,7 @@ export default function GlobalError({
                 cursor: "pointer",
               }}
             >
-              Reload KYPStamping
+              Reload KYP Stamping
             </button>
           </div>
         </main>

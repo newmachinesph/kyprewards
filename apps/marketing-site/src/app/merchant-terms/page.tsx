@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Merchant agreement",
   description:
-    "The agreement between KYPStamping and a business running a loyalty program on the platform.",
+    "The agreement between KYP Stamping and a business running a loyalty program on the platform.",
   alternates: { canonical: "/merchant-terms" },
 };
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
  * readable but conflates two different relationships: a customer accepts terms
  * to hold a card, a merchant enters a commercial arrangement about other
  * people's personal data. The second needs saying separately, because it is
- * where the obligations that actually bite live - who answers a customer's
+ * where the obligations that actually bite live — who answers a customer's
  * privacy request, who owns the reward liability, what happens to the member
  * list when the shop leaves.
  */
@@ -23,14 +23,14 @@ const sections = [
   {
     title: "What this covers",
     paragraphs: [
-      "This agreement applies to a business that operates a loyalty program through KYPStamping, and to the staff accounts it authorizes. It sits alongside the general terms; where the two differ on a business matter, this document governs.",
+      "This agreement applies to a business that operates a loyalty program through KYP Stamping, and to the staff accounts it authorizes. It sits alongside the general terms; where the two differ on a business matter, this document governs.",
       "Accepting an invitation, opening a workspace, or running a program is acceptance of these terms by the business.",
     ],
   },
   {
     title: "Each side's role with customer data",
     paragraphs: [
-      "A customer's account belongs to the customer and lives on the platform, not inside any one shop. When a customer joins your program they choose to share a defined set of details with you, and from that moment both KYPStamping and your business make decisions about that data.",
+      "A customer's account belongs to the customer and lives on the platform, not inside any one shop. When a customer joins your program they choose to share a defined set of details with you, and from that moment both KYP Stamping and your business make decisions about that data.",
       "That makes each of us responsible in our own right rather than one of us acting purely on the other's instructions. What each side may do is set out in the data sharing terms.",
     ],
     bullets: [
@@ -43,7 +43,7 @@ const sections = [
   {
     title: "Running a program honestly",
     paragraphs: [
-      "The reward you publish is a promise to the customer, and it is your promise. KYPStamping records and enforces the mechanics; the obligation to honor a completed card is yours.",
+      "The reward you publish is a promise to the customer, and it is your promise. KYP Stamping records and enforces the mechanics; the obligation to honor a completed card is yours.",
     ],
     bullets: [
       "Reward terms must be stated before a customer starts earning, and must not be changed in a way that removes value somebody has already earned.",
@@ -70,7 +70,7 @@ const sections = [
     ],
     bullets: [
       "Consent is per channel and per person. A customer who accepts email has not accepted SMS.",
-      "Transactional messages - a code, a receipt, a reward notice - are not marketing and are not suppressed by a marketing opt-out.",
+      "Transactional messages — a code, a receipt, a reward notice — are not marketing and are not suppressed by a marketing opt-out.",
       "You are responsible for the content you send and for complying with the rules on unsolicited commercial messages.",
       "SMS is charged per message. Sending is capped by your plan's included credits and any overage you have authorized.",
     ],
@@ -94,10 +94,10 @@ const sections = [
     title: "Fees, plans and the free tier",
     paragraphs: [
       "Plan prices, allowances and inclusions are published on the pricing page and may change with reasonable advance notice. Paid plans are billed for the selected period plus applicable taxes.",
-      "The free plan is offered without charge and without a customer limit. It is not a perpetual commitment: we may change what it includes, and if we do we will give notice and a reasonable path to continue - including exporting your data if you decide not to stay.",
+      "The free plan is offered without charge and without a customer limit. It is not a perpetual commitment: we may change what it includes, and if we do we will give notice and a reasonable path to continue — including exporting your data if you decide not to stay.",
     ],
     bullets: [
-      "Metered channels - SMS in particular - carry a real per-message cost and are billed as used beyond the included allowance.",
+      "Metered channels — SMS in particular — carry a real per-message cost and are billed as used beyond the included allowance.",
       "Fees already paid are non-refundable except where the law requires otherwise or we have said otherwise in writing.",
       "Cancelling stops future renewal. It does not delete your data immediately; see the section below.",
     ],
@@ -115,11 +115,11 @@ const sections = [
     ],
   },
   {
-    title: "Liability and review status",
+    title: "Liability, and what is still being settled",
     paragraphs: [
       "To the fullest extent permitted by law, the platform is provided without guarantees beyond those expressly stated here. We are not liable for the reward decisions you make, for losses arising from a third-party service you connect, or for indirect or consequential loss.",
-      "This document is a working draft. Governing law, dispute resolution, the contracting entity, limitation amounts and jurisdiction are deliberately not stated yet and will be settled with qualified Philippine counsel before commercial launch.",
-      "Questions about this agreement can be sent to hello@kypsolutions.com.ph.",
+      "These terms govern the free beta and are complete for it. Four clauses are deliberately still open: governing law, dispute resolution, limitation amounts and the contracting entity. They are being settled with qualified Philippine counsel alongside our incorporation, and we would rather leave them blank than state something we would have to change. Nothing is being charged during the beta, and we will give notice before these become paid terms.",
+      "Questions about this agreement can be sent to hello@kypstamping.ph.",
     ],
   },
 ];
@@ -130,7 +130,7 @@ export default function MerchantTermsPage() {
       path="/merchant-terms"
       eyebrow="For businesses"
       title="Merchant agreement"
-      summary="The terms for a business running a loyalty program on KYPStamping: what you may do with member data, what your reward promise obliges, and what happens to both when the arrangement ends."
+      summary="The terms for a business running a loyalty program on KYP Stamping: what you may do with member data, what your reward promise obliges, and what happens to both when the arrangement ends."
       effective="2 September 2026"
       sections={sections}
     />

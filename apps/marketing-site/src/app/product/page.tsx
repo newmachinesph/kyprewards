@@ -29,13 +29,21 @@ import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, howTo, webPage } from "@/lib/schema";
 import { ProductPreview } from "@/components/ProductPreview";
 import { VirtualCard } from "@/components/VirtualCard";
-import { adminAppUrl, businessAppUrl } from "@/lib/site";
+import { businessAppUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Product",
+  title: "The Digital Stamp Card",
   description:
-    "Explore KYPStamping’s customer wallet, business workspace, QR stamping, campaigns, rewards, analytics, and privacy controls.",
+    "A digital stamp card Philippine shops run free: a welcome stamp waits when they join from your poster, staff confirm visits in seconds, no app or POS change.",
   alternates: { canonical: "/product" },
+  openGraph: {
+    title: "The digital stamp card — one stamp, then the next",
+    description:
+      "How a stranger becomes a regular: join from a poster, a welcome stamp waits, the first visit makes it real, every visit after takes three seconds.",
+    url: "/product",
+    locale: "en_PH",
+    type: "article",
+  },
 };
 
 const workflow = [
@@ -109,30 +117,30 @@ export default function ProductPage() {
       <StructuredData
         data={[
           howTo({
-            name: "How a KYPStamping loyalty visit works",
+            name: "How a KYP Stamping loyalty visit works",
             description:
               "The four steps a customer and staff member complete at the counter to record a loyalty visit.",
             steps: [
               {
-                name: "Customer shows one QR",
-                text: "The customer opens their KYPStamping wallet and shows a single QR code that works across every business they have joined. It can also be saved or printed for use without a signal.",
+                name: "Join from the shop's public code",
+                text: "The customer scans the poster, sticker or receipt code, or opens the shop's link, and joins with one mobile number. A welcome stamp lands on their card marked pending. No app is installed.",
               },
               {
-                name: "Staff confirms the visit",
-                text: "Staff scan the code from a phone, tablet, or browser beside the existing register, and confirm the purchase before anything is recorded.",
+                name: "Staff confirm the first visit",
+                text: "On the first visit staff scan the customer's own code from any phone, tablet or browser beside the existing register. The pending welcome stamp becomes real and the visit earns its own, so the card reads two.",
               },
               {
-                name: "Progress updates instantly",
-                text: "The stamp, points, or reward balance updates in the customer wallet immediately, or queues securely offline if the connection drops.",
+                name: "Every visit after takes three seconds",
+                text: "Staff scan the customer's code or find them by mobile number. The stamp appears in the customer's wallet immediately. A cooldown the shop sets stops the same customer earning twice in a day.",
               },
               {
-                name: "The relationship gets smarter",
-                text: "The visit joins the business's analytics so owners can see patterns and message the right segment when there is something useful to say.",
+                name: "The reward is held until it is redeemed",
+                text: "When the card completes, the reward is held and the customer approves its release on their phone before staff hand it over. The card then resets and keeps earning.",
               },
             ],
           }),
           webPage({
-            name: "KYPStamping product tour",
+            name: "KYP Stamping product tour",
             description:
               "How the customer wallet, staff counter flow, and owner workspace fit together.",
             path: "/product",
@@ -142,27 +150,112 @@ export default function ProductPage() {
       />
       <PageHero
         image="/images/hero-product.webp"
-        eyebrow="The complete loyalty loop"
-        title="One small scan. A much better return visit."
-        description="KYPStamping connects the moment at the counter with the customer wallet, business workspace, and thoughtful follow-up that happen afterward."
+        eyebrow="The digital stamp card"
+        title="One stamp. Then the next."
+        description="A stamp card that lives on your customer's phone, runs beside the register you already own, and gives a stranger a reason to come back before they have bought anything. Free to start, and the rules are yours to set."
       >
-        <SiteButton href={`${businessAppUrl}/create-account`}>Start your program</SiteButton>
-        <SiteButton href={`${businessAppUrl}/login`} tone="outline">
-          Open business demo
+        <SiteButton href="/partners">Apply to join</SiteButton>
+        <SiteButton href="/pricing" tone="outline">
+          See pricing
         </SiteButton>
       </PageHero>
       <AnswerBlock
+        image="/images/answer-product.webp"
         question="How does a digital loyalty stamp card work?"
-        answer="A customer shows one QR code from their phone, staff scan it beside the existing register, and the stamp appears in the customer's wallet straight away. There is no app to install, no plastic card to lose, and no POS to replace — the whole exchange takes about three seconds at the counter."
+        answer="A customer joins from your poster with one mobile number, your staff confirm each visit with one scan beside the register you already own, and the card lives on the customer’s phone. No app to install, no plastic to lose, no POS to replace."
+        points={[
+          {
+            label: "They join:",
+            text: "scan the poster, enter a number, and a welcome stamp lands on their card marked pending.",
+          },
+          {
+            label: "First visit:",
+            text: "staff scan their code; the welcome stamp becomes real and the visit earns another, so the card reads two.",
+          },
+          {
+            label: "Every visit after:",
+            text: "one scan, about three seconds. A cooldown you set stops the same customer earning twice in a day.",
+          },
+          {
+            label: "Card full:",
+            text: "the reward is held until the customer approves its release on their phone, then the card resets and keeps earning.",
+          },
+        ]}
         facts={[
           { label: "Customer installs", value: "Nothing — it is a web app" },
           { label: "Counter hardware", value: "Any phone, tablet, or browser" },
           { label: "Time per visit", value: "About 3 seconds" },
-          { label: "Works offline", value: "Grow and Scale, queued and signed" },
+          { label: "Welcome stamp", value: "Pending until the first visit" },
         ]}
       />
 
       <FirstStamp />
+
+      <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr]">
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <SiteEyebrow>The rules you set</SiteEyebrow>
+              <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
+                Six settings. Every one on the free plan.
+              </h2>
+              <p className="mt-5 max-w-[44ch] text-sm leading-relaxed text-[var(--muted-strong)]">
+                A stamp card is a promise, and the promise should be yours to
+                shape. These are the rules of the card, not upsells — they are
+                the same on Launch as on Scale.
+              </p>
+            </div>
+            <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
+              {[
+                {
+                  title: "Welcome stamp, on or off",
+                  detail:
+                    "A café gives one away gladly. A shop with a ₱3,000 average ticket may not want to, and does not have to. Pending stamps expire after 30 days if the visit never comes.",
+                },
+                {
+                  title: "Target, from 1 to 30",
+                  detail:
+                    "Set the reward just beyond how often a happy regular already visits. Raise it later and every card already started still finishes on the number it began with.",
+                },
+                {
+                  title: "Cooldown between stamps",
+                  detail:
+                    "How soon the same customer can earn again. Default once a day, so a card cannot be filled in an afternoon. A restaurant with two services can set two.",
+                },
+                {
+                  title: "The reward, in plain words",
+                  detail:
+                    "“A pastry on us” beats “member benefit.” The customer reads the reward and the number of stamps on their card before they collect the first one.",
+                },
+                {
+                  title: "Held until redeemed",
+                  detail:
+                    "A full card keeps its reward and starts a fresh card behind it. Nobody is blocked from earning for being loyal, and the customer approves every redemption on their phone.",
+                },
+                {
+                  title: "Reversals, with a name on them",
+                  detail:
+                    "Wrong customer, double tap, a stamp that should not have happened — one tap undoes it, and the ledger keeps both the stamp and the reversal.",
+                },
+              ].map((item, index) => (
+                <article
+                  key={item.title}
+                  className={`p-6 sm:p-8 ${index === 0 ? "bg-[var(--accent)]" : "bg-[var(--surface)]"}`}
+                >
+                  <h3 className="text-lg font-extrabold tracking-[-0.02em]">
+                    {item.title}
+                  </h3>
+                  <p
+                    className={`mt-3 text-sm leading-relaxed ${index === 0 ? "text-[var(--ink)]/80" : "text-[var(--muted-strong)]"}`}
+                  >
+                    {item.detail}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">
@@ -312,6 +405,59 @@ export default function ProductPage() {
         </div>
       </section>
 
+      <section className="border-y border-[var(--line)] bg-[var(--ink)] px-4 py-20 text-[var(--paper)] sm:px-6 lg:px-8 lg:py-28">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
+            <div>
+              <SiteEyebrow inverse>Beyond the stamp card</SiteEyebrow>
+              <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
+                Start with stamps. Keep every path open.
+              </h2>
+            </div>
+            <p className="max-w-[56ch] text-base leading-relaxed text-white/70">
+              The stamp card is where most shops should begin, and plenty never
+              need more. When you do, the same engine runs seven other program
+              types, and the campaigns and analytics that make a customer list
+              worth having.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-white/12 bg-white/12 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                title: "Seven more program types",
+                detail: "Points and cashback, discounts, coupons, memberships, a reward catalog, prepaid multipass and gift cards — from Core.",
+              },
+              {
+                title: "Campaigns that pay for themselves",
+                detail: "In-app and push on every plan. Birthday, win-back and quiet-hour campaigns show cost, reach and break-even before you send.",
+              },
+              {
+                title: "Analytics you can act on",
+                detail: "Who is new, regular, lapsed and reward-ready. Which branch they came from. What your unredeemed rewards would cost tomorrow.",
+              },
+              {
+                title: "Connect the register when it pays",
+                detail: "API, webhooks and POS adapters from Grow, so the till can post sales itself. Most shops run a healthy program long before they need this.",
+              },
+            ].map((item) => (
+              <article key={item.title} className="bg-[var(--ink)] p-6 sm:p-7">
+                <h3 className="text-base font-extrabold tracking-[-0.01em]">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/65">
+                  {item.detail}
+                </p>
+              </article>
+            ))}
+          </div>
+          <div className="mt-10">
+            <SiteButton href="/features" tone="accent">
+              See every feature
+            </SiteButton>
+          </div>
+        </div>
+      </section>
+
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto grid max-w-[1400px] gap-12 rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-10 lg:grid-cols-[0.7fr_1.3fr] lg:p-14">
           <div>
@@ -367,41 +513,41 @@ export default function ProductPage() {
         <div className="mx-auto max-w-[1400px]">
           <div className="grid gap-8 lg:grid-cols-[0.62fr_1.38fr]">
             <div>
-              <SiteEyebrow>Open the demo</SiteEyebrow>
+              <SiteEyebrow>Three places one visit shows up</SiteEyebrow>
               <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
-                Four apps, one shared visit.
+                Everyone sees the same visit.
               </h2>
               <p className="mt-5 max-w-[46ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                The same Sweet Crumbs visit — customer, branch, purchase, stamp
-                balance, event ID — appears in each product below. Sign-in is
-                simulated and every credential is on the screen.
+                One scan writes one record. The customer sees progress, the
+                staff member sees a confirmation, and the owner sees a pattern —
+                from the same event, not three systems trying to agree.
               </p>
             </div>
             <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
               {[
                 {
-                  name: "Business workspace",
-                  audience: "For the owner and counter staff",
+                  name: "Your customer's wallet",
+                  audience: "On their phone, nothing installed",
                   detail:
-                    "Scan, programs, customers, campaigns, analytics, staff roles, billing, and POS integration.",
-                  href: `${businessAppUrl}/login`,
-                  action: "Open the workspace",
+                    "One private code that works at every shop they join, live stamp progress, reward terms in plain language, and the controls to change what each shop can see or send.",
                 },
                 {
-                  name: "Public site",
-                  audience: "For someone deciding",
+                  name: "The counter",
+                  audience: "For whoever is on shift",
                   detail:
-                    "Pricing with a working estimator, the feature matrix, integration contract, and Philippine market guidance.",
-                  href: "/pricing",
-                  action: "See pricing",
+                    "Scan, confirm, done — about three seconds, from a phone, tablet or browser beside the register you already own. Reversals are one tap and every action carries a name.",
                 },
                 {
-                  name: "Platform control room",
-                  audience: "Internal, not publicly reachable",
+                  name: "The owner's workspace",
+                  audience: "For you, after closing",
                   detail:
-                    "Tenant health, privacy operations, service posture, support triage, audit ledger, and unit economics.",
-                  href: null,
-                  action: null,
+                    "Programs, customers, campaigns, staff roles and the numbers that decide the next move: who is returning, who has lapsed, what a reward is costing you.",
+                },
+                {
+                  name: "Your shop in Discover",
+                  audience: "For customers who have not found you yet",
+                  detail:
+                    "Your category, neighborhood, hours and live program, listed in the customer app on every plan — including the free one.",
                 },
               ].map((app) => (
                 <article key={app.name} className="bg-[var(--surface)] p-6 sm:p-8">
@@ -414,34 +560,22 @@ export default function ProductPage() {
                   <p className="mt-3 text-sm leading-relaxed text-[var(--muted-strong)]">
                     {app.detail}
                   </p>
-                  {app.href ? (
-                    <div className="mt-6">
-                      <SiteButton href={app.href} tone="outline">
-                        {app.action}
-                      </SiteButton>
-                    </div>
-                  ) : (
-                    <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-dashed border-[var(--line-strong)] px-3 py-2 text-[11px] font-bold text-[var(--muted)]">
-                      <LockKeyhole size={13} aria-hidden="true" /> Staff access only
-                    </p>
-                  )}
                 </article>
               ))}
             </div>
           </div>
-          <p className="mx-auto mt-8 max-w-[70ch] rounded-[var(--radius-card)] border border-dashed border-[var(--line-strong)] bg-[var(--surface-2)] p-5 text-xs leading-relaxed text-[var(--muted-strong)]">
-            Every app runs against the same service, seeded with one
-            demonstration business. Messaging providers are stubbed, so no
-            message leaves the system, and the platform control room at{" "}
-            <code className="font-mono">{adminAppUrl}</code> is not part of the
-            public demo.
-          </p>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <SiteButton href="/partners">Apply to join</SiteButton>
+            <SiteButton href={`${businessAppUrl}/login`} tone="outline">
+              Business sign in
+            </SiteButton>
+          </div>
         </div>
       </section>
 
       <MarketingCta
-        title="See your loyalty program take shape."
-        description="Tell us how customers return today. We’ll help you design a program that fits the rhythm of your business."
+        title="Your stamp card, live before the next busy day."
+        description="Tell us how customers return today. We read every application ourselves and set your first card up with you before you sign in."
       />
     </main>
   );

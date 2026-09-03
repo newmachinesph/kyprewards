@@ -27,9 +27,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const comparison = getComparison(competitor);
   if (!comparison) return {};
   return {
-    title: `KYPStamping vs ${comparison.competitor}`,
-    description: `Compare KYPStamping with ${comparison.competitor}: public pricing, customer experience, program formats, campaigns, analytics, and operational fit.`,
+    title: `KYP Stamping vs ${comparison.competitor}`,
+    description: `${comparison.publicPricing}. An honest side-by-side on price, program formats, campaigns and customer control — with ${comparison.competitor}'s own sources linked, and a straight answer on where it is the better fit.`,
     alternates: { canonical: `/compare/${comparison.slug}` },
+    openGraph: {
+      title: `KYP Stamping vs ${comparison.competitor}`,
+      description: comparison.summary,
+      url: `/compare/${comparison.slug}`,
+      locale: "en_PH",
+      type: "article",
+    },
   };
 }
 
@@ -44,10 +51,10 @@ export default async function ComparisonPage({ params }: Props) {
           {
             "@context": "https://schema.org",
             "@type": "Article",
-            headline: `KYPStamping vs ${comparison.competitor}`,
+            headline: `KYP Stamping vs ${comparison.competitor}`,
             description: comparison.summary,
             datePublished: "2026-08-25",
-            dateModified: "2026-08-26",
+            dateModified: "2026-09-03",
             inLanguage: "en-PH",
             author: { "@id": organizationId },
             publisher: { "@id": organizationId },
@@ -68,12 +75,12 @@ export default async function ComparisonPage({ params }: Props) {
       <PageHero
         image="/images/hero-integrations.webp"
         eyebrow="Fair product comparison"
-        title={`KYPStamping vs ${comparison.competitor}`}
+        title={`KYP Stamping vs ${comparison.competitor}`}
         description={comparison.summary}
       >
-        <SiteButton href="/pricing">Model KYPStamping pricing</SiteButton>
-        <SiteButton href="/contact" tone="outline">
-          Discuss your requirements
+        <SiteButton href="/partners">Apply to join</SiteButton>
+        <SiteButton href="/pricing" tone="outline">
+          See pricing
         </SiteButton>
       </PageHero>
       <section className="border-b border-[var(--line)] bg-[var(--surface)] px-4 py-12 sm:px-6 lg:px-8">
@@ -102,11 +109,11 @@ export default async function ComparisonPage({ params }: Props) {
               </h2>
             </div>
             <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
-              Comparison facts use publicly documented pages available on August
-              25, 2026, with pricing re-checked on September 2, 2026. Product
-              offers can change; verify current terms with each provider.
-              KYPStamping descriptions cover what is built today and what is
-              stated direction, and say which is which.
+              {comparison.competitor} facts come from its own public pages, read
+              on {comparison.observed}, and every source is linked at the foot of
+              this page. Offers change — verify current terms with the provider
+              before you decide. Where a KYP Stamping capability arrives with a
+              paid tier, the row says which tier.
             </p>
           </div>
           <div className="mt-10 overflow-x-auto rounded-2xl border border-[var(--line)]">
@@ -120,7 +127,7 @@ export default async function ComparisonPage({ params }: Props) {
                     {comparison.competitor}
                   </th>
                   <th scope="col" className="px-6 py-5 text-xs uppercase tracking-[0.12em]">
-                    KYPStamping direction
+                    KYP Stamping
                   </th>
                 </tr>
               </thead>
@@ -177,7 +184,7 @@ export default async function ComparisonPage({ params }: Props) {
       </section>
       <MarketingCta
         title="Pick the system your team will actually run."
-        description="Use the demos to test customer, counter, campaign, and administration workflows before committing to implementation."
+        description={`Tell us how your best customers already come back, and we will say honestly whether KYP Stamping is the better fit for you than ${comparison.competitor}.`}
       />
     </main>
   );

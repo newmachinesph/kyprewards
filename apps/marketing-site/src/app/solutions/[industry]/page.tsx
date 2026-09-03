@@ -34,9 +34,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const industry = industries.find((item) => item.slug === slug);
   if (!industry) return { title: "Solution not found" };
   return {
-    title: industry.name,
-    description: industry.description,
+    title: `Loyalty for ${industry.name}`,
+    // The full industry blurb ran to 300 characters here; search engines cut
+    // at about 160. The headline carries the specific hook on its own.
+    description: `${industry.headline} Free digital stamp cards for ${industry.name.toLowerCase()}, built for the Philippines.`,
     alternates: { canonical: `/solutions/${industry.slug}` },
+    openGraph: {
+      title: `${industry.headline} — KYP Stamping for ${industry.name}`,
+      description: industry.description,
+      url: `/solutions/${industry.slug}`,
+      locale: "en_PH",
+      type: "article",
+    },
   };
 }
 
@@ -50,7 +59,7 @@ export default async function IndustryPage({ params }: Props) {
       <StructuredData
         data={[
           service({
-            name: `KYPStamping for ${industry.name}`,
+            name: `KYP Stamping for ${industry.name}`,
             description: industry.description,
             path: `/solutions/${industry.slug}`,
             audience: industry.name,
@@ -88,7 +97,7 @@ export default async function IndustryPage({ params }: Props) {
               {industry.description}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <SiteButton href="/partners">Design my program</SiteButton>
+              <SiteButton href="/partners">Apply to join</SiteButton>
               <SiteButton href="/pricing" tone="outline">
                 See pricing
               </SiteButton>
@@ -193,8 +202,8 @@ export default async function IndustryPage({ params }: Props) {
                   icon: Gift,
                 },
                 {
-                  title: "Create the join code",
-                  detail: "Print it or display it at the counter.",
+                  title: "Put the join code out",
+                  detail: "Poster, sticker, receipt, Instagram bio. A welcome stamp waits for everyone who scans it.",
                   icon: QrCode,
                 },
                 {
@@ -203,8 +212,8 @@ export default async function IndustryPage({ params }: Props) {
                   icon: ScanLine,
                 },
                 {
-                  title: "Welcome the first regular",
-                  detail: "Their wallet updates immediately.",
+                  title: "Confirm the first visit",
+                  detail: "One scan makes their welcome stamp real and earns the visit. The card reads two.",
                   icon: Stamp,
                 },
               ].map((step, index) => {

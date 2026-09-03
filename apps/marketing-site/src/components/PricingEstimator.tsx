@@ -17,14 +17,15 @@ import { overageRates, planLimits, plans as sourcePlans } from "@/lib/plans";
 const plans = sourcePlans.map((plan, index) => ({
   name: plan.name,
   monthly: plan.monthly,
+  available: plan.available,
   ...planLimits[index],
 }));
 
 const topPlan = plans[plans.length - 1];
 
 export function PricingEstimator() {
-  const [branchAnalytics, setBranchAnalytics] = useState(1);
-  const [email, setEmail] = useState(5000);
+  const [branchAnalytics, setBranchAnalytics] = useState(0);
+  const [email, setEmail] = useState(0);
   const [sms, setSms] = useState(300);
   const [connectedBudget, setConnectedBudget] = useState(0);
   const [profitPerVisit, setProfitPerVisit] = useState(120);
@@ -32,16 +33,25 @@ export function PricingEstimator() {
   const estimate = useMemo(() => {
     // Beyond the top published plan we quote the top plan and say so, rather
     // than inventing a tier that appears on no price list.
+    //
     // Customers are not an input: they are unlimited on every tier, so they
-    // cannot pick a plan. Branches are the same now - a chain is one company
-    // and we do not charge for having shops - so the question is how many of
-    // them you want reported separately, which is what the tiers actually
-    // sell, alongside the two metered channels.
-    const matched = plans.find((item) => branchAnalytics <= item.branchAnalytics);
+    // cannot pick a plan. Branches are the same — a chain is one company and we
+    // do not charge for having shops — so the question is how many of them you
+    // want reported separately, which is what the tiers actually sell.
+    //
+    // Both metered inputs select the plan. Branch reporting alone used to, and
+    // because Launch reports 0 branches while the slider floor was 1, Launch
+    // could never be matched: a one-shop cafe was quoted Core, a tier nobody
+    // can buy yet, on the page whose whole argument is "start free". The floor
+    // is 0 and campaign email selects too, because on Launch it is not an
+    // allowance to overrun — there is no campaign email at all.
+    const matched = plans.find(
+      (item) => branchAnalytics <= item.branchAnalytics && email <= item.email,
+    );
     const plan = matched ?? topPlan;
     const beyondPublishedPlans = !matched;
-    const paidSms = Math.max(0, sms - plan.sms);
-    const smsCost = paidSms * overageRates.smsPerSegment;
+    // Never bundled, on any tier. Every segment is charged.
+    const smsCost = sms * overageRates.smsPerSegment;
     const emailBuckets = Math.ceil(Math.max(0, email - plan.email) / 1000);
     const emailCost = emailBuckets * overageRates.emailPer1000;
     const total = plan.monthly + smsCost + emailCost + connectedBudget;
@@ -78,17 +88,17 @@ export function PricingEstimator() {
               label: "Branches reported separately",
               value: branchAnalytics,
               set: setBranchAnalytics,
-              min: 1,
-              max: 15,
+              min: 0,
+              max: 12,
               step: 1,
             },
             {
-              label: "Emails / month",
+              label: "Campaign emails / month",
               value: email,
               set: setEmail,
               min: 0,
-              max: 150000,
-              step: 1000,
+              max: 15000,
+              step: 500,
             },
             {
               label: "SMS segments / month",
@@ -197,7 +207,7 @@ export function PricingEstimator() {
           {[
             ["Subscription", `₱${estimate.plan.monthly.toLocaleString()}`],
             [
-              "SMS over allowance",
+              "SMS credits",
               `₱${estimate.smsCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
             ],
             ["Email over allowance", `₱${estimate.emailCost.toLocaleString()}`],
@@ -216,11 +226,28 @@ export function PricingEstimator() {
             </div>
           ))}
         </div>
+        {/* A recommendation a merchant cannot act on has to say so here, not
+            leave them to discover it on the card above. */}
+        {!estimate.plan.available && (
+          <p className="mt-6 rounded-2xl border border-[var(--accent)]/40 bg-[var(--accent)]/10 p-4 text-xs leading-relaxed text-white/80">
+            <strong className="font-extrabold text-[var(--accent)]">
+              {estimate.plan.name} is not open yet.
+            </strong>{" "}
+            Start on the free Launch plan today and move up when this tier
+            opens — your programs and customer list come with you.
+          </p>
+        )}
+        {estimate.beyondPublishedPlans && (
+          <p className="mt-3 rounded-2xl bg-white/6 p-4 text-xs leading-relaxed text-white/65">
+            You are past the top published plan. This quotes {topPlan.name};
+            talk to us and we will price the rest properly rather than guess.
+          </p>
+        )}
         <div className="mt-6 flex items-start gap-3 rounded-2xl bg-white/6 p-4">
           <Phone size={17} className="mt-0.5 shrink-0 text-[var(--accent)]" />
           <p className="text-xs leading-relaxed text-white/65">
-            SMS is prepaid at ₱0.95 per 160-character segment after the plan
-            allowance. Longer messages can consume multiple segments.
+            SMS is prepaid at ₱0.95 per 160-character segment on every plan,
+            and never part of a subscription. Longer messages consume multiple segments.
           </p>
         </div>
         <div className="mt-5 space-y-2">

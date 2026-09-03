@@ -12,6 +12,7 @@ const groups = [
       ["Integrations", "/integrations"],
       ["Solutions", "/solutions"],
       ["Pricing", "/pricing"],
+      ["Roadmap", "/roadmap"],
       ["PH loyalty guide", "/loyalty-program-philippines"],
     ],
   },
@@ -22,23 +23,27 @@ const groups = [
       ["Salons & wellness", "/solutions/salons-and-wellness"],
       ["Restaurants", "/solutions/restaurants"],
       ["Independent retail", "/solutions/retail"],
+      ["Milk tea & dessert", "/solutions/milk-tea-and-dessert"],
+      ["Sari-sari & convenience", "/solutions/sari-sari-and-convenience"],
     ],
   },
   {
     title: "Compare",
     links: [
       ["All comparisons", "/compare"],
-      ["vs GoBalik", "/compare/gobalik"],
-      ["vs Suki Cards", "/compare/suki-cards"],
       ["vs ZAP", "/compare/zap"],
+      ["vs Qashier Treats", "/compare/qashier"],
+      ["vs StoreHub", "/compare/storehub"],
+      ["vs Suki Cards", "/compare/suki-cards"],
+      ["vs GoBalik", "/compare/gobalik"],
       ["Complete FAQ", "/faq"],
     ],
   },
   {
-    title: "Open the demo",
+    title: "For merchants",
     links: [
-      ["Business workspace", `${businessAppUrl}/login`],
-      ["What merchants get", "/product"],
+      ["Apply to join", "/partners"],
+      ["Business sign in", `${businessAppUrl}/login`],
     ],
   },
   {
@@ -79,7 +84,7 @@ export function MarketingFooter() {
             href="/contact"
             className="focus-ring mt-6 inline-flex items-center gap-2 rounded-full text-sm font-bold text-[var(--accent-strong)]"
           >
-            Talk to KYPStamping <ArrowUpRight size={15} />
+            Talk to KYP Stamping <ArrowUpRight size={15} />
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
@@ -116,8 +121,8 @@ export function MarketingFooter() {
       </div>
       <div className="border-t border-[var(--line)] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-2 py-5 text-[11px] font-semibold text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 KYPStamping.</span>
-          <span>Built for neighborhood businesses everywhere.</span>
+          <span>© 2026 KYP Stamping.</span>
+          <span>Built in Manila, for Philippine businesses.</span>
         </div>
       </div>
     </footer>

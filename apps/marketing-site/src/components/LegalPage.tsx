@@ -89,7 +89,7 @@ export function LegalPage({
             Plain-language note
           </p>
           <p className="mt-4 max-w-[28ch] text-xs leading-relaxed text-[var(--muted)]">
-            This page explains the current KYPStamping frontend policy structure.
+            This page explains the current KYP Stamping frontend policy structure.
             Before production launch, qualified counsel should review it for
             every operating market.
           </p>

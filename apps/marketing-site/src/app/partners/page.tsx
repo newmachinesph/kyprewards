@@ -7,18 +7,26 @@ import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, organizationId } from "@/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Become a partner",
+  title: "Apply to Join — Free for Founding Merchants",
   description:
-    "Apply to run your loyalty program on KYPStamping. Three minutes, no documents, no card — we verify from your Google Maps or Facebook page.",
+    "Start a loyalty program for your shop. Three minutes, no documents, no card. We read every application and set your first program up before you sign in.",
   alternates: { canonical: "/partners" },
+  openGraph: {
+    title: "Apply to join KYP Stamping — free during beta",
+    description:
+      "Three minutes, no documents, no card. A person sets your first program up with you.",
+    url: "/partners",
+    locale: "en_PH",
+    type: "website",
+  },
 };
 
 const REASSURANCE = [
   {
     icon: Rocket,
-    title: "Free while we are in beta",
+    title: "Free now, and Core free for three months later",
     detail:
-      "The paid plans are not open yet, so everyone is on the free one: no card, no trial clock. You keep your program and your customer list whatever you decide afterwards.",
+      "The paid plans are not open yet, so everyone is on the free one: no card, no trial clock, unlimited customers and unlimited branches. When they open, founding merchants get Core free for three months. You keep your program and your customer list whatever you decide afterwards.",
   },
   {
     icon: HeartHandshake,
@@ -30,7 +38,7 @@ const REASSURANCE = [
     icon: HandCoins,
     title: "Your customers, not ours",
     detail:
-      "Every customer you sign up stays yours. Export the whole list any day, in one click.",
+      "Every customer you sign up stays yours. Export the whole list any day.",
   },
 ];
 
@@ -42,9 +50,9 @@ export default function PartnersPage() {
           {
             "@context": "https://schema.org",
             "@type": "WebPage",
-            name: "Become a KYPStamping partner",
+            name: "Become a KYP Stamping partner",
             description:
-              "Apply to run a loyalty program for a Philippine local business on KYPStamping.",
+              "Apply to run a loyalty program for a Philippine local business on KYP Stamping.",
             inLanguage: "en-PH",
             isPartOf: { "@id": organizationId },
           },

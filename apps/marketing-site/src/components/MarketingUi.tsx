@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Check, QrCode, Stamp } from "lucide-react";
-import { businessAppUrl } from "@/lib/site";
+import { ArrowRight, ArrowUpRight, Check, QrCode } from "lucide-react";
 
 export function SiteEyebrow({
   children,
@@ -133,7 +132,7 @@ export function MarketingCta({
       <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[var(--radius-card)] bg-[var(--ink)] px-6 py-12 text-[var(--paper)] sm:px-10 lg:grid lg:grid-cols-[1fr_auto] lg:items-end lg:px-14 lg:py-16">
         <div className="absolute right-10 top-1/2 hidden size-48 -translate-y-1/2 rounded-full border-[38px] border-[var(--accent)] opacity-80 lg:block" />
         <div className="relative">
-          <SiteEyebrow inverse>Start with KYPStamping</SiteEyebrow>
+          <SiteEyebrow inverse>Start with KYP Stamping</SiteEyebrow>
           <h2 className="mt-4 max-w-[16ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
             {title}
           </h2>
@@ -142,8 +141,8 @@ export function MarketingCta({
           </p>
         </div>
         <div className="relative mt-8 flex flex-wrap gap-3 lg:mt-0 lg:pl-20">
-          <SiteButton href={`${businessAppUrl}/create-account`} tone="accent">
-            Start your program
+          <SiteButton href="/partners" tone="accent">
+            Apply to join
           </SiteButton>
           <SiteButton href="/product" tone="light">
             See how it works
@@ -158,10 +157,19 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
   return (
     <div className="receipt-float receipt-paper relative mx-auto w-full max-w-[390px] px-8 py-10 shadow-diffuse sm:px-10">
       <div className="text-center">
-        <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[var(--ink)] text-[var(--paper)]">
-          <Stamp size={21} />
-        </span>
-        <p className="mt-4 text-lg font-extrabold tracking-[-0.02em]">
+        {/* The shop's own badge, not a generic stamp glyph. A loyalty card is
+            the merchant's surface — the platform's mark belongs in the footer,
+            not at the top of their receipt. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/sweet-crumbs-mark.png"
+          alt=""
+          aria-hidden="true"
+          width={64}
+          height={64}
+          className="mx-auto size-16"
+        />
+        <p className="mt-3 text-lg font-extrabold tracking-[-0.02em]">
           SWEET CRUMBS
         </p>
         <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--muted)]">
@@ -194,9 +202,12 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
             key={index}
             /* ponytail: mirrors StampDots by hand — that one is fixed-width and
                this receipt needs fluid columns. Keep the two in sync. */
-            className={`font-display grid aspect-square place-items-center rounded-full text-[10px] font-bold ${index < 5 ? "bg-[var(--accent)] text-[var(--ink)]" : "border border-dashed border-[var(--line-strong)]"}`}
+            className={`font-display grid aspect-square place-items-center rounded-full text-[10px] font-bold tracking-tight ${index < 5 ? "bg-[var(--accent)] text-[var(--ink)]" : "border border-dashed border-[var(--line-strong)]"}`}
           >
-            {index < 5 ? "K" : ""}
+            {/* The shop's initials, not ours. This used to stamp "K" into
+                every dot on a card belonging to Sweet Crumbs — our letter in
+                the one place on the card that is most obviously theirs. */}
+            {index < 5 ? "SC" : ""}
           </span>
         ))}
       </div>
@@ -213,30 +224,6 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
         <br />
         in reach
       </div>
-    </div>
-  );
-}
-
-// These are the demo fixture businesses, not customers. The caption is required.
-export function ProofStrip() {
-  return (
-    <div className="border-y border-[var(--line)] bg-[var(--surface)] px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-x divide-[var(--line)] md:grid-cols-4">
-        {["Sweet Crumbs", "Sage & Steam", "Rooted Studio", "Corner Thread"].map(
-          (name) => (
-            <div
-              key={name}
-              className="flex min-h-20 items-center justify-center px-3 text-center text-sm font-extrabold tracking-[-0.03em] text-[var(--muted-strong)]"
-            >
-              {name}
-            </div>
-          ),
-        )}
-      </div>
-      <p className="mx-auto max-w-[1400px] pb-4 text-center text-[11px] font-semibold text-[var(--muted)]">
-        Example businesses used throughout this demo. KYPStamping has no
-        production customers yet.
-      </p>
     </div>
   );
 }
@@ -297,21 +284,80 @@ export function AnswerBlock({
   question,
   answer,
   facts,
+  points,
+  image,
 }: {
   question: string;
   answer: string;
   facts?: { label: string; value: string }[];
+  /**
+   * Scannable follow-ups under the lead. The lead stays one short paragraph
+   * because it is the `speakable` passage answer engines quote; everything a
+   * human would rather scan than read goes here as label + line.
+   */
+  points?: { label: string; text: string }[];
+  /**
+   * Path under /public. The answer is capped at 78ch for reading, which left
+   * the right half of this card empty on a wide screen; an illustration on
+   * the page's own subject fills it. Decorative — the text carries the
+   * meaning, so it is hidden from assistive tech.
+   */
+  image?: string;
 }) {
   return (
-    <section className="px-4 pt-14 sm:px-6 lg:px-8">
+    <section className="px-4 py-14 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1400px]">
         <div className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-9">
-          <h2 className="font-display text-xl font-bold tracking-[-0.02em] sm:text-2xl">
-            {question}
-          </h2>
-          <p className="aeo-answer mt-4 max-w-[78ch] text-base leading-relaxed text-[var(--ink-soft)]">
-            {answer}
-          </p>
+          <div
+            className={
+              image
+                ? "grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center"
+                : undefined
+            }
+          >
+            <div>
+              <h2 className="font-display text-xl font-bold tracking-[-0.02em] sm:text-2xl">
+                {question}
+              </h2>
+              <p className="aeo-answer mt-4 max-w-[78ch] text-base leading-relaxed text-[var(--ink-soft)]">
+                {answer}
+              </p>
+              {points && (
+                <ul className="mt-6 max-w-[78ch] space-y-3">
+                  {points.map((point) => (
+                    <li
+                      key={point.label}
+                      className="grid grid-cols-[14px_1fr] gap-3 text-sm leading-relaxed text-[var(--muted-strong)]"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="mt-[7px] size-2.5 rounded-full bg-[var(--accent)]"
+                      />
+                      <span>
+                        <strong className="font-extrabold text-[var(--ink)]">
+                          {point.label}
+                        </strong>{" "}
+                        {point.text}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {image && (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={image}
+                alt=""
+                aria-hidden="true"
+                width={960}
+                height={640}
+                loading="lazy"
+                decoding="async"
+                className="mx-auto w-full max-w-[420px] lg:mx-0 lg:max-w-[460px] lg:justify-self-end"
+              />
+            )}
+          </div>
           {facts && (
             <dl className="mt-7 grid gap-px overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-4">
               {facts.map((fact) => (

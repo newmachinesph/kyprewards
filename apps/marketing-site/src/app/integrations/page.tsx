@@ -22,31 +22,38 @@ import {
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb } from "@/lib/schema";
-import { businessAppUrl } from "@/lib/site";
 import { channelRates } from "@/lib/plans";
 
 export const metadata: Metadata = {
-  title: "POS, API and Webhook Integrations",
+  title: "POS Integration, API and Webhooks",
   description:
-    "Start KYPStamping beside any POS, then connect sales through a versioned API, signed webhooks, file imports, or scheduled pulls.",
+    "Keep the register you own. Start beside any POS, then connect sales through a REST API, signed webhooks or a POS adapter when it earns its place.",
   alternates: { canonical: "/integrations" },
+  openGraph: {
+    title: "Works beside any POS — KYP Stamping integrations",
+    description:
+      "No POS replacement, no per-vendor lock-in. One shared event contract for any register.",
+    url: "/integrations",
+    locale: "en_PH",
+    type: "article",
+  },
 };
 
 const questions = [
   {
     question: "Do we need to replace our POS?",
     answer:
-      "No. Businesses can begin with the KYPStamping sidecar counter flow, then add a direct API or webhook connection when it creates enough operational value.",
+      "No. Begin with the counter flow that runs beside your register, then add a direct connection — an API your register calls, or a webhook, which is your register telling us about each sale as it happens — when it creates enough operational value.",
   },
   {
     question: "Which POS systems are supported?",
     answer:
-      "KYPStamping does not maintain per-vendor integrations. Any register that can post sale webhooks, expose a read API, or export sale files connects through one shared event contract, so support does not depend on a vendor partnership.",
+      "KYP Stamping does not maintain per-vendor integrations. Any register that can post sale webhooks, expose a read API, or export sale files connects through one shared event contract, so support does not depend on a vendor partnership.",
   },
   {
     question: "How are duplicate sales prevented?",
     answer:
-      "The planned FastAPI contract requires idempotency keys for transaction and redemption commands, stable event IDs for webhooks, and duplicate-safe worker processing.",
+      "Every sale and redemption carries an idempotency key — a unique tag for that one event — so if the same sale is sent twice by accident we recognize it and return the first result, not a second stamp. Every webhook carries a stable event ID for the same reason.",
   },
 ];
 
@@ -71,9 +78,7 @@ export default function IntegrationsPage() {
         title="Keep loyalty portable when checkout tools change."
         description="Start beside the register without replacing it. Move to a direct API, signed webhooks, or an approved POS adapter when the business is ready. The loyalty ledger and customer experience stay the same."
       >
-        <SiteButton href={`${businessAppUrl}/login`}>
-          Explore integration setup
-        </SiteButton>
+        <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="/contact" tone="outline">
           Discuss your POS
         </SiteButton>
@@ -99,7 +104,7 @@ export default function IntegrationsPage() {
               {
                 icon: SquareTerminal,
                 eyebrow: "Ready first",
-                title: "KYPStamping sidecar terminal",
+                title: "Counter flow beside your register",
                 detail: "Run QR earning and redemption beside any checkout from a phone, tablet, or browser.",
                 status: "No POS change",
               },
@@ -161,14 +166,15 @@ export default function IntegrationsPage() {
             <div>
               <SiteEyebrow>Delivery channels</SiteEyebrow>
               <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.02em] sm:text-5xl">
-                Five ways to reach a customer, each priced honestly.
+                Five ways to reach a customer, each priced in the open.
               </h2>
             </div>
             <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-              Every plan includes a monthly allowance per channel; past it you
-              pay the add-on rate, and you can see what a send will cost before
-              you send it. Consent, quiet hours, and frequency caps apply on
-              every channel including the free ones.
+              The in-app inbox and push are included on every plan. Campaign
+              email carries an allowance on the paid tiers; SMS is bought as
+              credits on every tier. Whatever the channel, you see what a send
+              will cost before it goes. Consent, quiet hours and frequency caps
+              apply everywhere, including the channels that cost nothing.
             </p>
           </div>
           <div className="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--line)] md:grid-cols-2 xl:grid-cols-3">
@@ -222,9 +228,9 @@ export default function IntegrationsPage() {
             <div className="mt-8">
               <CheckList
                 items={[
-                  "Tenant, merchant, branch, and terminal scopes",
+                  "Credentials scoped to the whole account, one merchant, one branch, or one terminal",
                   "One-time secrets with rotation and revocation",
-                  "Idempotency for sales and redemption commands",
+                  "Duplicate-safe sales and redemptions, by idempotency key",
                   "Reserve, commit, and cancel redemption states",
                   "Immutable adjustments, refunds, and reversals (planned)",
                 ]}
@@ -246,7 +252,7 @@ export default function IntegrationsPage() {
                   be wrong: snake_case against a camelCase API, an
                   X-Merchant-ID header that does not exist (the key identifies
                   the merchant), a customer_phone and a currency the schema
-                  has no room for, and a seeded demo merchant's real id. An
+                  has no room for, and a real merchant id from our own database. An
                   integrator who copied it got a 422 on every line. */}
               <code>{`POST /api/v1/transactions
 Authorization: Bearer sk_live_••••••••
@@ -263,7 +269,7 @@ Idempotency-Key: sale_sc_10482
             <div className="grid gap-px border-t border-white/12 bg-white/12 sm:grid-cols-2">
               {[
                 [KeyRound, "Scoped credentials", "Keys can be limited by branch and action."],
-                [BadgeCheck, "Signed events", "Planned: timestamped HMAC to block replay outside the allowed window."],
+                [BadgeCheck, "Signed events", "Planned: every event signed with a timestamp, so a copied event cannot be replayed later."],
                 [RefreshCcw, "Duplicate-safe", "The same idempotency key returns the original result."],
                 [Clock3, "Retry evidence", "Every attempt keeps status, latency, and request context."],
               ].map(([icon, title, detail]) => {
@@ -296,7 +302,7 @@ Idempotency-Key: sale_sc_10482
               {
                 icon: WifiOff,
                 title: "The internet drops",
-                detail: "The sidecar stores a signed local queue, shows pending status, then reconciles safely when connectivity returns.",
+                detail: "The counter app stores a signed local queue, shows pending status, then reconciles safely when connectivity returns.",
               },
               {
                 icon: RefreshCcw,
@@ -344,8 +350,10 @@ Idempotency-Key: sale_sc_10482
               Preview the setup. Connect any register.
             </h2>
             <p className="mt-5 max-w-[46ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-              The demo shows how a register connection will be configured. It does not
-              represent a live connection before the shared API and worker are built.
+              The counter flow works today, on any register, with no integration
+              at all. The API, webhooks and POS adapters below arrive with the
+              Grow plan — and most shops are running a healthy program long
+              before they need them.
             </p>
           </div>
           <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
@@ -363,7 +371,7 @@ Idempotency-Key: sale_sc_10482
 
       <MarketingCta
         title="Start beside the POS. Integrate when it pays."
-        description="Explore the complete credential and webhook setup in the business demo, or tell us which checkout tools your merchants already use."
+        description="Start with the counter flow beside the register you own. Tell us which checkout you use and we will tell you straight whether connecting it is worth your time."
       />
     </main>
   );

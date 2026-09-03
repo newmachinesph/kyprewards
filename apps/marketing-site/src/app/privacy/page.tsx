@@ -4,15 +4,15 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "How KYPStamping handles customer, business, staff, and website visitor information.",
+    "How KYP Stamping handles customer, business, staff, and website visitor information.",
   alternates: { canonical: "/privacy" },
 };
 
 const sections = [
   {
-    title: "Information KYPStamping receives",
+    title: "Information KYP Stamping receives",
     paragraphs: [
-      "KYPStamping receives information people provide when creating an account, joining a business program, operating a business workspace, contacting support, or using the public website.",
+      "KYP Stamping receives information people provide when creating an account, joining a business program, operating a business workspace, contacting support, or using the public website.",
     ],
     bullets: [
       "Account details such as name, email address, mobile number, and birthday when provided.",
@@ -35,10 +35,10 @@ const sections = [
   {
     title: "Sharing and service providers",
     paragraphs: [
-      "KYPStamping does not sell personal information. We may use contracted service providers for hosting, storage, authentication, communications, security, analytics, and payment processing. They may process information only to provide their contracted service.",
+      "KYP Stamping does not sell personal information. We may use contracted service providers for hosting, storage, authentication, communications, security, analytics, and payment processing. They may process information only to provide their contracted service.",
     ],
     bullets: [
-      "We may disclose information when legally required or necessary to protect customers, businesses, KYPStamping, or the public.",
+      "We may disclose information when legally required or necessary to protect customers, businesses, KYP Stamping, or the public.",
       "A business may receive information a customer intentionally shares after joining its program.",
     ],
   },
@@ -46,7 +46,7 @@ const sections = [
     title: "Retention and security",
     paragraphs: [
       "We retain information for as long as needed to provide the service, meet contractual and legal obligations, resolve disputes, and prevent abuse. Retention periods differ by data type and account status.",
-      "This notice describes the controls the production service is being built to use: access controls, encryption in transit and at rest, audit logging, and operational safeguards appropriate to the nature of the information. The service is not yet open to the public and holds only seeded demonstration records. No system is completely secure, and these controls will continue to be improved.",
+      "The service runs with access controls, encryption in transit and at rest, audit logging, and operational safeguards appropriate to the information it holds. The platform is in open beta and onboarding merchants by application, so the number of people whose data we hold is small and deliberately so. No system is completely secure, and these controls will keep being improved rather than declared finished.",
     ],
   },
   {
@@ -56,13 +56,13 @@ const sections = [
     ],
     bullets: [
       "Depending on where you live, you may have rights to access, correct, delete, restrict, or receive a copy of personal information.",
-      "Requests can be sent to hello@kypsolutions.com.ph. We may verify identity before completing a request.",
+      "Requests can be sent to hello@kypstamping.ph. We may verify identity before completing a request.",
     ],
   },
   {
     title: "Your rights under Philippine law",
     paragraphs: [
-      "KYPStamping operates in the Philippines, and personal information here is protected by the Data Privacy Act of 2012 (Republic Act No. 10173). The Act gives every data subject a specific set of rights, and naming them is more use than a general promise to respect your privacy.",
+      "KYP Stamping operates in the Philippines, and personal information here is protected by the Data Privacy Act of 2012 (Republic Act No. 10173). The Act gives every data subject a specific set of rights, and naming them is more use than a general promise to respect your privacy.",
     ],
     bullets: [
       "To be informed that your personal data is being collected and processed, and why.",
@@ -77,15 +77,15 @@ const sections = [
   {
     title: "Data Protection Officer",
     paragraphs: [
-      "The Act requires a Personal Information Controller to appoint a Data Protection Officer accountable for compliance. Ours is being appointed as part of pre-launch preparation, and this section will carry their name and direct contact details before the platform opens commercially.",
-      "Until then, privacy questions and rights requests reach the team at hello@kypsolutions.com.ph and are handled on the same timescales.",
+      "The Act requires a Personal Information Controller to appoint a Data Protection Officer accountable for compliance. Ours is being appointed alongside our incorporation and registration with the National Privacy Commission, and this section will carry their name and a direct address before anything is charged. We would rather name a real person here than a role nobody answers.",
+      "In the meantime privacy questions, access requests, corrections, objections and deletion requests reach the team at hello@kypstamping.ph, and are handled on the timescales set out on this page — the process is running now, whatever the title on the door.",
     ],
   },
   {
     title: "If something goes wrong",
     paragraphs: [
-      "Where a security incident affects personal data and is likely to give rise to a real risk to the people involved, the Act requires notification to the National Privacy Commission and to those affected within seventy-two hours of us knowing about it. We commit to that timescale.",
-      "A notification will say what happened, what data was involved, what we are doing about it, and what you can do - not merely that an incident occurred.",
+      "Where a security incident affects personal data and is likely to put the people involved at real risk, the Act requires notification within seventy-two hours of us knowing about it. That notice goes to the National Privacy Commission and to those affected. We commit to that timescale.",
+      "A notification will say what happened, what data was involved, what we are doing about it, and what you can do — not merely that an incident occurred.",
     ],
   },
   {
@@ -99,7 +99,7 @@ const sections = [
   {
     title: "Businesses you join",
     paragraphs: [
-      "Joining a business's program shares a defined set of your details with that business, and both they and KYPStamping then make decisions about that data. What moves, when it moves, and who answers for what is set out on the data sharing page.",
+      "Joining a business's program shares a defined set of your details with that business, and both they and KYP Stamping then make decisions about that data. What moves, when it moves, and who answers for what is set out on the data sharing page.",
       "Leaving a program stops that sharing and removes you from that business's member list. Your account, and your membership of any other business, is unaffected.",
     ],
   },
@@ -107,7 +107,7 @@ const sections = [
     title: "Changes and contact",
     paragraphs: [
       "We will update this notice when our practices or legal obligations change. Material changes will be communicated through the service or by another appropriate method.",
-      "Questions about this notice can be sent to hello@kypsolutions.com.ph.",
+      "Questions about this notice can be sent to hello@kypstamping.ph.",
     ],
   },
 ];
@@ -118,7 +118,7 @@ export default function PrivacyPage() {
       path="/privacy"
       eyebrow="Your information"
       title="Privacy notice"
-      summary="KYPStamping is designed so customers control their personal profile and businesses receive only the information needed to operate a joined loyalty program."
+      summary="KYP Stamping is designed so customers control their personal profile and businesses receive only the information needed to operate a joined loyalty program."
       effective="25 August 2026"
       sections={sections}
     />

@@ -4,13 +4,18 @@ import {
   ArrowRight,
   BellRing,
   ChartNoAxesCombined,
+  Crown,
+  Fingerprint,
   Gift,
   HeartHandshake,
+  Languages,
   Megaphone,
   QrCode,
   ScanLine,
   ShieldCheck,
+  Smartphone,
   Users,
+  Wallet,
 } from "lucide-react";
 import {
   MarketingCta,
@@ -22,13 +27,32 @@ import {
 import { ProductPreview } from "@/components/ProductPreview";
 import { VirtualCard } from "@/components/VirtualCard";
 import { industries, resources } from "@/lib/content";
-import { businessAppUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Loyalty, made local",
+  // `absolute` so the root layout's "%s | KYP Stamping" template does not
+  // append the brand a second time — it is already the first word here.
+  title: {
+    absolute:
+      "KYP Stamping — Free Digital Stamp Cards for Philippine Shops",
+  },
   description:
-    "Turn everyday visits into lasting customer relationships with one clear loyalty program for customers, staff, and owners.",
+    "Free digital stamp cards for Philippine cafés, salons, restaurants and shops. Unlimited customers, nothing to install, no POS to replace. From ₱0.",
   alternates: { canonical: "/" },
+  openGraph: {
+    title: "KYP Stamping — Loyalty, made local",
+    description:
+      "Turn one visit into the next. A loyalty program your customers understand, your staff can run in seconds, and you can actually learn from. Free to start, unlimited customers.",
+    url: "/",
+    siteName: "KYP Stamping",
+    locale: "en_PH",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KYP Stamping — Loyalty, made local",
+    description:
+      "Free digital stamp cards for Philippine shops. Unlimited customers, nothing to install, no POS to replace.",
+  },
 };
 
 export default function HomePage() {
@@ -62,16 +86,17 @@ export default function HomePage() {
               Turn one visit into the next.
             </h1>
             <p className="mt-7 max-w-[56ch] text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
-              KYPStamping gives local businesses a loyalty program customers
-              understand, staff can run in seconds, and owners can actually
-              learn from.
+              A digital stamp card that lives on your customer&apos;s phone. A
+              welcome stamp waits for anyone who joins from your poster, staff
+              confirm visits in about three seconds, and you finally know who
+              comes back.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <SiteButton href={`${businessAppUrl}/create-account`} tone="dark">
-                Start your loyalty program
+              <SiteButton href="/partners" tone="dark">
+                Apply to join
               </SiteButton>
               <SiteButton href="/product" tone="outline">
-                Take the product tour
+                See how it works
               </SiteButton>
             </div>
             <div className="mt-10 flex flex-wrap gap-x-7 gap-y-3 border-t border-[var(--line)] pt-5 text-xs font-semibold text-[var(--muted-strong)]">
@@ -80,18 +105,18 @@ export default function HomePage() {
                   size={15}
                   className="text-[var(--accent-strong)]"
                 />{" "}
-                No POS replacement
+                Free to start, unlimited customers
               </span>
               <span className="flex items-center gap-2">
                 <QrCode size={15} className="text-[var(--accent-strong)]" />{" "}
-                Works on any phone
+                Keeps the register you already own
               </span>
               <span className="flex items-center gap-2">
                 <HeartHandshake
                   size={15}
                   className="text-[var(--accent-strong)]"
                 />{" "}
-                Consent built in
+                Built for the Data Privacy Act
               </span>
             </div>
           </div>
@@ -116,9 +141,10 @@ export default function HomePage() {
               </h2>
             </div>
             <p className="max-w-[56ch] self-end text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
-              The customer shows one secure QR. Staff record the visit. KYPStamping
-              turns that tiny moment into progress, recognition, and a timely
-              reason to return.
+              A stranger scans your poster and a welcome stamp is waiting for
+              them. On their first visit your staff make it real. Every visit
+              after is one scan of their own code — and nobody stamps
+              themselves.
             </p>
           </div>
 
@@ -136,9 +162,10 @@ export default function HomePage() {
                   A stamp takes seconds.
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-white/70">
-                  Scan the customer&apos;s personal code, confirm the visit, and
-                  move on. No plastic cards, phone numbers, or checkout
-                  slowdown.
+                  Scan the customer&apos;s own code, confirm the visit, move on.
+                  No plastic, no form at the till, no checkout slowdown — and a
+                  cooldown you set means a card cannot be filled in an
+                  afternoon.
                 </p>
               </div>
             </article>
@@ -151,8 +178,9 @@ export default function HomePage() {
                   Customers see progress.
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-[var(--muted-strong)]">
-                  Every card, reward, and business relationship stays in one
-                  private mobile wallet.
+                  The card is on their phone, in your colors, with the reward
+                  spelled out. A full card holds its reward until they approve
+                  it at the counter.
                 </p>
               </article>
               <article className="rounded-[var(--radius-card)] bg-[var(--accent)] p-7">
@@ -183,19 +211,22 @@ export default function HomePage() {
                 Know your regulars without guessing.
               </h2>
               <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-white/70">
-                See the whole loyalty cycle—from first scan to earned
-                reward—then act on the moments that matter.
+                See the whole loyalty cycle — from first scan to earned
+                reward — then act on the moments that matter.
               </p>
               <div className="mt-8 space-y-4">
                 {[
                   {
                     icon: Users,
-                    text: "Understand customer segments as they change",
+                    text: "See who is new, regular, lapsed and one visit from a reward",
                   },
-                  { icon: Gift, text: "Track reward progress and redemptions" },
+                  {
+                    icon: Gift,
+                    text: "Run bonus windows, missions and suki tiers from one screen",
+                  },
                   {
                     icon: Megaphone,
-                    text: "Send targeted, consent-aware campaigns",
+                    text: "Send the right message, with its cost shown first",
                   },
                 ].map((item) => {
                   const Icon = item.icon;
@@ -214,7 +245,7 @@ export default function HomePage() {
               </div>
               <div className="mt-9">
                 <SiteButton href="/product#apps" tone="accent">
-                  Tour all four apps
+                  See who gets what
                 </SiteButton>
               </div>
             </div>
@@ -262,6 +293,88 @@ export default function HomePage() {
       </section>
 
       <VirtualCard />
+
+      <section className="border-t border-[var(--line)] bg-[var(--ink)] px-4 py-20 text-[var(--paper)] sm:px-6 lg:px-8 lg:py-28">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
+            <div>
+              <SiteEyebrow inverse>Built for the Philippines</SiteEyebrow>
+              <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
+                Not translated for the market. Built in it.
+              </h2>
+            </div>
+            <p className="max-w-[56ch] text-base leading-relaxed text-white/70">
+              Every global loyalty tool bills in dollars, emails in English and
+              assumes a card reader. This one is priced in pesos, paid by GCash,
+              reads on a ₱5,000 Android with patchy data, and calls a regular
+              what you already call them.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-white/12 bg-white/12 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                icon: Wallet,
+                title: "Pesos, paid by GCash or Maya",
+                text: "Priced, billed and settled in pesos — GCash, Maya, card or bank transfer. Core at ₱499 is below every dedicated loyalty tool with published peso pricing.",
+              },
+              {
+                icon: Crown,
+                title: "Suki is the model",
+                text: "Tiers a customer climbs, named the way you would say them. The win-back message that works is \u201cone more visit keeps your suki status\u201d — because it is true.",
+              },
+              {
+                icon: Smartphone,
+                title: "Viber and Facebook, not just email",
+                text: "The join link lives in a Facebook page bio. Viber is a campaign channel. That is where your customers actually read.",
+              },
+              {
+                icon: Languages,
+                title: "English or Filipino at the counter",
+                text: "Owner and counter screens in Filipino as well as English — on the roadmap, done properly. The one thing between this and a carinderia.",
+              },
+              {
+                icon: Fingerprint,
+                title: "Built for the Data Privacy Act",
+                text: "Every right RA 10173 gives a customer is a control in the product. Joining is not consent to marketing; NPC Circular 2023-04 says so and the product agrees.",
+              },
+              {
+                icon: HeartHandshake,
+                title: "Free, with unlimited customers, forever",
+                text: "One stamp card, unlimited branches, unlimited members, a printable poster, every rule. You pay nothing until you choose to, and your list is always yours to export.",
+              },
+            ].map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <article
+                  key={item.title}
+                  className={`p-7 ${index === 1 ? "bg-[var(--accent)] text-[var(--ink)]" : "bg-[var(--ink)]"}`}
+                >
+                  <Icon
+                    size={20}
+                    className={index === 1 ? "" : "text-[var(--accent)]"}
+                  />
+                  <h3 className="mt-8 text-lg font-extrabold tracking-[-0.02em]">
+                    {item.title}
+                  </h3>
+                  <p
+                    className={`mt-3 text-sm leading-relaxed ${index === 1 ? "text-[var(--ink)]/80" : "text-white/65"}`}
+                  >
+                    {item.text}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <SiteButton href="/features" tone="accent">
+              See every feature
+            </SiteButton>
+            <SiteButton href="/roadmap" tone="light">
+              See the roadmap
+            </SiteButton>
+          </div>
+        </div>
+      </section>
 
       <section className="border-y border-[var(--line)] bg-[var(--surface)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">

@@ -1,36 +1,48 @@
-import { ArrowRight, QrCode, ScanLine, Smartphone, UserRoundCheck } from "lucide-react";
+import {
+  ArrowRight,
+  QrCode,
+  ScanLine,
+  Smartphone,
+  UserRoundCheck,
+} from "lucide-react";
 import { SiteEyebrow } from "@/components/MarketingUi";
-import { businessAppUrl } from "@/lib/site";
 
 /**
- * The onboarding story: value first, registration second.
+ * The onboarding story: identity first, value on the first visit.
  *
- * The whole section exists to make one distinction legible - the store QR is
- * how a stranger becomes a member, the customer's own QR is how a member
- * earns again. Confusing the two is what makes most loyalty apps feel slow at
- * a counter.
+ * The distinction the whole model rests on — the store code is how a stranger
+ * becomes a member, the customer's own code is how a member earns — has one
+ * rule underneath it: the public code grants nothing of value. It creates a
+ * member and drops a *pending* welcome stamp that only becomes real when a
+ * staff member confirms the first visit. Farm the poster all you like: you get
+ * pending stamps, and pending stamps are worth exactly nothing until someone
+ * walks in.
+ *
+ * That keeps the emotional hook (a stamp waiting for you before anyone asked
+ * for anything) and removes the abuse case in the same move, without a rolling
+ * code, a receipt token, or any staff involvement at the moment of joining.
  */
 
 const STEPS = [
   {
     icon: QrCode,
-    label: "Scan the store code",
-    body: "On the counter, on the receipt, on a sticker by the till. No app to download.",
-  },
-  {
-    icon: ScanLine,
-    label: "The first stamp lands",
-    body: "Straight away, before anything is asked of them. This one is on the house — it is what buys their attention.",
+    label: "Scan the shop code",
+    body: "On the counter, on the receipt, on a sticker by the till, in your Instagram bio. No app to download — it opens in the browser they already have.",
   },
   {
     icon: Smartphone,
-    label: "Register to keep it",
-    body: "A mobile number, once, to save the stamp and carry it forward. They are agreeing to something they can already see.",
+    label: "Join with a number",
+    body: "One mobile number, once. A welcome stamp lands on their card straight away, marked pending — they can see it waiting before they have bought a thing.",
+  },
+  {
+    icon: ScanLine,
+    label: "First visit makes it real",
+    body: "Your staff scan their code. The welcome stamp confirms and the visit earns its own, so the card reads two. That is the moment value changes hands, and it happens in your shop.",
   },
   {
     icon: UserRoundCheck,
     label: "Every visit after",
-    body: "Staff scan the customer's own code, or find them by mobile number. Seconds, not a queue.",
+    body: "Staff scan the customer's own code, or find them by mobile number. About three seconds, and nobody stamps themselves.",
   },
 ];
 
@@ -47,9 +59,10 @@ export function FirstStamp() {
           </div>
           <p className="max-w-[62ch] text-base leading-relaxed text-[var(--muted-strong)] lg:text-lg">
             Most loyalty programs open with a form. A queue builds, the offer
-            stops being worth it, and the customer says no thanks. KYPStamping
-            turns that around: the first stamp arrives in seconds, and the
-            sign-up comes after, when there is already something to save.
+            stops being worth it, and the customer says no thanks. KYP Stamping
+            turns that around: a welcome stamp is already waiting on their card
+            the moment they join, and the first visit turns it into a real one
+            — with your staff, in your shop, in seconds.
           </p>
         </div>
 
@@ -73,29 +86,38 @@ export function FirstStamp() {
         </ol>
 
         <div className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_0.6fr]">
-          {/* The distinction the whole model rests on. Worth its own panel:
-              a merchant who thinks the store QR keeps working has built a way
-              for anyone to stamp themselves from the pavement. */}
           <div className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--paper)] p-7 sm:p-9">
             <SiteEyebrow>Two codes, two jobs</SiteEyebrow>
             <dl className="mt-7 grid gap-6 sm:grid-cols-2">
               <div>
-                <dt className="text-sm font-extrabold">The store code brings people in</dt>
+                <dt className="text-sm font-extrabold">
+                  The shop code brings people in
+                </dt>
                 <dd className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
-                  It is public, and it does exactly one thing: hand a first-time
-                  customer their first stamp. It cannot be used to stack more —
-                  one per person, per shop.
+                  It is public, and it grants nothing of value — only a
+                  membership and a <em>pending</em> welcome stamp. Photograph
+                  it, share it, scan it on ten phones: every one of those
+                  stamps is worth nothing until a person walks into your shop
+                  and your staff confirm them.
                 </dd>
               </div>
               <div>
-                <dt className="text-sm font-extrabold">The customer&rsquo;s code earns</dt>
+                <dt className="text-sm font-extrabold">
+                  The customer&rsquo;s code earns
+                </dt>
                 <dd className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
-                  Every visit after the first is authorized by your staff, by
-                  scanning the customer&rsquo;s own code or finding them by mobile
-                  number. Nobody stamps themselves.
+                  Every real stamp, including the welcome one, is granted by
+                  your staff scanning the customer&rsquo;s own code or finding
+                  them by mobile number. Nobody stamps themselves, and a
+                  cooldown you set stops a card being filled in one afternoon.
                 </dd>
               </div>
             </dl>
+            <p className="mt-6 border-t border-[var(--line)] pt-5 text-xs leading-relaxed text-[var(--muted)]">
+              The welcome stamp is yours to switch off. A café gives one away
+              gladly; a shop with a ₱3,000 average ticket may not want to, and
+              does not have to.
+            </p>
           </div>
 
           <div className="flex flex-col justify-between rounded-[var(--radius-card)] bg-[var(--ink)] p-7 text-[var(--paper)] sm:p-9">
@@ -103,10 +125,10 @@ export function FirstStamp() {
               Turn first-time buyers into regulars without slowing the queue.
             </p>
             <a
-              href={`${businessAppUrl}/create-account`}
+              href="/partners"
               className="focus-ring mt-8 inline-flex min-h-12 w-fit items-center gap-2 rounded-xl bg-[var(--accent)] px-5 text-sm font-extrabold text-[var(--ink)] transition hover:-translate-y-0.5"
             >
-              Start your program <ArrowRight size={16} />
+              Apply to join <ArrowRight size={16} />
             </a>
           </div>
         </div>

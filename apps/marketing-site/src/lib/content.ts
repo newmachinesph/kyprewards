@@ -20,17 +20,17 @@ export const industries: Industry[] = [
     eyebrow: "Built for the morning rush",
     headline: "Turn a familiar order into a reason to return.",
     description:
-      "Keep the warmth of a neighborhood café while KYPStamping quietly remembers visits, favorite orders, and the moment a reward is ready.",
+      "Keep the warmth of a neighborhood café while KYP Stamping quietly remembers visits, favorite orders, and the moment a reward is ready.",
     reward: "8 visits → a pastry on us",
     metric: "8 visits",
     metricLabel: "a typical stamp card, live in one afternoon",
     challenge:
-      "Paper cards disappear. Names get forgotten during the rush. KYPStamping keeps the relationship without slowing the counter.",
+      "Paper cards disappear. Names get forgotten during the rush. KYP Stamping keeps the relationship without slowing the counter.",
     features: [
       {
         title: "Fast counter scanning",
         description:
-          "Issue a stamp in seconds from any phone, tablet, or counter screen.",
+          "Confirm a stamp in about three seconds from any phone, tablet, or counter screen — and a welcome stamp is already waiting for anyone who joined from your poster.",
       },
       {
         title: "Favorite order memory",
@@ -56,7 +56,7 @@ export const industries: Industry[] = [
     metric: "One tap",
     metricLabel: "rebooking prompt after every visit",
     challenge:
-      "Great service creates loyalty, but busy clients still forget to rebook. KYPStamping makes the next visit visible before they leave.",
+      "Great service creates loyalty, but busy clients still forget to rebook. KYP Stamping makes the next visit visible before they leave.",
     features: [
       {
         title: "Visit-based rewards",
@@ -87,7 +87,7 @@ export const industries: Industry[] = [
     metric: "No POS change",
     metricLabel: "runs beside the register you already use",
     challenge:
-      "Guests have endless choices. KYPStamping makes progress tangible and keeps your restaurant present between meals.",
+      "Guests have endless choices. KYP Stamping makes progress tangible and keeps your restaurant present between meals.",
     features: [
       {
         title: "One QR identity",
@@ -118,7 +118,7 @@ export const industries: Industry[] = [
     metric: "Consent first",
     metricLabel: "customers choose what a shop can see",
     challenge:
-      "Transactions are easy to count; relationships are harder. KYPStamping connects the two without replacing the tools you already use.",
+      "Transactions are easy to count; relationships are harder. KYP Stamping connects the two without replacing the tools you already use.",
     features: [
       {
         title: "No POS replacement",
@@ -134,6 +134,68 @@ export const industries: Industry[] = [
         title: "Network discovery",
         description:
           "Help nearby customers find your store and join before their first purchase.",
+      },
+    ],
+  },
+  {
+    slug: "milk-tea-and-dessert",
+    name: "Milk tea & dessert shops",
+    shortName: "Milk tea",
+    eyebrow: "Built for the afternoon line",
+    headline: "Make the fourth cup the one they come back for.",
+    description:
+      "High frequency, low ticket, a line that peaks at three in the afternoon. A stamp card is the natural fit, and a bonus window is how you move the line to the quiet hour.",
+    reward: "6 cups \u2192 a free large",
+    metric: "2\u00d7",
+    metricLabel: "stamps in a slow-hour window, switched on in a minute",
+    challenge:
+      "The next milk tea shop is a hundred metres away and the menu is the same. What is not the same is who remembers a regular. KYP Stamping does, without slowing a line that is already long.",
+    features: [
+      {
+        title: "Bonus windows",
+        description:
+          "Double stamps from 2 to 4, or all of December. A schedule and a multiplier — the customer sees it on their card before they queue.",
+      },
+      {
+        title: "Missions for the menu",
+        description:
+          "\u201cTry three of the new flavours this month.\u201d A goal with a bonus at the end, and progress on the card.",
+      },
+      {
+        title: "A card for every branch",
+        description:
+          "One card across the chain, with each branch reported on its own so you know which one the regulars actually visit.",
+      },
+    ],
+  },
+  {
+    slug: "sari-sari-and-convenience",
+    name: "Sari-sari & convenience",
+    shortName: "Sari-sari",
+    eyebrow: "The store that already knows everyone",
+    headline: "Give the suki a reason that beats the store next door.",
+    description:
+      "You already know your regulars by name. A stamp card that costs nothing, runs on the phone in your pocket and works with the customer’s own cheap Android is how that relationship survives a competitor opening on the corner.",
+    reward: "10 visits \u2192 ₱50 off",
+    metric: "₱0",
+    metricLabel: "to start, forever, with every customer on the street",
+    challenge:
+      "Margins are thin and every peso of reward has to earn its place. A minimum spend per stamp and a cooldown you set keep the card honest, and the free plan means the program costs you nothing until it is working.",
+    features: [
+      {
+        title: "Minimum spend per stamp",
+        description:
+          "\u201c₱100 for a stamp\u201d keeps a single sachet from earning the same as a full basket. Shown on the card, so no arguments.",
+      },
+      {
+        title: "Works on any phone, with patchy data",
+        description:
+          "The customer’s saved code works with no signal, and your side runs in the browser of the phone you already own.",
+      },
+      {
+        title: "Free, with no catch",
+        description:
+          "Unlimited customers, unlimited stamps, a printable poster for the window. You pay nothing until you choose to.",
       },
     ],
   },
@@ -179,7 +241,7 @@ export const resources: ResourceArticle[] = [
     category: "Campaign guide",
     title: "Bring customers back during quiet hours",
     summary:
-      "Use timing and relevance—not bigger discounts—to create demand when your floor has capacity.",
+      "Use timing and relevance — not bigger discounts — to create demand when your floor has capacity.",
     readTime: "5 min read",
     intro:
       "A quiet-hour campaign works best when it feels like a useful invitation, not an emergency sale.",
@@ -222,13 +284,83 @@ export const resources: ResourceArticle[] = [
       },
     ],
   },
+  {
+    slug: "ber-months-playbook",
+    category: "Seasonal campaigns",
+    title: "The Ber-months playbook",
+    summary:
+      "September to December is a third of the year and half of many shops’ revenue. Plan the bonus windows, the missions and the gift rewards before the first parol goes up.",
+    readTime: "7 min read",
+    intro:
+      "Christmas in the Philippines starts in September and ends in January. A loyalty program that treats it as one long season, with a plan, outperforms one that runs a promo on the 20th of December because everyone else did.",
+    sections: [
+      {
+        heading: "September: fill the card before the rush",
+        body: "Run a bonus window on your slowest days so regulars arrive in December one or two stamps from a reward. A customer who is close to a reward chooses you over the shop next door without being asked. Two-times stamps on Tuesdays and Wednesdays through September is enough.",
+      },
+      {
+        heading: "October and November: missions, not discounts",
+        body: "\u201cVisit four times in November\u201d costs you one bonus and buys three extra visits. A discount costs you margin on every visit including the ones you would have had anyway. Set one mission per month, name the bonus plainly, and put progress on the card where they can see it.",
+      },
+      {
+        heading: "December: gifts, and the 13th month",
+        body: "Turn the reward catalog toward gifting: a reward a member can send to another member is pasalubong they do not have to carry. The 13th-month pay lands mid-December; a gift card with a small bonus (\u201cload ₱500, get ₱550\u201d) is the one promotion that brings in money rather than giving it away. Then stop. January is for the win-back.",
+      },
+    ],
+  },
+  {
+    slug: "what-suki-already-knows",
+    category: "Loyalty playbook",
+    title: "What the suki already knows",
+    summary:
+      "Filipino shops invented tiered loyalty a long time before software did. Here is how to turn a word everyone understands into levels a customer wants to climb.",
+    readTime: "5 min read",
+    intro:
+      "A suki is not a customer with a card. A suki is a regular the shop knows by name, saves the good ones for, and rounds down for without being asked. The relationship already has tiers; the software just needs to make them visible.",
+    sections: [
+      {
+        heading: "Name the levels the way you would say them",
+        body: "Three is plenty. A new customer, a suki, and whatever the top level is in your shop — some owners like \u201csuper suki\u201d, some use the barangay, some use the owner’s name. The names matter more than the thresholds; people repeat them.",
+      },
+      {
+        heading: "Make the benefit something a suki already got",
+        body: "The top level should feel like recognition, not a coupon: first pick when a bonus window opens, a reserved reward the other levels cannot see, the earn rate rounded up. That is what the shop already did for its best customers by instinct. Now it happens on the card, at every branch, with every staff member.",
+      },
+      {
+        heading: "Move people up fast and down gently",
+        body: "Upgrade the moment someone crosses the line — the same visit, with a message. Downgrade only after a long quiet spell, and send the win-back before it happens: \u201cone more visit this month keeps your suki status\u201d is the most effective message a shop can send, because it is true and it is theirs to lose.",
+      },
+    ],
+  },
 ];
+
+/**
+ * The kinds of shop we ask about, in the order a Filipino owner would scan
+ * them. Shared by the partner application and the contact form so the two
+ * can never drift apart again, and phrased the way the owner would say it —
+ * "sari-sari", "carinderia", "barbershop" — not the way a category taxonomy
+ * would.
+ */
+export const businessCategories = [
+  "Cafe or coffee shop",
+  "Milk tea or dessert shop",
+  "Bakery",
+  "Restaurant or carinderia",
+  "Sari-sari or convenience store",
+  "Independent retail",
+  "Salon or barbershop",
+  "Spa or wellness",
+  "Laundry",
+  "Pet services",
+  "Fitness studio",
+  "Other",
+] as const;
 
 export const faqs = [
   {
     question: "Do customers need to download an app?",
     answer:
-      "No. KYPStamping runs as a fast mobile web app and can be saved to the home screen like an installed app.",
+      "No. KYP Stamping runs as a fast mobile web app and can be saved to the home screen like an installed app.",
   },
   {
     question: "Do we need to replace our POS?",
@@ -236,18 +368,18 @@ export const faqs = [
       "No. Start with QR scanning beside your current checkout. POS integrations can be added later.",
   },
   {
-    question: "Can staff use their own phones?",
+    question: "Can my staff stamp their friends?",
     answer:
-      "Yes. Owners invite staff and control exactly which actions each role can perform.",
+      "They can press the button — and every stamp carries their name, the time and the branch in a ledger you can read, with a one-tap reversal. A cooldown you set means the same customer cannot be stamped twice in a day. We do not pretend to prevent it; we make it visible, which is what actually stops it.",
   },
   {
     question: "Who owns the customer data?",
     answer:
-      "The customer controls their personal profile and consent. Your business sees only the information they choose to share with your program.",
+      "The customer controls their personal profile and consent. Your business sees only the information they choose to share with your program, and you can export your whole member list in one click on any plan.",
   },
   {
     question: "Can I change my reward later?",
     answer:
-      "Yes. You can update future earning rules while preserving rewards customers have already unlocked.",
+      "Yes. Raise the target, change the reward, switch the welcome stamp off — cards already in progress finish on the terms they started with, and rewards already earned are always honored.",
   },
 ];

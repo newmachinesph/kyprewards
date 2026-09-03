@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "KYPStamping loyalty program receipt and return-visit ledger";
+export const alt = "KYP Stamping loyalty program receipt and return-visit ledger";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -65,7 +65,7 @@ export default function OpenGraphImage() {
           {/* Seal badge, inlined as a data URI so satori renders it as an image. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={SEAL_DATA_URI} width={56} height={56} alt="" />
-          <div style={{ display: "flex" }}>
+          <div style={{ display: "flex", gap: 8 }}>
             <span style={{ color: "#8f5510" }}>KYP</span>
             <span>Stamping</span>
           </div>
@@ -136,9 +136,11 @@ export default function OpenGraphImage() {
                 background: index < 5 ? "#e8a33d" : "transparent",
                 border: index < 5 ? "none" : "2px dashed #d6ccbf",
                 fontWeight: 700,
+                fontSize: 17,
+                letterSpacing: -0.5,
               }}
             >
-              {index < 5 ? "K" : ""}
+              {index < 5 ? "SC" : ""}
             </div>
           ))}
         </div>

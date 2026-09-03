@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/solutions",
     "/compare",
     "/pricing",
+    "/roadmap",
     "/loyalty-program-philippines",
     "/faq",
     "/resources",

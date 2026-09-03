@@ -28,7 +28,7 @@ const questions = [
   ],
   [
     "What should a Philippine small business budget?",
-    "A useful entry point is ₱0–₱499 per month for a single location, and a free tier should not cap how many customers join - a loyalty program exists to accumulate members, so paying per member is paying for your own success. Budget SMS separately because each segment has a real delivery cost; use in-app, push and email first when they fit the message.",
+    "A useful entry point is ₱0–₱499 per month for a single location, and a free tier should not cap how many customers join — a loyalty program exists to accumulate members, so paying per member is paying for your own success. Budget SMS separately because each segment has a real delivery cost; use in-app, push and email first when they fit the message.",
   ],
   [
     "Which program type is best?",
@@ -36,20 +36,30 @@ const questions = [
   ],
   [
     "How quickly can a business launch?",
-    "A QR-based program can be configured and demonstrated in an afternoon. A production launch should also include staff training, final terms, privacy notices, channel consent, and reward-margin review.",
+    "A QR-based program can be configured in an afternoon. Going live properly also means staff training, final reward terms, a privacy notice, channel consent, and a look at whether the reward margin holds.",
+  ],
+  [
+    "Can loyalty points expire in the Philippines?",
+    "Generally yes. The Gift Check Act of 2017 (RA 10962) bans expiry on gift checks but carves out checks issued under loyalty, rewards and promotional programs, so a free-earned stamp or point is treated differently from a gift certificate a customer paid for. Set a term you can explain in one sentence, show it on the card before the first stamp, and confirm your own wording with counsel.",
+  ],
+  [
+    "Does a loyalty signup count as consent to send marketing?",
+    "No. NPC Circular 2023-04 requires consent to be specific and informed, and data collected for one purpose cannot be reused for another without asking again. Joining the program and agreeing to promotions are two questions. Ask them separately, record them separately, and let the customer withdraw either one per channel.",
   ],
 ];
 
 export const metadata: Metadata = {
-  title: "Digital Loyalty Program Philippines",
+  title: "Digital Loyalty Programs in the Philippines",
   description:
-    "A practical guide to choosing and pricing a digital loyalty program for cafés, salons, restaurants, and independent retailers in the Philippines.",
+    "What a loyalty program costs in the Philippines, which mechanic fits your shop, what the Data Privacy Act and DTI require, and whether points can expire.",
   alternates: { canonical: "/loyalty-program-philippines" },
   openGraph: {
-    title: "Digital Loyalty Program Philippines | KYPStamping",
+    title: "Digital Loyalty Programs in the Philippines — the practical guide",
     description:
-      "Choose a loyalty model, channel mix, and sustainable budget for a Philippine local business.",
+      "What it costs, which mechanic fits your shop, and what the Data Privacy Act and DTI actually require.",
+    url: "/loyalty-program-philippines",
     locale: "en_PH",
+    type: "article",
   },
 };
 
@@ -62,17 +72,17 @@ export default function LoyaltyPhilippinesPage() {
           {
             "@context": "https://schema.org",
             "@type": "Service",
-            name: "KYPStamping digital loyalty platform",
+            name: "KYP Stamping digital loyalty platform",
             areaServed: { "@type": "Country", name: "Philippines" },
             serviceType: "Customer loyalty program software",
             offers: {
-              "@type": "AggregateOffer",
-              lowPrice: 0,
-              highPrice: 3490,
+              "@type": "Offer",
+              name: "Launch",
+              price: 0,
               priceCurrency: "PHP",
-              offerCount: 4,
+              availability: "https://schema.org/InStock",
             },
-            provider: { "@type": "Organization", name: "KYPStamping" },
+            provider: { "@type": "Organization", name: "KYP Stamping" },
           },
           {
             "@context": "https://schema.org",
@@ -88,15 +98,16 @@ export default function LoyaltyPhilippinesPage() {
       <PageHero
         image="/images/hero-about.webp"
         eyebrow="Digital loyalty program Philippines"
-        title="A loyalty program people can use—and a business can afford."
+        title="A loyalty program people can use — and a business can afford."
         description="For Philippine cafés, salons, restaurants, and retailers: start with a simple return-visit loop, choose channels by value, and keep every reward and message economically visible."
       >
-        <SiteButton href="/pricing">Model your monthly cost</SiteButton>
-        <SiteButton href="/product" tone="outline">
-          Explore the product
+        <SiteButton href="/partners">Apply to join</SiteButton>
+        <SiteButton href="/pricing" tone="outline">
+          Model your monthly cost
         </SiteButton>
       </PageHero>
       <AnswerBlock
+        image="/images/answer-guide.webp"
         question="What is a digital loyalty program, and do Philippine businesses need an app for one?"
         answer="A digital loyalty program replaces the paper punch card with a record the customer carries on their phone. In the Philippines it usually works through a QR code and a web app, so neither the shop nor the customer installs anything from an app store. The business keeps its existing register; the loyalty record simply sits alongside it."
         facts={[
@@ -117,13 +128,13 @@ export default function LoyaltyPhilippinesPage() {
             <h2 className="text-xl font-extrabold">The short answer</h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
               The best digital loyalty program is easy to explain in one
-              sentence, takes seconds at checkout, gives customers control of
-              their contact choices, and costs less than the gross profit
-              created by the return visits it influences. KYPStamping starts at
-              ₱0 for one location with no limit on customers, rises to ₱499/month
-              for an established shop running every program type, and meters SMS
-              separately because it is the only channel that costs real money
-              every time it is used.
+              sentence and takes seconds at checkout. It gives customers control
+              of their contact choices, and it costs less than the profit from
+              the return visits it brings in. KYP Stamping starts at ₱0 with no
+              limit on customers. It rises to ₱499 a month for an established
+              shop, which is below every dedicated loyalty tool with published
+              peso pricing in this market. SMS is metered separately, because it
+              is the one channel that costs real money every time it is used.
             </p>
           </div>
         </div>
@@ -141,33 +152,33 @@ export default function LoyaltyPhilippinesPage() {
             <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
               {[
                 [
-                  "Stamps",
-                  "Simple, frequent visits such as coffee or bakery purchases",
+                  "Stamp cards",
+                  "Simple, frequent visits such as coffee, milk tea or bakery purchases. Free on every plan.",
                 ],
                 [
-                  "Points / rewards",
-                  "Mixed baskets where spend or product actions vary",
+                  "Points and cashback",
+                  "Mixed baskets where spend varies; earn by visit, item or peso, with future credit",
                 ],
                 [
-                  "Cashback",
-                  "Higher-value repeat purchases with clear future credit",
-                ],
-                [
-                  "Discount membership",
-                  "Regulars who value an always-on benefit",
+                  "Discounts and tiered pricing",
+                  "Regulars who value an always-on benefit, or a better rate as they climb",
                 ],
                 ["Coupons", "Specific actions, products, or time windows"],
                 [
-                  "Multipass",
+                  "Memberships",
+                  "Recurring benefits and VIP access, billed monthly",
+                ],
+                [
+                  "Reward catalog",
+                  "Let customers choose from milestones, perks, products or services",
+                ],
+                [
+                  "Prepaid multipass",
                   "Prepaid classes, treatments, meals, or services",
                 ],
                 [
                   "Gift cards",
-                  "One customer purchasing value for another",
-                ],
-                [
-                  "VIP membership",
-                  "Recognition, access, tiers, and non-discount benefits",
+                  "One customer purchasing value for another — kept apart from free reward vouchers",
                 ],
               ].map(([title, detail]) => (
                 <article key={title} className="bg-[var(--surface)] p-6">
@@ -199,19 +210,19 @@ export default function LoyaltyPhilippinesPage() {
                   icon: MessageSquareText,
                   title: "In-app inbox",
                   detail:
-                    "Durable program news and offers. Monthly allowance per plan, then ₱8 per 1,000.",
+                    "Lands in the wallet where their card already is. Unlimited on every plan, including the free one, at no charge.",
                 },
                 {
                   icon: Smartphone,
                   title: "Web push",
                   detail:
-                    "Timely reminders for opted-in devices. Monthly allowance per plan, then ₱8 per 1,000.",
+                    "Reaches someone who has closed the wallet. 1,000 a month free, then ₱8 per 1,000.",
                 },
                 {
                   icon: BarChart3,
                   title: "Email",
                   detail:
-                    "Longer stories and summaries. Allowance by plan, then ₱25 per 1,000.",
+                    "Longer stories and summaries. Campaign allowance on the paid tiers, then ₱25 per 1,000.",
                 },
                 {
                   icon: QrCode,
@@ -304,6 +315,90 @@ export default function LoyaltyPhilippinesPage() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div className="mx-auto max-w-[1200px]">
+          <div className="max-w-3xl">
+            <SiteEyebrow>The rules, plainly</SiteEyebrow>
+            <h2 className="mt-4 max-w-[15ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
+              Three Philippine rules worth knowing before you launch.
+            </h2>
+            <p className="mt-5 text-sm leading-relaxed text-[var(--muted-strong)]">
+              None of this is legal advice, and we are not your counsel. It is
+              the short version of what a careful owner asks about — set out
+              here because most loyalty vendors say nothing at all.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-3 lg:grid-cols-3">
+            {[
+              {
+                tag: "RA 10173",
+                title: "Consent is per purpose, not per signup",
+                body: "The Data Privacy Act governs every customer name, number and birthday you collect. NPC Circular 2023-04 requires consent to be freely given, specific, informed and unambiguous — and data gathered for one purpose cannot be reused for another without asking again. Joining a stamp card is consent to run the stamp card. Marketing is a separate question, asked separately, withdrawable per channel.",
+                foot: "In KYP Stamping this is not a setting you can switch off: service and promotional consent are recorded apart on every plan, and campaign audiences are filtered against that record before a send.",
+              },
+              {
+                tag: "DAO 02 s.2002",
+                title: "A reward scheme can count as a sales promotion",
+                body: "DTI defines a sales promotion broadly, and reward and loyalty schemes sit inside that definition alongside raffles and premiums — which on a plain reading can reach a collect-ten-get-one card. In practice we found no enforcement against a small shop running a stamp card, and the requirement is widely unobserved at that scale.",
+                foot: "Worth one question to your counsel before launch rather than after. We flag it because staying quiet about it is the easier thing to do, not the more useful one.",
+              },
+              {
+                tag: "RA 10962",
+                title: "Points can expire. Gift checks cannot",
+                body: "The Gift Check Act bans expiry dates on gift checks and requires unused balances to be honored — then carves out checks issued under loyalty, rewards and promotional programs. So a stamp earned free in your program may carry an expiry, while a gift certificate a customer paid pesos for is a different instrument under different rules.",
+                foot: "The two are kept apart in the product, and whatever expiry you set is shown on the customer's card before they collect their first stamp.",
+              },
+            ].map((item) => (
+              <article
+                key={item.title}
+                className="flex flex-col rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-7"
+              >
+                <span className="w-fit rounded-full bg-[rgb(232_163_61/16%)] px-3 py-1.5 font-mono text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
+                  {item.tag}
+                </span>
+                <h3 className="mt-6 text-xl font-extrabold leading-tight tracking-[-0.02em]">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-[var(--muted-strong)]">
+                  {item.body}
+                </p>
+                <p className="mt-auto border-t border-[var(--line)] pt-4 text-xs leading-relaxed text-[var(--muted)]">
+                  {item.foot}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-[var(--line)] bg-[var(--ink)] px-4 py-16 text-[var(--paper)] sm:px-6 lg:px-8 lg:py-20">
+        <div className="mx-auto max-w-[1200px]">
+          <SiteEyebrow inverse>Why a phone-first card works here</SiteEyebrow>
+          <div className="mt-10 grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-white/12 bg-white/12 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["1.24M", "registered MSMEs in the Philippines, 90.7% of them micro"],
+              ["98.6%", "smartphone penetration — the card is already in their pocket"],
+              ["8h 52m", "average daily time online, the highest of any country"],
+              ["~94M", "GCash accounts — Filipinos already trust a phone with money"],
+            ].map(([stat, label]) => (
+              <div key={label} className="bg-[var(--ink)] p-6">
+                <p className="font-display text-4xl font-extrabold tracking-[-0.03em] text-[var(--accent)]">
+                  {stat}
+                </p>
+                <p className="mt-3 text-xs leading-relaxed text-white/65">
+                  {label}
+                </p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-6 text-[11px] leading-relaxed text-white/45">
+            Sources: DTI MSME statistics; Digital 2026 Philippines. A paper punch
+            card asks a customer to carry something extra. A phone does not.
+          </p>
         </div>
       </section>
 

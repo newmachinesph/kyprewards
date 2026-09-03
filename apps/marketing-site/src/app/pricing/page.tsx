@@ -9,17 +9,25 @@ import {
 } from "@/components/MarketingUi";
 import { PricingCards } from "@/components/PricingCards";
 import { PricingEstimator } from "@/components/PricingEstimator";
-import { ChannelRates, PricingTable } from "@/components/PricingTable";
+import { AddOns, ChannelRates, PricingTable } from "@/components/PricingTable";
 import { StructuredData } from "@/components/StructuredData";
 import { faqs } from "@/lib/content";
 import { plans } from "@/lib/plans";
 import { breadcrumb, webPage } from "@/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Pricing",
+  title: "Pricing in Philippine Pesos",
   description:
-    "Start a simple loyalty program for free, then add campaigns, automation, analytics, and multi-location tools as you grow.",
+    "Free for one program with unlimited customers and branches. Paid tiers from ₱499 a month. Every message rate published — ₱0.95 per SMS, never bundled.",
   alternates: { canonical: "/pricing" },
+  openGraph: {
+    title: "KYP Stamping pricing — from ₱0, in pesos",
+    description:
+      "Unlimited customers on every plan. Published per-message rates. No per-member fee, ever.",
+    url: "/pricing",
+    locale: "en_PH",
+    type: "article",
+  },
 };
 
 export default function PricingPage() {
@@ -28,7 +36,7 @@ export default function PricingPage() {
       <StructuredData
         data={[
           webPage({
-            name: "KYPStamping pricing",
+            name: "KYP Stamping pricing",
             description:
               "Plan prices, included limits, and per-channel message rates in Philippine pesos.",
             path: "/pricing",
@@ -40,19 +48,29 @@ export default function PricingPage() {
         data={{
           "@context": "https://schema.org",
           "@type": "Product",
-          name: "KYPStamping loyalty platform",
+          name: "KYP Stamping loyalty platform",
           description:
             "Digital loyalty software for local businesses, staff, and customers.",
-          brand: { "@type": "Brand", name: "KYPStamping" },
+          brand: { "@type": "Brand", name: "KYP Stamping" },
+          // availability is not decoration here: only Launch can be bought,
+          // and publishing bare prices for three tiers that cannot be is a
+          // live risk under Google's merchant policies.
           offers: plans.map((plan) => ({
             "@type": "Offer",
             name: plan.name,
             price: plan.monthly,
             priceCurrency: "PHP",
+            availability: plan.available
+              ? "https://schema.org/InStock"
+              : "https://schema.org/PreOrder",
+            url: "https://kypstamping.ph/pricing",
             ...(plan.monthly > 0 && {
               priceSpecification: {
                 "@type": "UnitPriceSpecification",
+                price: plan.monthly,
+                priceCurrency: "PHP",
                 billingDuration: "P1M",
+                unitText: "MON",
               },
             }),
           })),
@@ -64,19 +82,38 @@ export default function PricingPage() {
         title="Start small. Pay when loyalty starts working."
         description="Launch the core visit-and-reward loop for free. Upgrade when you are ready to segment, automate, and manage a larger customer base."
       >
-        <SiteButton href="#compare">Compare all features</SiteButton>
-        <SiteButton href="/contact" tone="outline">
-          Talk through your setup
+        <SiteButton href="/partners">Apply to join</SiteButton>
+        <SiteButton href="#compare" tone="outline">
+          Compare all features
         </SiteButton>
       </PageHero>
       <AnswerBlock
+        image="/images/answer-pricing.webp"
         question="How much does a loyalty program cost in the Philippines?"
-        answer="KYPStamping is free for one program and any number of branches, with no limit on how many customers join - we do not charge per member, and we do not charge for having shops. Paid tiers are ₱499 per month, ₱1,290 with automation, and ₱3,490 with API access; what they add is reporting each branch separately - three, five and ten - alongside the other program types and channels. Those are published now and open shortly. Messaging is billed separately from software: the in-app inbox and push are included on every plan, campaign email comes with the paid tiers, and SMS is bought as credits at ₱0.95 per segment rather than bundled into a price."
+        answer="Free for one stamp card, any number of branches and unlimited customers — we never charge per member or per shop. Paid tiers open after beta at ₱499, ₱1,290 and ₱3,490 a month, and at ₱499 Core is below every dedicated loyalty tool with published peso pricing in the Philippines."
+        points={[
+          {
+            label: "Launch, free:",
+            text: "one program, unlimited branches, unlimited customers, two staff accounts, printable poster QR, and every stamp-card rule.",
+          },
+          {
+            label: "Core, ₱499:",
+            text: "for the shop whose card is working — five staff, your own branding, three programs at once, birthday campaigns, three branches reported separately.",
+          },
+          {
+            label: "Grow ₱1,290 and Scale ₱3,490:",
+            text: "automation, segments, API and offline queue; then approvals, fifty staff and a person for onboarding.",
+          },
+          {
+            label: "Messaging is billed apart:",
+            text: "in-app and push free on every plan, campaign email with the paid tiers, SMS as credits at ₱0.95 a segment — never bundled into a price.",
+          },
+        ]}
         facts={[
           { label: "Free plan", value: "₱0 · unlimited customers" },
-          { label: "Single location", value: "₱499 / month" },
-          { label: "Multi-location", value: "₱1,290 / month" },
-          { label: "SMS beyond plan", value: "₱0.95 per segment" },
+          { label: "Core", value: "₱499 / month · 5 staff, your branding" },
+          { label: "Grow", value: "₱1,290 / month · automation, API" },
+          { label: "SMS", value: "₱0.95 a segment; ₱0.90 or ₱0.85 prepaid" },
         ]}
       />
 
@@ -124,10 +161,12 @@ export default function PricingPage() {
               </h2>
             </div>
             <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-              Your plan includes a monthly allowance on every channel. Past it,
-              you pay the rate below — no forced upgrade, no surprise invoice.
-              Carriers charge us per SMS, so that is the one channel that is
-              credit-based on every plan.
+              The in-app inbox and push are included on every plan. Campaign
+              email carries a monthly allowance on the paid tiers, and past it
+              you buy more at the rate below — no forced upgrade, no surprise
+              invoice. SMS is the deliberate exception: carriers charge us for
+              every single send, so it is credit-based on every plan and you see
+              the cost before the message goes.
             </p>
           </div>
           <div className="mt-12">
@@ -138,6 +177,29 @@ export default function PricingPage() {
             taxes. You can set a hard spend ceiling per campaign and per month;
             sends stop at the ceiling rather than overspending silently.
           </p>
+        </div>
+      </section>
+
+      <section className="border-t border-[var(--line)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="grid gap-8 lg:grid-cols-[0.62fr_1.38fr] lg:items-end">
+            <div>
+              <SiteEyebrow>Add-ons</SiteEyebrow>
+              <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.02em]">
+                Spend more only where it earns you something.
+              </h2>
+            </div>
+            <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
+              The subscription never charges you for growing — more customers,
+              more branches, more stamps cost nothing extra. These are the
+              things a shop that is doing well chooses to buy: visibility, a
+              person&apos;s time, and message volume. All open with the paid
+              tiers; setup is free for every founding merchant now.
+            </p>
+          </div>
+          <div className="mt-12">
+            <AddOns />
+          </div>
         </div>
       </section>
 
@@ -183,7 +245,7 @@ export default function PricingPage() {
                   icon: MessagesSquare,
                   title: "In-app communication",
                   detail:
-                    "Reach customers in their KYPStamping inbox without an external provider.",
+                    "Reach customers in their KYP Stamping inbox without an external provider.",
                 },
                 {
                   icon: Building2,
@@ -193,9 +255,9 @@ export default function PricingPage() {
                 },
                 {
                   icon: Check,
-                  title: "Secure QR counter flow",
+                  title: "The whole stamp card",
                   detail:
-                    "Join, earn, redeem, reverse, and keep a complete staff activity ledger.",
+                    "Welcome stamp, cooldown, held rewards, customer-approved redemption, reversals and a full staff ledger — on the free plan too.",
                 },
               ].map((item) => {
                 const Icon = item.icon;

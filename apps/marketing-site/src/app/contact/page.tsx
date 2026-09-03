@@ -6,9 +6,9 @@ import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, organizationId } from "@/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Contact KYP Stamping",
   description:
-    "Questions about KYPStamping — support for a running shop, anything before you apply, or press. To start a program, use the partner application.",
+    "Support for a shop already running, questions before you apply, or press. We answer from Manila on weekdays, usually the same working day.",
   alternates: { canonical: "/contact" },
 };
 
@@ -20,7 +20,7 @@ export default function ContactPage() {
           {
             "@context": "https://schema.org",
             "@type": "ContactPage",
-            name: "Contact KYPStamping",
+            name: "Contact KYP Stamping",
             description:
               "Talk through a loyalty setup for a Philippine local business.",
             inLanguage: "en-PH",
@@ -34,7 +34,9 @@ export default function ContactPage() {
         eyebrow="Questions"
         title="Ask us anything."
         description="Support for a shop already running, a question before you apply, press, or something that does not fit a form. If you are ready to start a program, the application asks better questions than this page can."
-      />
+      >
+        <SiteButton href="/partners">Apply to join</SiteButton>
+      </PageHero>
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[0.62fr_1.38fr]">
           <aside>
@@ -43,13 +45,13 @@ export default function ContactPage() {
               {[
                 {
                   icon: Clock3,
-                  title: "Within one business day",
-                  text: "A teammate reads every note and replies with useful next steps. You get a copy in your own inbox too.",
+                  title: "Same working day, usually",
+                  text: "A teammate reads every note and replies with useful next steps — same working day where we can, and never longer than the next one. You get a copy in your own inbox too.",
                 },
                 {
                   icon: MessagesSquare,
                   title: "A practical conversation",
-                  text: "We ask about visits, rewards, staff, and the customer experience—not your software stack.",
+                  text: "We ask about visits, rewards, staff, and the customer experience — not your software stack.",
                 },
                 {
                   icon: MapPin,
@@ -59,8 +61,8 @@ export default function ContactPage() {
                 {
                   icon: Mail,
                   title: "Prefer email?",
-                  text: "hello@kypsolutions.com.ph",
-                  email: "hello@kypsolutions.com.ph",
+                  text: "hello@kypstamping.ph",
+                  email: "hello@kypstamping.ph",
                 },
               ].map((item) => {
                 const Icon = item.icon;

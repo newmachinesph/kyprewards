@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Sub-processors",
   description:
-    "The third-party services KYPStamping uses to deliver messages, take payments, store files, and monitor errors.",
+    "The third-party services KYP Stamping uses to deliver messages, take payments, store files, and monitor errors.",
   alternates: { canonical: "/subprocessors" },
 };
 
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
  *
  * Everything here is a service the codebase actually integrates. Where the
  * production choice is not settled yet it says so rather than naming a vendor
- * we have not committed to - an invented list is worse than none.
+ * we have not committed to — an invented list is worse than none.
  */
 const sections = [
   {
@@ -37,13 +37,13 @@ const sections = [
     title: "Payments",
     paragraphs: [
       "PayMongo (Philippines) processes subscription payments from businesses. It receives the payer's billing details and the amount.",
-      "Card and e-wallet credentials are entered with the provider and are never held by KYPStamping. Customers of a business never transact through this path - it bills the shop, not the shopper.",
+      "Card and e-wallet credentials are entered with the provider and are never held by KYP Stamping. Customers of a business never transact through this path — it bills the shop, not the shopper.",
     ],
   },
   {
     title: "Storage and infrastructure",
     paragraphs: [
-      "Uploaded files - storefront photos, exports, and generated bundles - are held in S3-compatible object storage. Application data is held in PostgreSQL, with Redis used for queues and short-lived state.",
+      "Uploaded files — storefront photos, exports, and generated bundles — are held in S3-compatible object storage. Application data is held in PostgreSQL, with Redis used for queues and short-lived state.",
       "The production hosting region and provider are being settled and will be named here before launch, along with where data is stored at rest.",
     ],
     bullets: [
@@ -54,20 +54,20 @@ const sections = [
   {
     title: "Error monitoring",
     paragraphs: [
-      "Sentry receives application errors so faults can be found and fixed. Reports carry technical context - the request path, an error type, a request identifier - and are configured to avoid message bodies, credentials and personal details.",
+      "Sentry receives application errors so faults can be found and fixed. Reports carry technical context — the request path, an error type, a request identifier — and are configured to avoid message bodies, credentials and personal details.",
     ],
   },
   {
     title: "Changes to this list",
     paragraphs: [
       "We will update this page when a sub-processor is added, removed, or replaced. A business that objects to a new sub-processor on reasonable data-protection grounds can raise it with us before the change takes effect, and can export its data and close its workspace if it is not resolved.",
-      "Questions can be sent to hello@kypsolutions.com.ph.",
+      "Questions can be sent to hello@kypstamping.ph.",
     ],
   },
   {
     title: "Status of this page",
     paragraphs: [
-      "This list describes the services the platform integrates today, while it is pre-launch. Two entries - the production email provider and the hosting region - are deliberately unnamed because those decisions are not made yet, and naming a vendor we have not committed to would be worse than saying so.",
+      "This list describes the services the platform integrates today, while it is pre-launch. Two entries — the production email provider and the hosting region — are deliberately unnamed because those decisions are not made yet, and naming a vendor we have not committed to would be worse than saying so.",
     ],
   },
 ];

@@ -4,19 +4,19 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Terms",
   description:
-    "The terms governing customer, business, and staff access to KYPStamping.",
+    "The terms governing customer, business, and staff access to KYP Stamping.",
   alternates: { canonical: "/terms" },
 };
 
 const sections = [
   {
-    title: "Using KYPStamping",
+    title: "Using KYP Stamping",
     paragraphs: [
-      "These terms govern access to KYPStamping’s websites, customer application, business workspace, administration tools, and related services. By creating an account or using the service, you agree to these terms.",
+      "These terms govern access to KYP Stamping’s websites, customer application, business workspace, administration tools, and related services. By creating an account or using the service, you agree to these terms.",
     ],
     bullets: [
       "You must provide accurate account information and keep access credentials secure.",
-      "You may use KYPStamping only in accordance with applicable law and these terms.",
+      "You may use KYP Stamping only in accordance with applicable law and these terms.",
       "You are responsible for activity performed through your account unless you report unauthorized access promptly.",
     ],
   },
@@ -28,7 +28,7 @@ const sections = [
     bullets: [
       "A stamp or reward has no cash value unless a business explicitly states otherwise.",
       "Businesses remain responsible for fulfilling valid rewards they issue.",
-      "KYPStamping may reverse activity that results from error, fraud, or misuse after appropriate review.",
+      "KYP Stamping may reverse activity that results from error, fraud, or misuse after appropriate review.",
     ],
   },
   {
@@ -56,7 +56,7 @@ const sections = [
   {
     title: "Acceptable use",
     paragraphs: [
-      "You may not interfere with the service, bypass access controls, manipulate stamps or rewards, scrape restricted data, impersonate another person, upload malicious material, or use KYPStamping to harm others.",
+      "You may not interfere with the service, bypass access controls, manipulate stamps or rewards, scrape restricted data, impersonate another person, upload malicious material, or use KYP Stamping to harm others.",
     ],
     bullets: [
       "We may limit or suspend access when necessary to protect the service, investigate misuse, or comply with law.",
@@ -66,24 +66,24 @@ const sections = [
   {
     title: "Service changes and availability",
     paragraphs: [
-      "We work to keep KYPStamping reliable, but the service may occasionally be unavailable for maintenance, security, provider interruption, or circumstances outside our control. Features may evolve as the product develops.",
+      "We work to keep KYP Stamping reliable, but the service may occasionally be unavailable for maintenance, security, provider interruption, or circumstances outside our control. Features may evolve as the product develops.",
     ],
     bullets: [
-      "Preview, beta, or simulated features may change or stop without notice.",
+      "Features marked preview or beta may change or stop without notice. Where that would affect a running program, we give notice first.",
       "Businesses should maintain reasonable operational alternatives for critical counter workflows.",
     ],
   },
   {
     title: "Liability and governing terms",
     paragraphs: [
-      "To the fullest extent permitted by law, KYPStamping is provided without guarantees beyond those expressly stated. We are not responsible for indirect or consequential losses arising from service use, business reward decisions, or third-party services.",
+      "To the fullest extent permitted by law, KYP Stamping is provided without guarantees beyond those expressly stated. We are not responsible for indirect or consequential losses arising from service use, business reward decisions, or third-party services.",
       "Final governing-law, dispute-resolution, entity, and jurisdiction provisions will be added before commercial launch following legal review.",
     ],
   },
   {
     title: "Contact",
     paragraphs: [
-      "Questions about these terms can be sent to hello@kypsolutions.com.ph. Support questions should be sent through the in-product support channel or hello@kypsolutions.com.ph.",
+      "Questions about these terms, and support for a shop already running, both reach us at hello@kypstamping.ph. If you are signed in, the in-product support channel is faster.",
     ],
   },
 ];
@@ -94,7 +94,7 @@ export default function TermsPage() {
       path="/terms"
       eyebrow="Using the platform"
       title="Terms of service"
-      summary="These terms explain the responsibilities of customers, businesses, staff, and KYPStamping while using the loyalty platform."
+      summary="These terms explain the responsibilities of customers, businesses, staff, and KYP Stamping while using the loyalty platform."
       effective="25 August 2026"
       sections={sections}
     />
