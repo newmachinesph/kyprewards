@@ -29,7 +29,7 @@ import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, howTo, webPage } from "@/lib/schema";
 import { ProductPreview } from "@/components/ProductPreview";
 import { VirtualCard } from "@/components/VirtualCard";
-import { adminAppUrl, businessAppUrl, customerAppUrl } from "@/lib/site";
+import { adminAppUrl, businessAppUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Product",
@@ -379,14 +379,6 @@ export default function ProductPage() {
             </div>
             <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
               {[
-                {
-                  name: "Customer wallet",
-                  audience: "For the person collecting stamps",
-                  detail:
-                    "One private QR, a multi-business wallet, discovery, and full control over what each business can see.",
-                  href: `${customerAppUrl}/login`,
-                  action: "Open the wallet",
-                },
                 {
                   name: "Business workspace",
                   audience: "For the owner and counter staff",

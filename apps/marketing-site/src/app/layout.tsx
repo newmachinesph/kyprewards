@@ -4,7 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import { MarketingFooter } from "@/components/MarketingFooter";
 import { MarketingHeader } from "@/components/MarketingHeader";
 import { StructuredData } from "@/components/StructuredData";
-import { businessAppUrl, customerAppUrl, siteUrl } from "@/lib/site";
+import { businessAppUrl, siteUrl } from "@/lib/site";
 import { ApiProvider } from "@kypstamping/api";
 
 import "./globals.css";
@@ -142,10 +142,7 @@ export default function RootLayout({
               },
             ]}
           />
-          <MarketingHeader
-            businessUrl={`${businessAppUrl}/login`}
-            customerUrl={`${customerAppUrl}/login`}
-          />
+          <MarketingHeader businessUrl={`${businessAppUrl}/login`} />
           <div id="main-content" tabIndex={-1}>
             {children}
           </div>

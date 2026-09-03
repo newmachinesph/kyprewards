@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BrandMark } from "@kypstamping/ui";
 import { ArrowUpRight } from "lucide-react";
-import { businessAppUrl, customerAppUrl } from "@/lib/site";
+import { businessAppUrl } from "@/lib/site";
 
 const groups = [
   {
@@ -37,9 +37,8 @@ const groups = [
   {
     title: "Open the demo",
     links: [
-      ["Customer wallet", `${customerAppUrl}/login`],
       ["Business workspace", `${businessAppUrl}/login`],
-      ["All four apps", "/product#apps"],
+      ["What merchants get", "/product"],
     ],
   },
   {

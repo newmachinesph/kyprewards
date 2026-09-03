@@ -34,7 +34,7 @@ import {
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, webPage } from "@/lib/schema";
-import { businessAppUrl, customerAppUrl } from "@/lib/site";
+import { businessAppUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Features",
@@ -194,9 +194,9 @@ export default function FeaturesPage() {
         title="Every way to reward. One local relationship."
         description="Run simple stamps today, then add points, memberships, gift value, referrals, and automations without making customers juggle another account for every shop."
       >
-        <SiteButton href={`${businessAppUrl}/login`}>Explore the business demo</SiteButton>
-        <SiteButton href={`${customerAppUrl}/login`} tone="outline">
-          Open the customer wallet
+        <SiteButton href={`${businessAppUrl}/create-account`}>Start free</SiteButton>
+        <SiteButton href="/pricing" tone="outline">
+          See what each plan includes
         </SiteButton>
       </PageHero>
       <AnswerBlock

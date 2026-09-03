@@ -1,0 +1,27 @@
+{
+  "name": "@kypstamping/marketplace",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3004",
+    "build": "next build",
+    "start": "next start --port 3004",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@kypstamping/ui": "*",
+    "geist": "latest",
+    "lucide-react": "latest",
+    "next": "16.3.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "^26.3.0",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3"
+  }
+}
