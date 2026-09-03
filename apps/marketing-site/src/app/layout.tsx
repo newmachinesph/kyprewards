@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
+import { AnalyticsConsent } from "@/components/Analytics";
 import { MarketingFooter } from "@/components/MarketingFooter";
 import { MarketingHeader } from "@/components/MarketingHeader";
 import { StructuredData } from "@/components/StructuredData";
@@ -180,6 +181,11 @@ export default function RootLayout({
             {children}
           </div>
           <MarketingFooter />
+          {/* Consent-gated: the Google tag is not fetched until the visitor
+              allows it. Unset the env var and nothing renders at all. */}
+          {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+            <AnalyticsConsent gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+          )}
         </ApiProvider>
       </body>
     </html>

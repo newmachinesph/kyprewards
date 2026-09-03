@@ -52,6 +52,16 @@ const sections = [
     ],
   },
   {
+    title: "Analytics, with consent",
+    paragraphs: [
+      "Google (Google Analytics 4) counts visits to the public marketing site, kypstamping.ph, and only for visitors who answered yes to the one question the site asks. It receives the pages viewed, a truncated IP address, and the kind of device and browser. It is not used in the signed-in customer, business or admin apps, is not used for advertising, and is never joined to a customer or merchant record.",
+    ],
+    bullets: [
+      "No script is fetched from Google until the visitor allows it, and the choice can be reversed on the cookies page.",
+      "A merchant's customer list, stamps and messages never pass through this service.",
+    ],
+  },
+  {
     title: "Error monitoring",
     paragraphs: [
       "Sentry receives application errors so faults can be found and fixed. Reports carry technical context — the request path, an error type, a request identifier — and are configured to avoid message bodies, credentials and personal details.",
