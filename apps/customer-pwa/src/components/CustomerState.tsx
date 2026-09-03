@@ -31,7 +31,7 @@ import {
 } from "@kypstamping/api";
 import type { CustomerProfile, WalletCard } from "@kypstamping/api";
 import { useCoordinates } from "@/components/useCoordinates";
-import { PENDING_CLAIM_KEY } from "@/components/FirstStamp";
+import { PENDING_CLAIM_KEY, PENDING_CLAIM_SHOP_KEY } from "@/components/FirstStamp";
 
 /**
  * Everything the wallet owns, in one place.
@@ -197,6 +197,7 @@ function usePendingFirstStamp(): boolean {
         if (settledByServer) {
           try {
             window.sessionStorage.removeItem(PENDING_CLAIM_KEY);
+            window.sessionStorage.removeItem(PENDING_CLAIM_SHOP_KEY);
           } catch {
             // Nothing to do; the guard above stops a retry loop either way.
           }

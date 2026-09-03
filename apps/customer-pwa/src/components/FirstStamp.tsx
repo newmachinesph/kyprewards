@@ -31,10 +31,16 @@ import { BrandMark, StampDots } from "@kypstamping/ui";
  * long after the visit it belonged to.
  */
 export const PENDING_CLAIM_KEY = "kypstamping-pending-first-stamp";
+/** The shop the pending stamp belongs to, so the sign-up screen can say what
+ *  it is holding. Ten seconds after "That's your first stamp", /create-account
+ *  talked about wallets in general and never mentioned the shop or the stamp,
+ *  which is the moment somebody decides this was a waste of time. */
+export const PENDING_CLAIM_SHOP_KEY = "kypstamping-pending-first-stamp-shop";
 
-export function rememberClaim(token: string) {
+export function rememberClaim(token: string, shop = "") {
   try {
     window.sessionStorage.setItem(PENDING_CLAIM_KEY, token);
+    if (shop) window.sessionStorage.setItem(PENDING_CLAIM_SHOP_KEY, shop);
   } catch {
     // A private window. The stamp is lost, which is a shame and not a crash;
     // staff can still scan them in at the counter.
@@ -110,7 +116,7 @@ export function FirstStamp({ slug }: { slug: string }) {
     setFailed("");
     try {
       const claimed = await offerFirstStamp(slug);
-      rememberClaim(claimed.claimToken);
+      rememberClaim(claimed.claimToken, offer?.business ?? "");
     } catch (failure) {
       setBusy(false);
       setFailed(

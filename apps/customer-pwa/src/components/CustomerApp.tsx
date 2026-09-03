@@ -1024,7 +1024,13 @@ function WalletView({
 
 function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
   const { data: profile } = useCustomerProfile();
-  const { data: discover = [] } = useDiscover();
+  // Asked for, on the one screen that is entirely about proximity. This
+  // called useDiscover() with no position, so every distanceMetres came back
+  // null, the "nearby only" filter could never match anything, and the list
+  // was headed "Near you" over results ordered by nothing of the kind.
+  const where = useCoordinates(true);
+  const { data: discover = [] } = useDiscover(where);
+  const located = discover.some((business) => business.distanceMetres !== null);
   const { wallet, joinedIds } = useCustomerState();
   const walletCategories = walletCategoriesFrom(wallet, discover);
   const [category, setCategory] = useState("All");
@@ -1077,7 +1083,9 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
           <div>
             <p className="text-xs font-extrabold">Walking distance</p>
             <p className="mt-0.5 text-[10px] text-[var(--muted)]">
-              Show places within 1.5 km
+              {located
+                ? "Show places within 1.5 km"
+                : "Needs your location, which this device has not shared"}
             </p>
           </div>
           <button
@@ -1085,8 +1093,11 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
             role="switch"
             aria-checked={nearbyOnly}
             aria-label="Only show places within one and a half kilometers"
+            // Without a position every distance is null, so switching this on
+            // would empty the list and look like a broken filter.
+            disabled={!located}
             onClick={() => setNearbyOnly((active) => !active)}
-            className={`relative h-6 w-10 shrink-0 rounded-full ${nearbyOnly ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
+            className={`relative h-6 w-10 shrink-0 rounded-full disabled:opacity-45 ${nearbyOnly ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
           >
             <span
               className={`absolute top-1 size-4 rounded-full bg-white transition-all ${nearbyOnly ? "left-5" : "left-1"}`}
@@ -1109,7 +1120,10 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
       </div>
       <div className="mt-7 flex items-center justify-between">
         <h2 className="text-base font-extrabold">
-          Near you · {visibleBusinesses.length}
+          {/* "Near you" is a claim about distance, and without a position
+              there is no distance to claim. */}
+          {located ? "Near you" : `In ${profile?.city ?? "your area"}`} ·{" "}
+          {visibleBusinesses.length}
         </h2>
         <span className="flex items-center gap-1 text-[11px] font-bold text-[var(--muted)]">
           <MapPin size={12} /> {profile?.city ?? ""}

@@ -679,6 +679,15 @@ function ScanView({
   const [redeemAttempt, setRedeemAttempt] = useState(0);
 
   const { data: balance } = useCustomerBalance(scanned?.id);
+  // Either this tab's hold, or one the server already knows about - reserved
+  // by a colleague on the other till, or by this one before it was reloaded.
+  // Held only in React state, a refresh mid-handover showed a full card with
+  // no reward and no way to finish it.
+  const activeHold =
+    held ??
+    (balance?.heldRedemptionId
+      ? { id: balance.heldRedemptionId, rewardName: balance.heldRewardName }
+      : null);
 
   useEffect(() => {
     if (!scanHandoff) return;
@@ -928,7 +937,7 @@ function ScanView({
                       <div className="mt-4 overflow-x-auto">
                         <StampDots filled={balance.balance} total={balance.target} />
                       </div>
-                      {balance.rewardsAvailable > 0 && !held && (
+                      {balance.rewardsAvailable > 0 && !activeHold && (
                         <>
                           <p className="mt-3 text-xs font-extrabold text-[var(--success)]">
                             {balance.rewardsAvailable} reward
@@ -959,19 +968,19 @@ function ScanView({
                           </Button>
                         </>
                       )}
-                      {held && (
+                      {activeHold && (
                         /* Reserved, not spent. The balance only moves when the
                            cashier confirms the customer actually has it. */
                         <div className="mt-3 rounded-xl border border-[var(--success)] bg-[rgb(15_118_85/8%)] p-3">
                           <p className="text-xs font-extrabold text-[var(--success)]">
-                            {held.rewardName} is on hold. Hand it over, then confirm.
+                            {activeHold.rewardName} is on hold. Hand it over, then confirm.
                           </p>
                           <div className="mt-3 grid grid-cols-2 gap-2">
                             <Button
                               tone="quiet"
                               disabled={giveBack.isPending || handOver.isPending}
                               onClick={() =>
-                                giveBack.mutate(held.id, {
+                                giveBack.mutate(activeHold.id, {
                                   onSuccess: () => {
                                     setHeld(null);
                                     setRedeemAttempt((n) => n + 1);
@@ -988,8 +997,8 @@ function ScanView({
                               onClick={() =>
                                 handOver.mutate(
                                   {
-                                    id: held.id,
-                                    idempotencyKey: idempotencyKey("commit", held.id),
+                                    id: activeHold.id,
+                                    idempotencyKey: idempotencyKey("commit", activeHold.id),
                                   },
                                   {
                                     onSuccess: (committed) => {

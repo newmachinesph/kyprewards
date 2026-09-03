@@ -616,6 +616,12 @@ export type CustomerBalance = {
   balance: number;
   target: number;
   rewardsAvailable: number;
+  /** A reward already on hold for this customer, from whichever till reserved
+   *  it. The counter kept the hold in the tab that made it, so a reload - or
+   *  a colleague on the other till - saw a full card, no reward and no way to
+   *  finish, which reads as the reward vanishing mid-handover. */
+  heldRedemptionId: string | null;
+  heldRewardName: string;
 };
 
 /** What the counter shows before it stamps: where this card stands now. */

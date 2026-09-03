@@ -83,6 +83,22 @@ function readOtpIdentifier(): string | null {
  *  have lost track of where that code was sent." before settling. */
 const noOtpIdentifierOnServer = () => null;
 
+/** The shop whose first stamp is waiting to be claimed, written by the poster
+ *  flow before it sends somebody here to register. Read the same way as the
+ *  OTP destination: a client-only value with a server snapshot. */
+const PENDING_CLAIM_SHOP_KEY = "kypstamping-pending-first-stamp-shop";
+const subscribeToPendingShop = () => () => {};
+
+function readPendingShop(): string {
+  try {
+    return window.sessionStorage.getItem(PENDING_CLAIM_SHOP_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+const noPendingShopOnServer = () => "";
+
 /** Where the terms and privacy notice live. The four apps already agree on
  *  NEXT_PUBLIC_SITE_URL; the fallback is the production marketing site so a
  *  build without the variable still links somewhere real rather than to a
@@ -513,7 +529,6 @@ export function DemoAuthFlow({
       ? "This link is missing its token. Ask for the invitation again."
       : "");
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(true);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   // Every flow that asks for a name is somebody typing their own.
@@ -598,6 +613,7 @@ export function DemoAuthFlow({
   // there is nothing to verify against - the screen says so up front rather
   // than waiting for six digits to be typed first.
   const sentTo = useSyncExternalStore(subscribeToOtpIdentifier, readOtpIdentifier, noOtpIdentifierOnServer);
+  const pendingShop = useSyncExternalStore(subscribeToPendingShop, readPendingShop, noPendingShopOnServer);
 
   function go(path: string) {
     window.location.assign(path);
@@ -755,16 +771,13 @@ export function DemoAuthFlow({
               </span>
             </label>
           )}
-          <div className="flex items-center justify-between gap-4 text-xs">
-            <label className="inline-flex items-center gap-2 font-bold text-[var(--muted-strong)]">
-              <input
-                type="checkbox"
-                checked={remember}
-                onChange={(event) => setRemember(event.target.checked)}
-                className="size-4 accent-[var(--ink)]"
-              />
-              {role === "customer" ? "Trust this device" : "Remember this browser"}
-            </label>
+          {/* "Remember this browser" / "Trust this device" was a checkbox that
+              set a value nothing sent: the login body is only the email and
+              the password, and how long a session lasts is policy - 30 days
+              for a wallet, 12 hours for staff. Making it real is a security
+              decision about shared till tablets, not a wording fix, so the
+              control is gone rather than lying. Noted in BACKLOG.md. */}
+          <div className="flex items-center justify-end gap-4 text-xs">
             {role !== "customer" && (
               <a href="/forgot-password" className="font-extrabold text-[var(--accent-strong)] hover:underline">
                 Forgot password?
@@ -1061,7 +1074,16 @@ export function DemoAuthFlow({
 
   if (mode === "create") {
     return (
-      <AuthShell role="customer" mode="create" title="Set up your wallet." description="Keep rewards from nearby businesses together, with permissions you can change anytime.">
+      <AuthShell
+        role="customer"
+        mode="create"
+        title={pendingShop ? "Save your stamp." : "Set up your wallet."}
+        description={
+          pendingShop
+            ? `Your first stamp at ${pendingShop} is waiting. Give us a number and it goes on your card.`
+            : "Keep rewards from nearby businesses together, with permissions you can change anytime."
+        }
+      >
         <form
           onSubmit={async (event) => {
             event.preventDefault();
