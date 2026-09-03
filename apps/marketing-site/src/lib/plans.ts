@@ -36,10 +36,10 @@ export type PlanKey = "launch" | "core" | "grow" | "scale";
  * the estimator no longer asks for a number it would ignore.
  */
 export const planLimits = [
-  { locations: 1, email: 500, sms: 0, push: 1000 },
-  { locations: 1, email: 5000, sms: 0, push: 10000 },
-  { locations: 3, email: 25000, sms: 100, push: 50000 },
-  { locations: 10, email: 100000, sms: 500, push: 200000 },
+  { branchAnalytics: 0, email: 500, sms: 0, push: 1000 },
+  { branchAnalytics: 3, email: 5000, sms: 0, push: 10000 },
+  { branchAnalytics: 5, email: 25000, sms: 100, push: 50000 },
+  { branchAnalytics: 10, email: 100000, sms: 500, push: 200000 },
 ] as const;
 
 /** Published overage rates. Mirrors `channelRates`. */
@@ -54,7 +54,7 @@ export const plans = [
     key: "launch" as const,
     highlights: [
       "Unlimited customers, no per-member fee",
-      "One location and one stamp card",
+      "Unlimited branches, one stamp card",
       "500 emails a month, campaigns included",
       "QR join, earn, and redeem",
       "Two staff accounts",
@@ -71,6 +71,7 @@ export const plans = [
     key: "core" as const,
     highlights: [
       "Unlimited customers",
+      "Unlimited branches, three reported separately",
       "All eight program types, two running at once",
       "QR, NFC, and printable counter modes",
       "5,000 emails each month",
@@ -88,7 +89,7 @@ export const plans = [
     key: "grow" as const,
     highlights: [
       "Unlimited customers",
-      "Three locations and unlimited concurrent programs",
+      "Unlimited branches, five reported separately",
       "Segments, referrals, reviews, and automations",
       "25,000 emails + 100 SMS credits monthly",
       "RFM, cohort, and reward-liability analytics",
@@ -105,7 +106,7 @@ export const plans = [
     key: "scale" as const,
     highlights: [
       "Unlimited customers",
-      "Ten locations and 50 staff",
+      "Ten branches reported separately, 50 staff",
       "API, webhooks, POS, and commerce adapters",
       "100,000 emails + 500 SMS credits monthly",
       "Wallet passes, approvals, and priority onboarding",
@@ -134,8 +135,14 @@ export const featureMatrix: FeatureGroup[] = [
     group: "Plan basics",
     rows: [
       {
-        label: "Locations",
-        cells: ["1", "1", "3", "10"],
+        label: "Branches",
+        hint: "A chain is one company and the loyalty card is centralised across it, so we do not charge for having shops. What a paid plan buys is seeing each of them separately - see Branch analytics below.",
+        cells: ["Unlimited", "Unlimited", "Unlimited", "Unlimited"],
+      },
+      {
+        label: "Branch analytics",
+        hint: "Separate reporting per shop: visits, revenue and members for each branch, and which branch a customer came from. Beyond your plan's allowance, extra branches are billed per branch.",
+        cells: [false, "3 branches", "5 branches", "10 branches"],
       },
       {
         label: "Staff accounts",
@@ -325,8 +332,9 @@ export const featureMatrix: FeatureGroup[] = [
         cells: [false, false, true, true],
       },
       {
-        label: "Cross-location analytics",
-        cells: [false, false, "Basic", true],
+        label: "Which branch a customer came from",
+        hint: "One card across the whole chain, and the merchant still sees where each member actually shops.",
+        cells: [false, true, true, true],
       },
     ],
   },

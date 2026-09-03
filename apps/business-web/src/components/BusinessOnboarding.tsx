@@ -100,9 +100,14 @@ const COUNTER_METHODS = [
 
 const STEPS = ["Business", "Program", "Counter"] as const;
 
-// plans.included_locations for Launch, which is the plan every workspace is
-// created on.
-const LAUNCH_LOCATIONS = 1;
+// Branches are not metered on any tier: a chain is one company, the card is
+// centralised across it, and a branch is a database row. The cap here was 1,
+// which meant a business with shops around Manila could not describe itself
+// during sign-up. What the paid tiers sell is per-branch reporting, and that
+// is enforced on the analytics endpoints rather than on having the branches.
+// Bounded only so the wizard cannot be asked to provision an absurd number in
+// one go; the API accepts up to 50.
+const MAX_LOCATIONS = 50;
 
 // localStorage, not session: a merchant interrupted mid-setup closes the tab,
 // and sessionStorage dies with it. The draft survived a refresh and not the
@@ -303,21 +308,17 @@ export function BusinessOnboarding() {
                     </span>
                   </label>
                   <label className="grid gap-2 text-xs font-extrabold">
-                    Locations
-                    {/* Capped at what a new workspace can actually have. Every
-                        sign-up starts on Launch, which includes one location,
-                        and this accepted 99 - the number was honoured, so a
-                        free shop opened three branches during onboarding. */}
+                    Branches
                     <input
                       type="number"
                       min={1}
-                      max={LAUNCH_LOCATIONS}
+                      max={MAX_LOCATIONS}
                       value={locations}
                       onChange={(event) =>
                         setLocations(
                           Math.max(
                             1,
-                            Math.min(LAUNCH_LOCATIONS, Number(event.target.value) || 1),
+                            Math.min(MAX_LOCATIONS, Number(event.target.value) || 1),
                           ),
                         )
                       }

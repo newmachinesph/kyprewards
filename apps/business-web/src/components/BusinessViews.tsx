@@ -1867,7 +1867,17 @@ function CustomersView({ notify }: { notify: Notify }) {
               <p className="text-lg font-extrabold">{selected.name}</p>
               <p className="mt-1 text-xs text-white/60">
                 {selected.segment} · {selected.risk}
+                {/* Which shop they are actually from. The card is centralised
+                    across a chain, so the wallet never splits by branch - but
+                    the person behind the counter still needs to know that this
+                    is a Kapitolyo regular standing in BGC. */}
+                {selected.homeBranch ? ` · ${selected.homeBranch}` : ""}
               </p>
+              {selected.branches.length > 1 && (
+                <p className="mt-1 text-[11px] text-white/45">
+                  Also seen at {selected.branches.slice(1).join(", ")}
+                </p>
+              )}
             </div>
           </div>
           <div className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10">

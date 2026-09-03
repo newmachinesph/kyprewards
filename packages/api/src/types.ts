@@ -215,6 +215,11 @@ export type BusinessCustomer = {
   smsConsent: boolean;
   pushConsent: boolean;
   risk: RiskLevel;
+  /** The branch this person shops at most, and everywhere they have been
+   *  served. The card itself is centralised across a chain, so this is the
+   *  merchant's view, not the customer's. Empty where sales carry no branch. */
+  homeBranch: string;
+  branches: string[];
 };
 
 export type Program = {

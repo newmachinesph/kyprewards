@@ -23,7 +23,7 @@ const plans = sourcePlans.map((plan, index) => ({
 const topPlan = plans[plans.length - 1];
 
 export function PricingEstimator() {
-  const [locations, setLocations] = useState(1);
+  const [branchAnalytics, setBranchAnalytics] = useState(1);
   const [email, setEmail] = useState(5000);
   const [sms, setSms] = useState(300);
   const [connectedBudget, setConnectedBudget] = useState(0);
@@ -32,10 +32,12 @@ export function PricingEstimator() {
   const estimate = useMemo(() => {
     // Beyond the top published plan we quote the top plan and say so, rather
     // than inventing a tier that appears on no price list.
-    // Customers are not an input: they are unlimited on every tier, so the
-    // only published allowances that can pick a plan are locations and the two
-    // metered channels.
-    const matched = plans.find((item) => locations <= item.locations);
+    // Customers are not an input: they are unlimited on every tier, so they
+    // cannot pick a plan. Branches are the same now - a chain is one company
+    // and we do not charge for having shops - so the question is how many of
+    // them you want reported separately, which is what the tiers actually
+    // sell, alongside the two metered channels.
+    const matched = plans.find((item) => branchAnalytics <= item.branchAnalytics);
     const plan = matched ?? topPlan;
     const beyondPublishedPlans = !matched;
     const paidSms = Math.max(0, sms - plan.sms);
@@ -52,7 +54,7 @@ export function PricingEstimator() {
       total,
       breakEven: profitPerVisit > 0 ? Math.ceil(total / profitPerVisit) : 0,
     };
-  }, [connectedBudget, email, locations, profitPerVisit, sms]);
+  }, [branchAnalytics, connectedBudget, email, profitPerVisit, sms]);
 
   return (
     <div className="grid gap-3 lg:grid-cols-[1.08fr_0.92fr]">
@@ -73,9 +75,9 @@ export function PricingEstimator() {
         <div className="mt-7 grid gap-6 sm:grid-cols-2">
           {[
             {
-              label: "Locations",
-              value: locations,
-              set: setLocations,
+              label: "Branches reported separately",
+              value: branchAnalytics,
+              set: setBranchAnalytics,
               min: 1,
               max: 15,
               step: 1,
