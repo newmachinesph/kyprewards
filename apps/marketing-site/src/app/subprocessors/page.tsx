@@ -25,7 +25,7 @@ const sections = [
     title: "Messaging",
     paragraphs: [
       "Semaphore (Philippines) sends SMS, including one-time sign-in codes and any SMS campaign a business chooses to run. It receives the destination mobile number and the message text, and nothing else.",
-      "Email is sent over SMTP. The provider for production is not settled; whichever is chosen receives the destination address, the subject and the body of the message. This page will name it before launch.",
+      "Email is sent over SMTP. The provider for production is not settled; whichever is chosen receives the destination address, the subject and the body of the message. This page will name it before the paid tiers open.",
     ],
     bullets: [
       "A one-time code is transactional and is sent regardless of marketing consent.",
@@ -44,7 +44,7 @@ const sections = [
     title: "Storage and infrastructure",
     paragraphs: [
       "Uploaded files — storefront photos, exports, and generated bundles — are held in S3-compatible object storage. Application data is held in PostgreSQL, with Redis used for queues and short-lived state.",
-      "The production hosting region and provider are being settled and will be named here before launch, along with where data is stored at rest.",
+      "The production hosting region and provider are being settled and will be named here before the paid tiers open, along with where data is stored at rest.",
     ],
     bullets: [
       "Export bundles containing personal data are served through short-lived signed links rather than public URLs.",
@@ -77,7 +77,7 @@ const sections = [
   {
     title: "Status of this page",
     paragraphs: [
-      "This list describes the services the platform integrates today, while it is pre-launch. Two entries — the production email provider and the hosting region — are deliberately unnamed because those decisions are not made yet, and naming a vendor we have not committed to would be worse than saying so.",
+      "This list describes the services the platform integrates today, while it is in open beta. Two entries — the production email provider and the hosting region — are deliberately unnamed because those decisions are not made yet, and naming a vendor we have not committed to would be worse than saying so.",
     ],
   },
 ];

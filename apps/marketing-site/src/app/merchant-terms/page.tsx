@@ -72,13 +72,13 @@ const sections = [
       "Consent is per channel and per person. A customer who accepts email has not accepted SMS.",
       "Transactional messages — a code, a receipt, a reward notice — are not marketing and are not suppressed by a marketing opt-out.",
       "You are responsible for the content you send and for complying with the rules on unsolicited commercial messages.",
-      "SMS is charged per message. Sending is capped by your plan's included credits and any overage you have authorized.",
+      "SMS is charged per segment from credits you buy; no plan includes SMS. Sending stops at your credit balance and at any spend ceiling you set.",
     ],
   },
   {
     title: "Sending SMS from your own phone",
     paragraphs: [
-      "From Core upwards you can install a companion app that sends your messages from your own handset, using your own SIM and your own load, instead of paying a per-message fee to us. It is available on Android only, because iOS does not permit an app to send SMS.",
+      "From Core upwards, once the companion app is released, you can install it to send your messages from your own handset, using your own SIM and your own load, instead of paying a per-message fee to us. It is Android only, because iOS does not permit an app to send SMS.",
       "When you send this way you are the sender, not us. The message leaves your number, under your telco's terms, and the responsibility for it is yours.",
     ],
     bullets: [
@@ -86,7 +86,7 @@ const sections = [
       "Philippine rules on SIM registration and on unsolicited commercial messages apply to you as the sender.",
       "The consent, quiet-hours and frequency rules the platform enforces still apply. Sending is queued and checked here before it reaches your phone.",
       "A handset sends slowly and carriers throttle bursts, so a large send takes time. This route suits a timely message to a modest list, not a mass promotion.",
-      "If your phone is off, out of load, or out of signal, messages wait. On Grow and above they fall back to our gateway against your included credits; below that they stay queued until the phone is reachable.",
+      "If your phone is off, out of load, or out of signal, messages wait. On Grow and above they fall back to our gateway against your SMS credits; below that they stay queued until the phone is reachable.",
       "Sign-in codes are never sent this way. They are platform authentication, they must work whether or not your phone is on, and the person signing in may not be your customer at all.",
     ],
   },
@@ -97,7 +97,7 @@ const sections = [
       "The free plan is offered without charge and without a customer limit. It is not a perpetual commitment: we may change what it includes, and if we do we will give notice and a reasonable path to continue — including exporting your data if you decide not to stay.",
     ],
     bullets: [
-      "Metered channels — SMS in particular — carry a real per-message cost and are billed as used beyond the included allowance.",
+      "Metered channels carry a real per-message cost. Campaign email beyond your plan's allowance is billed as used; SMS is billed per segment from credits you buy, on every plan.",
       "Fees already paid are non-refundable except where the law requires otherwise or we have said otherwise in writing.",
       "Cancelling stops future renewal. It does not delete your data immediately; see the section below.",
     ],

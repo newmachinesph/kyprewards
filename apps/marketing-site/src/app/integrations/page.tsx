@@ -76,7 +76,7 @@ export default function IntegrationsPage() {
         image="/images/hero-integrations.webp"
         eyebrow="POS-agnostic by design"
         title="Keep loyalty portable when checkout tools change."
-        description="Start beside the register without replacing it. Move to a direct API, signed webhooks, or an approved POS adapter when the business is ready. The loyalty ledger and customer experience stay the same."
+        description="Start beside the register without replacing it. Move to a direct API, signed webhooks, or an approved POS adapter when the business is ready — they arrive with the Grow plan. The loyalty ledger and customer experience stay the same."
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="/contact" tone="outline">
@@ -113,21 +113,21 @@ export default function IntegrationsPage() {
                 eyebrow: "Developer path",
                 title: "Versioned REST API",
                 detail: "Send customers, sales, refunds, voids, rewards, and redemption commands through /api/v1.",
-                status: "Sandbox planned",
+                status: "Grow · sandbox planned",
               },
               {
                 icon: Webhook,
                 eyebrow: "Event path",
                 title: "Signed webhooks",
                 detail: "Receive register events and deliver loyalty changes with traceable retry and replay behavior.",
-                status: "Reliable delivery",
+                status: "Grow · signing planned",
               },
               {
                 icon: Store,
                 eyebrow: "Partner path",
                 title: "Isolated POS adapters",
                 detail: "Map provider-specific formats at the boundary so reward logic never depends on one vendor.",
-                status: "Approval dependent",
+                status: "Grow · by approval",
               },
             ].map((item, index) => {
               const Icon = item.icon;
@@ -292,7 +292,7 @@ Idempotency-Key: sale_sc_10482
       <section className="border-y border-[var(--line)] bg-[var(--surface)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-[1400px]">
           <div className="max-w-3xl">
-            <SiteEyebrow>Planned operational guarantees</SiteEyebrow>
+            <SiteEyebrow>Operational guarantees, with Grow</SiteEyebrow>
             <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
               The fallback is part of the product.
             </h2>

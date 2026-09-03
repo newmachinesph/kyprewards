@@ -89,7 +89,7 @@ export default function OpenGraphImage() {
             color: "#5f534b",
           }}
         >
-          Customer PWA · staff operations · profitable campaigns · clear
+          One stamp card · a fast counter · campaigns that show their cost ·
           customer control
         </div>
       </div>

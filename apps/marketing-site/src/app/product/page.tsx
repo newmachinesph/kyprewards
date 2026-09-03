@@ -197,7 +197,7 @@ export default function ProductPage() {
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SiteEyebrow>The rules you set</SiteEyebrow>
               <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
-                Six settings. Every one on the free plan.
+                Eight settings. Every one on the free plan.
               </h2>
               <p className="mt-5 max-w-[44ch] text-sm leading-relaxed text-[var(--muted-strong)]">
                 A stamp card is a promise, and the promise should be yours to
@@ -221,6 +221,16 @@ export default function ProductPage() {
                   title: "Cooldown between stamps",
                   detail:
                     "How soon the same customer can earn again. Default once a day, so a card cannot be filled in an afternoon. A restaurant with two services can set two.",
+                },
+                {
+                  title: "Minimum spend per stamp",
+                  detail:
+                    "Optional. “₱100 for a stamp” keeps a bottle of water from earning the same as a full order. Shown on the card, so nobody argues at the counter.",
+                },
+                {
+                  title: "Stamp expiry, if you want one",
+                  detail:
+                    "Off unless you set it. Stamps earned free under a loyalty program may expire under RA 10962; a gift check a customer paid for may not. Whatever term you set is on the card before the first stamp.",
                 },
                 {
                   title: "The reward, in plain words",

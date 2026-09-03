@@ -119,6 +119,7 @@ export default function RootLayout({
                   addressCountry: "PH",
                 },
                 email: "hello@kypstamping.ph",
+                sameAs: ["https://www.facebook.com/kypstamping"],
                 knowsLanguage: ["en-PH", "fil"],
                 knowsAbout: [
                   "Customer loyalty programs",
@@ -163,7 +164,7 @@ export default function RootLayout({
                 applicationCategory: "BusinessApplication",
                 operatingSystem: "Web",
                 description:
-                  "Customer loyalty software with customer PWA, business operations, multichannel campaigns, analytics, and platform administration.",
+                  "Digital loyalty software for Philippine shops: a customer wallet that runs in the browser, a staff counter, campaigns, analytics and privacy controls.",
                 offers: {
                   "@type": "Offer",
                   name: "Launch",

@@ -132,8 +132,8 @@ export default function LoyaltyPhilippinesPage() {
               of their contact choices, and it costs less than the profit from
               the return visits it brings in. KYP Stamping starts at ₱0 with no
               limit on customers. It rises to ₱499 a month for an established
-              shop, which is below every dedicated loyalty tool with published
-              peso pricing in this market. SMS is metered separately, because it
+              shop, within a hundred pesos of the cheapest paid tool with
+              published peso pricing in this market. SMS is metered separately, because it
               is the one channel that costs real money every time it is used.
             </p>
           </div>
@@ -166,7 +166,7 @@ export default function LoyaltyPhilippinesPage() {
                 ["Coupons", "Specific actions, products, or time windows"],
                 [
                   "Memberships",
-                  "Recurring benefits and VIP access, billed monthly",
+                  "Recurring benefits and VIP access, renewed monthly and paid at your counter",
                 ],
                 [
                   "Reward catalog",
@@ -234,7 +234,7 @@ export default function LoyaltyPhilippinesPage() {
                   icon: MessageCircle,
                   title: "Messaging apps",
                   detail:
-                    "Viber and WhatsApp, chosen per customer. From ₱0.42 a message.",
+                    "Viber and WhatsApp, chosen per customer. From ₱0.42 a message. Being connected next.",
                 },
               ].map((item) => {
                 const Icon = item.icon;
@@ -343,7 +343,7 @@ export default function LoyaltyPhilippinesPage() {
               {
                 tag: "DAO 02 s.2002",
                 title: "A reward scheme can count as a sales promotion",
-                body: "DTI defines a sales promotion broadly, and reward and loyalty schemes sit inside that definition alongside raffles and premiums — which on a plain reading can reach a collect-ten-get-one card. In practice we found no enforcement against a small shop running a stamp card, and the requirement is widely unobserved at that scale.",
+                body: "DTI defines a sales promotion broadly, and reward and loyalty schemes sit inside that definition alongside raffles and premiums — which on a plain reading can reach a collect-ten-get-one card. We are aware of no enforcement action against a small shop running a stamp card, and the requirement is widely unobserved at that scale.",
                 foot: "Worth one question to your counsel before launch rather than after. We flag it because staying quiet about it is the easier thing to do, not the more useful one.",
               },
               {
@@ -381,8 +381,8 @@ export default function LoyaltyPhilippinesPage() {
           <div className="mt-10 grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-white/12 bg-white/12 sm:grid-cols-2 lg:grid-cols-4">
             {[
               ["1.24M", "registered MSMEs in the Philippines, 90.7% of them micro"],
-              ["98.6%", "smartphone penetration — the card is already in their pocket"],
-              ["8h 52m", "average daily time online, the highest of any country"],
+              ["98.6%", "of Filipino internet users own a smartphone — the card is already in their pocket"],
+              ["8h 52m", "average daily time online, among the highest of any country"],
               ["~94M", "GCash accounts — Filipinos already trust a phone with money"],
             ].map(([stat, label]) => (
               <div key={label} className="bg-[var(--ink)] p-6">
@@ -396,7 +396,7 @@ export default function LoyaltyPhilippinesPage() {
             ))}
           </div>
           <p className="mt-6 text-[11px] leading-relaxed text-white/45">
-            Sources: DTI MSME statistics; Digital 2026 Philippines. A paper punch
+            Sources: DTI MSME statistics; DataReportal, Digital Philippines. A paper punch
             card asks a customer to carry something extra. A phone does not.
           </p>
         </div>

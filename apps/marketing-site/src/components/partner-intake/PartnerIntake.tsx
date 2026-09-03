@@ -709,8 +709,16 @@ function ReviewStep({
           Terms of Service
         </a>{" "}
         and{" "}
+        <a href="/merchant-terms" className="font-bold text-[var(--accent-strong)] underline">
+          Merchant agreement
+        </a>
+        , and have read the{" "}
+        <a href="/data-sharing" className="font-bold text-[var(--accent-strong)] underline">
+          Data sharing
+        </a>{" "}
+        and{" "}
         <a href="/privacy" className="font-bold text-[var(--accent-strong)] underline">
-          Privacy Policy
+          Privacy notice
         </a>
         .
       </p>

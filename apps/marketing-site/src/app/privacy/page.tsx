@@ -40,6 +40,7 @@ const sections = [
     bullets: [
       "We may disclose information when legally required or necessary to protect customers, businesses, KYP Stamping, or the public.",
       "A business may receive information a customer intentionally shares after joining its program.",
+      "On the public website only, Google Analytics counts visits — and only after a visitor allows it. Nothing loads before that choice, and the cookies page explains and controls it.",
     ],
   },
   {
@@ -93,7 +94,7 @@ const sections = [
     paragraphs: [
       "Personal data is kept while it is needed for the purpose it was collected for, and then deleted or anonymized. Account data is held while the account is open; loyalty history is held while the customer is a member of that program; and a closed business workspace is retained briefly so it can be restored or exported before removal.",
       "One-time codes, sessions and password-reset tokens are short-lived by design and are swept automatically rather than accumulating.",
-      "Specific retention periods for each category are being fixed as part of the same pre-launch review, and will be published here rather than left to be inferred.",
+      "Specific retention periods for each category are being fixed before the paid tiers open, and will be published here rather than left to be inferred.",
     ],
   },
   {
@@ -119,7 +120,7 @@ export default function PrivacyPage() {
       eyebrow="Your information"
       title="Privacy notice"
       summary="KYP Stamping is designed so customers control their personal profile and businesses receive only the information needed to operate a joined loyalty program."
-      effective="25 August 2026"
+      effective="4 September 2026"
       sections={sections}
     />
   );

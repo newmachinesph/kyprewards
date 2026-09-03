@@ -64,7 +64,7 @@ const STEPS = [
   {
     title: "The card lives in their wallet",
     detail:
-      "Every shop they join keeps its own card in one place, with the shop's own color and photo. Nothing to carry, nothing to lose, no expiry.",
+      "Every shop they join keeps its own card in one place, with the shop's own color and photo. Nothing to carry, nothing to lose, and the card itself never expires.",
     icon: Smartphone,
   },
   {
@@ -347,7 +347,7 @@ export function VirtualCard() {
           <p className="max-w-[56ch] self-end text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
             One side shows how close they are to the reward, the other is the
             code the counter scans. It carries your color and your storefront,
-            it never expires, and there is nothing to install.
+            the card never expires, and there is nothing to install.
           </p>
         </div>
 
@@ -357,7 +357,7 @@ export function VirtualCard() {
             <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-[var(--line)] pt-6">
               {[
                 ["Runs on", "Any phone browser"],
-                ["Expiry", "None"],
+                ["Card expiry", "Never"],
                 ["Card art", "Yours, per shop"],
                 ["One code", "Works at every shop"],
               ].map(([label, value]) => (

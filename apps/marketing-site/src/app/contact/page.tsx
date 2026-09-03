@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Clock3, Mail, MapPin, MessagesSquare } from "lucide-react";
+import { Clock3, Mail, MapPin, MessageCircle, MessagesSquare } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
 import { PageHero, SiteButton, SiteEyebrow } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
@@ -62,7 +62,13 @@ export default function ContactPage() {
                   icon: Mail,
                   title: "Prefer email?",
                   text: "hello@kypstamping.ph",
-                  email: "hello@kypstamping.ph",
+                  href: "mailto:hello@kypstamping.ph",
+                },
+                {
+                  icon: MessageCircle,
+                  title: "Prefer Messenger?",
+                  text: "facebook.com/kypstamping",
+                  href: "https://www.facebook.com/kypstamping",
                 },
               ].map((item) => {
                 const Icon = item.icon;
@@ -74,8 +80,8 @@ export default function ContactPage() {
                     <div>
                       <p className="text-sm font-extrabold">{item.title}</p>
                       <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                        {"email" in item && item.email ? (
-                          <a href={`mailto:${item.email}`} className="font-bold underline underline-offset-2">
+                        {"href" in item && item.href ? (
+                          <a href={item.href} className="font-bold underline underline-offset-2">
                             {item.text}
                           </a>
                         ) : (

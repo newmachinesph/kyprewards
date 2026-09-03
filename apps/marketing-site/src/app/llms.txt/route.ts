@@ -58,7 +58,8 @@ export function GET() {
 - Roadmap, live / next / later: ${siteUrl}/roadmap
 - Industry solutions: ${siteUrl}/solutions
 - Comparisons (peso-priced competitors only): ${comparisons.map((c) => `${siteUrl}/compare/${c.slug}`).join(", ")}
-- Privacy direction: ${siteUrl}/privacy
+- Privacy notice: ${siteUrl}/privacy
+- Facebook page: https://www.facebook.com/kypstamping
 
 ## Plans
 
@@ -119,7 +120,7 @@ ${addOns.map((item) => `- ${item.name} (${item.plans}): ${item.price}. ${item.de
 - Consent records, reversals, the staff activity ledger, and a spend preview before every send are included on every plan, including the free one.
 - SMS is metered rather than unlimited because each segment costs real money to deliver; the rate is PHP 0.95 per 160-character segment and is shown before every send.
 - Branches are unlimited on every plan, including the free one. What a paid tier buys is reporting each branch separately: 3 on Core, 5 on Grow, 10 on Scale.
-- At PHP 499/month, Core is priced below every dedicated loyalty tool publishing Philippine peso pricing.
+- The free Launch plan starts below every paid loyalty tool publishing Philippine peso pricing. Core at PHP 499/month is within PHP 100 of the cheapest paid stamp-card tool in the market (GoBalik Starter, PHP 399/month, as read on 25 August 2026).
 - Loyalty points and stamps may generally expire in the Philippines: RA 10962 bans expiry on gift checks but carves out checks issued under loyalty, rewards and promotional programs. A purchased gift check is a different instrument and is treated separately in the product.
 - A merchant can export their entire customer list in one click on any plan, including the free one.
 - Merchants pay in pesos by ${paymentMethods.join(", ")}. No dollar billing.

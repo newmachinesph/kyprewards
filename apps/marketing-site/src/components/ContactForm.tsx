@@ -127,8 +127,10 @@ Send another
           Business type
           <select
             name="type"
+            defaultValue=""
             className="focus-ring min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 font-normal outline-none transition focus:border-[var(--accent-strong)]"
           >
+            <option value="">Choose one</option>
             {businessCategories.map((category) => (
               <option key={category}>{category}</option>
             ))}

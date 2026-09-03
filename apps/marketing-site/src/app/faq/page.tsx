@@ -71,7 +71,7 @@ const groups = [
       ],
       [
         "Can my staff stamp their friends?",
-        "They can press the button. What stops it is visibility: every stamp carries a name, a time and a branch in a ledger you can read. Stamps per staff member is a number on your dashboard, and any stamp can be reversed in one tap. The cooldown means the same customer cannot be stamped twice in a day. We do not claim to prevent it — nothing short of POS-verified purchases can, and we would rather say so than imply a control that is not there. Owners who have run a paper card know that visibility is what actually stops it.",
+        "They can press the button. What stops it is visibility: every stamp carries a name, a time and a branch in a ledger you can read. The per-staff breakdown arrives with the Grow analytics, and any stamp can be reversed in one tap on every plan. The cooldown means the same customer cannot be stamped twice in a day. We do not claim to prevent it — nothing short of POS-verified purchases can, and we would rather say so than imply a control that is not there. Visibility is what actually stops it, on a paper card and on this one.",
       ],
       [
         "Can owners limit staff access?",
@@ -92,7 +92,7 @@ const groups = [
       ],
       [
         "Are push notifications free?",
-        "The provider delivery layer can be free, but consent, orchestration, support, and abuse prevention still have operating cost. KYP Stamping includes push under a fair-use policy.",
+        "Included, with an allowance: 1,000 a month on the free plan, rising to 200,000 on Scale, then ₱8 per 1,000 beyond it. Delivery itself is cheap; consent, orchestration and support are not, which is why it is an allowance rather than unlimited.",
       ],
       [
         "How do I know whether a campaign will pay back?",
@@ -134,11 +134,15 @@ const groups = [
       ],
       [
         "Do we need a DTI permit to run a loyalty program?",
-        "Ask your counsel, and ask early. DTI Administrative Order 02 s.2002 defines a sales promotion broadly, and reward and loyalty schemes are named in that definition alongside raffles and premiums — which on a plain reading can include a collect-ten-get-one card. In practice we have found no enforcement action against a small shop running a stamp card, and the requirement is widely unobserved at that scale. We flag it rather than stay quiet about it, because it is cheaper to ask before you launch than after.",
+        "Ask your counsel, and ask early. DTI Administrative Order 02 s.2002 defines a sales promotion broadly, and reward and loyalty schemes are named in that definition alongside raffles and premiums — which on a plain reading can include a collect-ten-get-one card. We are aware of no enforcement action against a small shop running a stamp card, and the requirement is widely unobserved at that scale. We flag it rather than stay quiet about it, because it is cheaper to ask before you launch than after.",
       ],
       [
         "How do we pay, and can we use GCash?",
         "Yes. The subscription and add-ons are priced in pesos and settled by GCash, Maya, Visa or Mastercard, or bank transfer through InstaPay or PESONet. There is no dollar conversion, no foreign transaction fee, and no card required for the free plan.",
+      ],
+      [
+        "How does a customer pay for a membership, a multipass or a gift card?",
+        "At your counter, the way they already pay you — cash, GCash to your shop, or your own card terminal. KYP Stamping does not take money from your customers; staff record the purchase on the card, and the ledger tracks what was paid, what remains and when a membership is due for renewal. Our billing runs the other way: it charges the shop for the subscription, never the shopper.",
       ],
       [
         "Who pays for SMS, and what does it actually cost?",
@@ -150,7 +154,7 @@ const groups = [
       ],
       [
         "What does the free plan leave out?",
-        "Two staff accounts, one program, our badge on the card, and no email campaigns. That is the whole list. A single shop can run a stamp card on Launch forever with unlimited customers and unlimited branches. Core at ₱499 is for when that card is working and you want more from it: five staff, your own branding, three programs at once, birthday campaigns, and each branch reported separately.",
+        "The whole stamp card with every rule, unlimited customers and unlimited branches — but one program, two staff accounts, our badge on the card and no campaign email. The growth tools sit on the paid tiers: separate branch reporting, segmentation, customer import, role-based permissions, bonus windows, promo codes, store credit, birthday campaigns, NFC and the deeper analytics. The row-by-row list is on the pricing page. A single shop can run a stamp card on Launch forever. Core at ₱499 is for when that card is working and you want more from it: five staff, your own branding, three programs at once, birthday campaigns, and each branch reported separately.",
       ],
       [
         "What happens to our customer list if we leave?",
@@ -209,8 +213,8 @@ export default function FaqPage() {
             <SiteEyebrow>Quick answer</SiteEyebrow>
             <p className="mt-4 text-sm leading-relaxed text-[var(--muted-strong)]">
               KYP Stamping is designed to make loyalty clear at the counter, useful
-              between visits, controllable by customers, and economically
-              sustainable for the platform.
+              between visits, controllable by the customer, and priced so a
+              single shop can carry it.
             </p>
           </aside>
           <div className="space-y-14">

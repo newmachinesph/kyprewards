@@ -202,6 +202,11 @@ export const featureMatrix: FeatureGroup[] = [
         cells: ["You set it", "You set it", "You set it", "You set it"],
       },
       {
+        label: "Stamp expiry",
+        hint: "Off unless you set one. RA 10962 lets stamps and points earned free under a loyalty program expire; a gift check a customer paid for cannot. Whatever term you set is shown on the card before the first stamp.",
+        cells: ["Optional, you set it", "Optional, you set it", "Optional, you set it", "Optional, you set it"],
+      },
+      {
         label: "Rewards held until redeemed",
         hint: "A completed card holds its reward and keeps earning on a fresh card behind it. Nobody is blocked from earning for being loyal.",
         cells: [true, true, true, true],
@@ -227,7 +232,8 @@ export const featureMatrix: FeatureGroup[] = [
       { label: "Discounts and tiered pricing", cells: [false, true, true, true] },
       { label: "Coupons", cells: [false, true, true, true] },
       {
-        label: "Memberships with recurring billing",
+        label: "Memberships with renewal tracking",
+        hint: "Recurring benefits with a renewal date on the card. The customer pays you at the counter; we never charge your customers.",
         cells: [false, true, true, true],
       },
       { label: "Reward catalog", cells: [false, true, true, true] },
@@ -321,6 +327,11 @@ export const featureMatrix: FeatureGroup[] = [
       },
       { label: "Custom fields", cells: [false, true, true, true] },
       {
+        label: "Favorite orders",
+        hint: "The regular's usual, noted once and shown to staff at the counter — and the context a birthday offer is built on.",
+        cells: [true, true, true, true],
+      },
+      {
         label: "Segmentation",
         cells: [false, "Basic", "Advanced", "Advanced"],
       },
@@ -406,12 +417,12 @@ export const featureMatrix: FeatureGroup[] = [
       },
       {
         label: "SMS from your own phone",
-        hint: "A companion app that sends from your shop's own SIM and load, so a text costs what your telco charges rather than a per-message platform fee. Android only — iOS does not let an app send SMS. You are the sender: your number, your telco's terms, your responsibility for consent. Sign-in codes never use this route.",
+        hint: "Opens with Core once the consent flow around it is finished: a companion app that sends from your shop's own SIM and load, so a text costs what your telco charges rather than a per-message platform fee. Android only — iOS does not let an app send SMS. You are the sender: your number, your telco's terms, your responsibility for consent. Sign-in codes never use this route.",
         cells: [false, "Android app", "Android app", "Android app"],
       },
       {
         label: "Automatic fallback to our gateway",
-        hint: "When your phone is off, out of load, or out of signal, the message goes out through our carrier gateway against your included credits instead of failing quietly.",
+        hint: "When your phone is off, out of load, or out of signal, the message goes out through our carrier gateway against your SMS credits instead of failing quietly.",
         cells: [false, false, true, true],
       },
     ],
@@ -491,7 +502,7 @@ export const featureMatrix: FeatureGroup[] = [
       {
         label: "Support",
         cells: [
-          "Community",
+          "Email",
           "Email",
           "Priority email",
           "Priority + onboarding",
@@ -584,10 +595,10 @@ export const channelRates = [
   },
   {
     channel: "Messaging apps",
-    included: "Pay as you send",
+    included: "Connecting next — pay as you send",
     overage: "From ₱0.42 per message",
     detail:
-      "Viber and WhatsApp, chosen automatically per customer. Cheaper than SMS and better looking, and most people read them sooner.",
+      "Viber and WhatsApp, chosen automatically per customer. Cheaper than SMS and better looking, and most people read them sooner. Being connected now; the composer will try them before SMS.",
   },
   {
     channel: "SMS",

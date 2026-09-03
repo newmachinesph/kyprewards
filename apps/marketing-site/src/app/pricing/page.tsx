@@ -80,7 +80,7 @@ export default function PricingPage() {
         image="/images/hero-pricing.webp"
         eyebrow="Simple plans, useful limits"
         title="Start small. Pay when loyalty starts working."
-        description="Launch the core visit-and-reward loop for free. Upgrade when you are ready to segment, automate, and manage a larger customer base."
+        description="Launch the core visit-and-reward loop for free. Upgrade when you are ready to segment, automate, and see each branch on its own."
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="#compare" tone="outline">
@@ -90,7 +90,7 @@ export default function PricingPage() {
       <AnswerBlock
         image="/images/answer-pricing.webp"
         question="How much does a loyalty program cost in the Philippines?"
-        answer="Free for one stamp card, any number of branches and unlimited customers — we never charge per member or per shop. Paid tiers open after beta at ₱499, ₱1,290 and ₱3,490 a month, and at ₱499 Core is below every dedicated loyalty tool with published peso pricing in the Philippines."
+        answer="Free for one stamp card, any number of branches and unlimited customers — we never charge per member or per shop. Paid tiers open after beta at ₱499, ₱1,290 and ₱3,490 a month. The free plan starts below every paid loyalty tool with published peso pricing in the Philippines, and Core sits within a hundred pesos of the cheapest of them."
         points={[
           {
             label: "Launch, free:",
@@ -308,7 +308,7 @@ export default function PricingPage() {
 
       <MarketingCta
         title="Start free, with the real product."
-        description="Set up the core loyalty loop without a card, contract, or sales call. We’re here when you want help shaping it."
+        description="Set up the core loyalty loop without a card or a contract. Apply, and a person sets your first card up with you."
       />
     </main>
   );

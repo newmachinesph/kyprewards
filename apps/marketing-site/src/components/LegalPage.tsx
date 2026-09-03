@@ -89,9 +89,10 @@ export function LegalPage({
             Plain-language note
           </p>
           <p className="mt-4 max-w-[28ch] text-xs leading-relaxed text-[var(--muted)]">
-            This page explains the current KYP Stamping frontend policy structure.
-            Before production launch, qualified counsel should review it for
-            every operating market.
+            Written in plain language on purpose. The product is in open
+            beta; qualified Philippine counsel reviews these pages before the
+            paid tiers open, and any clause still being settled says so where
+            it occurs.
           </p>
         </aside>
         <div className="space-y-12">

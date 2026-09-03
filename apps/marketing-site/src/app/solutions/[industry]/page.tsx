@@ -148,12 +148,14 @@ export default async function IndustryPage({ params }: Props) {
         <div className="mx-auto max-w-[1400px]">
           <div className="grid gap-10 lg:grid-cols-[0.62fr_1.38fr]">
             <div>
-              <SiteEyebrow>
-                Made for {industry.shortName.toLowerCase()} teams
-              </SiteEyebrow>
+              <SiteEyebrow>For {industry.name.toLowerCase()}</SiteEyebrow>
               <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.03em]">
-                Useful from day one.
+                The levers that fit.
               </h2>
+              <p className="mt-4 max-w-[38ch] text-sm leading-relaxed text-[var(--muted-strong)]">
+                Each one names the plan it arrives with. The stamp card itself is
+                free.
+              </p>
             </div>
             <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
               {industry.features.map((feature, index) => {
@@ -162,7 +164,7 @@ export default async function IndustryPage({ params }: Props) {
                 return (
                   <article
                     key={feature.title}
-                    className="grid gap-5 py-7 sm:grid-cols-[56px_1fr]"
+                    className="grid gap-5 py-7 sm:grid-cols-[56px_1fr_auto] sm:items-start"
                   >
                     <span
                       className={`grid size-12 place-items-center rounded-2xl ${index === 1 ? "bg-[var(--accent)]" : "bg-[var(--paper)]"}`}
@@ -177,6 +179,15 @@ export default async function IndustryPage({ params }: Props) {
                         {feature.description}
                       </p>
                     </div>
+                    <span
+                      className={`w-fit rounded-full px-2.5 py-1 font-mono text-[9px] font-extrabold uppercase tracking-[0.1em] ${
+                        feature.tier
+                          ? "border border-[var(--line-strong)] text-[var(--muted-strong)]"
+                          : "bg-[var(--ink)] text-[var(--paper)]"
+                      }`}
+                    >
+                      {feature.tier ?? "Free"}
+                    </span>
                   </article>
                 );
               })}

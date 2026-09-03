@@ -9,7 +9,12 @@ export type Industry = {
   metric: string;
   metricLabel: string;
   challenge: string;
-  features: Array<{ title: string; description: string }>;
+  features: Array<{
+    title: string;
+    description: string;
+    /** Tier the lever arrives with. Omitted means the free plan. */
+    tier?: "Core" | "Grow";
+  }>;
 };
 
 export const industries: Industry[] = [
@@ -67,6 +72,7 @@ export const industries: Industry[] = [
         title: "Rebooking reminders",
         description:
           "Reach clients when their usual return window is approaching.",
+        tier: "Grow",
       },
       {
         title: "Consent built in",
@@ -103,6 +109,7 @@ export const industries: Industry[] = [
         title: "Segmented invitations",
         description:
           "Reach new, regular, VIP, inactive, or reward-ready guests separately.",
+        tier: "Core",
       },
     ],
   },
@@ -129,6 +136,7 @@ export const industries: Industry[] = [
         title: "Staff permissions",
         description:
           "Let associates issue stamps while managers retain control of rewards and campaigns.",
+        tier: "Core",
       },
       {
         title: "Network discovery",
@@ -155,16 +163,19 @@ export const industries: Industry[] = [
         title: "Bonus windows",
         description:
           "Double stamps from 2 to 4, or all of December. A schedule and a multiplier — the customer sees it on their card before they queue.",
+        tier: "Core",
       },
       {
         title: "Missions for the menu",
         description:
           "\u201cTry three of the new flavours this month.\u201d A goal with a bonus at the end, and progress on the card.",
+        tier: "Grow",
       },
       {
         title: "A card for every branch",
         description:
           "One card across the chain, with each branch reported on its own so you know which one the regulars actually visit.",
+        tier: "Core",
       },
     ],
   },
@@ -342,7 +353,7 @@ export const resources: ResourceArticle[] = [
  * would.
  */
 export const businessCategories = [
-  "Cafe or coffee shop",
+  "Café or coffee shop",
   "Milk tea or dessert shop",
   "Bakery",
   "Restaurant or carinderia",

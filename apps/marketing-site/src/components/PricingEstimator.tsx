@@ -109,7 +109,7 @@ export function PricingEstimator() {
               step: 50,
             },
             {
-              label: "Connected channel budget",
+              label: "Viber and WhatsApp budget",
               value: connectedBudget,
               set: setConnectedBudget,
               min: 0,
@@ -151,7 +151,7 @@ export function PricingEstimator() {
             {
               icon: MessageSquareText,
               title: "In-app",
-              detail: "Included · fair use",
+              detail: "Unlimited, included",
             },
             {
               icon: Send,
@@ -165,8 +165,8 @@ export function PricingEstimator() {
             },
             {
               icon: MessageCircle,
-              title: "Connected",
-              detail: "Provider cost + orchestration",
+              title: "Viber / WhatsApp",
+              detail: "From ₱0.42 · connecting",
             },
           ].map((item) => {
             const Icon = item.icon;
@@ -212,7 +212,7 @@ export function PricingEstimator() {
             ],
             ["Email over allowance", `₱${estimate.emailCost.toLocaleString()}`],
             [
-              "Connected provider budget",
+              "Viber and WhatsApp budget",
               `₱${estimate.connectedBudget.toLocaleString()}`,
             ],
             ["Break-even returning visits", estimate.breakEven > 0 ? `${estimate.breakEven} / month` : "—"],
@@ -246,8 +246,9 @@ export function PricingEstimator() {
         <div className="mt-6 flex items-start gap-3 rounded-2xl bg-white/6 p-4">
           <Phone size={17} className="mt-0.5 shrink-0 text-[var(--accent)]" />
           <p className="text-xs leading-relaxed text-white/65">
-            SMS is prepaid at ₱0.95 per 160-character segment on every plan,
-            and never part of a subscription. Longer messages consume multiple segments.
+            SMS is ₱0.95 per 160-character segment pay as you go, less if you
+            prepay, on every plan and never part of a subscription. Longer
+            messages use more than one segment.
           </p>
         </div>
         <div className="mt-5 space-y-2">
@@ -255,7 +256,7 @@ export function PricingEstimator() {
             "No surprise channel overage",
             "Consent checked before delivery",
             "Budget ceiling per campaign",
-            "Provider costs reviewed quarterly",
+            "Every rate published before you send",
           ].map((item) => (
             <p
               key={item}

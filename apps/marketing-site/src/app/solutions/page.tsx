@@ -4,7 +4,7 @@ import {
   ArrowRight,
   Coffee,
   CupSoda,
-  Dumbbell,
+  Scissors,
   ShoppingBag,
   Store,
   UtensilsCrossed,
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   },
 };
 
-const icons = [Coffee, Dumbbell, UtensilsCrossed, ShoppingBag, CupSoda, Store];
+const icons = [Coffee, Scissors, UtensilsCrossed, ShoppingBag, CupSoda, Store];
 
 export default function SolutionsPage() {
   return (
@@ -56,7 +56,7 @@ export default function SolutionsPage() {
         image="/images/hero-solutions.webp"
         eyebrow="Solutions by business rhythm"
         title="Loyalty should feel native to the visit."
-        description="A morning coffee, six-week appointment, dinner reservation, and considered purchase do not follow the same cadence. KYP Stamping adapts to each one."
+        description="A morning coffee, an afternoon milk tea, a six-week appointment, a dinner reservation, a sari-sari run and a considered purchase do not follow the same cadence. KYP Stamping adapts to each one."
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="/pricing" tone="outline">

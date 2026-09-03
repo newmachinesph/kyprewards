@@ -32,7 +32,7 @@ const REASSURANCE = [
     icon: HeartHandshake,
     title: "We set the first program up",
     detail:
-      "A person reads this and configures your first program from these answers before you sign in. If you would rather not wait, the free plan sets itself up in about a minute.",
+      "A person reads this and configures your first program from these answers before you sign in. Approval usually comes the same working day, so the wait is short.",
   },
   {
     icon: HandCoins,

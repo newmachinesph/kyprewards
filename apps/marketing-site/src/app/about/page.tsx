@@ -143,7 +143,7 @@ export default function AboutPage() {
       <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[0.62fr_1.38fr]">
           <div>
-            <SiteEyebrow>Starting from Southeast Asia</SiteEyebrow>
+            <SiteEyebrow>Starting from Manila</SiteEyebrow>
             <h2 className="mt-4 text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
               Designed near the counter.
             </h2>

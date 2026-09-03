@@ -80,11 +80,6 @@ const later = [
       "When the register posts the sale, a stamp can require one. Turns staff-fraud from detected into prevented. Depends on the POS adapters on Grow.",
   },
   {
-    title: "SMS from your own phone",
-    detail:
-      "The Android companion that sends campaign SMS from the shop’s own SIM and load. Held until the consent flow around it is finished; you are the sender under RA 11934 and the product has to make that clear before the first send.",
-  },
-  {
     title: "Partner rewards across shops",
     detail:
       "One card already works at every shop a customer joins. Letting two shops honor each other’s rewards is the obvious next step and the one we will only build with two real shops who want it.",

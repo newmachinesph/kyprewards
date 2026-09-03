@@ -315,17 +315,17 @@ export default function HomePage() {
               {
                 icon: Wallet,
                 title: "Pesos, paid by GCash or Maya",
-                text: "Priced, billed and settled in pesos — GCash, Maya, card or bank transfer. Core at ₱499 is below every dedicated loyalty tool with published peso pricing.",
+                text: "Priced, billed and settled in pesos — GCash, Maya, card or bank transfer. The free plan starts below every paid tool with published peso pricing, and Core at ₱499 stays within a hundred pesos of the cheapest of them.",
               },
               {
                 icon: Crown,
                 title: "Suki is the model",
-                text: "Tiers a customer climbs, named the way you would say them. The win-back message that works is \u201cone more visit keeps your suki status\u201d — because it is true.",
+                text: "Tiers a customer climbs, named the way you would say them. The win-back message we would send first is \u201cone more visit keeps your suki status\u201d — because it is true.",
               },
               {
                 icon: Smartphone,
                 title: "Viber and Facebook, not just email",
-                text: "The join link lives in a Facebook page bio. Viber is a campaign channel. That is where your customers actually read.",
+                text: "The join link lives in a Facebook page bio, and Viber and WhatsApp are being connected as campaign channels next — because that is where your customers actually read.",
               },
               {
                 icon: Languages,

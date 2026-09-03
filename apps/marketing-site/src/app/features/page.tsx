@@ -166,7 +166,7 @@ const outcomes = [
         icon: Timer,
         title: "Automated win-back",
         detail:
-          "Someone passes their usual return window — 30, 60, 90 days, or the shop's own rhythm — and an offer goes out by itself. Includes the message that works best: “one more visit keeps your suki status.”",
+          "Someone passes their usual return window — 30, 60, 90 days, or the shop's own rhythm — and an offer goes out by itself. Includes the message we would send first: “one more visit keeps your suki status.”",
         tier: "Grow",
       },
       {
@@ -253,7 +253,7 @@ const operations = [
     icon: Users,
     title: "Staff roles and a ledger with names on it",
     detail:
-      "Owner, manager, marketer, counter. Every stamp, reversal and redemption carries who, when and which branch. Stamps-per-staff is a number on your dashboard.",
+      "Owner, manager, marketer, counter. Every stamp, reversal and redemption carries who, when and which branch, on every plan. Stamps per staff member becomes a report on Grow.",
   },
   {
     icon: Store,
@@ -283,7 +283,7 @@ const operations = [
     icon: ShieldCheck,
     title: "Fraud made visible, and where possible prevented",
     detail:
-      "Cooldowns, minimum spend, rotating codes, customer-approved redemption, reversals, review queues. We say plainly which controls detect and which prevent.",
+      "Cooldowns, minimum spend, a welcome stamp that stays pending until staff confirm it, customer-approved redemption, reversals and a named ledger. We say plainly which controls detect and which prevent.",
   },
 ];
 
@@ -304,7 +304,7 @@ const philippines = [
     icon: Smartphone,
     title: "Viber and Facebook, not just email",
     detail:
-      "Your join link lives happily in a Facebook page bio, and Viber is a campaign channel because that is where Filipino customers actually read.",
+      "Your join link lives happily in a Facebook page bio, and Viber and WhatsApp are being connected as campaign channels next, because that is where Filipino customers actually read.",
   },
   {
     icon: Crown,
@@ -376,7 +376,7 @@ export default function FeaturesPage() {
         facts={[
           { label: "Program formats", value: "8, one engine" },
           { label: "Levers on the free plan", value: "The whole stamp card" },
-          { label: "Channels", value: "In-app, push, email, Viber and WhatsApp, SMS" },
+          { label: "Channels", value: "In-app, push, email, SMS — Viber and WhatsApp connecting" },
           { label: "Built for", value: "The Philippines" },
         ]}
       />

@@ -17,7 +17,7 @@ export default function NotFound() {
           No stamp at this address
         </p>
         <h1 className="mt-3 text-4xl font-extrabold tracking-[-0.03em]">
-          This page is not part of the route.
+          There is no page at this address.
         </h1>
         <p className="mx-auto mt-4 max-w-[42ch] text-sm leading-relaxed text-[var(--muted-strong)]">
           The link may have moved, or the address may be incomplete.
