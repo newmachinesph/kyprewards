@@ -71,7 +71,7 @@ export default function PricingPage() {
       </PageHero>
       <AnswerBlock
         question="How much does a loyalty program cost in the Philippines?"
-        answer="KYPStamping is free for one program and any number of branches, with no limit on how many customers join - we do not charge per member, and we do not charge for having shops. Paid tiers are ₱499 per month, ₱1,290 with automation, and ₱3,490 with API access; what they add is reporting each branch separately - three, five and ten - alongside the other program types and channels. Those are published now and open shortly. Messaging is billed separately from software: every plan includes a monthly allowance, and only SMS carries a real per-message carrier cost at ₱0.95 per segment."
+        answer="KYPStamping is free for one program and any number of branches, with no limit on how many customers join - we do not charge per member, and we do not charge for having shops. Paid tiers are ₱499 per month, ₱1,290 with automation, and ₱3,490 with API access; what they add is reporting each branch separately - three, five and ten - alongside the other program types and channels. Those are published now and open shortly. Messaging is billed separately from software: every plan includes a monthly allowance, and only SMS is charged per message, at ₱0.95 per segment."
         facts={[
           { label: "Free plan", value: "₱0 · unlimited customers" },
           { label: "Single location", value: "₱499 / month" },

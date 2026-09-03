@@ -122,8 +122,8 @@ export default function LoyaltyPhilippinesPage() {
               created by the return visits it influences. KYPStamping starts at
               ₱0 for one location with no limit on customers, rises to ₱499/month
               for an established shop running every program type, and meters SMS
-              separately because it is the only channel with a real per-message
-              carrier cost.
+              separately because it is the only channel that costs real money
+              every time it is used.
             </p>
           </div>
         </div>
@@ -221,9 +221,9 @@ export default function LoyaltyPhilippinesPage() {
                 },
                 {
                   icon: MessageCircle,
-                  title: "Connected messaging",
+                  title: "Messaging apps",
                   detail:
-                    "Viber, WhatsApp, or Messenger through a provider. Pass-through cost plus orchestration.",
+                    "Viber and WhatsApp, chosen per customer. From ₱0.42 a message.",
                 },
               ].map((item) => {
                 const Icon = item.icon;

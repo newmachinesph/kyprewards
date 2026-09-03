@@ -56,11 +56,11 @@ const groups = [
     questions: [
       [
         "Which messaging channels are included?",
-        "Today: the in-app inbox, web push, email, and SMS. Viber, WhatsApp and Messenger are planned rather than built - each needs a provider relationship, and Meta requires a verified Business account before work can start. When Viber lands, campaigns will try it before falling back to SMS, because it costs a fraction as much to deliver.",
+        "Campaigns go out through the in-app inbox, push, and SMS. Messaging apps - Viber and WhatsApp - are being connected next; when they land, a campaign will try them before falling back to SMS, because they cost a fraction as much to deliver. Email is reserved for the messages a customer is waiting on: sign-in codes, reward notices, staff invitations and data exports. It is not sold as a campaign channel on any plan.",
       ],
       [
         "Why is SMS not unlimited?",
-        "Every SMS segment has a real delivery cost. KYPStamping models credits and ₱0.95 overage per 160-character segment so a campaign cannot quietly destroy product margin.",
+        "Every SMS segment costs real money to deliver, every time. Credits and a ₱0.95 rate per 160-character segment keep that visible: you see what a send costs before it goes, instead of finding out on an invoice.",
       ],
       [
         "Are push notifications free?",

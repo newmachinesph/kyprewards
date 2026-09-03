@@ -3,9 +3,9 @@
  *
  * Prices come from docs/philippines-loyalty-benchmark.md: GoBalik anchors the
  * entry tier at ₱499, Suki Cards sits around ₱667 once its annual PHP plan is
- * divided by 12, and ZAP Premium caps the market at ₱4,800. Channel rates are
- * cost-plus over Semaphore (₱0.56/segment ex-VAT) and SES, and are modelled in
- * the admin Revenue & margin view.
+ * divided by 12, and ZAP Premium caps the market at ₱4,800. Channel rates cover
+ * delivery plus the failover and retry around it, and are modelled in the admin
+ * revenue view.
  *
  * Customers are unlimited on every tier, including the free one. That used to
  * be the axis - 250 / 1,500 / 10,000 / 50,000 - and nothing else in this market
@@ -17,8 +17,8 @@
  * members and they never leave the count, so a member-based bill only ratchets
  * up, and the merchant's incentive becomes enrolling fewer customers - the
  * opposite of what they bought. A member is a database row. A text message
- * costs real pesos through Semaphore, which is why the channel allowances are
- * the ones that stayed.
+ * costs real pesos to deliver, which is why the channel allowances are the
+ * ones that stayed.
  *
  * `available: false` marks a tier as announced but not yet sellable. Only
  * Launch is live today. The others stay on the page deliberately - a merchant
@@ -55,7 +55,7 @@ export const plans = [
     highlights: [
       "Unlimited customers, no per-member fee",
       "Unlimited branches, one stamp card",
-      "500 emails a month, campaigns included",
+      "In-app campaigns to every member",
       "QR join, earn, and redeem",
       "Two staff accounts",
     ],
@@ -74,7 +74,6 @@ export const plans = [
       "Unlimited branches, three reported separately",
       "All eight program types, two running at once",
       "QR, NFC, and printable counter modes",
-      "5,000 emails each month",
       "Scheduled and birthday campaigns",
     ],
     name: "Core",
@@ -91,7 +90,7 @@ export const plans = [
       "Unlimited customers",
       "Unlimited branches, five reported separately",
       "Segments, referrals, reviews, and automations",
-      "25,000 emails + 100 SMS credits monthly",
+      "100 SMS credits monthly, plus messaging apps",
       "RFM, cohort, and reward-liability analytics",
     ],
     name: "Grow",
@@ -108,7 +107,7 @@ export const plans = [
       "Unlimited customers",
       "Ten branches reported separately, 50 staff",
       "API, webhooks, POS, and commerce adapters",
-      "100,000 emails + 500 SMS credits monthly",
+      "500 SMS credits monthly, plus messaging apps",
       "Wallet passes, approvals, and priority onboarding",
     ],
     name: "Scale",
@@ -251,7 +250,7 @@ export const featureMatrix: FeatureGroup[] = [
         hint: "Every send shows eligible recipients, estimated spend, predicted return visits, and break-even.",
         cells: [true, true, true, true],
       },
-      { label: "Scheduled campaigns", cells: ["Email only", true, true, true] },
+      { label: "Scheduled campaigns", cells: ["In-app", true, true, true] },
       {
         label: "Birthday and anniversary journeys",
         cells: [false, true, true, true],
@@ -285,9 +284,9 @@ export const featureMatrix: FeatureGroup[] = [
         cells: ["1,000", "10,000", "50,000", "200,000"],
       },
       {
-        label: "Emails",
-        hint: "What a campaign or a journey costs against your month. Sign-in codes, receipts, reward notices and password resets are transactional — they always send, on every plan, and never count against this.",
-        cells: ["500", "5,000", "25,000", "100,000"],
+        label: "Email",
+        hint: "Sign-in codes, reward notices, staff invitations and data-export links. They always send, on every plan, and nothing counts against an allowance. Campaigns go out in-app, by push, or through messaging apps and SMS.",
+        cells: [true, true, true, true],
       },
       {
         label: "SMS credits",
@@ -394,50 +393,37 @@ export const featureMatrix: FeatureGroup[] = [
 export const channelRates = [
   {
     channel: "In-app inbox",
-    provider: "KYPStamping wallet",
     included: "Unlimited on every plan",
     overage: "No charge",
     detail:
-      "Delivered inside the customer's KYPStamping wallet. No provider fee, fair-use policy applies.",
+      "Lands in the customer's wallet, where their card already is. Nothing to install and nothing to pay.",
   },
   {
     channel: "Push notifications",
-    provider: "Firebase Cloud Messaging",
     included: "1,000 → 200,000 per month",
     overage: "₱8 per 1,000",
     detail:
-      "Firebase charges nothing to deliver; the rate covers orchestration, scheduling, and abuse prevention.",
+      "Reaches a customer who has closed the wallet, so a reminder arrives while there is still time to act on it.",
   },
   {
-    channel: "Email",
-    provider: "Amazon SES",
-    included: "500 → 100,000 per month",
-    overage: "₱25 per 1,000",
+    channel: "Messaging apps",
+    included: "Pay as you send",
+    overage: "From ₱0.42 per message",
     detail:
-      "Covers domain reputation, suppression lists, complaint handling, templates, and delivery logs.",
+      "Viber and WhatsApp, chosen automatically per customer. Cheaper than SMS and better looking, and most people read them sooner.",
   },
   {
     channel: "SMS",
-    provider: "Semaphore",
     included: "100 on Grow, 500 on Scale",
     overage: "₱0.95 per 160-character segment",
     detail:
-      "Carrier cost is roughly ₱0.56 ex-VAT per segment. The margin covers multipart messages, provider failover, and payment fees.",
+      "The one channel that works on any phone, with no app and no data. Used when nothing cheaper will reach them.",
   },
   {
-    channel: "Viber",
-    provider: "Viber business messages",
-    included: "Pay as you send",
-    overage: "₱0.42 per message",
+    channel: "Email",
+    included: "Sign-in codes and receipts, on every plan",
+    overage: "Not sold for campaigns",
     detail:
-      "Used ahead of SMS whenever a customer is reachable there, which is the cheapest way to cut campaign cost without losing reach.",
-  },
-  {
-    channel: "WhatsApp, Messenger",
-    provider: "Meta",
-    included: "Not available yet",
-    overage: "Planned",
-    detail:
-      "Blocked on a verified Meta Business account. Pricing will be published once the channel is approved and built.",
+      "Reserved for the messages a customer is waiting on - a sign-in code, a reward notice, a copy of their data. Campaigns go out through the channels above.",
   },
 ];

@@ -165,9 +165,9 @@ export default function IntegrationsPage() {
               </h2>
             </div>
             <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-              Messaging runs on named providers, not a black box. Every plan
-              includes a monthly allowance per channel; past it you pay the
-              add-on rate. Consent, quiet hours, and frequency caps apply on
+              Every plan includes a monthly allowance per channel; past it you
+              pay the add-on rate, and you can see what a send will cost before
+              you send it. Consent, quiet hours, and frequency caps apply on
               every channel including the free ones.
             </p>
           </div>
@@ -177,10 +177,7 @@ export default function IntegrationsPage() {
                 key={rate.channel}
                 className="flex flex-col bg-[var(--surface)] p-7"
               >
-                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--muted)]">
-                  {rate.provider}
-                </p>
-                <h3 className="mt-3 text-xl font-extrabold tracking-[-0.02em]">
+                <h3 className="text-xl font-extrabold tracking-[-0.02em]">
                   {rate.channel}
                 </h3>
                 <p className="mt-3 max-w-[46ch] text-sm leading-relaxed text-[var(--muted-strong)]">

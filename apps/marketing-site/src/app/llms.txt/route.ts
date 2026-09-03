@@ -63,12 +63,12 @@ ${plans.map(planLine).join("\n")}
 
 ## Message delivery, priced separately from software
 
-Every plan carries a monthly allowance per channel. Past the allowance you pay the add-on rate; there is no forced upgrade. SMS is the only channel with a real per-message carrier cost, so it is credit-based on every plan.
+Every plan carries a monthly allowance per channel. Past the allowance you pay the add-on rate; there is no forced upgrade. SMS costs real money on every send, so it is credit-based on every plan. Email is transactional only - sign-in codes, reward notices, staff invitations, data exports - and is not sold as a campaign channel on any plan.
 
 ${channelRates
   .map(
     (rate) =>
-      `- ${rate.channel} (${rate.provider}): included ${rate.included}; add-on ${rate.overage}. ${rate.detail}`,
+      `- ${rate.channel}: included ${rate.included}; add-on ${rate.overage}. ${rate.detail}`,
   )
   .join("\n")}
 
@@ -96,7 +96,7 @@ ${featureMatrix.map(matrixLine).join("\n\n")}
 - No POS replacement is required; KYPStamping runs beside the existing register.
 - Eight program formats run from one engine: stamp cards, points and cashback, discounts, coupons, memberships, reward catalog, prepaid multipass, and gift cards.
 - Consent records, reversals, the staff activity ledger, and a spend preview before every send are included on every plan, including the free one.
-- SMS carrier cost in the Philippines is roughly PHP 0.56 per 160-character segment before tax, which is why unlimited SMS is not offered.
+- SMS is metered rather than unlimited because each segment costs real money to deliver; the rate is PHP 0.95 per 160-character segment and is shown before every send.
 `;
 
   return new Response(body, {

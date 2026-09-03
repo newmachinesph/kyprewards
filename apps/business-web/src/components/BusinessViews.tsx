@@ -139,9 +139,7 @@ import {
   Gift,
   Heart,
   Link2,
-  Mail,
   MessageCircle,
-  MessagesSquare,
   MessageSquareText,
   Nfc,
   Pencil,
@@ -3370,6 +3368,12 @@ type ChannelStatus = "ready" | "planned";
  * 1,120 push, 1,060 email - so a workspace with no customers at all was shown
  * an audience of 1,280, given a cost and a predicted-visits figure derived
  * from it, and allowed to schedule the send. Reach is measured now.
+ *
+ * `status` must agree with what `CampaignCreate` accepts on the API. A
+ * channel marked ready that the API refuses is a 422 the merchant only sees
+ * after composing the whole campaign - which is what Viber and Email did.
+ * Email is gone entirely: our relay is transactional and its terms forbid
+ * marketing on the account that carries every sign-in code.
  */
 const channelConfig: {
   name: string;
@@ -3397,22 +3401,6 @@ const channelConfig: {
     status: "ready",
   },
   {
-    name: "Email",
-    audienceKey: "email",
-    icon: Mail,
-    unit: 0.025,
-    note: "₱0.025 / email",
-    status: "ready",
-  },
-  {
-    name: "Viber",
-    audienceKey: null,
-    icon: MessageCircle,
-    unit: 0.42,
-    note: "₱0.42 / message",
-    status: "ready",
-  },
-  {
     name: "SMS",
     audienceKey: "sms",
     icon: Phone,
@@ -3421,19 +3409,19 @@ const channelConfig: {
     status: "ready",
   },
   {
+    name: "Viber",
+    audienceKey: null,
+    icon: MessageCircle,
+    unit: 0.42,
+    note: "Not sending yet",
+    status: "planned",
+  },
+  {
     name: "WhatsApp",
     audienceKey: null,
     icon: Send,
     unit: 0.55,
-    note: "Needs Meta Business verification",
-    status: "planned",
-  },
-  {
-    name: "Messenger",
-    audienceKey: null,
-    icon: MessagesSquare,
-    unit: 0.35,
-    note: "Needs Meta Business verification",
+    note: "Not sending yet",
     status: "planned",
   },
 ];
@@ -3488,7 +3476,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
     "",
   );
   // Measured reach per channel. A channel with no transport yet (Viber,
-  // WhatsApp, Messenger) has no audience key and so reaches nobody, rather
+  // WhatsApp) has no audience key and so reaches nobody, rather
   // than borrowing a number from a fixture.
   // Null means "not touched", so the slider follows the real audience as it
   // grows instead of pinning itself to whatever it was on first render.
