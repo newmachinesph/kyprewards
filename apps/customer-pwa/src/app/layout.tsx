@@ -9,11 +9,11 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const sora = Sora({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-display" });
 
 export const metadata: Metadata = {
-  title: "KYPStamping",
-  description: "Keep every local reward in one pocket.",
-  applicationName: "KYPStamping",
+  title: { default: "KYP", template: "%s · KYP" },
+  description: "One card for every shop you already visit.",
+  applicationName: "KYP",
   icons: { icon: "/icon.svg", shortcut: "/icon.svg", apple: "/apple-touch-icon.png" },
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "KYPStamping" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "KYP" },
   robots: { index: false, follow: false },
 };
 

@@ -275,13 +275,13 @@ function CustomerAuthShell({
   children: ReactNode;
   sentTo?: string | null;
 }) {
-  const stageLabel = mode === "verify" ? "Verify" : mode === "create" ? "Join KYPStamping" : "Welcome back";
+  const stageLabel = mode === "verify" ? "Verify" : mode === "create" ? "Join KYP" : "Welcome back";
 
   return (
     <main className="customer-auth min-h-[100dvh] bg-[#d9d5ce] sm:px-5 sm:py-6">
       <section className="phone-shell relative mx-auto flex min-h-[100dvh] max-w-[460px] flex-col overflow-hidden border-x border-[rgb(24_18_12/8%)] bg-[var(--accent)] sm:min-h-[calc(100dvh-3rem)] sm:rounded-[var(--radius-card)] sm:border sm:shadow-[0_28px_90px_rgb(24_18_12/20%)]">
         <header className="flex items-center justify-between gap-4 px-5 pb-4 pt-[max(1.1rem,env(safe-area-inset-top))]">
-          <BrandMark label="Wallet" />
+          <BrandMark label="KYP" tagline="One card for every shop" />
         </header>
 
         <div className="px-5 pb-5">
@@ -930,7 +930,7 @@ export function DemoAuthFlow({
 
         {(role === "customer" || role === "business") && (
           <p className="mt-6 text-center text-xs text-[var(--muted-strong)]">
-            New to KYPStamping?{" "}
+            New to KYP?{" "}
             <a href="/create-account" className="font-extrabold text-[var(--accent-strong)] hover:underline">
               {role === "business" ? "Create a business account" : "Create your wallet"}
             </a>

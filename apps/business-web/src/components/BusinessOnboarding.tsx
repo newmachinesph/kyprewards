@@ -77,7 +77,7 @@ const PROGRAMS = [
 const COUNTER_METHODS = [
   {
     id: "terminal",
-    name: "KYPStamping terminal",
+    name: "KYP Stamping terminal",
     icon: ScanLine,
     detail: "Scan customer codes from any phone or tablet beside your register. No POS change.",
     availability: "Ready now",

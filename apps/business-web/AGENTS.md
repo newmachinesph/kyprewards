@@ -29,11 +29,25 @@ spec; the gap list below is the work.
 
 ## What exists
 
-Views, in nav order (`src/components/BusinessShell.tsx`): Dashboard, Scan,
-My join code, Customers, Business, Integrations (Grow), Program, Favorite
-orders, Birthday offers, Redemptions, Campaigns, Message log, Analytics, plus
-Staff and Settings from the account menu. A Cashier sees a reduced nav; the
-API refuses what the role cannot do and the screen shows the refusal.
+Views, in nav order (`src/components/BusinessShell.tsx`): Workspace
+(Dashboard, Scan, My join code, Customers, Business, Integrations), Loyalty
+(Program, Bonus windows, Promo codes, Store credit, Suki tiers, Missions,
+Gifts, Favorite orders, Birthday offers, Redemptions), Reach (Campaigns,
+Message log, Analytics), plus Staff, Billing & plan and Settings from the
+account menu. Hash ids are the kebab-case labels (`#bonus-windows`,
+`#billing`). A Cashier sees a reduced nav; the API refuses what the role
+cannot do and the screen shows the refusal.
+
+Every view lives in its own file under `src/components/views/`;
+`BusinessViews.tsx` keeps the counter, business profile, favorite orders,
+birthday, redemptions, campaigns and message log, and the `views` record.
+Plan gating is `src/lib/plan.ts` (`usePlanGate`, `writeBlock`, `refusal`,
+`planFor`) over `src/lib/plans.ts`, a byte-for-byte mirror of the marketing
+site's `plans.ts` that must be kept identical. Every tier's feature renders
+its full screen; a feature above the plan is tagged with `PlanTag` and its
+writes are disabled with "Opens with <Plan>". A route the API does not serve
+yet renders preview samples under `PreviewBadge` with its writes disabled
+by `PREVIEW_WRITE_REASON`.
 
 All server state comes from `@kypstamping/api`. Client-only state lives in
 `DemoState.tsx` (webhook draft, setup ledger, scan handoff, wizard answers),
@@ -61,51 +75,33 @@ remembered under `kypstamping-till-branch`.
 
 ## Known gaps, in order
 
-1. **Wallet URL.** `src/components/BusinessViews.tsx:1259` falls back to
-   `https://app.kypstamping.ph`. The wallet is `https://app.kyp.ph`
-   (`http://localhost:3002` locally); read `NEXT_PUBLIC_CUSTOMER_APP_URL`
-   with that default and nothing else. Every place the app shows a shopper a
-   link, including the printed join code, must resolve to the customer
-   domain.
-2. **Brand copy.** Page titles and metadata say "KYPStamping Business"; the
-   site says "KYP Stamping". Decide the title form once in `app/layout.tsx`
-   and the auth pages and apply it everywhere.
-3. **Stamp-card rules editor.** The API has no welcome-stamp toggle,
-   cooldown, minimum spend or stamp expiry on a program yet, and today the
-   first stamp is a real stamp from a two-hour offer, not a pending one. Do
-   not add local-only controls. When the backend exposes these fields, the
-   Program view shows them on every plan and the card preview shows them the
-   way the customer will see them.
-4. **Counter refusals for the cooldown.** Needs `nextStampAt` from the API.
-   Until the backend has a cooldown, nothing in the counter may claim one.
-5. **Customer-approved redemption.** Reserve, commit and cancel are
-   staff-driven today. The Redemptions view must not say the customer
-   approved a release until the API waits for that approval.
-6. **Core and Grow levers.** Bonus windows, promo codes, store credit, suki
-   tiers, missions, earn by category, gifting: no endpoints. No UI until they
-   exist; then gate each with `PlanTag` and the tier in `plans.ts`.
-7. **Join materials.** Verify My join code exports a poster, a sticker and a
-   table tent as a PDF, that the QR is a real symbol at print error
-   correction, and that it encodes the customer-domain URL.
-8. **Plan and billing copy.** Check the plan card, founding offer, payment
-   methods, add-ons and allowances row for row against `plans.ts`. The
-   yearly toggle on the site shows yearly prices, but the API bills monthly;
-   do not promise annual billing. Render the off state from
-   `paidTiersOpen` and `creditPurchasesOpen` (ladder visible, paid tiers
-   "not open yet, free during the beta", SMS credits "opens with billing",
-   no dates). Build the QR Ph payment sheet (QR image, countdown to
-   `expiresAt`, status polling) reachable only when a flag is on; it is the
-   only payment method, so the payment-method chooser goes.
-9. **Branch analytics past the allowance.** The API silently truncates to
-   the busiest N; the view should say which branches are not included once
-   the overage rate is decided.
-10. **Push.** Push sends are delivered in-app only. The channel picker and
-    the message log must not describe push as reaching a closed phone.
-11. **Queued card conditions (D8 in `../../../PLAN.md`).** Run window,
-    close behaviour with a successor card, reward grace, completion cap,
-    member cap. Not on the site yet, so not in the editor yet. When they
-    are: same rules editor, every plan, a close preview counting the open
-    cards affected, and the counter naming a closed or completed card.
+Built 2026-09-04: every view in the nav above, the stamp-card rules editor
+with the D8 conditions and a close preview, the counter outcome states, the
+awaiting-customer redemption state, poster, sticker and table tent print
+sheets on the customer domain, the six lever views, the billing view with
+the ladder in its off state and the QR Ph payment sheet, plan gating on
+every tier's feature. What is left:
+
+1. **Backend routes and fields to ship** before the preview badges go: the
+   `rules` block on a program and its PATCH, `POST /business/programs/{id}/close-preview`,
+   the outcome fields on `POST /transactions`, the `awaiting_customer`
+   redemption status, bonus windows, promo codes, store credit, suki tiers,
+   missions, gifts, category rates, featured placement, the billing flags on
+   `GET /business/billing`, `POST /business/credits/purchase`,
+   `GET /business/payments/{id}`, QR Ph on `POST /business/invoices/{id}/pay`.
+2. **Suki tier per customer** is not on `BusinessCustomer`; the customer
+   drawer says "Arrives with suki tiers" until the API carries it.
+3. **Notification switches** write new keys (`notifyRedemptions`,
+   `notifyDailySummary`, `notifyLowCredits`) through `PATCH /business/settings`;
+   the API accepts any key today, so nothing reads them yet.
+4. **Merchant-side deletion** has no endpoint; the control files a support
+   request in the Privacy category and says so.
+5. **`NewProgramDialog`** in `WorkspaceForms.tsx` still lists locked types as
+   disabled options labelled "needs <Plan>"; the Program view's own picker
+   uses `PlanTag`. Unify when that dialog is next touched.
+6. **Branch analytics past the allowance.** The API silently truncates; the
+   view says "N branches not shown" from the location count, which is a
+   guess until the API names the withheld branches.
 
 ## Rules specific to this app
 

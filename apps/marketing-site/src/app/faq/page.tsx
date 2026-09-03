@@ -62,6 +62,10 @@ const groups = [
         "Cards already in progress finish on the terms they started with. Raise the target from 8 to 10 and everyone who started at 8 still finishes at 8; new cards start at 10. The same goes for the reward: change a free pastry to a free coffee and anyone who already earned the pastry gets the pastry. Moving the goalposts on someone at seven of eight is the fastest way to lose them, so the product will not let you do it by accident.",
       ],
       [
+        "Can a stamp card run for a season, like the Ber months?",
+        "Yes. Give the card a start date and an end date and it runs only between them — nothing is earned before or after, and it closes by itself when the window ends. Leave the dates off and it runs forever. What happens to unfinished stamps at close is your call: they expire, or they carry over to a successor card you name. A reward someone already earned is always honoured; you set how long after close it can still be redeemed, 30 days unless you change it, and there is no setting that cancels it. You also choose how many times one customer can complete the card in a run — once, a number, or no limit; at the limit their card reads completed and stops earning, and any reward they are holding is unaffected. Like every stamp-card rule this is on every plan, including the free one, and the customer sees the dates on the card before the first stamp.",
+      ],
+      [
         "Can multiple locations share a program?",
         "Yes, and there is no cap on branches — on any plan, including the free one. A chain is one company and the loyalty card is shared across it, so we do not charge you for opening shops. What a paid tier buys is seeing each branch separately: visits, members and revenue per shop, and which branch a customer came from. That is 3 branches reported separately on Core, 5 on Grow and 10 on Scale.",
       ],

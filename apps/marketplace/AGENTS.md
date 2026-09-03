@@ -11,102 +11,75 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Marketplace — kyp.ph
 
 Read `../../AGENTS.md`, `../../PROJECT.md` and `../../CONTRACT.md` first.
-This is the fifth app and the newest: the public, shopper-facing face of
-KYP. Today it is one coming-soon page with the one working door, the wallet
-at app.kyp.ph. It is not yet set up in the workspace tooling; that comes
-first.
+This is the public, shopper-facing face of KYP: the directory of every shop
+running a live program, on every plan, as `/product#apps` ("Your shop in
+Discover") and `/features` ("Listed in Discover") sell it. Built complete on
+2026-09-04. It renders sample shops under preview mode until the backend
+ships the public Discover routes.
 
 ## Where it runs
 
-- Local: `next dev --port 3004` from this directory (no root script yet).
-  Production: kyp.ph, Vercel project `kyp-marketplace`, root directory
-  `apps/marketplace`, API at api.kyp.ph. Brand: **KYP**. Indexable; this is
-  the shopper surface search engines should find, the wallet is `noindex`.
+- Local: `npm run dev:marketplace` on :3004. Production: kyp.ph, Vercel
+  project `kyp-marketplace`, root directory `apps/marketplace`, API at
+  api.kyp.ph. Brand: **KYP**, `BrandMark` with `label="KYP"` and the
+  shopper tagline. Indexable; the wallet is `noindex`.
 - `src/lib/site.ts` holds `customerAppUrl` (app.kyp.ph), `merchantSiteUrl`
-  (kypstamping.ph) and `siteUrl` (kyp.ph), with localhost defaults in
-  development. Read hosts from there and from `NEXT_PUBLIC_*`, never
-  literals.
-- Depends on `@kypstamping/ui` only. It will use `@kypstamping/api` for
-  public reads once a public Discover endpoint exists; it never carries a
-  session or `ApiProvider`.
+  (kypstamping.ph) and `siteUrl` (kyp.ph). Read hosts from there and from
+  `NEXT_PUBLIC_*`, never literals.
+- Uses `@kypstamping/api` for public reads only, wrapped in `ApiProvider`
+  for the query client. No session is ever sent or read.
 
-## Workspace setup still to do
+## Routes
 
-Each of these is a configuration change, listed here so they are done
-together and not forgotten:
+`/` (hero, search, category chips, nearby with a tap-to-locate button,
+featured row, how it works, the two doors), `/discover` with URL-synced
+`category`, `neighborhood`, `search` filters and cursor pagination,
+`/categories/[category]`, `/neighborhoods/[neighborhood]`,
+`/shops/[slug]` (stamp-card visual, about, hours, branches each with a Join
+button to `app.kyp.ph/join/<branch slug>`, JSON-LD LocalBusiness; an unknown
+slug renders not-found with `noindex`, status 200 because it streams inside
+the root loading boundary), `/how-it-works`, `/for-shops`, `sitemap.xml`,
+`robots.txt`, `opengraph-image`.
 
-1. Root `package.json`: add `dev:marketplace`.
-2. `eslint.config.mjs`: add `apps/marketplace/` to `settings.next.rootDir`.
-3. `Dockerfile.frontend` and `compose.frontend.yaml`: add the app and port
-   3004.
-4. `.env.example`: add `NEXT_PUBLIC_MARKETPLACE_URL`; add
-   `apps/marketplace/.env.local` with `NEXT_PUBLIC_CUSTOMER_APP_URL`,
-   `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_MARKETPLACE_URL`.
-5. Backend `CORS_ORIGINS`: add `http://localhost:3004` and `https://kyp.ph`
-   before the first API call from here.
-6. `tools/sweep.mjs` and `scripts/audit-controls.mjs`: include the app once it
-   has more than one route.
-7. README and `docs/BRAND.md` already describe five apps; keep them in step.
+Components live in `src/components/` (header with mobile menu, footer,
+`ShopCard`, `ShopGrid`, `DiscoverFilters` on `next/form`, `ShopPage`,
+`StructuredData`, `useCoordinates` backed by `sessionStorage`). Server-side
+reads for metadata, the sitemap and the 404 go through
+`src/lib/public-data.ts`, the same `withPreview` seam the hooks use.
 
-## What the site says the marketplace is
+## Data
 
-From `/product#apps` ("Your shop in Discover"), `/features` ("Listed in
-Discover") and `plans.ts`:
+`usePublicDiscover`, `usePublicShop`, `usePublicCategories`,
+`usePublicNeighborhoods` from `@kypstamping/api`. All four routes are
+proposed in `../../../backend/CONTRACT.md` ("Discover, for the marketplace")
+and do not exist yet, so locally they render `preview-samples.ts` under
+`PreviewBadge`. Geolocation is asked for only when the visitor taps "Use my
+location"; the position never enters the URL.
 
-- Every shop running a live program is listed, on every plan including the
-  free one. A marketplace that only lists paying shops is empty on day one.
-- Each listing carries category, neighborhood, hours and the live program:
-  the reward in plain words.
-- Nearest first, with Featured placement above the distance ordering
-  (included on Grow and Scale, ₱299 a month as an add-on on Launch and Core).
-- Categories are the shared list in
-  `marketing-site/src/lib/content.ts` (`businessCategories`), phrased the way
-  an owner says it.
-- A listing leads to joining: the join code lands on
-  `app.kyp.ph/join/<slug>` and grants a membership and a pending welcome
-  stamp, nothing of value by itself.
-- The current page's promise stands: one card, nearby first, nothing to
-  install, Metro Manila first.
+## Rules
 
-## What it must become
+- Never list a shop that is not returned by the API; featured placement is
+  the API's `featured` flag, never a client-side sort by plan.
+- The two doors and nothing else: "Open my wallet" to `app.kyp.ph/login`,
+  "I run a shop" to `kypstamping.ph/partners`. Legal links go to the merchant
+  site. The footer says "KYP is operated by KYPStamping." and nothing more
+  specific.
+- No analytics until kyp.ph has its own cookies page and consent gate.
+- Tokens from `packages/ui/src/tokens.css`; Sora display, Inter body; one
+  amber emphasis per view; voice per `docs/BRAND.md`.
 
-1. **Discover directory.** A paged listing with category and neighborhood
-   filters, optional coordinates for distance, featured shops first, then
-   distance. Renders only real shops from the API.
-2. **Shop page.** One page per slug: name, category, neighborhood, hours,
-   the live program and its reward, a "Join" button to
-   `app.kyp.ph/join/<slug>`, and "Open my wallet". Indexable, with a sitemap
-   and robots once pages exist.
-3. **The two doors.** "Open my wallet" to `app.kyp.ph/login`; "I run a shop"
-   to kypstamping.ph. No other merchant-facing links.
-4. **Legal.** Footer links to `kypstamping.ph/privacy` and `/terms`. "KYP is
-   operated by KYPStamping" is the most the footer may say; no entity name,
-   address, registration or DPO.
-5. **No analytics** until kyp.ph has its own cookies page and consent gate;
-   the marketing site's `/cookies` covers kypstamping.ph only.
+## Known constraints
 
-## What it needs from the backend
-
-A public Discover read. `GET /customer/discover` is session-scoped and cannot
-serve this page. Ask for `GET /public/discover` (paged, `category`,
-`neighborhood`, optional `lat` and `lng`, returning slug, name, category,
-neighborhood, hours, a program summary, a `featured` flag and distance in
-metres) and `GET /public/shops/{slug}` for the shop page. Until they exist
-the page stays coming soon: a directory showing invented merchants is the
-same mistake as a dashboard showing invented customers.
-
-## Rules specific to this app
-
-- Never list a shop that is not returned by the API.
-- Featured placement is a flag from the API, never a client-side sort by
-  plan name.
-- Design tokens from `packages/ui/src/tokens.css`; Sora for display, Inter
-  for body; one amber emphasis per view.
-- Voice from `docs/BRAND.md`: direct, warm, specific, sentence case.
+- `/public/*` is rate limited at 30 calls a minute per caller and the 429
+  arrives before CORS, so the browser reports it as a CORS error. React
+  Query retries a 429 twice. A shopper browsing quickly can hit it; the
+  backend should exempt or raise the limit for discover reads (recorded in
+  `../../../backend/PROJECT.md`).
 
 ## Verify
 
 `npm run typecheck -w @kypstamping/marketplace`, `npm run lint`,
-`npm run build`. Once there are routes, add a `qa:marketplace` harness
-modelled on `scripts/qa-marketing.mjs`: every route renders, no console or
-page errors, every link resolves, the two doors go where they say.
+`npm run audit:controls`, `npm run build`, and `npm run qa:marketplace`
+against a running server: every route renders, no console or page errors,
+every internal link resolves, the two doors point at the right hosts, and
+429s are waited out rather than reported as failures.

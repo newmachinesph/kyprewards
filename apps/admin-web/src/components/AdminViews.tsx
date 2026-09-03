@@ -5,6 +5,8 @@ import {
   Button,
   Eyebrow,
   Pill,
+  PreviewBadge,
+  QueryBoundary,
   ViewFrame as SharedViewFrame,
 } from "@kypstamping/ui";
 import {
@@ -14,16 +16,14 @@ import {
   Check,
   CircleAlert,
   CircleDollarSign,
+  CreditCard,
   Download,
-  Eye,
   FileClock,
-  Filter,
   KeyRound,
   LifeBuoy,
   LockKeyhole,
   Mail,
   RefreshCcw,
-  Search,
   ShieldAlert,
   ShieldCheck,
   SlidersHorizontal,
@@ -34,6 +34,8 @@ import {
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import { PartnerQueueView } from "@/components/PartnerQueueView";
 import type { AdminView } from "@/components/AdminShell";
+import { AdminAddOnsView } from "@/components/AdminAddOnsView";
+import { AdminBusinessesView } from "@/components/AdminBusinessesView";
 import { AdminIntegrationsView } from "@/components/AdminIntegrationsView";
 import {
   useAuditLedger,
@@ -42,11 +44,12 @@ import {
   ApiError,
   keys,
   downloadPlatformExport,
+  PREVIEW_WRITE_REASON,
   setProviderPolicy,
   useAdministrators,
   useApiMutation,
-  useOnboarding,
   useProviderPolicy,
+  usePlatformFlags,
   usePlatformCampaigns,
   usePlatformInvoices,
   usePlatformMetrics,
@@ -54,238 +57,25 @@ import {
   useServices,
   useTenants,
   type ProviderPolicy,
+  type ServiceHealth,
 } from "@kypstamping/api";
 import { useAdminState } from "@/components/AdminState";
-import { longDate, peso, pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
+import { peso, pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
+import { FOUNDING } from "@/lib/catalog";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
-
-
 
 function ViewFrame(props: Omit<Parameters<typeof SharedViewFrame>[0], "wide" | "className">) {
   return <SharedViewFrame wide className="admin-grid" {...props} />;
 }
 
-function BusinessesView({ notify }: { notify: Notify }) {
-  const [onboardingOpen, setOnboardingOpen] = useState(false);
-  const { data: tenants = [] } = useTenants();
-  const { data: metrics = EMPTY_PLATFORM_METRICS } = usePlatformMetrics();
-  const [query, setQuery] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [attentionOnly, setAttentionOnly] = useState(false);
-  const filtered = tenants.filter(
-    (business) =>
-      (business.name.toLowerCase().includes(query.toLowerCase()) ||
-        business.city.toLowerCase().includes(query.toLowerCase())) &&
-      (!attentionOnly || business.risk !== "Healthy"),
-  );
-  const selected = tenants.find((business) => business.id === selectedId) ?? tenants[0];
-
-  if (!selected) {
-    return (
-      <ViewFrame
-        eyebrow="Tenant directory"
-        title="Businesses"
-        description="Review tenant health, subscription, member growth, and risk signals."
-      >
-        <p className="text-sm text-[var(--muted-strong)]">No tenants yet.</p>
-      </ViewFrame>
-    );
-  }
-
-  return (
-    <ViewFrame
-      eyebrow="Tenant directory"
-      title="Businesses"
-      description={`Review tenant health, subscription, member growth, risk signals, and operational access without crossing customer-data boundaries. This demo carries ${tenants.length} of ${metrics.liveBusinesses} live tenants.`}
-      action={
-        <Button
-          icon={<Building2 size={16} />}
-          aria-expanded={onboardingOpen}
-          onClick={() => setOnboardingOpen((open) => !open)}
-        >
-          {onboardingOpen ? "Hide onboarding" : "Onboarding progress"}
-        </Button>
-      }
-    >
-      {onboardingOpen && <OnboardingPanel />}
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
-        <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
-          <div className="flex gap-3 border-b border-[var(--line)] p-4">
-            <label className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3">
-              <Search size={16} />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-                placeholder="Business or city"
-                aria-label="Search businesses by name or city"
-              />
-            </label>
-            <button
-              type="button"
-              aria-label="Show businesses needing attention"
-              aria-pressed={attentionOnly}
-              onClick={() => setAttentionOnly((active) => !active)}
-              className={`grid size-11 place-items-center rounded-xl border transition ${attentionOnly ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]" : "border-[var(--line)] bg-[var(--paper)]"}`}
-            >
-              <Filter size={16} />
-            </button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left">
-              <thead>
-                <tr className="border-b border-[var(--line)] text-[10px] uppercase tracking-[0.12em] text-[var(--muted)]">
-                  <th className="px-5 py-3">Business</th>
-                  <th className="px-4 py-3">Plan</th>
-                  <th className="px-4 py-3">Members</th>
-                  <th className="px-4 py-3">MRR</th>
-                  <th className="px-4 py-3">Health</th>
-                  <th className="px-4 py-3">Risk</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((business) => (
-                  <tr
-                    key={business.id}
-                    tabIndex={0}
-                    aria-label={`Open ${business.name}`}
-                    onClick={() => setSelectedId(business.id)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        setSelectedId(business.id);
-                      }
-                    }}
-                    className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === business.id ? "bg-[rgb(232_163_61/9%)]" : "hover:bg-[var(--paper)]"}`}
-                  >
-                    <td className="px-5 py-4">
-                      <p className="text-sm font-extrabold">{business.name}</p>
-                      <p className="mt-0.5 text-[10px] text-[var(--muted)]">
-                        {business.owner} · {business.city}
-                      </p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <Pill
-                        tone={business.plan === "Scale" ? "warning" : "neutral"}
-                      >
-                        {business.plan}
-                      </Pill>
-                    </td>
-                    <td className="px-4 py-4 text-sm font-bold">
-                      {business.members.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-4 text-sm font-extrabold">
-                      {pesoFromCentavos(business.mrrCentavos)}
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[var(--surface-2)]">
-                          <div
-                            className={`h-full rounded-full ${business.health >= 80 ? "bg-[var(--success)]" : business.health >= 65 ? "bg-[var(--accent)]" : "bg-[var(--danger)]"}`}
-                            style={{ width: `${business.health}%` }}
-                          />
-                        </div>
-                        <span className="text-xs font-bold">
-                          {business.health}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <Pill
-                        tone={
-                          business.risk === "Healthy"
-                            ? "success"
-                            : business.risk === "Watch"
-                              ? "warning"
-                              : "danger"
-                        }
-                      >
-                        {business.risk}
-                      </Pill>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-        <aside className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
-          <div className="flex items-center justify-between">
-            <span className="grid size-12 place-items-center rounded-2xl bg-[var(--accent)] text-lg font-extrabold text-[var(--ink)]">
-              {selected.name
-                .split(" ")
-                .slice(0, 2)
-                .map((word) => word[0])
-                .join("")}
-            </span>
-            <Pill
-              tone={
-                selected.risk === "Healthy"
-                  ? "success"
-                  : selected.risk === "Watch"
-                    ? "warning"
-                    : "danger"
-              }
-            >
-              {selected.risk}
-            </Pill>
-          </div>
-          <h2 className="mt-6 text-2xl font-extrabold tracking-[-0.02em]">
-            {selected.name}
-          </h2>
-          <p className="mt-1 text-sm text-white/60">
-            {selected.owner} · {selected.city}
-          </p>
-          <div className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10">
-            {[
-              ["Plan", selected.plan],
-              ["MRR", pesoFromCentavos(selected.mrrCentavos)],
-              ["Members", selected.members.toLocaleString()],
-              ["Joined", longDate(selected.joinedOn)],
-            ].map(([label, value]) => (
-              <div key={label} className="bg-[var(--ink-soft)] p-4">
-                <p className="text-[10px] text-white/50">{label}</p>
-                <p className="mt-1 text-sm font-extrabold">{value}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 rounded-2xl border border-white/12 p-4">
-            <div className="flex gap-3">
-              <ShieldCheck
-                size={17}
-                className="mt-0.5 shrink-0 text-[var(--accent)]"
-              />
-              <p className="text-xs leading-relaxed text-white/65">
-                Support access will require a reason, expire after 30 minutes, and
-                is written to the audit ledger.
-              </p>
-            </div>
-          </div>
-          <Button
-            tone="accent"
-            className="mt-6 w-full"
-            onClick={() =>
-              notify(
-                `Time-limited support view requested for ${selected.name}.`,
-              )
-            }
-          >
-            Request support access
-          </Button>
-        </aside>
-      </div>
-    </ViewFrame>
-  );
-}
-
 function PeopleView({ notify }: { notify: Notify }) {
-  const { data: metrics = EMPTY_PLATFORM_METRICS } = usePlatformMetrics();
+  const { data: metrics = EMPTY_PLATFORM_METRICS, isPending, error, refetch } = usePlatformMetrics();
   return (
     <ViewFrame
       eyebrow="Network people"
       title="People & privacy"
-      description="Monitor aggregate account health and data-subject requests. Platform staff never browse customer profiles without a scoped support or trust reason."
+      description="Aggregate account health and the privacy workflows this app monitors. No administrator reads a customer profile here; every field on this page is a count."
       action={
         <PlatformExportButton
           kind="privacy"
@@ -294,75 +84,66 @@ function PeopleView({ notify }: { notify: Notify }) {
         />
       }
     >
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {(
-          [
+      <QueryBoundary isPending={isPending} error={error} onRetry={refetch} label="account aggregates" rows={2}>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {(
             [
-              "Customer accounts",
-              metrics.customerAccounts.toLocaleString("en-PH"),
-              "One person, many memberships",
-              Users,
-            ],
-            ["Consent withdrawals", "184", "0.99% of accounts", Eye],
-            ["Exports in SLA", "100%", "12 completed", Download],
-            ["Deletion queue", "9", "Oldest is 3 hours", LockKeyhole],
-          ] as const
-        ).map(([label, value, detail, icon]) => {
-          const Icon = icon;
-          return (
-            <article
-              key={String(label)}
-              className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
-            >
-              <Icon size={18} className="text-[var(--accent-strong)]" />
-              <p className="mt-7 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
-                {label}
-              </p>
-              <p className="mt-1 text-2xl font-extrabold">{value}</p>
-              <p className="mt-1 text-xs text-[var(--muted-strong)]">
-                {detail}
-              </p>
-            </article>
-          );
-        })}
-      </div>
+              [
+                "Customer accounts",
+                metrics.customerAccounts.toLocaleString("en-PH"),
+                "One person, many memberships",
+                Users,
+              ],
+              ["Consent withdrawals", "—", "Not reported by the API yet", ShieldCheck],
+              ["Data exports", "—", "Not reported by the API yet", Download],
+              ["Deletion requests", "—", "Not reported by the API yet", LockKeyhole],
+            ] as const
+          ).map(([label, value, detail, icon]) => {
+            const Icon = icon;
+            return (
+              <article
+                key={String(label)}
+                className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
+              >
+                <Icon size={18} className="text-[var(--accent-strong)]" aria-hidden="true" />
+                <p className="mt-7 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
+                  {label}
+                </p>
+                <p className="mt-1 text-2xl font-extrabold">{value}</p>
+                <p className="mt-1 text-xs text-[var(--muted-strong)]">
+                  {detail}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+      </QueryBoundary>
       <div className="mt-3 grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <Eyebrow>Data-subject requests</Eyebrow>
-              <h2 className="mt-1 text-lg font-extrabold">Active work</h2>
-            </div>
-            <Pill tone="success">All in SLA</Pill>
-          </div>
-          <div className="mt-5 divide-y divide-[var(--line)]">
-            {[
-              ["dsr_1096", "Delete account", "Identity verified", "2h 14m"],
-              ["dsr_1095", "Portable export", "Generating archive", "3h 02m"],
+          <Eyebrow>Scoped access</Eyebrow>
+          <h2 className="mt-1 text-lg font-extrabold">How a person ever sees a customer record</h2>
+          <dl className="mt-5 divide-y divide-[var(--line)]">
+            {(
               [
-                "dsr_1094",
-                "Correct mobile number",
-                "Waiting for customer",
-                "5h 18m",
-              ],
-              ["dsr_1093", "Object to profiling", "Completed", "Yesterday"],
-            ].map(([id, request, status, age]) => (
-              <div key={id} className="grid grid-cols-[1fr_auto] gap-4 py-4">
-                <div>
-                  <p className="text-sm font-extrabold">{request}</p>
-                  <p className="mt-1 font-mono text-[10px] text-[var(--muted)]">
-                    {id} · {status}
-                  </p>
-                </div>
-                <span className="text-xs font-bold text-[var(--muted-strong)]">
-                  {age}
-                </span>
+                ["Time-limited", "A grant expires on its own, in minutes, not days."],
+                ["Reason-bound", "Every grant names the ticket or trust reason it serves."],
+                ["Audited", "The grant, the reads and the expiry are written to the audit ledger by the API."],
+              ] as const
+            ).map(([term, detail]) => (
+              <div key={term} className="grid gap-1 py-3.5 sm:grid-cols-[140px_1fr]">
+                <dt className="text-sm font-extrabold">{term}</dt>
+                <dd className="text-xs leading-relaxed text-[var(--muted-strong)]">{detail}</dd>
               </div>
             ))}
-          </div>
+          </dl>
+          <p className="mt-4 rounded-xl border border-dashed border-[var(--line-strong)] p-3 text-[11px] leading-relaxed text-[var(--muted-strong)]">
+            There is no endpoint to request a grant yet, so this console cannot open one. Consent,
+            export and deletion are handled in the merchant and customer apps; this page will show
+            their counts once the API reports them.
+          </p>
         </section>
         <section className="rounded-2xl bg-[var(--accent)] p-6">
-          <ShieldCheck size={22} />
+          <ShieldCheck size={22} aria-hidden="true" />
           <h2 className="mt-8 max-w-[12ch] text-3xl font-extrabold tracking-[-0.02em]">
             Rights are operational workflows.
           </h2>
@@ -381,7 +162,7 @@ function PeopleView({ notify }: { notify: Notify }) {
             }
             className="mt-7 inline-flex items-center gap-2 text-xs font-extrabold"
           >
-            Open privacy playbook <ArrowRight size={14} />
+            Open privacy playbook <ArrowRight size={14} aria-hidden="true" />
           </button>
         </section>
       </div>
@@ -389,116 +170,139 @@ function PeopleView({ notify }: { notify: Notify }) {
   );
 }
 
-function OperationsView({ notify }: { notify: Notify }) {
-  const { data: services = [] } = useServices();
-  const [replaying, setReplaying] = useState(false);
+/**
+ * Every transport, with honest status.
+ *
+ * The API reports the checks it can actually make. Everything else on this
+ * list says it is not reported rather than borrowing a green tile, and the
+ * note under it is what the site says about that transport today.
+ */
+const TRANSPORTS: { name: string; match: RegExp; detail?: string }[] = [
+  { name: "API", match: /^api/i },
+  { name: "Worker", match: /worker/i, detail: "Background jobs run here; a stale worker runs stale code." },
+  { name: "Beat", match: /beat|schedul/i, detail: "The scheduler behind journeys and retries." },
+  { name: "Database", match: /database|postgres/i, detail: "The API check probes it; there is no separate check yet." },
+  { name: "Redis", match: /redis/i },
+  { name: "Email · transactional", match: /transactional/i, detail: "Sign-in codes, reward notices and exports always send, on every plan." },
+  { name: "Email · marketing", match: /marketing/i, detail: "Not connected. Campaign email is refused until a campaign sender separate from the transactional one exists." },
+  { name: "SMS", match: /sms/i, detail: "Stub, no transport. Credits are priced before every send; nothing leaves the platform yet." },
+  { name: "Push", match: /push/i, detail: "In-app delivery only. There is no web push." },
+  { name: "Payments · QR Ph", match: /payment|paymongo/i, detail: "PayMongo webhook not registered. Billing opens with the two flags in Platform settings." },
+  { name: "Webhook delivery", match: /webhook/i, detail: "Outbound events to merchant endpoints; failures land in the recovery queue." },
+];
+
+function TransportTile({ name, service, detail }: { name: string; service?: ServiceHealth; detail?: string }) {
+  const degraded = service?.status === "Degraded";
+  return (
+    <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
+      <div className="flex items-start justify-between">
+        <span
+          className={`grid size-10 place-items-center rounded-xl ${
+            !service
+              ? "bg-[var(--surface-2)] text-[var(--muted)]"
+              : degraded
+                ? "bg-[rgb(178_59_43/12%)] text-[var(--danger)]"
+                : "bg-[rgb(15_118_85/12%)] text-[var(--success)]"
+          }`}
+        >
+          {!service ? <CircleAlert size={18} aria-hidden="true" /> : degraded ? <CircleAlert size={18} aria-hidden="true" /> : <Check size={18} aria-hidden="true" />}
+        </span>
+        <Pill tone={!service ? "neutral" : degraded ? "danger" : "success"}>
+          {service ? service.status : "Unreported"}
+        </Pill>
+      </div>
+      <h2 className="mt-7 text-base font-extrabold">{service?.name ?? name}</h2>
+      <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
+        {service ? "" : "Not reported by the API. "}
+        {detail ?? ""}
+      </p>
+      {service && (
+        <div className="mt-4 flex justify-between border-t border-[var(--line)] pt-3 text-xs">
+          <span className="text-[var(--muted)]">Latency {service.latency}</span>
+          <strong>{service.uptime}</strong>
+        </div>
+      )}
+    </article>
+  );
+}
+
+function OperationsView() {
+  const { data: services = [], isPending, error, refetch, isFetching } = useServices();
+  const { recoveryQueue } = useAdminState();
+  const claimed = new Set<string>();
+  const tiles = TRANSPORTS.map((transport) => {
+    const service = services.find((s) => !claimed.has(s.name) && transport.match.test(s.name));
+    if (service) claimed.add(service.name);
+    return { ...transport, service };
+  });
+  const unmatched = services.filter((s) => !claimed.has(s.name));
   return (
     <ViewFrame
       eyebrow="System operations"
       title="Delivery & services"
-      description="Follow API, worker, channel adapter, wallet-pass, and offline reconciliation health from one operational view."
+      description="Every transport, with honest status. A tile the API does not report says so; it does not borrow a green light."
       action={
         <Button
           tone="quiet"
-          icon={<RefreshCcw size={16} />}
-          onClick={() => {
-            setReplaying(true);
-            window.setTimeout(() => setReplaying(false), 900);
-            notify("Health checks refreshed.");
-          }}
+          icon={<RefreshCcw size={16} className={isFetching ? "animate-spin" : ""} />}
+          disabled={isFetching}
+          onClick={() => refetch()}
         >
-          {replaying ? "Refreshing…" : "Refresh health"}
+          {isFetching ? "Checking…" : "Refresh health"}
         </Button>
       }
     >
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {services.map((service) => (
-          <article
-            key={service.name}
-            className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
-          >
-            <div className="flex items-start justify-between">
-              <span
-                className={`grid size-10 place-items-center rounded-xl ${service.status === "Degraded" ? "bg-[rgb(178_59_43/12%)] text-[var(--danger)]" : "bg-[rgb(15_118_85/12%)] text-[var(--success)]"}`}
-              >
-                {service.status === "Degraded" ? (
-                  <CircleAlert size={18} />
-                ) : (
-                  <Check size={18} />
-                )}
-              </span>
-              <Pill tone={service.status === "Degraded" ? "danger" : "success"}>
-                {service.status}
-              </Pill>
-            </div>
-            <h2 className="mt-7 text-base font-extrabold">{service.name}</h2>
-            <div className="mt-4 flex justify-between border-t border-[var(--line)] pt-3 text-xs">
-              <span className="text-[var(--muted)]">
-                Latency {service.latency}
-              </span>
-              <strong>{service.uptime}</strong>
-            </div>
-          </article>
-        ))}
-      </section>
+      <QueryBoundary isPending={isPending} error={error} onRetry={refetch} label="service health" rows={4}>
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="Service health">
+          {tiles.map((tile) => (
+            <TransportTile key={tile.name} name={tile.name} service={tile.service} detail={tile.detail} />
+          ))}
+          {unmatched.map((service) => (
+            <TransportTile key={service.name} name={service.name} service={service} />
+          ))}
+        </section>
+        <p className="mt-3 text-[10px] font-semibold text-[var(--muted)]">
+          {services.length} check{services.length === 1 ? "" : "s"} reported by the API; the rest are the site&apos;s own account of each transport.
+        </p>
+      </QueryBoundary>
       <div className="mt-3 grid gap-3 xl:grid-cols-[1.15fr_0.85fr]">
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
           <div className="flex items-center justify-between">
             <div>
-              <Eyebrow>Worker queues</Eyebrow>
-              <h2 className="mt-1 text-lg font-extrabold">Backlog by job type</h2>
+              <Eyebrow>Recovery queue</Eyebrow>
+              <h2 className="mt-1 text-lg font-extrabold">
+                {recoveryQueue.length} deliver{recoveryQueue.length === 1 ? "y" : "ies"} awaiting replay
+              </h2>
             </div>
-            <Activity />
+            <Activity aria-hidden="true" />
           </div>
-          <div className="mt-6 space-y-5">
-            {[
-              ["Campaign delivery", 38, 120],
-              ["Webhook retry", 12, 40],
-              ["Offline reconciliation", 84, 180],
-              ["Exports and deletion", 9, 30],
-              ["Wallet pass updates", 24, 80],
-            ].map(([name, depth, max]) => (
-              <div key={String(name)}>
-                <div className="flex justify-between text-xs">
-                  <strong>{name}</strong>
-                  <span className="text-[var(--muted)]">{depth} queued</span>
-                </div>
-                <div className="mt-2 h-2 rounded-full bg-[var(--surface-2)]">
-                  <div
-                    className="h-full rounded-full bg-[var(--ink)]"
-                    style={{ width: `${(Number(depth) / Number(max)) * 100}%` }}
-                  />
-                </div>
-              </div>
+          <ul className="mt-5 divide-y divide-[var(--line)]">
+            {recoveryQueue.slice(0, 6).map((item) => (
+              <li key={item.id} className="flex items-center justify-between gap-3 py-3 text-xs">
+                <span className="min-w-0">
+                  <code className="block truncate font-extrabold">{item.event}</code>
+                  <span className="block truncate text-[var(--muted-strong)]">{item.tenant} · {item.detail}</span>
+                </span>
+                <Pill tone="neutral">{item.direction}</Pill>
+              </li>
             ))}
-          </div>
+            {recoveryQueue.length === 0 && (
+              <li className="py-4 text-xs font-semibold text-[var(--muted)]">Everything has been replayed.</li>
+            )}
+          </ul>
+          <a href="#integrations" className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-[var(--accent-strong)]">
+            Replay from Integrations <ArrowRight size={14} aria-hidden="true" />
+          </a>
         </section>
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
-          <div className="flex items-center justify-between">
-            <Eyebrow>Active incident</Eyebrow>
-            <Pill tone="danger">Investigating</Pill>
-          </div>
+          <Eyebrow>Incidents</Eyebrow>
           <h2 className="mt-7 text-2xl font-extrabold tracking-[-0.02em]">
-            SMS delivery latency
+            {services.some((s) => s.status === "Degraded") ? "A reported check is degraded" : "No reported check is degraded"}
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-white/65">
-            One provider route is delayed. Service messages are retrying;
-            promotional jobs are held to avoid duplicates and unexpected credit
-            spend.
+            Queue depth, worker liveness and incident timelines are not reported by the API yet;
+            this panel will carry them when they are.
           </p>
-          <div className="mt-6 divide-y divide-white/12 border-y border-white/12">
-            {[
-              ["Started", "10:21 AM"],
-              ["Affected", "8.4% of SMS"],
-              ["Fallback", "Email when consented"],
-              ["Next update", "11:15 AM"],
-            ].map(([label, value]) => (
-              <div key={label} className="flex justify-between py-3 text-xs">
-                <span className="text-white/50">{label}</span>
-                <strong>{value}</strong>
-              </div>
-            ))}
-          </div>
           {/* No runbook exists to open. Saying so beats reporting that one
               did - an operator in an incident must not be told a document
               opened when none did. */}
@@ -833,9 +637,8 @@ function AuditView({ notify }: { notify: Notify }) {
         <div>
           <p className="text-sm font-extrabold">Append-only by design (planned)</p>
           <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-            Demo records are local JSON. The production API should hash event
-            chains, retain actor and request context, and export signed evidence
-            without allowing in-place edits.
+            Rows are the API&apos;s. Hashed event chains and signed exports are
+            planned; nothing here edits an entry in place.
           </p>
         </div>
       </div>
@@ -940,9 +743,15 @@ function BilledAndSent() {
 }
 
 function EconomicsView() {
-  const { data: metrics = EMPTY_PLATFORM_METRICS } = usePlatformMetrics();
+  const {
+    data: metrics = EMPTY_PLATFORM_METRICS,
+    isPending,
+    error,
+    refetch,
+  } = usePlatformMetrics();
   const { data: planEconomics = [] } = usePlanEconomics();
   const { data: channelEconomics = [] } = useChannelEconomics();
+  const { data: tenants = [] } = useTenants();
   const totalPlanMrr = planEconomics.reduce(
     (sum, plan) => sum + plan.mrrCentavos,
     0,
@@ -951,34 +760,42 @@ function EconomicsView() {
     (sum, plan) => sum + plan.monthlyCostCentavos,
     0,
   );
-  const margin = ((totalPlanMrr - totalPlanCost) / totalPlanMrr) * 100;
+  const margin = totalPlanMrr ? ((totalPlanMrr - totalPlanCost) / totalPlanMrr) * 100 : 0;
+  const foundingCount = tenants.filter((tenant) => tenant.founding).length;
+  const foundingExposure = foundingCount * FOUNDING.freeMonths * FOUNDING.coreMonthlyCentavos;
   return (
     <ViewFrame
       eyebrow="Sustainable growth"
       title="Revenue & margin"
-      description="Protect gross margin by separating predictable software value from variable delivery costs. SMS and connected messaging never disappear inside an unlimited promise."
+      description="Plan revenue, channel cost and the margin between them, in pesos. Gross margin counts channel cost only; infrastructure is not modelled."
     >
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <QueryBoundary isPending={isPending} error={error} onRetry={refetch} label="platform economics" rows={2}>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {[
           [
             "Subscription MRR",
             pesoFromCentavos(metrics.monthlyRecurringRevenueCentavos),
-            "+8.4%",
+            "Only Launch is sellable today",
           ],
           [
-            "Blended gross margin",
+            "Gross margin",
             `${metrics.grossMargin}%`,
-            "Target ≥ 75%",
+            "Channel cost only, infrastructure not modelled",
           ],
           [
             "Net revenue retention",
             `${metrics.netRevenueRetention}%`,
-            "Expansion healthy",
+            "Against last month's MRR",
           ],
           [
             "SMS credit liability",
             pesoFromCentavos(metrics.smsLiabilityCentavos),
-            "Prepaid reserve",
+            "Prepaid credits not yet sent",
+          ],
+          [
+            "Founding credit exposure",
+            pesoFromCentavos(foundingExposure),
+            `Projection: ${foundingCount} founding × ${FOUNDING.freeMonths} months × ${pesoFromCentavos(FOUNDING.coreMonthlyCentavos)} Core`,
           ],
         ].map(([label, value, detail]) => (
           <article
@@ -995,14 +812,18 @@ function EconomicsView() {
           </article>
         ))}
       </div>
+      </QueryBoundary>
       <BilledAndSent />
       <div className="mt-3 grid gap-3 xl:grid-cols-[1.1fr_0.9fr]">
         <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="border-b border-[var(--line)] p-5">
             <Eyebrow>Plan contribution</Eyebrow>
             <h2 className="mt-1 text-lg font-extrabold">
-              Revenue after direct service cost
+              Revenue after channel cost
             </h2>
+            <p className="mt-1 text-xs text-[var(--muted-strong)]">
+              Margin is channel cost only; infrastructure is not modelled.
+            </p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[620px] text-left">
@@ -1059,7 +880,10 @@ function EconomicsView() {
             {margin.toFixed(1)}%
           </p>
           <p className="mt-1 text-sm font-bold">
-            modeled subscription contribution margin
+            subscription margin after channel cost
+          </p>
+          <p className="mt-1 text-xs text-[var(--ink)]/70">
+            Channel cost only, infrastructure not modelled.
           </p>
           <p className="mt-5 text-sm leading-relaxed text-[var(--ink)]/80">
             Launch is an acquisition cost with hard limits. Core and Grow fund
@@ -1124,74 +948,6 @@ function EconomicsView() {
         </div>
       </section>
     </ViewFrame>
-  );
-}
-
-/**
- * A network-wide export, streamed straight to the browser.
- *
- * Both buttons used to say "prepared" and produce nothing. An audit ledger
- * you cannot take out of the system is not a ledger: the reason to keep one
- * is to hand it to whoever is asking.
- */
-/**
- * Who signed up and then stalled.
- *
- * There is no approval queue - a business is live the moment it signs up -
- * so the useful question is not who is waiting but who got stuck, and on
- * which step.
- */
-function OnboardingPanel() {
-  const { data: rows = [] } = useOnboarding();
-  const stalled = rows.filter((row) => row.stepsDone < row.stepsTotal);
-
-  return (
-    <section className="mb-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
-      <div className="border-b border-[var(--line)] p-5">
-        <Eyebrow>Setup</Eyebrow>
-        <h2 className="mt-1 text-lg font-extrabold">
-          {stalled.length
-            ? `${stalled.length} of ${rows.length} still setting up`
-            : "Every workspace is set up"}
-        </h2>
-      </div>
-      <ul className="divide-y divide-[var(--line)]">
-        {rows.map((row) => (
-          <li key={row.merchantId} className="flex items-center gap-4 p-4">
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-extrabold">{row.name}</p>
-              <p className="mt-0.5 text-[10px] text-[var(--muted-strong)]">
-                {row.plan} · joined {relativeTime(row.createdAt)}
-              </p>
-            </div>
-            <div className="hidden gap-1.5 sm:flex">
-              {(
-                [
-                  ["Program", row.hasProgram],
-                  ["Location", row.hasLocation],
-                  ["Staff", row.hasStaff],
-                  ["First stamp", row.hasFirstStamp],
-                ] as const
-              ).map(([label, done]) => (
-                <span
-                  key={label}
-                  className={`rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.08em] ${
-                    done
-                      ? "bg-[rgb(15_118_85/12%)] text-[var(--success)]"
-                      : "bg-[var(--surface-2)] text-[var(--muted)]"
-                  }`}
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-            <Pill tone={row.stepsDone === row.stepsTotal ? "success" : "warning"}>
-              {row.stepsDone}/{row.stepsTotal}
-            </Pill>
-          </li>
-        ))}
-      </ul>
-    </section>
   );
 }
 
@@ -1307,89 +1063,80 @@ function PlatformExportButton({
   );
 }
 
-function SettingsView({ notify }: { notify: Notify }) {
-  const { data: administrators = [] } = useAdministrators();
-  const [reviewOpen, setReviewOpen] = useState(false);
-  const signedIn = administrators.filter((person) => person.activeSessions > 0);
-  const withoutMfa = administrators.filter((person) => !person.mfaEnabled);
+/**
+ * The two switches that open billing.
+ *
+ * Both live in the same `/admin/flags` list as the safety defaults; the API
+ * writes the audit entry on every flip. Until the API lists them they render
+ * off, under a preview badge, and the switch cannot move.
+ */
+const BILLING_FLAGS = [
+  {
+    key: "billing.paid_tiers",
+    title: "Paid tiers",
+    detail: "Core, Grow and Scale become purchasable; the business app shows QR Ph payment instead of “not open yet”.",
+  },
+  {
+    key: "billing.credit_purchases",
+    title: "Credit purchases",
+    detail: "SMS credit bundles and email top-ups can be bought, QR Ph only.",
+  },
+] as const;
+
+function BillingFlagsCard({ notify }: { notify: Notify }) {
   const { flags, toggleFlag } = useAdminState();
+  const { isPending, error, refetch } = usePlatformFlags();
+  const anyMissing = BILLING_FLAGS.some((flag) => !(flag.key in flags));
   return (
-    <ViewFrame
-      eyebrow="Platform configuration"
-      title="Platform settings"
-      description="Set global trust, delivery, billing, retention, and privileged-access defaults. Every change enters the audit ledger."
-      action={
-        <Button
-          onClick={() =>
-            notify("Platform settings saved to the local demo state.")
-          }
-        >
-          Save changes
-        </Button>
-      }
-    >
-      <div className="grid gap-3 xl:grid-cols-[1fr_0.72fr]">
-        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
-          <div className="border-b border-[var(--line)] p-5">
-            <Eyebrow>Safety defaults</Eyebrow>
-            <h2 className="mt-1 text-lg font-extrabold">
-              Controls that apply network-wide
-            </h2>
-          </div>
-          {(
-            [
-              [
-                "automaticPausing",
-                "Automatic campaign pausing",
-                "Pause on complaint, unsubscribe, fraud, or provider-error thresholds",
-                ShieldAlert,
-              ],
-              [
-                "publicStatus",
-                "Public service status",
-                "Publish active incidents and resolution updates",
-                Activity,
-              ],
-              [
-                "newTenantReview",
-                "New tenant review",
-                "Verify business identity before paid outbound messaging",
-                Building2,
-              ],
-              [
-                "adminMfa",
-                "Administrator MFA",
-                "Require a strong second factor for every privileged session",
-                KeyRound,
-              ],
-            ] as const
-          ).map(([key, title, detail, icon], index) => {
-            const Icon = icon;
-            const enabled = flags[key];
+    <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+      <div className="flex items-start justify-between gap-3 border-b border-[var(--line)] p-5">
+        <div>
+          <Eyebrow>Billing</Eyebrow>
+          <h2 className="mt-1 text-lg font-extrabold">Off through December 2026</h2>
+          <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+            Turning a flag on opens billing; no deploy needed. Every flip is an audit ledger entry
+            recorded by the API.
+          </p>
+        </div>
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--surface-2)]">
+          <CreditCard size={17} aria-hidden="true" />
+        </span>
+      </div>
+      <div className="p-5">
+        <QueryBoundary isPending={isPending} error={error} onRetry={refetch} label="billing flags" rows={2}>
+          {BILLING_FLAGS.map((flag, index) => {
+            const present = flag.key in flags;
+            const enabled = flags[flag.key] ?? false;
             return (
               <div
-                key={String(key)}
-                className={`flex items-start gap-4 p-5 ${index > 0 ? "border-t border-[var(--line)]" : ""}`}
+                key={flag.key}
+                className={`flex items-start gap-4 ${index > 0 ? "mt-4 border-t border-[var(--line)] pt-4" : ""}`}
               >
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--surface-2)]">
-                  <Icon size={17} />
-                </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-extrabold">{title}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-extrabold">{flag.title}</p>
+                    <code className="font-mono text-[10px] text-[var(--muted)]">{flag.key}</code>
+                    {!present && <PreviewBadge />}
+                  </div>
                   <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                    {detail}
+                    {flag.detail}
                   </p>
+                  {!present && (
+                    <p className="mt-1 text-[11px] text-[var(--muted-strong)]">{PREVIEW_WRITE_REASON}</p>
+                  )}
                 </div>
                 <button
                   type="button"
                   role="switch"
-                  aria-label={`Toggle ${title}`}
+                  aria-label={`Toggle ${flag.title}`}
                   aria-checked={enabled}
+                  disabled={!present}
+                  title={present ? undefined : PREVIEW_WRITE_REASON}
                   onClick={() => {
-                    const next = toggleFlag(key);
-                    notify(`${title} ${next ? "enabled" : "disabled"} network-wide.`);
+                    const next = toggleFlag(flag.key);
+                    notify(`${flag.title} ${next ? "on" : "off"}. The API wrote it to the audit ledger.`);
                   }}
-                  className={`relative h-6 w-10 shrink-0 rounded-full ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
+                  className={`relative h-6 w-10 shrink-0 rounded-full disabled:opacity-45 ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                 >
                   <span
                     className={`absolute top-1 size-4 rounded-full bg-white transition ${enabled ? "left-5" : "left-1"}`}
@@ -1398,7 +1145,104 @@ function SettingsView({ notify }: { notify: Notify }) {
               </div>
             );
           })}
-        </section>
+          {anyMissing && (
+            <p className="mt-4 text-[11px] leading-relaxed text-[var(--muted)]">
+              A flag the API does not list yet is shown off. It becomes live here the day
+              `/admin/flags` returns it; nothing on this page needs to change.
+            </p>
+          )}
+        </QueryBoundary>
+      </div>
+    </section>
+  );
+}
+
+function SettingsView({ notify }: { notify: Notify }) {
+  const { data: administrators = [], isPending, error, refetch } = useAdministrators();
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const signedIn = administrators.filter((person) => person.activeSessions > 0);
+  const withoutMfa = administrators.filter((person) => !person.mfaEnabled);
+  const { flags, toggleFlag } = useAdminState();
+  return (
+    <ViewFrame
+      eyebrow="Platform configuration"
+      title="Platform settings"
+      description="Network-wide trust, delivery, billing, retention and privileged-access defaults. Every switch writes on the press; every change enters the audit ledger."
+    >
+      <div className="grid gap-3 xl:grid-cols-[1fr_0.72fr]">
+        <div className="space-y-3">
+          <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+            <div className="border-b border-[var(--line)] p-5">
+              <Eyebrow>Safety defaults</Eyebrow>
+              <h2 className="mt-1 text-lg font-extrabold">
+                Controls that apply network-wide
+              </h2>
+            </div>
+            {(
+              [
+                [
+                  "automaticPausing",
+                  "Automatic campaign pausing",
+                  "Pause on complaint, unsubscribe, fraud, or provider-error thresholds",
+                  ShieldAlert,
+                ],
+                [
+                  "publicStatus",
+                  "Public service status",
+                  "Publish active incidents and resolution updates",
+                  Activity,
+                ],
+                [
+                  "newTenantReview",
+                  "New tenant review",
+                  "Verify business identity before paid outbound messaging",
+                  Building2,
+                ],
+                [
+                  "adminMfa",
+                  "Administrator MFA",
+                  "Require a strong second factor for every privileged session",
+                  KeyRound,
+                ],
+              ] as const
+            ).map(([key, title, detail, icon], index) => {
+              const Icon = icon;
+              const enabled = flags[key];
+              return (
+                <div
+                  key={String(key)}
+                  className={`flex items-start gap-4 p-5 ${index > 0 ? "border-t border-[var(--line)]" : ""}`}
+                >
+                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--surface-2)]">
+                    <Icon size={17} aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-extrabold">{title}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+                      {detail}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-label={`Toggle ${title}`}
+                    aria-checked={enabled}
+                    onClick={() => {
+                      const next = toggleFlag(key);
+                      notify(`${title} ${next ? "enabled" : "disabled"} network-wide.`);
+                    }}
+                    className={`relative h-6 w-10 shrink-0 rounded-full ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
+                  >
+                    <span
+                      className={`absolute top-1 size-4 rounded-full bg-white transition ${enabled ? "left-5" : "left-1"}`}
+                    />
+                  </button>
+                </div>
+              );
+            })}
+          </section>
+          <BillingFlagsCard notify={notify} />
+        </div>
         <aside className="space-y-3">
           <ProviderPolicyCard notify={notify} />
           <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
@@ -1406,6 +1250,7 @@ function SettingsView({ notify }: { notify: Notify }) {
               <UserRoundCog
                 size={19}
                 className="mt-0.5 text-[var(--accent-strong)]"
+                aria-hidden="true"
               />
               <div>
                 <p className="text-sm font-extrabold">
@@ -1431,31 +1276,35 @@ function SettingsView({ notify }: { notify: Notify }) {
               {reviewOpen ? "Close review" : "Review access"}
             </Button>
             {reviewOpen && (
-              <ul className="mt-4 divide-y divide-[var(--line)] rounded-2xl border border-[var(--line)]">
-                {administrators.map((person) => (
-                  <li key={person.id} className="flex items-start gap-3 p-3.5">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-extrabold">{person.name}</p>
-                      <p className="mt-0.5 truncate text-[10px] text-[var(--muted-strong)]">
-                        {person.email}
-                      </p>
-                      <p className="mt-1 text-[10px] text-[var(--muted)]">
-                        {person.activeSessions
-                          ? `${person.activeSessions} live session${person.activeSessions === 1 ? "" : "s"}`
-                          : "not signed in"}
-                        {person.lastSeenAt ? ` · last seen ${relativeTime(person.lastSeenAt)}` : ""}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 flex-col items-end gap-1">
-                      {/* The two states this review exists to surface. */}
-                      <Pill tone={person.isActive ? "success" : "neutral"}>
-                        {person.isActive ? "Active" : "Disabled"}
-                      </Pill>
-                      {!person.mfaEnabled && <Pill tone="danger">No MFA</Pill>}
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-4">
+                <QueryBoundary isPending={isPending} error={error} onRetry={refetch} label="administrators" rows={2}>
+                  <ul className="divide-y divide-[var(--line)] rounded-2xl border border-[var(--line)]">
+                    {administrators.map((person) => (
+                      <li key={person.id} className="flex items-start gap-3 p-3.5">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-extrabold">{person.name}</p>
+                          <p className="mt-0.5 truncate text-[10px] text-[var(--muted-strong)]">
+                            {person.email}
+                          </p>
+                          <p className="mt-1 text-[10px] text-[var(--muted)]">
+                            {person.activeSessions
+                              ? `${person.activeSessions} live session${person.activeSessions === 1 ? "" : "s"}`
+                              : "not signed in"}
+                            {person.lastSeenAt ? ` · last seen ${relativeTime(person.lastSeenAt)}` : ""}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 flex-col items-end gap-1">
+                          {/* The two states this review exists to surface. */}
+                          <Pill tone={person.isActive ? "success" : "neutral"}>
+                            {person.isActive ? "Active" : "Disabled"}
+                          </Pill>
+                          {!person.mfaEnabled && <Pill tone="danger">No MFA</Pill>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </QueryBoundary>
+              </div>
             )}
           </article>
         </aside>
@@ -1472,14 +1321,15 @@ export function AdminViewContent({
   notify: Notify;
 }) {
   const views: Record<Exclude<AdminView, "overview">, ReactNode> = {
-    businesses: <BusinessesView notify={notify} />,
+    businesses: <AdminBusinessesView />,
     partners: <PartnerQueueView notify={notify} />,
     people: <PeopleView notify={notify} />,
-    operations: <OperationsView notify={notify} />,
+    operations: <OperationsView />,
     integrations: <AdminIntegrationsView notify={notify} />,
     support: <SupportView notify={notify} />,
     audit: <AuditView notify={notify} />,
     economics: <EconomicsView />,
+    addons: <AdminAddOnsView />,
     settings: <SettingsView notify={notify} />,
   };
   return view === "overview" ? null : views[view];

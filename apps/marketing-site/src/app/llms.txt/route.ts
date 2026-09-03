@@ -102,6 +102,9 @@ ${featureMatrix.map(matrixLine).join("\n\n")}
 - Cooldown: merchant-set, default once per day per customer per shop.
 - Completed cards hold their reward until redeemed; earning is never blocked.
 - Redemption requires the customer's approval on their phone.
+- Run window: optional, merchant-set, default forever. A card runs from a start date to an end date, or with no end; nothing is earned outside the window and the card closes by itself at the end. The dates are shown on the card before the first stamp.
+- When a card closes: unfinished stamps expire or carry over to a successor card the merchant names, the merchant's choice. A reward already earned is always honoured for a grace period the merchant sets, default 30 days; invalidating an earned reward is never offered.
+- Completions per member: once, a number, or unlimited per run, merchant-set, default unlimited. At the limit the card reads completed and stops earning; a held reward is unaffected.
 - Staff stamping without a purchase is detected (named ledger, stamps-per-staff, one-tap reversal), not prevented. KYP Stamping does not claim POS-verified purchases until POS integration is connected.
 
 ## Founding merchants

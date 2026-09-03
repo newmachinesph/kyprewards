@@ -65,51 +65,46 @@ barcode, savable and printable. Discover reads the device position
   window shown before queueing, promo-code entry, sending a reward to another
   member as pasalubong.
 
+## Built 2026-09-04
+
+Brand is KYP throughout (layout, manifest, page titles, the auth flow in
+`packages/ui/auth`). The wallet reads `useWalletWithPreview()`, so locally
+three sample cards sit after the real ones: a pending welcome stamp, a
+Ber-months run with a tier, a live bonus window, a mission and store
+credit, and a closed run with a held reward and "Redeem by". Card states,
+terms in plain language, `nextStampAt`, the KYP Stamping badge on Launch
+cards, tier chip, missions and store credit render from
+`src/components/cards.tsx`. New sheets: `ApproveSheet` (`#approve`,
+pending redemption approvals), `GiftsSheet` (`#gifts`, pasalubong sent and
+received, a send form), `PushSection` inside Notifications (web push
+subscribe, production only). Discover derives its chips from the data,
+keeps the API's order unless "Nearest first" is on, and links to the
+marketplace. The member code renders as an inline EAN-13 (`Barcode.tsx`)
+plus a QR cached in `localStorage` at boot, so it opens offline first time.
+Every write against an unbuilt route is disabled with
+`PREVIEW_WRITE_REASON`. Phone shell is 460px wide on every route.
+
 ## Known gaps, in order
 
-1. **Brand and domain.** `app/layout.tsx` and `app/manifest.ts` say
-   "KYPStamping"; the wallet is "KYP" on kyp.ph. Name and short name "KYP",
-   the description in the marketplace's voice ("One card for every shop you
-   already visit"). Legal links go to `kypstamping.ph/privacy` and `/terms`;
-   the "I run a shop" door lives on kyp.ph, not here.
-2. **Pending welcome stamp.** The API writes a real stamp from a two-hour
-   offer; the site says pending for 30 days with the expiry date on the
-   card, confirmed by the first staff scan. Backend gap. Render the state the
-   API returns; when `pending` arrives, the card says so with the date and
-   never counts it as earned.
-3. **Customer-approved redemption.** No approval step exists in the wallet
-   because the API has none. Until it does, nothing here says a reward is
-   approved on the phone. When it arrives it is a notification plus a single
-   confirm on the card, and the counter waits for it.
-4. **Held and stacked rewards.** Verify a full card shows its held reward and
-   a fresh card behind it, and that several unredeemed rewards list
-   separately.
-5. **Card terms.** Show whatever the program exposes today (target, reward,
-   expiry); add cooldown, minimum spend and the welcome-stamp state when the
-   API carries them. Never compute a rule locally.
-6. **Push.** `sw.js` handles install, activate and fetch only; there is no
-   web push. The notifications screen describes the in-app inbox and must not
-   promise alerts on a closed phone until web push exists.
-7. **Offline code.** The QR codec loads as a lazy chunk. Confirm it is
-   precached or the code is rendered at install time, so the code opens at
-   the counter with no signal on the first try.
-8. **Discover ordering.** Featured placement above distance, category and
-   neighborhood filters that match the categories shops actually carry,
-   hours on the card.
-9. **Consent on file per shop.** The account-wide channel preference and the
-   membership's consent flags are both required for a promotional send.
-   Decided (D3): joining, the poster claim and imports seed the shop's flags
-   from the account preference. Until the backend ships that on every path,
-   the per-shop view must not imply a shop can reach the customer when it
-   cannot.
-10. **Tier features.** Suki tier, missions, bonus windows, promo codes and
-    gifting have no endpoints. No UI until they exist.
-11. **Queued card conditions (D8 in `../../../PLAN.md`).** When the site
-    publishes them: run dates on the card before the first stamp, a
-    `completed` state at the completion cap, a `closed` state after the run
-    with "redeem by" on any held reward, a plain sentence on what happened to
-    unfinished stamps (expired, or moved to the named successor card), and
-    "this card is full" on a capped poster.
+1. **Backend routes and fields to ship** before the preview badges go:
+   card state, `pendingStamp`, `rules`, `nextStampAt`, `redeemBy`, `badge`,
+   `tier`, `bonusWindow`, `missions`, `storeCreditCentavos` on the wallet
+   card; `GET /customer/redemptions/pending` with approve and decline;
+   `GET`/`POST /customer/gifts`; `POST /customer/promo-codes/redeem`;
+   `GET /customer/push` with subscribe and unsubscribe. The pending stamp
+   sample counts it inside `progress`; `earnedStamps` in `cards.tsx`
+   subtracts it while `state === "pending"`. If the backend ships
+   `progress` excluding it, drop that subtraction.
+2. **`DiscoverPlace.featured`** does not exist on the wallet's discover
+   read; the app keeps the API's order. Add the flag when the backend has it.
+3. **Reward gifts** send no `rewardId` because a wallet card carries none;
+   the body names the membership. Decide with the backend.
+4. **Web push** needs the service worker registered, which is production
+   only; the control is preview-disabled locally.
+5. **Consent on file per shop.** Decided (D3): joining, the poster claim and
+   imports seed the shop's flags from the account preference. Until the
+   backend does that on every path, the per-shop row says it shows the
+   account-level preference and that no per-shop consent is on file.
 
 ## Rules specific to this app
 

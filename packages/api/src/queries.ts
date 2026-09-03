@@ -582,3 +582,212 @@ export const useChannelEconomics = (
     queryFn: api.getChannelEconomics,
     ...options,
   });
+
+/* ── Ahead of the backend ────────────────────────────────────────────
+   Every hook here reads a route the service does not serve yet. `withPreview`
+   returns sample data locally when the route answers 404, and the real
+   answer the day it exists. See preview.ts. */
+
+import { withPreview, withPreviewExtras } from "./preview";
+import * as sample from "./preview-samples";
+import type {
+  AddOnSubscription,
+  BonusWindow,
+  CategoryRate,
+  CloseBehaviour,
+  DiscoverFacet,
+  FeaturedPlacement,
+  GiftTransfer,
+  Mission,
+  PendingApproval,
+  PromoCode,
+  PublicDiscoverQuery,
+  PublicShop,
+  PushState,
+  QrPayment,
+  StoreCreditEntry,
+  SukiTierProgram,
+} from "./types";
+import type { Page } from "./http";
+
+/**
+ * The wallet, plus the sample cards that show a pending welcome stamp, a run
+ * with a tier and a mission, and a closed run. Real cards come first.
+ */
+export const useWalletWithPreview = (options?: Options<WalletCard[]>): Query<WalletCard[]> =>
+  useQuery({
+    queryKey: [...keys.customer.wallet(), "preview"],
+    queryFn: withPreviewExtras(api.getWallet, sample.sampleWalletExtras),
+    ...options,
+  });
+
+export const usePendingApprovals = (
+  options?: Options<PendingApproval[]>,
+): Query<PendingApproval[]> =>
+  useQuery({
+    queryKey: keys.wallet.approvals(),
+    queryFn: withPreview(api.getPendingApprovals, sample.samplePendingApprovals),
+    staleTime: 10_000,
+    ...options,
+  });
+
+export const useClosePreview = (programId: string, onClose: CloseBehaviour) =>
+  useQuery({
+    queryKey: keys.levers.closePreview(programId, onClose),
+    queryFn: withPreview(
+      () => api.previewClose(programId, onClose),
+      () => ({ openCards: 312, expiring: onClose === "expire" ? 312 : 0, carriedOver: onClose === "carryOver" ? 312 : 0, heldRewards: 41 }),
+    ),
+    enabled: Boolean(programId),
+  });
+
+export const useBonusWindows = (options?: Options<BonusWindow[]>): Query<BonusWindow[]> =>
+  useQuery({
+    queryKey: keys.levers.bonusWindows(),
+    queryFn: withPreview(api.getBonusWindows, sample.sampleBonusWindows),
+    ...options,
+  });
+
+export const usePromoCodes = (options?: Options<PromoCode[]>): Query<PromoCode[]> =>
+  useQuery({
+    queryKey: keys.levers.promoCodes(),
+    queryFn: withPreview(api.getPromoCodes, sample.samplePromoCodes),
+    ...options,
+  });
+
+export const useStoreCredit = (
+  customerId?: string,
+  options?: Options<StoreCreditEntry[]>,
+): Query<StoreCreditEntry[]> =>
+  useQuery({
+    queryKey: keys.levers.storeCredit(customerId),
+    queryFn: withPreview(
+      () => api.getStoreCredit(customerId),
+      () =>
+        sample.sampleStoreCredit().filter((e) => !customerId || e.customerId === customerId),
+    ),
+    ...options,
+  });
+
+export const useSukiTiers = (options?: Options<SukiTierProgram>): Query<SukiTierProgram> =>
+  useQuery({
+    queryKey: keys.levers.sukiTiers(),
+    queryFn: withPreview(api.getSukiTiers, sample.sampleSukiTiers),
+    ...options,
+  });
+
+export const useMissions = (options?: Options<Mission[]>): Query<Mission[]> =>
+  useQuery({
+    queryKey: keys.levers.missions(),
+    queryFn: withPreview(api.getMissions, sample.sampleMissions),
+    ...options,
+  });
+
+export const useBusinessGifts = (options?: Options<GiftTransfer[]>): Query<GiftTransfer[]> =>
+  useQuery({
+    queryKey: keys.levers.gifts(),
+    queryFn: withPreview(api.getBusinessGifts, sample.sampleGifts),
+    ...options,
+  });
+
+export const useCustomerGifts = (options?: Options<GiftTransfer[]>): Query<GiftTransfer[]> =>
+  useQuery({
+    queryKey: keys.wallet.gifts(),
+    queryFn: withPreview(api.getCustomerGifts, sample.sampleGifts),
+    ...options,
+  });
+
+export const useCategoryRates = (
+  programId: string,
+  options?: Options<CategoryRate[]>,
+): Query<CategoryRate[]> =>
+  useQuery({
+    queryKey: keys.levers.categoryRates(programId),
+    queryFn: withPreview(() => api.getCategoryRates(programId), sample.sampleCategoryRates),
+    enabled: Boolean(programId),
+    ...options,
+  });
+
+export const useFeaturedPlacement = (
+  options?: Options<FeaturedPlacement>,
+): Query<FeaturedPlacement> =>
+  useQuery({
+    queryKey: keys.levers.featured(),
+    queryFn: withPreview(api.getFeaturedPlacement, sample.sampleFeatured),
+    ...options,
+  });
+
+/* The public marketplace. No session; safe to call from kyp.ph. */
+
+export const usePublicDiscover = (
+  query: PublicDiscoverQuery = {},
+  options?: Options<Page<PublicShop>>,
+): Query<Page<PublicShop>> =>
+  useQuery({
+    queryKey: keys.public.discover(query),
+    queryFn: withPreview(() => api.getPublicDiscover(query), () => sample.samplePublicDiscover(query)),
+    placeholderData: (previous) => previous,
+    ...options,
+  });
+
+export const usePublicShop = (slug: string, options?: Options<PublicShop>): Query<PublicShop> =>
+  useQuery({
+    queryKey: keys.public.shop(slug),
+    queryFn: withPreview(
+      () => api.getPublicShop(slug),
+      () => {
+        const found = sample.samplePublicShop(slug);
+        if (!found) throw new Error("No shop with that address");
+        return found;
+      },
+    ),
+    enabled: Boolean(slug),
+    retry: false,
+    ...options,
+  });
+
+export const usePublicCategories = (options?: Options<DiscoverFacet[]>): Query<DiscoverFacet[]> =>
+  useQuery({
+    queryKey: keys.public.categories(),
+    queryFn: withPreview(api.getPublicCategories, sample.sampleCategories),
+    ...options,
+  });
+
+export const usePublicNeighborhoods = (
+  options?: Options<DiscoverFacet[]>,
+): Query<DiscoverFacet[]> =>
+  useQuery({
+    queryKey: keys.public.neighborhoods(),
+    queryFn: withPreview(api.getPublicNeighborhoods, sample.sampleNeighborhoods),
+    ...options,
+  });
+
+/* Billing */
+
+/** Polled while the QR is on screen; stops once it settles. */
+export const usePayment = (intentId: string, options?: Options<QrPayment>): Query<QrPayment> =>
+  useQuery({
+    queryKey: keys.billing.payment(intentId),
+    queryFn: withPreview(
+      () => api.getPayment(intentId),
+      () => sample.sampleQrPayment(0, intentId),
+    ),
+    enabled: Boolean(intentId),
+    refetchInterval: (query) =>
+      query.state.data && query.state.data.status !== "awaiting" ? false : 4_000,
+    ...options,
+  });
+
+export const useAddOns = (options?: Options<AddOnSubscription[]>): Query<AddOnSubscription[]> =>
+  useQuery({
+    queryKey: keys.billing.addOns(),
+    queryFn: withPreview(api.getAddOns, sample.sampleAddOns),
+    ...options,
+  });
+
+export const usePushState = (options?: Options<PushState>): Query<PushState> =>
+  useQuery({
+    queryKey: keys.wallet.push(),
+    queryFn: withPreview(api.getPushState, sample.samplePushState),
+    ...options,
+  });

@@ -38,10 +38,9 @@ export function AdminDemo() {
         <DemoActionDialog
           title={action}
           onClose={() => setAction(null)}
-          onConfirm={() => {
-            setAction(null);
-            setToast("Demo action confirmed and recorded locally.");
-          }}
+          // Nothing is recorded: the dialog exists to say why a control has
+          // no endpoint behind it, so closing it is the whole action.
+          onConfirm={() => setAction(null)}
         />
       )}
       </AdminShell>

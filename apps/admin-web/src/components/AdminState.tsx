@@ -71,6 +71,11 @@ type AdminState = {
   /** Which dataset the integration control room is looking at. */
   environment: Environment;
   setEnvironment: (next: Environment) => void;
+
+  /** A workspace another view asked Businesses to open (an approved
+   *  application's merchantId). Cleared once Businesses has used it. */
+  focusTenantId: string | null;
+  setFocusTenantId: (id: string | null) => void;
 };
 
 const AdminStateContext = createContext<AdminState | null>(null);
@@ -100,6 +105,7 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
     [pendingRecovery, replayed],
   );
   const [environment, setEnvironment] = useState<Environment>("production");
+  const [focusTenantId, setFocusTenantId] = useState<string | null>(null);
 
   /**
    * Triage is written, then kept locally until the queue refetches.
@@ -235,6 +241,8 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
       replayRecovery,
       environment,
       setEnvironment,
+      focusTenantId,
+      setFocusTenantId,
     }),
     [
       tickets,
@@ -248,6 +256,7 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
       recoveryQueue,
       replayRecovery,
       environment,
+      focusTenantId,
     ],
   );
 

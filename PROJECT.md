@@ -56,12 +56,12 @@ The rules, the same on every plan including Launch:
 | Raising the target | grandfathers cards in progress; new cards start at the new target |
 | Staff stamping a friend | **detected** (named ledger, stamps per staff, one-tap reversal), not prevented. Never imply prevention until purchase-verified stamps exist. |
 
-### Queued stamp-card conditions (proposed 2026-09-04, not yet on the site)
+### The run window, the close, and completions (published 2026-09-04)
 
 Two more rules the merchant sets, and the choices that follow from them.
-They are not published anywhere yet, so the site must say them before any
-app builds them; that copy change is workstream 1F in `../PLAN.md`. Like
-every stamp-card rule they belong on every plan, and whatever is set is
+Published on `/pricing` ("The stamp card" rows), `/product` (three rule
+cards), `/faq` and `llms.txt` on 2026-09-04; `/roadmap` lists them as live.
+Like every stamp-card rule they are on every plan, and whatever is set is
 shown on the card before the first stamp.
 
 | Condition | Choice | Default |
@@ -72,8 +72,8 @@ shown on the card before the first stamp.
 | Completions per member per run | One, a number, or unlimited. At the limit the card reads completed and stops earning; the held reward is unaffected. | unlimited |
 | Members per run | Not adopted. Revisit when a merchant asks. | |
 
-Decided 2026-09-04: the first four ship with Launch, on every plan, after
-the site publishes them.
+Decided 2026-09-04: the first four ship with Launch, on every plan. The
+site says them; the backend does not enforce them yet.
 
 What does not change: cooldown, minimum spend, expiry and grandfathering
 apply inside a run exactly as they do to a card that runs forever. A closed
@@ -159,13 +159,18 @@ subscription credits. Do not add them because a generic list has them.
 The order in which the gaps close is `../PLAN.md`; the backend's own status
 against this spec is `../backend/PROJECT.md`.
 
+All five apps were built to the full spec on 2026-09-04, every tier
+included, ahead of the backend. Where the API has no route yet, a local
+build renders typed sample data under a "Preview, not connected" badge
+(`CONTRACT.md`, "Preview mode"); production shows the honest empty state.
+
 | App | State | Read |
 |---|---|---|
-| marketing-site | current, deployed, the spec | `apps/marketing-site/AGENTS.md` |
-| business-web | wired to the API; behind the spec on the stamp-card rules, the Core and Grow levers, plan and brand copy, and the wallet URL | `apps/business-web/AGENTS.md` |
-| customer-pwa | wired to the API; behind the spec on the pending welcome stamp, customer-approved redemption, held rewards, brand and domain | `apps/customer-pwa/AGENTS.md` |
-| admin-web | wired to the API; closest to the spec; missing add-on and founding-merchant handling and the privacy-operations framing | `apps/admin-web/AGENTS.md` |
-| marketplace | a coming-soon page; needs workspace setup and a public Discover | `apps/marketplace/AGENTS.md` |
+| marketing-site | the spec; the D8 rules published | `apps/marketing-site/AGENTS.md` |
+| business-web | complete for every tier: rules editor with the D8 conditions, counter outcome states, print sheets on the customer domain, the six levers, billing with the ladder off and QR Ph, plan gating everywhere; preview where the API is behind | `apps/business-web/AGENTS.md` |
+| customer-pwa | complete: brand KYP, every card state, approvals, gifts, promo codes, push, phone shell on desktop | `apps/customer-pwa/AGENTS.md` |
+| admin-web | complete: applications with founding status, businesses, add-ons, the two billing flags, honest transport health | `apps/admin-web/AGENTS.md` |
+| marketplace | complete: directory, filters, shop pages, how it works, the two doors, sitemap; preview shops until the public Discover routes ship | `apps/marketplace/AGENTS.md` |
 
 The backend implements the eight program types, campaigns, journeys,
 analytics, roles, imports, branding, approvals, the offline queue and

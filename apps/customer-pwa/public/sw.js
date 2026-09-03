@@ -1,8 +1,8 @@
 // The wallet has to open at a counter with no signal, so the shell and its
 // static assets are cached, not just an "you are offline" page.
-const CACHE = "kypstamping-shell-v2";
+const CACHE = "kyp-shell-v3";
 const OFFLINE_URL = "/offline";
-const PRECACHE = ["/", OFFLINE_URL, "/manifest.webmanifest"];
+const PRECACHE = ["/", OFFLINE_URL, "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

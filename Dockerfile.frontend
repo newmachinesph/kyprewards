@@ -8,6 +8,7 @@ COPY apps/business-web/package.json ./apps/business-web/package.json
 COPY apps/admin-web/package.json ./apps/admin-web/package.json
 COPY apps/customer-pwa/package.json ./apps/customer-pwa/package.json
 COPY apps/marketing-site/package.json ./apps/marketing-site/package.json
+COPY apps/marketplace/package.json ./apps/marketplace/package.json
 COPY packages/api/package.json ./packages/api/package.json
 COPY packages/demo-data/package.json ./packages/demo-data/package.json
 COPY packages/ui/package.json ./packages/ui/package.json
@@ -16,4 +17,4 @@ RUN npm ci
 
 COPY . .
 
-EXPOSE 3000 3001 3002 3003
+EXPOSE 3000 3001 3002 3003 3004

@@ -11,6 +11,7 @@
     "dev:admin": "npm run dev --workspace @kypstamping/admin-web",
     "dev:customer": "npm run dev --workspace @kypstamping/customer-pwa",
     "dev:marketing": "npm run dev --workspace @kypstamping/marketing-site",
+    "dev:marketplace": "npm run dev --workspace @kypstamping/marketplace",
     "build": "npm run build --workspaces --if-present",
     "audit:controls": "node scripts/audit-controls.mjs",
     "test:format": "node scripts/test-format.mjs",
@@ -26,6 +27,7 @@
     "qa:tenants": "node scripts/qa-tenants.mjs",
     "qa:refusals": "node scripts/qa-refusals.mjs",
     "qa:marketing": "node scripts/qa-marketing.mjs",
+    "qa:marketplace": "node scripts/qa-marketplace.mjs",
     "qa:free-tier": "node scripts/qa-free-tier.mjs"
   },
   "devDependencies": {

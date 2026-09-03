@@ -17,7 +17,7 @@ export default function GlobalError({
           <div style={{ maxWidth: 400 }}>
             <div style={{ fontSize: 42 }}>♥</div>
             <h1 style={{ margin: "20px 0 8px", fontSize: 30 }}>Your wallet needs a reload.</h1>
-            <p style={{ margin: 0, color: "#5f534b", lineHeight: 1.6 }}>Your rewards are safe. Retry KYPStamping to bring your cards back.</p>
+            <p style={{ margin: 0, color: "#5f534b", lineHeight: 1.6 }}>Your rewards are safe. Retry to bring your cards back.</p>
             <button type="button" onClick={retry} style={{ marginTop: 24, minHeight: 48, border: 0, borderRadius: 999, background: "#18120c", color: "#fffefb", padding: "0 24px", fontWeight: 800, cursor: "pointer" }}>Reload wallet</button>
           </div>
         </main>

@@ -5,14 +5,19 @@ import { useBusinessProfile, useWorkspaces } from "@kypstamping/api";
 import { BrandMark } from "@kypstamping/ui";
 import { signOut } from "@kypstamping/ui/auth";
 import { useDemoState } from "@/components/DemoState";
+import { planFor, usePlanGate } from "@/lib/plan";
 import {
   BarChart3,
   Bell,
   CakeSlice,
   ChevronDown,
+  CreditCard,
+  Crown,
   Gift,
+  HandCoins,
   Heart,
   LayoutDashboard,
+  LifeBuoy,
   LogOut,
   Menu,
   Megaphone,
@@ -22,6 +27,10 @@ import {
   ScanLine,
   Settings2,
   Store,
+  Target,
+  TicketCheck,
+  TicketPercent,
+  Timer,
   Users,
   UserRoundCog,
   WalletCards,
@@ -35,6 +44,12 @@ export type BusinessView =
   | "customers"
   | "business"
   | "programs"
+  | "bonus-windows"
+  | "promo-codes"
+  | "store-credit"
+  | "suki-tiers"
+  | "missions"
+  | "gifts"
   | "favorite-orders"
   | "birthday"
   | "redemptions"
@@ -43,7 +58,19 @@ export type BusinessView =
   | "analytics"
   | "integrations"
   | "staff"
+  | "billing"
   | "settings";
+
+/** The tier each gated screen needs, from `plans.ts` by way of the matrix. */
+const navPlan = {
+  integrations: planFor("API access"),
+  "bonus-windows": planFor("Bonus windows"),
+  "promo-codes": planFor("Promo codes"),
+  "store-credit": planFor("Store credit"),
+  "suki-tiers": planFor("Suki tiers"),
+  missions: planFor("Missions"),
+  gifts: planFor("Send a reward as a gift"),
+} as const;
 
 const navigation = [
   {
@@ -66,7 +93,7 @@ const navigation = [
         label: "Integrations",
         icon: PlugZap,
         view: "integrations" as BusinessView,
-        plan: "Grow",
+        plan: navPlan.integrations,
       },
     ],
   },
@@ -74,6 +101,42 @@ const navigation = [
     label: "Loyalty",
     items: [
       { label: "Program", icon: WalletCards, view: "programs" as BusinessView },
+      {
+        label: "Bonus windows",
+        icon: Timer,
+        view: "bonus-windows" as BusinessView,
+        plan: navPlan["bonus-windows"],
+      },
+      {
+        label: "Promo codes",
+        icon: TicketPercent,
+        view: "promo-codes" as BusinessView,
+        plan: navPlan["promo-codes"],
+      },
+      {
+        label: "Store credit",
+        icon: HandCoins,
+        view: "store-credit" as BusinessView,
+        plan: navPlan["store-credit"],
+      },
+      {
+        label: "Suki tiers",
+        icon: Crown,
+        view: "suki-tiers" as BusinessView,
+        plan: navPlan["suki-tiers"],
+      },
+      {
+        label: "Missions",
+        icon: Target,
+        view: "missions" as BusinessView,
+        plan: navPlan.missions,
+      },
+      {
+        label: "Gifts",
+        icon: Gift,
+        view: "gifts" as BusinessView,
+        plan: navPlan.gifts,
+      },
       {
         label: "Favorite orders",
         icon: Heart,
@@ -84,7 +147,7 @@ const navigation = [
         icon: CakeSlice,
         view: "birthday" as BusinessView,
       },
-      { label: "Redemptions", icon: Gift, view: "redemptions" as BusinessView },
+      { label: "Redemptions", icon: TicketCheck, view: "redemptions" as BusinessView },
     ],
   },
   {
@@ -109,6 +172,13 @@ const navigation = [
   },
 ];
 
+/** The account group under the nav: people, money, the workspace itself. */
+const accountItems = [
+  { label: "Staff & access", icon: UserRoundCog, view: "staff" as BusinessView },
+  { label: "Billing & plan", icon: CreditCard, view: "billing" as BusinessView },
+  { label: "Settings", icon: Settings2, view: "settings" as BusinessView },
+];
+
 /**
  * Screens a Cashier has no use for and should not be offered.
  *
@@ -122,6 +192,12 @@ const OWNER_ONLY: ReadonlySet<BusinessView> = new Set<BusinessView>([
   "campaigns",
   "integrations",
   "settings",
+  "billing",
+  "bonus-windows",
+  "promo-codes",
+  "suki-tiers",
+  "missions",
+  "gifts",
 ]);
 
 export function BusinessShell({
@@ -142,6 +218,7 @@ export function BusinessShell({
   // the workspace is whatever the API says it is.
   const { data: profile } = useBusinessProfile();
   const { data: workspaces = [] } = useWorkspaces();
+  const gate = usePlanGate();
   const role = workspaces.find((entry) => entry.merchantId === profile?.merchantId)?.role ?? "";
   const frontLine = role === "Cashier";
   const workspaceName = workspace?.businessName ?? profile?.shortName ?? "";
@@ -193,9 +270,9 @@ export function BusinessShell({
                     aria-hidden="true"
                   />
                   <span className="flex-1">{item.label}</span>
-                  {"plan" in item && item.plan && (
+                  {"plan" in item && item.plan && !gate.covers(item.plan) && (
                     <span
-                      title={`${item.plan} plan feature, switched on as a preview`}
+                      title={`Opens with ${item.plan}`}
                       className={`rounded-full px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.1em] ${active ? "bg-white/15 text-[var(--accent)]" : "bg-[rgb(232_163_61/18%)] text-[var(--accent-strong)]"}`}
                     >
                       {item.plan}
@@ -231,20 +308,21 @@ export function BusinessShell({
         </nav>
 
         <div className="mt-auto space-y-2 border-t border-[var(--line)] pt-4">
-          <button
-            type="button"
-            onClick={() => navigate("staff")}
-            className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold ${activeView === "staff" ? "bg-[var(--ink)] text-[var(--paper)]" : "text-[var(--muted-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"}`}
-          >
-            <UserRoundCog size={17} aria-hidden="true" /> Staff & access
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("settings")}
-            className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold ${activeView === "settings" ? "bg-[var(--ink)] text-[var(--paper)]" : "text-[var(--muted-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"}`}
-          >
-            <Settings2 size={17} aria-hidden="true" /> Settings
-          </button>
+          {accountItems.map((item) => {
+            if (frontLine && OWNER_ONLY.has(item.view)) return null;
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.view}
+                type="button"
+                onClick={() => navigate(item.view)}
+                aria-current={activeView === item.view ? "page" : undefined}
+                className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold ${activeView === item.view ? "bg-[var(--ink)] text-[var(--paper)]" : "text-[var(--muted-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"}`}
+              >
+                <Icon size={17} aria-hidden="true" /> {item.label}
+              </button>
+            );
+          })}
           <div className="relative mt-3">
             {accountOpen && (
               <div
@@ -257,6 +335,14 @@ export function BusinessShell({
                 </button>
                 <button type="button" role="menuitem" onClick={() => navigate("settings")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]">
                   <Settings2 size={15} /> Account settings
+                </button>
+                {!frontLine && (
+                  <button type="button" role="menuitem" onClick={() => navigate("billing")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]">
+                    <CreditCard size={15} /> Billing & plan
+                  </button>
+                )}
+                <button type="button" role="menuitem" onClick={() => navigate("settings")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]">
+                  <LifeBuoy size={15} /> Support
                 </button>
                 <button type="button" role="menuitem" onClick={() => signOut()} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold text-[var(--danger)] hover:bg-[rgb(178_59_43/8%)]">
                   <LogOut size={15} /> Sign out
@@ -326,21 +412,21 @@ export function BusinessShell({
             <nav className="space-y-6" aria-label="Mobile business navigation">
               {navigationContent}
             </nav>
-            <div className="mt-6 grid gap-2 border-t border-[var(--line)] pt-4 sm:grid-cols-3">
-              <button
-                type="button"
-                onClick={() => navigate("staff")}
-                className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface)] text-sm font-bold"
-              >
-                <UserRoundCog size={16} /> Staff
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("settings")}
-                className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface)] text-sm font-bold"
-              >
-                <Settings2 size={16} /> Settings
-              </button>
+            <div className="mt-6 grid gap-2 border-t border-[var(--line)] pt-4 sm:grid-cols-2">
+              {accountItems.map((item) => {
+                if (frontLine && OWNER_ONLY.has(item.view)) return null;
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.view}
+                    type="button"
+                    onClick={() => navigate(item.view)}
+                    className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface)] text-sm font-bold"
+                  >
+                    <Icon size={16} /> {item.label}
+                  </button>
+                );
+              })}
               <button
                 type="button"
                 onClick={() => signOut()}

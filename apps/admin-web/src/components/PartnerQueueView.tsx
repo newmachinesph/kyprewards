@@ -1,31 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Building2,
-  Check,
-  ExternalLink,
-  Mail,
-  MapPin,
-  Phone,
-  X,
-} from "lucide-react";
+import { Building2, Check, ExternalLink, Mail, MapPin, Phone, X } from "lucide-react";
 import {
   usePartnerApplications,
   useApiMutation,
   decidePartnerApplication,
+  setApplicationNotes,
   keys,
+  PREVIEW_WRITE_REASON,
   type PartnerApplication,
 } from "@kypstamping/api";
-import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { relativeTime } from "@kypstamping/ui/format";
+import { Button, Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { longDate, relativeTime } from "@kypstamping/ui/format";
+import { useAdminState } from "@/components/AdminState";
+import { FOUNDING, foundingWindowOpen } from "@/lib/catalog";
 
 /**
  * Shops waiting to be let in.
  *
  * This is the whole point of the application record: approving one here
  * provisions the workspace and mails the sign-in, so nobody keys twelve
- * fields in again by hand.
+ * fields in again by hand. Anyone approved during the beta is a founding
+ * merchant, and the setup-with-a-person step is noted against the record.
  */
 
 const VOLUME: Record<string, string> = {
@@ -51,26 +48,37 @@ const MECHANIC: Record<string, string> = {
 
 type Filter = "new" | "approved" | "rejected" | "all";
 
+type Decision = { id: string; approve: boolean; reason?: string; founding: boolean };
+
 export function PartnerQueueView({ notify }: { notify: (message: string) => void }) {
   const [filter, setFilter] = useState<Filter>("new");
-  const { data: applications = [], isPending, error, refetch } = usePartnerApplications(
-    filter === "all" ? undefined : filter,
-  );
+  const {
+    data: applications = [],
+    isPending,
+    error,
+    refetch,
+  } = usePartnerApplications(filter === "all" ? undefined : filter);
   const [openId, setOpenId] = useState<string | null>(null);
 
   const decide = useApiMutation(
-    ({ id, ...body }: { id: string; approve: boolean; reason?: string }) =>
-      decidePartnerApplication(id, body),
-    { invalidates: [keys.admin.partnerApplications()] },
+    ({ id, founding, ...body }: Decision) =>
+      // `founding` rides along with the decision. The API records it once it
+      // accepts the field; until then it ignores it and the row says so.
+      decidePartnerApplication(id, { ...body, founding } as Parameters<
+        typeof decidePartnerApplication
+      >[1]),
+    { invalidates: [keys.admin.partnerApplications(), keys.admin.tenants()] },
   );
 
   return (
     <ViewFrame
+      wide
+      className="admin-grid"
       eyebrow="Acquisition"
       title="Partner applications"
-      description="Every shop that applied from the public site. Approving one creates the workspace and emails the owner their sign-in."
+      description="Every shop that applied from the public site. Approving one creates a Launch workspace and emails the owner their sign-in; nothing else is purchasable yet."
       action={
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter applications">
           {(["new", "approved", "rejected", "all"] as const).map((option) => (
             <button
               key={option}
@@ -113,14 +121,14 @@ export function PartnerQueueView({ notify }: { notify: (message: string) => void
                   setOpenId((current) => (current === application.id ? null : application.id))
                 }
                 busy={decide.isPending}
-                onDecide={(approve, reason) =>
+                onDecide={(approve, reason, founding) =>
                   decide.mutate(
-                    { id: application.id, approve, reason },
+                    { id: application.id, approve, reason, founding },
                     {
                       onSuccess: (decided) =>
                         notify(
                           approve
-                            ? `${decided.businessName} approved. The owner has their sign-in.`
+                            ? `${decided.businessName} approved${founding ? " as a founding merchant" : ""}. The owner has their sign-in.`
                             : `${decided.businessName} rejected.`,
                         ),
                       onError: (failure) => notify(failure.message),
@@ -136,6 +144,17 @@ export function PartnerQueueView({ notify }: { notify: (message: string) => void
   );
 }
 
+function Answer({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <dt className="text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">
+        {label}
+      </dt>
+      <dd className="mt-0.5 text-xs">{children}</dd>
+    </div>
+  );
+}
+
 function ApplicationCard({
   application,
   open,
@@ -147,10 +166,14 @@ function ApplicationCard({
   open: boolean;
   onToggle: () => void;
   busy: boolean;
-  onDecide: (approve: boolean, reason?: string) => void;
+  onDecide: (approve: boolean, reason: string | undefined, founding: boolean) => void;
 }) {
   const [reason, setReason] = useState("");
+  const [founding, setFounding] = useState(() => foundingWindowOpen());
   const waiting = application.status === "new";
+  const { setFocusTenantId } = useAdminState();
+  const decidedInWindow =
+    application.decidedAt !== null && application.decidedAt.slice(0, 10) <= FOUNDING.closesOn;
 
   return (
     <li className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
@@ -161,16 +184,14 @@ function ApplicationCard({
         className="flex w-full items-center gap-4 p-5 text-left transition hover:bg-[var(--paper)]"
       >
         <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)]">
-          <Building2 size={18} />
+          <Building2 size={18} aria-hidden="true" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-extrabold">
-            {application.businessName}
-          </span>
+          <span className="block truncate text-sm font-extrabold">{application.businessName}</span>
           <span className="mt-0.5 block truncate text-xs text-[var(--muted-strong)]">
             {application.category} · {application.branches}{" "}
-            {application.branches === 1 ? "branch" : "branches"} ·{" "}
-            {VOLUME[application.volume] ?? application.volume}
+            {application.branches === 1 ? "branch" : "branches"}
+            {application.volume ? ` · ${VOLUME[application.volume] ?? application.volume}` : ""}
           </span>
         </span>
         <span className="shrink-0 text-right">
@@ -193,91 +214,111 @@ function ApplicationCard({
 
       {open && (
         <div className="border-t border-[var(--line)] p-5">
-          <div className="grid gap-5 lg:grid-cols-2">
-            <div>
-              <Eyebrow>Who applied</Eyebrow>
-              <p className="mt-3 text-sm font-extrabold">{application.ownerName}</p>
-              <ul className="mt-2 space-y-1.5 text-xs">
-                <li className="flex items-center gap-2">
-                  <Mail size={13} className="shrink-0 text-[var(--muted)]" />
-                  <a
-                    href={`mailto:${application.email}`}
-                    className="truncate font-bold underline underline-offset-2"
-                  >
-                    {application.email}
-                  </a>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Phone size={13} className="shrink-0 text-[var(--muted)]" />
-                  <a href={`tel:${application.mobile}`} className="font-bold">
-                    {application.mobile}
-                  </a>
-                </li>
-                <li className="flex items-start gap-2">
-                  <MapPin size={13} className="mt-0.5 shrink-0 text-[var(--muted)]" />
-                  <span>{application.address}</span>
-                </li>
-              </ul>
-              {/* The two links that verify the shop is real, which is the
-                  whole review. Opened in a new tab so a half-read
-                  application is not lost to a back button. */}
-              <div className="mt-3 flex flex-wrap gap-2">
-                {application.mapsLink ? (
-                  <a
-                    href={application.mapsLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-[var(--line-strong)] px-3 text-[11px] font-extrabold hover:bg-[var(--surface-2)]"
-                  >
-                    Google Maps <ExternalLink size={12} />
-                  </a>
-                ) : (
-                  <span className="inline-flex min-h-9 items-center rounded-full bg-[var(--surface-2)] px-3 text-[11px] font-bold text-[var(--muted-strong)]">
-                    Not on Maps yet
-                  </span>
-                )}
-                {application.facebook && (
-                  <a
-                    href={
-                      application.facebook.startsWith("http")
-                        ? application.facebook
-                        : `https://${application.facebook}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-[var(--line-strong)] px-3 text-[11px] font-extrabold hover:bg-[var(--surface-2)]"
-                  >
-                    Facebook <ExternalLink size={12} />
-                  </a>
-                )}
+          <Eyebrow>The application, as submitted</Eyebrow>
+          <dl className="mt-3 grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+            <Answer label="Business name">{application.businessName}</Answer>
+            <Answer label="What kind of place">{application.category}</Answer>
+            <Answer label="Branches">{application.branches}</Answer>
+            <Answer label="Where">
+              <span className="flex items-start gap-1.5">
+                <MapPin size={13} className="mt-0.5 shrink-0 text-[var(--muted)]" aria-hidden="true" />
+                {application.address || "—"}
+              </span>
+            </Answer>
+            <Answer label="Google Maps">
+              {application.mapsLink ? (
+                <a
+                  href={application.mapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-bold underline underline-offset-2"
+                >
+                  Open on Maps <ExternalLink size={11} aria-hidden="true" />
+                </a>
+              ) : (
+                "Not on Maps yet"
+              )}
+            </Answer>
+            <Answer label="Owner">{application.ownerName}</Answer>
+            <Answer label="Mobile">
+              <a href={`tel:${application.mobile}`} className="inline-flex items-center gap-1.5 font-bold">
+                <Phone size={12} aria-hidden="true" /> {application.mobile}
+              </a>
+            </Answer>
+            <Answer label="Email">
+              <a
+                href={`mailto:${application.email}`}
+                className="inline-flex items-center gap-1.5 font-bold underline underline-offset-2"
+              >
+                <Mail size={12} aria-hidden="true" /> {application.email}
+              </a>
+            </Answer>
+            <Answer label="Facebook page">
+              {application.facebook ? (
+                <a
+                  href={
+                    application.facebook.startsWith("http")
+                      ? application.facebook
+                      : `https://${application.facebook}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-bold underline underline-offset-2"
+                >
+                  {application.facebook} <ExternalLink size={11} aria-hidden="true" />
+                </a>
+              ) : (
+                "—"
+              )}
+            </Answer>
+            <Answer label="Customers a day">
+              {application.volume ? (VOLUME[application.volume] ?? application.volume) : "—"}
+            </Answer>
+            <Answer label="Runs today">
+              {application.existing ? (EXISTING[application.existing] ?? application.existing) : "—"}
+            </Answer>
+            <Answer label="Stamps or points">
+              {application.mechanic ? (MECHANIC[application.mechanic] ?? application.mechanic) : "—"}
+            </Answer>
+            <Answer label="Heard about us">{application.heardFrom || "—"}</Answer>
+          </dl>
+
+          {application.status !== "new" && (
+            <div className="mt-5 rounded-xl bg-[var(--paper)] p-4 text-xs">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-extrabold capitalize">
+                  {application.status} {relativeTime(application.decidedAt)}
+                </p>
+                {application.status === "approved" &&
+                  (application.founding ? (
+                    <Pill tone="success">Founding merchant</Pill>
+                  ) : decidedInWindow ? (
+                    <span className="text-[var(--muted-strong)]">
+                      Founding by decision date; the API does not store the flag yet.
+                    </span>
+                  ) : null)}
               </div>
-            </div>
-
-            <div>
-              <Eyebrow>What they run</Eyebrow>
-              <ul className="mt-3 space-y-1.5 text-xs">
-                <li>{EXISTING[application.existing] ?? application.existing}</li>
-                <li>{MECHANIC[application.mechanic] ?? "undecided"}</li>
-                {application.heardFrom && <li>found us via {application.heardFrom}</li>}
-              </ul>
-
-              {application.status !== "new" && (
-                <div className="mt-4 rounded-xl bg-[var(--paper)] p-3 text-xs">
-                  <p className="font-extrabold capitalize">
-                    {application.status} {relativeTime(application.decidedAt)}
-                  </p>
-                  {application.reason && (
-                    <p className="mt-1 text-[var(--muted-strong)]">{application.reason}</p>
-                  )}
-                  {application.merchantId && (
-                    <p className="mt-1 font-mono text-[10px] text-[var(--muted)]">
-                      {application.merchantId}
-                    </p>
-                  )}
-                </div>
+              {application.reason && (
+                <p className="mt-1 text-[var(--muted-strong)]">{application.reason}</p>
+              )}
+              {application.merchantId && (
+                <p className="mt-2 flex flex-wrap items-center gap-2">
+                  <code className="font-mono text-[10px] text-[var(--muted)]">
+                    {application.merchantId}
+                  </code>
+                  <a
+                    href="#businesses"
+                    onClick={() => setFocusTenantId(application.merchantId)}
+                    className="inline-flex items-center gap-1 font-extrabold underline underline-offset-2"
+                  >
+                    Open the workspace in Businesses <ExternalLink size={11} aria-hidden="true" />
+                  </a>
+                </p>
               )}
             </div>
-          </div>
+          )}
+
+          <SetupNotes application={application} />
 
           {waiting && (
             <div className="mt-5 border-t border-[var(--line)] pt-5">
@@ -290,19 +331,34 @@ function ApplicationCard({
                   className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm font-normal outline-none focus:border-[var(--accent-strong)]"
                 />
               </label>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <label className="mt-4 flex items-start gap-3 text-xs">
+                <input
+                  type="checkbox"
+                  checked={founding}
+                  onChange={(event) => setFounding(event.target.checked)}
+                  className="mt-0.5 size-4 accent-[var(--accent-strong)]"
+                />
+                <span>
+                  <span className="block font-extrabold">Founding merchant</span>
+                  <span className="text-[var(--muted-strong)]">
+                    {FOUNDING.note}. On by default for any decision through{" "}
+                    {longDate(FOUNDING.closesOn)}.
+                  </span>
+                </span>
+              </label>
+              <div className="mt-4 flex flex-wrap gap-2">
                 <Button
                   tone="quiet"
                   icon={<X size={15} />}
                   disabled={busy}
-                  onClick={() => onDecide(false, reason.trim() || undefined)}
+                  onClick={() => onDecide(false, reason.trim() || undefined, false)}
                 >
                   Reject
                 </Button>
                 <Button
                   icon={<Check size={15} />}
                   disabled={busy}
-                  onClick={() => onDecide(true, reason.trim() || undefined)}
+                  onClick={() => onDecide(true, reason.trim() || undefined, founding)}
                 >
                   {busy ? "Working…" : "Approve and create the workspace"}
                 </Button>
@@ -312,5 +368,48 @@ function ApplicationCard({
         </div>
       )}
     </li>
+  );
+}
+
+/**
+ * Where the setup-with-a-person step is noted: what was configured with the
+ * owner, and what is still to check on their phone. The route that stores it
+ * is not built, so the field reads and drafts but cannot save yet.
+ */
+function SetupNotes({ application }: { application: PartnerApplication }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const save = useApiMutation(
+    (setupNotes: string) => setApplicationNotes(application.id, { setupNotes }),
+    { invalidates: [keys.admin.partnerApplications()] },
+  );
+  const value = draft ?? application.setupNotes ?? "";
+
+  return (
+    <div className="mt-5">
+      <label className="grid gap-2 text-xs font-extrabold">
+        <span className="flex flex-wrap items-center gap-2">
+          Setup with a person
+          <PreviewBadge />
+        </span>
+        <textarea
+          rows={3}
+          value={value}
+          onChange={(event) => setDraft(event.target.value)}
+          placeholder="What was configured with the owner, what to check on their phone before they go live"
+          className="rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] p-3 text-sm font-normal outline-none focus:border-[var(--accent-strong)]"
+        />
+      </label>
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        <Button
+          tone="quiet"
+          disabled
+          title={PREVIEW_WRITE_REASON}
+          onClick={() => draft !== null && save.mutate(draft)}
+        >
+          Save notes
+        </Button>
+        <p className="text-[11px] text-[var(--muted-strong)]">{PREVIEW_WRITE_REASON}</p>
+      </div>
+    </div>
   );
 }

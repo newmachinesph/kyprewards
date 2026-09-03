@@ -5,35 +5,63 @@ import type { CSSProperties } from "react";
 import type { DiscoverPlace, WalletCard } from "@kypstamping/api";
 import {
   ApiError,
+  PREVIEW_WRITE_REASON,
   getDataExportLink,
+  isPreview,
   useActivity,
   useConsentHistory,
   useCustomerProfile,
   useDataRequests,
   useDiscover,
   useNearby,
-  useWallet,
   useNotifications,
+  usePendingApprovals,
 } from "@kypstamping/api";
-import { brandColor, BrandMark, Eyebrow, Skeleton, StampDots } from "@kypstamping/ui";
+import {
+  brandColor,
+  BrandMark,
+  Eyebrow,
+  PreviewBadge,
+  QueryBoundary,
+  Skeleton,
+  StampDots,
+} from "@kypstamping/ui";
 import { signOut } from "@kypstamping/ui/auth";
 import { Toast, useToast } from "@kypstamping/ui/shell";
 import {
   formatDistance,
   formatMemberCode,
   greeting,
+  longDate,
   relativeTime,
   todayLabel,
 } from "@kypstamping/ui/format";
 
 /** A place is "nearby" within a 1.5 km walk. */
 const NEARBY_METRES = 1500;
+/** Where the legal pages and the merchant door live. */
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+const MARKETPLACE_URL = process.env.NEXT_PUBLIC_MARKETPLACE_URL ?? "";
 import { useCoordinates } from "@/components/useCoordinates";
 import {
   CHANNELS,
   CustomerStateProvider,
   useCustomerState,
 } from "@/components/CustomerState";
+import { SheetHeader } from "@/components/Sheet";
+import { ApproveSheet } from "@/components/ApproveSheet";
+import { GiftsSheet } from "@/components/GiftsSheet";
+import { PushSection } from "@/components/PushSection";
+import { Barcode } from "@/components/Barcode";
+import {
+  CardStatus,
+  CardTerms,
+  MissionList,
+  PromoCodeEntry,
+  StoreCreditLine,
+  cardStateLine,
+  earnedStamps,
+} from "@/components/cards";
 import {
   ArrowLeft,
   ArrowRight,
@@ -47,9 +75,11 @@ import {
   Coins,
   Compass,
   Croissant,
+  BadgeCheck,
   Crown,
   Download,
   Dumbbell,
+  ExternalLink,
   Gift,
   Home,
   History,
@@ -88,6 +118,8 @@ type ProfileScreen =
 type Sheet =
   | { kind: "notifications" }
   | { kind: "activity" }
+  | { kind: "approve" }
+  | { kind: "gifts" }
   | { kind: "business"; id: string }
   | { kind: "wallet"; id: string; programId: string }
   | { kind: "profile"; title: string; screen: ProfileScreen }
@@ -120,8 +152,17 @@ const categoryIcons: Record<string, typeof Coffee> = {
  * scanner, which sees anything in the red end of the spectrum as background.
  */
 async function renderQrDataUrl(memberCode: string, size: number, forPrint = false) {
+  // The rendered symbol is kept on the device, so the code opens at the
+  // counter with no signal even when the codec chunk cannot be fetched.
+  const cacheKey = `kyp-qr-${memberCode}-${size}-${forPrint ? "p" : "s"}`;
+  try {
+    const cached = window.localStorage.getItem(cacheKey);
+    if (cached) return cached;
+  } catch {
+    // Storage unavailable; render every time.
+  }
   const QRCode = (await import("qrcode")).default;
-  return QRCode.toDataURL(memberCode, {
+  const url = await QRCode.toDataURL(memberCode, {
     width: size,
     // Four modules is the spec minimum for a printed symbol; two is fine on a
     // screen, where nothing crops it.
@@ -129,6 +170,12 @@ async function renderQrDataUrl(memberCode: string, size: number, forPrint = fals
     errorCorrectionLevel: forPrint ? "Q" : "M",
     color: { dark: "#181210", light: "#ffffff" },
   });
+  try {
+    window.localStorage.setItem(cacheKey, url);
+  } catch {
+    // A full or private store. The symbol still renders this time.
+  }
+  return url;
 }
 
 async function saveQrImage(memberCode: string) {
@@ -152,10 +199,16 @@ async function saveQrImage(memberCode: string) {
  * and never opens their code while online gets nothing at the counter — the
  * one moment the product promises works with no signal.
  */
-function usePrefetchQrCodec() {
+function usePrefetchQrCodec(memberCode: string) {
   useEffect(() => {
-    void import("qrcode").catch(() => undefined);
-  }, []);
+    if (!memberCode) {
+      void import("qrcode").catch(() => undefined);
+      return;
+    }
+    // Render the screen symbol now, while online, so the first offline open
+    // reads it from the device rather than from a chunk that may not be there.
+    void renderQrDataUrl(memberCode, 560).catch(() => undefined);
+  }, [memberCode]);
 }
 
 /**
@@ -278,7 +331,8 @@ function QrImage() {
  */
 function percentOf(card: WalletCard): number | null {
   if (card.target <= 0) return null;
-  return Math.min(100, Math.round((card.progress / card.target) * 100));
+  // Earned stamps only: a pending welcome stamp is not progress yet.
+  return Math.min(100, Math.round((earnedStamps(card) / card.target) * 100));
 }
 
 /**
@@ -370,7 +424,7 @@ function LoyaltyCard({
             className="rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em]"
             style={{ border: `1px solid ${cardInk(24)}`, color: cardInk(72) }}
           >
-            {card.status}
+            {card.state ?? card.status}
           </span>
         </div>
         {!compact && (
@@ -379,25 +433,34 @@ function LoyaltyCard({
                 Rewards are minted when they are earned, so a shop that lowers
                 its target below what people already hold leaves them all
                 reading a finished card that the till then refuses. */}
-            {remaining === null
-              ? card.balance
-              : card.rewardsAvailable > 0
-                ? `${card.reward} is ready.`
-                : remaining === 0
-                  ? `${card.reward} on your next visit.`
-                  : `${remaining} more ${remaining === 1 ? "visit" : "visits"}, then ${card.reward.toLowerCase()}.`}
+            {card.state === "pending"
+              ? "Your welcome stamp lands on your first visit."
+              : card.state === "closed"
+                ? card.rewardsAvailable > 0
+                  ? `${card.reward} is held for you.`
+                  : "This run has closed."
+                : remaining === null
+                  ? card.balance
+                  : card.rewardsAvailable > 0
+                    ? `${card.reward} is ready.`
+                    : remaining === 0
+                      ? `${card.reward} on your next visit.`
+                      : `${remaining} more ${remaining === 1 ? "visit" : "visits"}, then ${card.reward.toLowerCase()}.`}
           </p>
         )}
         <div className={compact ? "mt-5" : "mt-7"}>
           {card.target > 0 && (
             <div className="overflow-x-auto pb-1">
-              <StampDots filled={card.progress} total={card.target} dark />
+              <StampDots filled={earnedStamps(card)} total={card.target} dark />
             </div>
           )}
           <div className="mt-3 flex items-center justify-between text-[11px] font-semibold">
-            <span style={{ color: cardInk(62) }}>{card.balance}</span>
+            <span style={{ color: cardInk(62) }}>
+              {card.state === "pending" ? `${earnedStamps(card)} of ${card.target} · 1 pending` : card.balance}
+            </span>
             <span>{card.reward}</span>
           </div>
+          <CardStatus card={card} onCard />
         </div>
       </div>
     </article>
@@ -586,15 +649,18 @@ function HomeView({
   onWallet,
   onDiscover,
   onActivity,
+  onApprove,
 }: {
   onWallet: () => void;
   onDiscover: () => void;
   onActivity: () => void;
+  onApprove: () => void;
 }) {
-  const { profile, claimSettling } = useCustomerState();
+  const { profile, claimSettling, wallet: cards, walletQuery } = useCustomerState();
+  const walletPending = walletQuery.isPending;
   const where = useCoordinates(true);
   const { data: discover = [] } = useDiscover(where);
-  const { data: cards = [], isPending: walletPending } = useWallet();
+  const { data: approvals = [] } = usePendingApprovals();
   const { data: nudges = [] } = useNearby(where);
   // "Fresh from your places" showed a hardcoded Sweet Crumbs promotion - the
   // same afternoon batch, 18 minutes ago, to every customer of every shop,
@@ -613,12 +679,16 @@ function HomeView({
   // progress was fine while a shop showed one stamp card; now that a points
   // balance sits beside it, 340 points would outrank seven stamps of eight
   // and "closest reward" would name the card furthest from paying out.
+  // A held reward outranks any progress: that card has something waiting.
   const best = cards.reduce<(typeof cards)[number] | undefined>((leader, card) => {
+    if (leader && leader.rewardsAvailable > 0 && card.rewardsAvailable === 0) return leader;
+    if (card.rewardsAvailable > 0 && (!leader || leader.rewardsAvailable === 0)) return card;
     const share = percentOf(card);
     if (share === null) return leader;
     const leading = leader ? percentOf(leader) : null;
     return leading === null || share > leading ? card : leader;
   }, undefined);
+  const held = cards.reduce((sum, card) => sum + card.rewardsAvailable, 0);
 
   return (
     <div className="px-5 pb-32 pt-5">
@@ -646,6 +716,33 @@ function HomeView({
           </span>
         )}
       </div>
+
+      {/* A reward the counter is holding for this customer's tap. */}
+      {approvals.length > 0 && (
+        <section className="mt-7 rounded-3xl border border-[var(--ink)] bg-[var(--ink)] p-5 text-[var(--paper)]">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--accent)]">
+                Waiting for your approval
+              </p>
+              <p className="mt-2 text-base font-extrabold tracking-[-0.02em]">
+                {approvals.length === 1
+                  ? `${approvals[0].reward} at ${approvals[0].business}`
+                  : `${approvals.length} rewards at the counter`}
+              </p>
+              <p className="mt-1 text-xs text-white/60">Your approval releases the reward at the counter.</p>
+            </div>
+            {isPreview(approvals) && <PreviewBadge className="shrink-0" />}
+          </div>
+          <button
+            type="button"
+            onClick={onApprove}
+            className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--accent)] text-sm font-extrabold text-[var(--ink)]"
+          >
+            <BadgeCheck size={16} aria-hidden="true" /> Approve
+          </button>
+        </section>
+      )}
 
       {/* Only when they are actually standing near one, and only if they
           switched the location toggle on - the API returns an empty list
@@ -695,12 +792,30 @@ function HomeView({
             written for: the query had finished, with nothing in it yet. */}
         {walletPending || (claimSettling && !best) ? (
           <Skeleton className="h-[168px] rounded-2xl" />
+        ) : walletQuery.error ? (
+          <QueryBoundary isPending={false} error={walletQuery.error} onRetry={walletQuery.refetch} label="your cards">
+            {null}
+          </QueryBoundary>
         ) : best ? (
           <LoyaltyCard card={best} />
         ) : (
           <p className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 text-sm text-[var(--muted-strong)]">
             No cards yet. Scan a counter code to start one.
           </p>
+        )}
+        {!walletPending && cards.length > 0 && (
+          <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
+            {[
+              ["Cards", String(cards.length)],
+              ["Held rewards", String(held)],
+              ["To approve", String(approvals.length)],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-2 py-3">
+                <dt className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--muted)]">{label}</dt>
+                <dd className="mt-1 text-lg font-extrabold tracking-[-0.02em]">{value}</dd>
+              </div>
+            ))}
+          </dl>
         )}
       </section>
 
@@ -845,14 +960,15 @@ const walletCategoriesFrom = (cards: WalletCard[], places: DiscoverPlace[]) => {
 function WalletView({
   onCard,
   onBusiness,
+  onGifts,
 }: {
   onCard: (id: string, programId: string) => void;
   onBusiness: (id: string) => void;
+  onGifts: () => void;
 }) {
   const { data: discover = [] } = useDiscover();
-  const { wallet, joinedIds } = useCustomerState();
+  const { wallet, joinedIds, walletQuery } = useCustomerState();
   const walletCategories = walletCategoriesFrom(wallet, discover);
-  const [quickPassAdded, setQuickPassAdded] = useState(false);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const term = query.trim().toLowerCase();
@@ -878,30 +994,23 @@ function WalletView({
       <Eyebrow>Your collection</Eyebrow>
       <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em]">Wallet</h1>
       <p className="mt-2 text-sm text-[var(--muted-strong)]">
-        Every joined business, one private loyalty ID.
+        Every shop you have joined, one private member code.
       </p>
       <button
         type="button"
-        onClick={() => setQuickPassAdded(true)}
-        disabled={quickPassAdded}
-        className={`mt-5 flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition ${quickPassAdded ? "border-[rgb(15_118_85/28%)] bg-[rgb(15_118_85/9%)]" : "border-[var(--line)] bg-[var(--surface)] hover:border-[var(--line-strong)]"}`}
+        onClick={onGifts}
+        className="mt-5 flex w-full items-center gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3.5 text-left transition hover:border-[var(--line-strong)]"
       >
-        <span
-          className={`grid size-10 shrink-0 place-items-center rounded-2xl ${quickPassAdded ? "bg-[var(--success)] text-white" : "bg-[var(--ink)] text-[var(--paper)]"}`}
-        >
-          {quickPassAdded ? <ShieldCheck size={18} /> : <Download size={18} />}
+        <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[var(--ink)] text-[var(--paper)]">
+          <Gift size={18} aria-hidden="true" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-extrabold">
-            {quickPassAdded ? "Quick pass added" : "Add a quick wallet pass"}
-          </span>
+          <span className="block text-sm font-extrabold">Gifts</span>
           <span className="mt-0.5 block text-[11px] text-[var(--muted)]">
-            {quickPassAdded
-              ? "Wallet passes are not issued in this demo. Save or print your code instead."
-              : "Use Apple Wallet or Google Wallet without losing the full PWA."}
+            Pasalubong sent and received, and a way to send one.
           </span>
         </span>
-        {!quickPassAdded && <ChevronRight size={16} />}
+        <ChevronRight size={16} aria-hidden="true" />
       </button>
       <label className="mt-6 flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4">
         <Search size={17} className="text-[var(--muted)]" />
@@ -926,11 +1035,23 @@ function WalletView({
           </button>
         ))}
       </div>
+      <div className="mt-5">
+        <QueryBoundary
+          isPending={walletQuery.isPending}
+          error={walletQuery.error}
+          onRetry={walletQuery.refetch}
+          label="your cards"
+          rows={3}
+        >
+          {null}
+        </QueryBoundary>
+      </div>
       <div className="mt-5 space-y-3">
-        {visibleCards.map((card) => {
+        {visibleCards.map((card, index) => {
           const Icon = walletIcons[card.kind] ?? WalletCards;
           const pct = percentOf(card);
-          const isFeature = card.id === "wallet_1";
+          const isFeature = index === 0 && !query && category === "All";
+          const stateLine = cardStateLine(card);
           return (
             <button
               // A shop running stamps beside points puts two cards here under
@@ -957,14 +1078,35 @@ function WalletView({
                       </span>
                     </span>
                     <span className="mt-1 block truncate text-[11px] text-[var(--muted)]">
-                      {card.program} · {card.balance}
+                      {card.program} · {card.state === "pending" ? `${earnedStamps(card)} of ${card.target} · 1 pending` : card.balance}
                     </span>
-                    {pct !== null && (
+                    {stateLine && (
+                      <span className="mt-1 block text-[11px] font-semibold text-[var(--muted-strong)]">
+                        {stateLine}
+                      </span>
+                    )}
+                    {card.rewardsAvailable > 0 && (
+                      <span className="mt-1 block text-[11px] font-extrabold text-[var(--success)]">
+                        {card.rewardsAvailable === 1 ? "1 reward held" : `${card.rewardsAvailable} rewards held`}
+                        {card.redeemBy ? ` · redeem by ${longDate(card.redeemBy)}` : ""}
+                      </span>
+                    )}
+                    {pct !== null && card.state !== "closed" && (
                       <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-[var(--surface-2)]">
                         <span
                           className="block h-full rounded-full bg-[var(--success)]"
                           style={{ width: `${pct}%` }}
                         />
+                      </span>
+                    )}
+                    {(card.badge || isPreview(card)) && (
+                      <span className="mt-2 flex flex-wrap gap-1.5">
+                        {card.badge && (
+                          <span className="rounded-full border border-[var(--line-strong)] px-2 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
+                            KYP Stamping
+                          </span>
+                        )}
+                        {isPreview(card) && <PreviewBadge />}
                       </span>
                     )}
                   </span>
@@ -999,7 +1141,7 @@ function WalletView({
           <ChevronRight size={16} className="shrink-0 text-[var(--muted)]" aria-hidden="true" />
         </button>
       ))}
-      {visibleCount === 0 && (
+      {visibleCount === 0 && !walletQuery.isPending && !walletQuery.error && (
         <div className="mt-5 rounded-2xl border border-dashed border-[var(--line-strong)] p-7 text-center">
           <Search className="mx-auto text-[var(--muted)]" />
           <p className="mt-3 text-sm font-extrabold">
@@ -1017,11 +1159,11 @@ function WalletView({
           <WalletCards />
         </span>
         <p className="mt-4 text-sm font-extrabold">
-          Stamps, points, passes, and more.
+          One code, every shop.
         </p>
         <p className="mx-auto mt-1 max-w-[30ch] text-xs leading-relaxed text-[var(--muted)]">
-          Join coupons, discounts, multipasses, memberships, reward catalogs,
-          and gift cards from Discover or a business code.
+          Join a shop from its counter poster or from Discover and its card
+          lands here with the terms in plain language.
         </p>
       </div>
     </div>
@@ -1035,23 +1177,36 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
   // null, the "nearby only" filter could never match anything, and the list
   // was headed "Near you" over results ordered by nothing of the kind.
   const where = useCoordinates(true);
-  const { data: discover = [] } = useDiscover(where);
+  const discoverQuery = useDiscover(where);
+  const discover = discoverQuery.data ?? [];
   const located = discover.some((business) => business.distanceMetres !== null);
-  const { wallet, joinedIds } = useCustomerState();
-  const walletCategories = walletCategoriesFrom(wallet, discover);
+  const { joinedIds } = useCustomerState();
+  // Chips come from the places themselves, so every chip matches something.
+  const walletCategories = walletCategoriesFrom([], discover);
+  const neighborhoods = ["All", ...new Set(discover.map((place) => place.neighborhood).filter(Boolean))];
   const [category, setCategory] = useState("All");
+  const [neighborhood, setNeighborhood] = useState("All");
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [nearbyOnly, setNearbyOnly] = useState(false);
-  const visibleBusinesses = discover.filter(
+  const [nearestFirst, setNearestFirst] = useState(false);
+  const filtered = discover.filter(
     (business) =>
       (category === "All" || business.category === category) &&
+      (neighborhood === "All" || business.neighborhood === neighborhood) &&
       (!nearbyOnly ||
         (business.distanceMetres !== null && business.distanceMetres <= NEARBY_METRES)) &&
       `${business.name} ${business.neighborhood}`
         .toLowerCase()
         .includes(query.toLowerCase()),
   );
+  // The API's order puts featured shops first; it is kept unless the customer
+  // asks for nearest first, and even then a place with no distance stays last.
+  const visibleBusinesses = nearestFirst
+    ? [...filtered].sort(
+        (a, b) => (a.distanceMetres ?? Number.POSITIVE_INFINITY) - (b.distanceMetres ?? Number.POSITIVE_INFINITY),
+      )
+    : filtered;
   return (
     <div className="px-5 pb-32 pt-5">
       <Eyebrow>Local rewards</Eyebrow>
@@ -1076,42 +1231,42 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
           aria-expanded={filtersOpen}
           aria-controls="discover-filters"
           onClick={() => setFiltersOpen((open) => !open)}
-          className={`grid size-12 shrink-0 place-items-center rounded-2xl border ${filtersOpen || nearbyOnly ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]" : "border-[var(--line)] bg-[var(--surface)]"}`}
+          className={`grid size-12 shrink-0 place-items-center rounded-2xl border ${filtersOpen || nearbyOnly || nearestFirst ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]" : "border-[var(--line)] bg-[var(--surface)]"}`}
         >
           <SlidersHorizontal size={17} />
         </button>
       </div>
       {filtersOpen && (
-        <div
-          id="discover-filters"
-          className="mt-3 flex items-center justify-between rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"
-        >
-          <div>
-            <p className="text-xs font-extrabold">Walking distance</p>
-            <p className="mt-0.5 text-[10px] text-[var(--muted)]">
-              {located
-                ? "Show places within 1.5 km"
-                : "Needs your location, which this device has not shared"}
-            </p>
-          </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={nearbyOnly}
-            aria-label="Only show places within one and a half kilometers"
-            // Without a position every distance is null, so switching this on
-            // would empty the list and look like a broken filter.
-            disabled={!located}
-            onClick={() => setNearbyOnly((active) => !active)}
-            className={`relative h-6 w-10 shrink-0 rounded-full disabled:opacity-45 ${nearbyOnly ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
-          >
-            <span
-              className={`absolute top-1 size-4 rounded-full bg-white transition-all ${nearbyOnly ? "left-5" : "left-1"}`}
-            />
-          </button>
+        <div id="discover-filters" className="mt-3 divide-y divide-[var(--line)] rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+          {(
+            [
+              ["Nearest first", located ? "Sort by distance instead of featured placement" : "Needs your location, which this device has not shared", nearestFirst, () => setNearestFirst((on) => !on)],
+              ["Walking distance", located ? "Show places within 1.5 km" : "Needs your location, which this device has not shared", nearbyOnly, () => setNearbyOnly((on) => !on)],
+            ] as const
+          ).map(([label, detail, on, toggle]) => (
+            <div key={label} className="flex items-center justify-between p-3">
+              <div>
+                <p className="text-xs font-extrabold">{label}</p>
+                <p className="mt-0.5 text-[10px] text-[var(--muted)]">{detail}</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={on}
+                aria-label={label}
+                // Without a position every distance is null, so switching this
+                // on would empty or scramble the list and look broken.
+                disabled={!located}
+                onClick={toggle}
+                className={`relative h-6 w-10 shrink-0 rounded-full disabled:opacity-45 ${on ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
+              >
+                <span className={`absolute top-1 size-4 rounded-full bg-white transition-all ${on ? "left-5" : "left-1"}`} />
+              </button>
+            </div>
+          ))}
         </div>
       )}
-      <div className="customer-scroll mt-3 flex gap-2 overflow-x-auto pb-1">
+      <div className="customer-scroll mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Category">
         {walletCategories.map((item) => (
           <button
             key={item}
@@ -1124,6 +1279,21 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
           </button>
         ))}
       </div>
+      {neighborhoods.length > 2 && (
+        <div className="customer-scroll mt-2 flex gap-2 overflow-x-auto pb-1" aria-label="Neighborhood">
+          {neighborhoods.map((item) => (
+            <button
+              key={item}
+              type="button"
+              aria-pressed={neighborhood === item}
+              onClick={() => setNeighborhood(item)}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-bold transition ${neighborhood === item ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]" : "border-[var(--line)] bg-[var(--surface)] text-[var(--muted-strong)]"}`}
+            >
+              {item === "All" ? "Anywhere" : item}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="mt-7 flex items-center justify-between">
         <h2 className="text-base font-extrabold">
           {/* "Near you" is a claim about distance, and without a position
@@ -1195,7 +1365,16 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
             </button>
           );
         })}
-        {visibleBusinesses.length === 0 && (
+        {discoverQuery.isPending || discoverQuery.error ? (
+          <QueryBoundary
+            isPending={discoverQuery.isPending}
+            error={discoverQuery.error}
+            onRetry={() => void discoverQuery.refetch()}
+            label="places near you"
+          >
+            {null}
+          </QueryBoundary>
+        ) : visibleBusinesses.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[var(--line-strong)] p-7 text-center">
             <Search className="mx-auto text-[var(--muted)]" />
             <p className="mt-3 text-sm font-extrabold">
@@ -1205,28 +1384,39 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
               Try another neighborhood, name, or category.
             </p>
           </div>
-        )}
+        ) : null}
       </div>
-      <article className="mt-7 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
-        <span className="grid size-11 place-items-center rounded-2xl bg-[rgb(15_118_85/12%)] text-[var(--success)]">
-          <Dumbbell />
-        </span>
-        <p className="mt-5 text-base font-extrabold">A new kind of regular</p>
-        <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
-          Fitness and wellness programs are now appearing in Discover around
-          your neighborhood.
-        </p>
-      </article>
+      {MARKETPLACE_URL && (
+        <a
+          href={`${MARKETPLACE_URL}/discover`}
+          className="mt-7 flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition hover:border-[var(--line-strong)]"
+        >
+          <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)] text-[var(--muted-strong)]">
+            <Compass aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-extrabold">Browse all shops on KYP</span>
+            <span className="mt-0.5 block text-[11px] text-[var(--muted)]">
+              Every shop with a live card, by category and neighborhood.
+            </span>
+          </span>
+          <ExternalLink size={16} className="shrink-0 text-[var(--muted)]" aria-hidden="true" />
+        </a>
+      )}
     </div>
   );
 }
 
 function ProfileView({
   onOpen,
+  onGifts,
 }: {
   onOpen: (title: string, screen: ProfileScreen) => void;
+  onGifts: () => void;
 }) {
   const { profile, wallet } = useCustomerState();
+  // Memberships, not cards: a shop running stamps beside points is one shop.
+  const realWallet = [...new Set(wallet.filter((card) => !isPreview(card)).map((card) => card.id))];
   return (
     <div className="px-5 pb-32 pt-5">
       <Eyebrow>Your account</Eyebrow>
@@ -1238,7 +1428,7 @@ function ProfileView({
         <div>
           <p className="text-base font-extrabold">{profile.name}</p>
           <p className="mt-1 text-xs text-[var(--muted)]">
-            Member since {profile.memberSince}
+            Member since {profile.memberSince ? longDate(profile.memberSince) : "…"}
           </p>
         </div>
       </div>
@@ -1262,12 +1452,18 @@ function ProfileView({
             icon: LockKeyhole,
             screen: "privacy" as ProfileScreen,
           },
+          {
+            label: "Gifts",
+            detail: "Pasalubong sent and received",
+            icon: Gift,
+            screen: null,
+          },
         ].map((item, index) => {
           const Icon = item.icon;
           return (
             <button
               type="button"
-              onClick={() => onOpen(item.label, item.screen)}
+              onClick={() => (item.screen ? onOpen(item.label, item.screen) : onGifts())}
               key={item.label}
               className={`flex w-full items-center gap-3 p-4 text-left ${index > 0 ? "border-t border-[var(--line)]" : ""}`}
             >
@@ -1295,8 +1491,8 @@ function ProfileView({
           <div>
             <p className="text-sm font-extrabold">Your data stays yours.</p>
             <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-              KYPStamping is designed not to sell customer data. Businesses only see the details
-              you choose to share.
+              KYP does not sell customer data. Shops only see the details you
+              choose to share.
             </p>
           </div>
         </div>
@@ -1309,7 +1505,7 @@ function ProfileView({
         {[
           {
             label: "Joined businesses",
-            detail: `${wallet.length} business${wallet.length === 1 ? "" : "es"} can see your shared profile`,
+            detail: `${realWallet.length} business${realWallet.length === 1 ? "" : "es"} can see your shared profile`,
             icon: Building2,
             screen: "businesses" as ProfileScreen,
           },
@@ -1357,8 +1553,23 @@ function ProfileView({
         })}
       </section>
       <DataRequests />
-      <div className="mt-5 flex justify-center">
-      </div>
+      <nav aria-label="Legal" className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] font-bold text-[var(--muted-strong)]">
+        {SITE_URL && (
+          <>
+            <a href={`${SITE_URL}/privacy`} className="underline-offset-2 hover:underline">
+              Privacy
+            </a>
+            <a href={`${SITE_URL}/terms`} className="underline-offset-2 hover:underline">
+              Terms
+            </a>
+          </>
+        )}
+        {MARKETPLACE_URL && (
+          <a href={`${MARKETPLACE_URL}/for-shops`} className="underline-offset-2 hover:underline">
+            I run a shop
+          </a>
+        )}
+      </nav>
       <button
         type="button"
         onClick={() => signOut()}
@@ -1408,7 +1619,7 @@ function QrModal({
         >
           <ArrowLeft size={18} />
         </button>
-        <BrandMark compact />
+        <BrandMark label="KYP" tagline={null} compact />
         <button
           onClick={close}
           aria-label="Close"
@@ -1418,7 +1629,7 @@ function QrModal({
         </button>
       </header>
       <div className="flex min-h-[calc(100%-68px)] flex-col items-center justify-center px-6 py-10 text-center">
-        <Eyebrow>Personal loyalty ID</Eyebrow>
+        <Eyebrow>Your member code</Eyebrow>
         <h2
           id="qr-title"
           className="mt-2 text-2xl font-extrabold tracking-[-0.02em]"
@@ -1433,9 +1644,12 @@ function QrModal({
           <QrImage />
           <span className="scan-pass absolute inset-x-4 top-8 h-px bg-[var(--accent)] shadow-[0_0_10px_var(--accent)]" />
         </div>
-        <span className="qr-printable-code mt-5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 py-2 font-mono text-xs font-bold tracking-[0.08em]">
-          {formatMemberCode(memberCode)}
-        </span>
+        <div className="qr-printable-code mt-4 w-full max-w-[280px] rounded-2xl border border-[var(--line)] bg-white px-3 pb-2 pt-3">
+          <Barcode code={memberCode} height={52} />
+          <p className="mt-2 text-center font-mono text-xs font-bold tracking-[0.08em]">
+            {formatMemberCode(memberCode)}
+          </p>
+        </div>
 
         <div className="mt-6 grid w-full max-w-[34ch] grid-cols-2 gap-2">
           <button
@@ -1465,8 +1679,8 @@ function QrModal({
 
         <div className="mt-5 flex max-w-[34ch] items-start gap-2 rounded-2xl bg-[rgb(15_118_85/10%)] p-3 text-left text-xs leading-relaxed text-[var(--muted-strong)]">
           <WifiOff size={16} className="mt-0.5 shrink-0 text-[var(--success)]" aria-hidden="true" />{" "}
-          Works without data. Save it to your photos, print it, or ask your
-          business for a printed KYPStamping card with the same code.
+          Works without data. Save it to your photos, print it, or ask the shop
+          for a printed KYP card with the same code.
         </div>
         <div className="mt-3 flex max-w-[34ch] items-start gap-2 text-left text-[11px] leading-relaxed text-[var(--muted)]">
           <ShieldCheck size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> The code
@@ -1481,41 +1695,19 @@ function QrModal({
   );
 }
 
-function SheetHeader({ title, close }: { title: string; close: () => void }) {
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [close]);
-  return (
-    <header className="sticky top-0 z-10 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/94%)] px-5 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
-      <button
-        type="button"
-        onClick={close}
-        aria-label={`Close ${title}`}
-        className="grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
-      >
-        <ArrowLeft size={18} />
-      </button>
-      <p className="text-sm font-extrabold">{title}</p>
-      <button
-        type="button"
-        onClick={close}
-        aria-label="Close"
-        className="grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
-      >
-        <X size={18} />
-      </button>
-    </header>
-  );
-}
+/** Campaigns are the promotional kind; everything else is a service message. */
+const isPromotional = (kind: string) => /campaign|promo|offer/i.test(kind);
 
-function NotificationSheet({ close }: { close: () => void }) {
-  const { data: notifications = [] } = useNotifications();
+function NotificationSheet({ close, onApprove }: { close: () => void; onApprove: () => void }) {
+  const notificationsQuery = useNotifications();
+  const notifications = notificationsQuery.data ?? [];
+  const { data: approvals = [] } = usePendingApprovals();
   const { notificationsRead: allRead, markNotificationsRead: onMarkRead } =
     useCustomerState();
+  const groups = [
+    { title: "Service updates", detail: "Rewards, visits and your account. Always on.", rows: notifications.filter((n) => !isPromotional(n.kind)) },
+    { title: "Promotions", detail: "Offers from shops you allowed. Off by default.", rows: notifications.filter((n) => isPromotional(n.kind)) },
+  ];
   return (
     <div
       className="absolute inset-0 z-[55] overflow-y-auto bg-[var(--paper)]"
@@ -1533,49 +1725,80 @@ function NotificationSheet({ close }: { close: () => void }) {
           Inbox
         </h2>
         <p className="mt-2 text-sm text-[var(--muted-strong)]">
-          Service updates, reward progress, and promotions stay clearly labeled.
+          Service updates and promotions are kept apart.
         </p>
-        <div className="mt-6 divide-y divide-[var(--line)] border-y border-[var(--line)]">
-          {notifications.map((notification) => {
-            const isRead = allRead || notification.read;
-            return (
-              <article
-                key={notification.id}
-                className="grid grid-cols-[auto_1fr] gap-3 py-5"
-              >
-                <span
-                  className={`mt-0.5 grid size-10 place-items-center rounded-2xl ${isRead ? "bg-[var(--surface-2)]" : "bg-[var(--accent)]"}`}
-                >
-                  <Bell size={17} />
-                </span>
-                <div>
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-extrabold">
-                      {notification.title}
-                    </p>
-                    {!isRead && (
-                      <span className="size-2 shrink-0 rounded-full bg-[var(--accent-strong)]" />
-                    )}
+        {approvals.length > 0 && (
+          <button
+            type="button"
+            onClick={onApprove}
+            className="mt-5 flex w-full items-center gap-3 rounded-2xl bg-[var(--ink)] p-4 text-left text-[var(--paper)]"
+          >
+            <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[var(--accent)] text-[var(--ink)]">
+              <BadgeCheck size={18} aria-hidden="true" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-extrabold">
+                {approvals.length === 1 ? "A reward is waiting for your approval" : `${approvals.length} rewards are waiting for your approval`}
+              </span>
+              <span className="mt-0.5 block text-[11px] text-white/60">Your approval releases the reward at the counter.</span>
+            </span>
+            <ChevronRight size={16} aria-hidden="true" />
+          </button>
+        )}
+        <div className="mt-6">
+          <QueryBoundary
+            isPending={notificationsQuery.isPending}
+            error={notificationsQuery.error}
+            onRetry={() => void notificationsQuery.refetch()}
+            label="your inbox"
+          >
+            {groups.map((group) => (
+              <section key={group.title} className="mt-6 first:mt-0">
+                <h3 className="text-base font-extrabold tracking-[-0.02em]">{group.title}</h3>
+                <p className="mt-0.5 text-[11px] text-[var(--muted)]">{group.detail}</p>
+                {group.rows.length === 0 ? (
+                  <p className="mt-3 rounded-2xl border border-dashed border-[var(--line-strong)] p-4 text-xs text-[var(--muted)]">
+                    Nothing here yet.
+                  </p>
+                ) : (
+                  <div className="mt-3 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+                    {group.rows.map((notification) => {
+                      const isRead = allRead || notification.read;
+                      return (
+                        <article key={notification.id} className="grid grid-cols-[auto_1fr] gap-3 py-5">
+                          <span
+                            className={`mt-0.5 grid size-10 place-items-center rounded-2xl ${isRead ? "bg-[var(--surface-2)]" : "bg-[var(--accent)]"}`}
+                          >
+                            <Bell size={17} aria-hidden="true" />
+                          </span>
+                          <div>
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="text-sm font-extrabold">{notification.title}</p>
+                              {!isRead && (
+                                <span className="size-2 shrink-0 rounded-full bg-[var(--accent-strong)]" aria-label="Unread" />
+                              )}
+                            </div>
+                            <p className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
+                              {notification.business ? `${notification.business} · ` : ""}
+                              {notification.kind}
+                            </p>
+                            <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">{notification.body}</p>
+                            <p className="mt-2 text-[10px] text-[var(--muted)]">{relativeTime(notification.receivedAt)}</p>
+                          </div>
+                        </article>
+                      );
+                    })}
                   </div>
-                  <p className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
-                    {notification.business} · {notification.kind}
-                  </p>
-                  <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
-                    {notification.body}
-                  </p>
-                  <p className="mt-2 text-[10px] text-[var(--muted)]">
-                    {relativeTime(notification.receivedAt)}
-                  </p>
-                </div>
-              </article>
-            );
-          })}
+                )}
+              </section>
+            ))}
+          </QueryBoundary>
         </div>
         <button
           type="button"
-          disabled={allRead}
+          disabled={allRead || notifications.length === 0}
           onClick={onMarkRead}
-          className="mt-6 w-full rounded-2xl border border-[var(--line)] bg-[var(--surface)] py-3 text-sm font-bold"
+          className="mt-6 w-full rounded-2xl border border-[var(--line)] bg-[var(--surface)] py-3 text-sm font-bold disabled:opacity-60"
         >
           {allRead ? "Everything is read" : "Mark everything read"}
         </button>
@@ -1585,7 +1808,8 @@ function NotificationSheet({ close }: { close: () => void }) {
 }
 
 function ActivitySheet({ close }: { close: () => void }) {
-  const { data: activity = [] } = useActivity();
+  const activityQuery = useActivity();
+  const activity = activityQuery.data ?? [];
   const [filter, setFilter] = useState<"All" | "Earned" | "Used">("All");
   const visibleActivity = activity.filter((activity) => {
     if (filter === "All") return true;
@@ -1630,7 +1854,21 @@ function ActivitySheet({ close }: { close: () => void }) {
             </button>
           ))}
         </div>
-        <div className="mt-6 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+        <div className="mt-6">
+          <QueryBoundary
+            isPending={activityQuery.isPending}
+            error={activityQuery.error}
+            onRetry={() => void activityQuery.refetch()}
+            label="your activity"
+          >
+            {visibleActivity.length === 0 && (
+              <p className="rounded-2xl border border-dashed border-[var(--line-strong)] p-6 text-center text-xs text-[var(--muted)]">
+                {filter === "All" ? "No activity yet. Your first stamp will appear here." : `Nothing ${filter.toLowerCase()} yet.`}
+              </p>
+            )}
+          </QueryBoundary>
+        </div>
+        <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
           {visibleActivity.map((activity) => (
             <article key={activity.id} className="flex items-center gap-3 py-5">
               <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)]">
@@ -1892,7 +2130,7 @@ function JoinConsentDialog({
           <ShieldCheck size={16} className="mt-0.5 shrink-0 text-[var(--success)]" />
           <p className="text-[11px] leading-relaxed text-[var(--muted-strong)]">
             You can leave the program and revoke access anytime from your
-            profile. KYPStamping never sells your data.
+            profile. KYP never sells your data.
           </p>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-2">
@@ -1962,7 +2200,9 @@ function WalletSheet({
             {card.business}
           </h2>
           <p className="mt-1 text-[11px] text-white/45">{card.program}</p>
-          <p className="mt-2 text-sm text-white/60">{card.balance}</p>
+          <p className="mt-2 text-sm text-white/60">
+            {card.state === "pending" ? `${earnedStamps(card)} of ${card.target} · 1 pending` : card.balance}
+          </p>
           {progress !== null && (
             <div className="mt-7 h-2 overflow-hidden rounded-full bg-white/10">
               <div
@@ -1978,7 +2218,26 @@ function WalletSheet({
             </span>
             <strong className="text-[var(--accent)]">{card.reward}</strong>
           </div>
+          <div style={{ "--card-ink": "var(--paper)" } as CSSProperties}>
+            <CardStatus card={card} onCard />
+          </div>
         </section>
+        {card.rewardsAvailable > 0 && (
+          <section className="mt-4 rounded-2xl border border-[rgb(15_118_85/28%)] bg-[rgb(15_118_85/9%)] p-5">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--success)]">
+              Held for you
+            </p>
+            <p className="mt-2 text-sm font-extrabold">
+              {card.rewardsAvailable === 1 ? `1 ${card.reward}` : `${card.rewardsAvailable} × ${card.reward}`}
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+              Show your code at the counter. Staff reserve it, you approve it here, and it is handed over.
+              {card.redeemBy ? ` Redeem by ${longDate(card.redeemBy)}.` : ""}
+            </p>
+          </section>
+        )}
+        <StoreCreditLine card={card} />
+        <MissionList card={card} />
         <section className="mt-4 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           {activity.filter(
             (activity) => activity.business === card.business,
@@ -2007,20 +2266,14 @@ function WalletSheet({
               </div>
             ))}
         </section>
-        <div className="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
-          <p className="text-sm font-extrabold">Program terms</p>
-          <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
-            Only approved events change this balance. Rewards have no cash
-            value, and any expiry or transfer rule must appear here before it
-            applies.
-          </p>
-        </div>
+        <CardTerms card={card} />
+        <PromoCodeEntry card={card} />
         <button
           type="button"
           onClick={onShowQr}
           className="mt-5 w-full rounded-full bg-[var(--ink)] py-3 text-sm font-extrabold text-[var(--paper)]"
         >
-          Show my QR for this place
+          Show my code for this place
         </button>
       </div>
     </div>
@@ -2038,10 +2291,12 @@ function ProfileSheet({
   close: () => void;
   notify: (message: string, tone?: "success" | "error") => void;
 }) {
-  const { data: consentHistory = [] } = useConsentHistory();
+  const consentQuery = useConsentHistory();
+  const consentHistory = consentQuery.data ?? [];
   const {
     profile,
     updateProfile,
+    profileSave,
     channels,
     toggleChannel,
     wallet,
@@ -2106,19 +2361,43 @@ function ProfileSheet({
                 </label>
               );
             })}
-            <button
-              type="button"
-              onClick={() =>
-                notify(`Saved. ${profile.name.split(" ")[0]}'s details are updated across the wallet.`)
-              }
-              className="min-h-12 w-full rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
+            {/* Every edit is sent as it is typed; this line is the API's answer. */}
+            <p
+              role="status"
+              aria-live="polite"
+              className={`text-xs font-bold ${profileSave.error ? "text-[var(--danger)]" : "text-[var(--muted-strong)]"}`}
             >
-              Save changes
-            </button>
+              {profileSave.isPending
+                ? "Saving…"
+                : profileSave.error
+                  ? profileSave.error.message
+                  : profileSave.isSuccess
+                    ? "Saved. Your details are updated across the wallet."
+                    : "Changes save as you type."}
+            </p>
           </div>
         ) : isNotifications ? (
-          <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
-            {CHANNELS.map((channel, index) => (
+          <div className="mt-6">
+            <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
+              Service messages keep your balances and visits clear and are always
+              on. Promotions are off until you turn each channel on, and each
+              one can be turned off again without leaving a program.
+            </p>
+            {CHANNELS.filter((channel) => channel.locked).map((channel) => (
+              <div key={channel.key} className="mt-4 flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">Service</p>
+                  <p className="mt-1 text-sm font-extrabold">{channel.label}</p>
+                  <p className="mt-1 text-[10px] leading-relaxed text-[var(--muted)]">{channel.detail} · always on</p>
+                </div>
+                <span className="rounded-full bg-[rgb(15_118_85/12%)] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--success)]">
+                  On
+                </span>
+              </div>
+            ))}
+            <p className="mt-6 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">Promotional</p>
+          <div className="mt-2 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+            {CHANNELS.filter((channel) => !channel.locked).map((channel, index) => (
               <div
                 key={channel.key}
                 className={`flex items-start gap-3 p-4 ${index > 0 ? "border-t border-[var(--line)]" : ""}`}
@@ -2133,14 +2412,13 @@ function ProfileSheet({
                 <button
                   type="button"
                   role="switch"
-                  disabled={channel.locked}
                   aria-checked={channels[channel.key]}
                   aria-label={`Toggle ${channel.label}`}
                   onClick={() => {
                     const next = toggleChannel(channel.key);
                     notify(`${channel.label} ${next ? "turned on" : "turned off"}.`);
                   }}
-                  className={`relative h-6 w-10 shrink-0 rounded-full ${channel.locked ? "cursor-not-allowed opacity-60" : ""} ${channels[channel.key] ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
+                  className={`relative h-6 w-10 shrink-0 rounded-full ${channels[channel.key] ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                 >
                   <span
                     className={`absolute top-1 size-4 rounded-full bg-white transition-all ${channels[channel.key] ? "left-5" : "left-1"}`}
@@ -2148,6 +2426,8 @@ function ProfileSheet({
                 </button>
               </div>
             ))}
+          </div>
+            <PushSection />
           </div>
         ) : isDanger ? (
           <div className="mt-6">
@@ -2172,20 +2452,28 @@ function ProfileSheet({
             </button>
             {leaveOpen && (
               <div className="mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
-                {wallet.map((card) => (
+                {/* One row per shop: a shop running two programs is one membership. */}
+                {wallet
+                  .filter((card, index, all) => all.findIndex((other) => other.id === card.id) === index)
+                  .map((card) => (
                   <button
                     key={card.id}
                     type="button"
+                    disabled={isPreview(card)}
+                    title={isPreview(card) ? PREVIEW_WRITE_REASON : undefined}
                     onClick={() => {
                       // Removes the card from the wallet, the joined-businesses
                       // list, and the count on the profile — not just this row.
                       leaveBusiness(card.id);
                       notify(`You left ${card.business}. The card is out of your wallet.`);
                     }}
-                    className="flex min-h-12 w-full items-center justify-between border-b border-[var(--line)] px-4 text-left text-xs font-bold last:border-0"
+                    className="flex min-h-12 w-full items-center justify-between gap-2 border-b border-[var(--line)] px-4 text-left text-xs font-bold last:border-0 disabled:opacity-60"
                   >
-                    {card.business}
-                    <span>Leave</span>
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="truncate">{card.business}</span>
+                      {isPreview(card) && <PreviewBadge />}
+                    </span>
+                    <span className="shrink-0">Leave</span>
                   </button>
                 ))}
                 {wallet.length === 0 && (
@@ -2201,7 +2489,7 @@ function ProfileSheet({
               onClick={() => {
                 if (
                   !window.confirm(
-                    "Request deletion of your KYPStamping account? Your stamps, points, and stored value at every business would be permanently removed once identity is verified.",
+                    "Request deletion of your KYP account? Your stamps, points, and stored value at every business would be permanently removed once identity is verified.",
                   )
                 ) {
                   return;
@@ -2225,6 +2513,20 @@ function ProfileSheet({
                 Each entry records what changed, which business it applied to,
                 and when it took effect.
               </p>
+            </div>
+            <div className="mt-4">
+              <QueryBoundary
+                isPending={consentQuery.isPending}
+                error={consentQuery.error}
+                onRetry={() => void consentQuery.refetch()}
+                label="your consent history"
+              >
+                {consentHistory.length === 0 && (
+                  <p className="rounded-2xl border border-dashed border-[var(--line-strong)] p-6 text-center text-xs text-[var(--muted)]">
+                    No changes recorded yet.
+                  </p>
+                )}
+              </QueryBoundary>
             </div>
             <ol className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">
               {consentHistory.map((entry) => (
@@ -2311,22 +2613,43 @@ function ProfileSheet({
               </p>
             </div>
             <div className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">
-              {wallet.map((card) => (
-                <div key={card.id} className="flex items-center gap-3 py-4">
-                  <span className="grid size-9 place-items-center rounded-xl bg-[var(--surface-2)]">
-                    <Building2 size={15} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-extrabold">{card.business}</p>
-                    <p className="mt-0.5 text-[10px] text-[var(--muted)]">
-                      Loyalty ID + name · promotions optional
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-[rgb(15_118_85/12%)] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--success)]">
-                    Active
-                  </span>
-                </div>
-              ))}
+              {wallet
+                .filter((card, index, all) => all.findIndex((other) => other.id === card.id) === index)
+                .map((card) => {
+                  // The card carries no per-shop consent flags yet, so what is
+                  // shown is the account-wide preference, and it says so.
+                  const promos = [
+                    channels.promoPush ? "push" : "",
+                    channels.promoEmail ? "email" : "",
+                    channels.promoSms ? "SMS" : "",
+                  ].filter(Boolean);
+                  return (
+                    <div key={card.id} className="flex items-center gap-3 py-4">
+                      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[var(--surface-2)]">
+                        <Building2 size={15} aria-hidden="true" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-extrabold">{card.business}</p>
+                        <p className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">
+                          Member code and name shared for service messages.{" "}
+                          {promos.length > 0
+                            ? `Promotions by ${promos.join(", ")}, from your account setting; no consent is on file for this shop specifically.`
+                            : "No promotional channel is on for your account, so this shop cannot send promotions."}
+                        </p>
+                      </div>
+                      {isPreview(card) ? (
+                        <PreviewBadge className="shrink-0" />
+                      ) : (
+                        <span className="shrink-0 rounded-full bg-[rgb(15_118_85/12%)] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--success)]">
+                          Active
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              {wallet.length === 0 && (
+                <p className="py-4 text-xs text-[var(--muted)]">You have not joined a shop yet.</p>
+              )}
             </div>
             {screen === "export" && (
               <button
@@ -2361,9 +2684,10 @@ function CustomerWallet() {
   const [qrOpen, setQrOpen] = useState(false);
   const { toast, setToast, dismiss } = useToast(3000);
   const [toastTone, setToastTone] = useState<"success" | "error">("success");
-  const { joinBusiness, notificationsRead } = useCustomerState();
-  // Warm the QR codec while there is still a connection to warm it with.
-  usePrefetchQrCodec();
+  const { joinBusiness, notificationsRead, profile } = useCustomerState();
+  const { data: approvals = [] } = usePendingApprovals();
+  // Warm the QR codec and the rendered symbol while there is still a connection.
+  usePrefetchQrCodec(profile.memberCode);
   const notify = (message: string, tone: "success" | "error" = "success") => {
     setToastTone(tone);
     setToast(message);
@@ -2372,11 +2696,21 @@ function CustomerWallet() {
 
   useEffect(() => {
     const validTabs = new Set<Tab>(["home", "wallet", "discover", "profile"]);
+    // Deep links a notification can carry: #approve opens the approval sheet.
+    const sheets: Record<string, { tab: Tab; sheet: Sheet }> = {
+      approve: { tab: "home", sheet: { kind: "approve" } },
+      gifts: { tab: "wallet", sheet: { kind: "gifts" } },
+      activity: { tab: "home", sheet: { kind: "activity" } },
+      notifications: { tab: "home", sheet: { kind: "notifications" } },
+    };
     function syncFromHash() {
       const next = window.location.hash.slice(1) as Tab;
       if (validTabs.has(next)) {
         setTab(next);
         setSheet(null);
+      } else if (sheets[next]) {
+        setTab(sheets[next].tab);
+        setSheet(sheets[next].sheet);
       }
     }
     syncFromHash();
@@ -2408,12 +2742,14 @@ function CustomerWallet() {
         onWallet={() => navigate("wallet")}
         onDiscover={() => navigate("discover")}
         onActivity={() => setSheet({ kind: "activity" })}
+        onApprove={() => setSheet({ kind: "approve" })}
       />
     ),
     wallet: (
       <WalletView
         onCard={(id, programId) => setSheet({ kind: "wallet", id, programId })}
         onBusiness={(id) => setSheet({ kind: "business", id })}
+        onGifts={() => setSheet({ kind: "gifts" })}
       />
     ),
     discover: (
@@ -2422,6 +2758,7 @@ function CustomerWallet() {
     profile: (
       <ProfileView
         onOpen={(title, screen) => setSheet({ kind: "profile", title, screen })}
+        onGifts={() => setSheet({ kind: "gifts" })}
       />
     ),
   }[tab];
@@ -2447,19 +2784,34 @@ function CustomerWallet() {
         className="relative mx-auto min-h-[100dvh] max-w-[460px] overflow-hidden border-x border-[rgb(24_18_12/8%)] bg-[var(--paper)] phone-shell"
       >
       <header className="sticky top-0 z-30 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/90%)] px-5 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
-        <BrandMark compact />
+        <BrandMark label="KYP" tagline={null} compact />
         <span className="sr-only">{titles[tab]}</span>
-        <button
-          type="button"
-          onClick={() => setSheet({ kind: "notifications" })}
-          aria-label="Notifications"
-          className="relative grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
-        >
-          <Bell size={18} />
-          {!notificationsRead && (
-            <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--accent)]" />
+        <div className="flex items-center gap-2">
+          {approvals.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSheet({ kind: "approve" })}
+              aria-label={`${approvals.length} reward${approvals.length === 1 ? "" : "s"} waiting for your approval`}
+              className="relative grid size-10 place-items-center rounded-full bg-[var(--accent)] text-[var(--ink)]"
+            >
+              <BadgeCheck size={18} aria-hidden="true" />
+              <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-[var(--ink)] text-[10px] font-extrabold text-[var(--paper)]">
+                {approvals.length}
+              </span>
+            </button>
           )}
-        </button>
+          <button
+            type="button"
+            onClick={() => setSheet({ kind: "notifications" })}
+            aria-label="Notifications"
+            className="relative grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
+          >
+            <Bell size={18} />
+            {!notificationsRead && (
+              <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--accent)]" />
+            )}
+          </button>
+        </div>
       </header>
 
       <div
@@ -2505,11 +2857,13 @@ function CustomerWallet() {
 
       {qrOpen && <QrModal close={() => setQrOpen(false)} notify={notify} />}
       {sheet?.kind === "notifications" && (
-        <NotificationSheet close={() => setSheet(null)} />
+        <NotificationSheet close={() => setSheet(null)} onApprove={() => setSheet({ kind: "approve" })} />
       )}
       {sheet?.kind === "activity" && (
         <ActivitySheet close={() => setSheet(null)} />
       )}
+      {sheet?.kind === "approve" && <ApproveSheet close={() => setSheet(null)} />}
+      {sheet?.kind === "gifts" && <GiftsSheet close={() => setSheet(null)} />}
       {sheet?.kind === "wallet" && (
         <WalletSheet
           id={sheet.id}

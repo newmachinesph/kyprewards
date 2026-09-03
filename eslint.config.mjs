@@ -13,6 +13,7 @@ export default defineConfig([
           "apps/admin-web/",
           "apps/customer-pwa/",
           "apps/marketing-site/",
+          "apps/marketplace/",
         ],
       },
     },

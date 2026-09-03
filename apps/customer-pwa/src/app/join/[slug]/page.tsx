@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { FirstStamp } from "@/components/FirstStamp";
 
 export const metadata: Metadata = {
-  title: "Your first stamp · KYPStamping",
+  title: "Your first stamp",
   // A counter poster, not a page anybody should find by searching.
   robots: { index: false, follow: false },
 };

@@ -50,14 +50,13 @@ gap lists in the other apps' `AGENTS.md` in the same change.
 
 The join poster no longer lives here. It lands on `app.kyp.ph/join/<slug>`.
 
-## Queued copy change (D8)
+## The D8 rules are published
 
-The stamp-card conditions proposed on 2026-09-04 (run window, close
-behaviour, reward grace, completion cap, member cap) are not on the site.
-They are published here first, in one commit: `featureMatrix` rows in "The
-stamp card" group, the rules list on `/product`, one FAQ answer, and the
-"Stamp card rules" section of `llms.txt`. Only after that do the apps build
-them. Details in `../../PROJECT.md` and `../../../PLAN.md`.
+The run window, what happens when a card closes, and completions per member
+were published on 2026-09-04: three `featureMatrix` rows in "The stamp card"
+group, three rule cards on `/product` ("Eleven settings"), one FAQ answer,
+three `llms.txt` bullets; `/roadmap` derives them as live. No members-per-run
+cap, no dates. The apps build to these; the backend enforces them in 1A.
 
 ## Rules for copy
 

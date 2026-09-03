@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Button, Eyebrow, StampDots, StatCard } from "@kypstamping/ui";
+import { Button, Eyebrow, PreviewBadge, StampDots, StatCard } from "@kypstamping/ui";
+import { cardTerms, DEFAULT_RULES } from "@/components/views/ProgramRules";
 import { greeting, todayLabel } from "@kypstamping/ui/shell";
 import { pesoCompactFromCentavos } from "@kypstamping/ui/format";
 import {
@@ -32,6 +33,7 @@ import {
   Stamp,
   Store,
   TicketPercent,
+  Timer,
   UserPlus,
   Users,
   WifiOff,
@@ -41,12 +43,15 @@ import type { NotifyIntent } from "@kypstamping/ui/shell";
 import { useDemoState } from "@/components/DemoState";
 import type { Automation } from "@kypstamping/api";
 import {
+  isPreview,
   useAudience,
   useAutomations,
+  useBonusWindows,
   useBusinessMetrics,
   useBusinessProfile,
   useLocations,
   useMessagingPolicy,
+  useRedemptions,
   useSetupProgress,
   usePrograms,
   useStaff,
@@ -162,6 +167,11 @@ export function BusinessDashboard({
   const testStampDone = setupProgress?.enabled ?? false;
   const { data: audienceRows = [] } = useAudience();
   const widestReach = Math.max(...audienceRows.map((row) => row.reachable), 0);
+  // Rewards the customer has not yet approved on their phone.
+  const { data: redemptionRows = [] } = useRedemptions();
+  const pendingApprovals = redemptionRows.filter((row) => row.status === "Awaiting customer").length;
+  const { data: bonusWindows = [] } = useBonusWindows();
+  const liveWindow = bonusWindows.find((window) => window.status === "live");
   // Never zero: dividing by it would make every bar NaN tall.
   const busiest = Math.max(1, ...(visits?.bars ?? []).map((bar) => bar.visits));
 
@@ -237,6 +247,27 @@ export function BusinessDashboard({
           </Button>
         </div>
       </div>
+
+      {liveWindow && (
+        <div
+          role="status"
+          className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--accent)] bg-[rgb(232_163_61/12%)] px-4 py-3 text-sm"
+        >
+          <Timer size={17} className="text-[var(--accent-strong)]" />
+          <span className="font-extrabold">{liveWindow.name} is live</span>
+          <span className="text-[var(--muted-strong)]">
+            {liveWindow.multiplier}× stamps · {liveWindow.stampsGranted} granted so far
+          </span>
+          {isPreview(liveWindow) && <PreviewBadge />}
+          <button
+            type="button"
+            onClick={() => onNavigate("bonus-windows")}
+            className="ml-auto text-xs font-extrabold text-[var(--accent-strong)]"
+          >
+            Open bonus windows
+          </button>
+        </div>
+      )}
 
       <section
         className="metric-grid mt-8 grid gap-3"
@@ -360,10 +391,20 @@ export function BusinessDashboard({
         <article className="ticket-edge relative overflow-hidden rounded-2xl p-7 text-[var(--paper)]">
           <div className="relative z-10">
             <div className="flex items-center justify-between">
-              <Eyebrow>Live reward</Eyebrow>
-              <span className="rounded-full border border-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/70">
-                Active
-              </span>
+              <Eyebrow>The stamp card at a glance</Eyebrow>
+              {pendingApprovals > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => onNavigate("redemptions")}
+                  className="rounded-full border border-[var(--accent)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--accent)]"
+                >
+                  {pendingApprovals} awaiting customer approval
+                </button>
+              ) : (
+                <span className="rounded-full border border-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/70">
+                  {livePrograms[0] ? "Active" : "No live program"}
+                </span>
+              )}
             </div>
             <h2 className="mt-8 max-w-[10ch] text-3xl font-extrabold leading-[1.02] tracking-[-0.03em]">
               {livePrograms[0]?.name ?? "No live program yet"}
@@ -380,6 +421,18 @@ export function BusinessDashboard({
             <div className="mt-8 overflow-x-auto pb-1">
               <StampDots filled={liveFilled} total={liveTarget} dark />
             </div>
+            {livePrograms[0]?.type === "Stamps" && (
+              <ul className="mt-5 space-y-1 text-[11px] leading-relaxed text-white/60">
+                {cardTerms(livePrograms[0], livePrograms[0].rules ?? DEFAULT_RULES)
+                  .slice(1, 4)
+                  .map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                {!livePrograms[0].rules && (
+                  <li className="text-white/40">Defaults shown; the rules editor saves them when the API carries them.</li>
+                )}
+              </ul>
+            )}
             <div className="mt-8 flex items-end justify-between border-t border-dashed border-white/20 pt-5">
               <div>
                 <p className="text-2xl font-extrabold">
@@ -866,7 +919,7 @@ export function BusinessDashboard({
               <WifiOff size={13} /> Offline queue ready
             </div>
             <p className="mx-auto mt-3 max-w-[34ch] text-center text-sm leading-relaxed text-[var(--muted-strong)]">
-              Hold the customer&apos;s KYPStamping QR inside the frame. Nothing is
+              Hold the customer&apos;s KYP QR inside the frame. Nothing is
               saved until you confirm.
             </p>
             <Button

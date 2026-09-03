@@ -79,8 +79,14 @@ npm.cmd run dev:marketing
 npm.cmd run dev --workspace @kypstamping/marketplace
 ```
 
-Or with Docker: `docker compose -f compose.frontend.yaml up` (the
-marketplace is not in the compose file yet; see its `AGENTS.md`).
+Or with Docker: `docker compose -f compose.frontend.yaml up`.
+
+Every app's `.env.local` sets `NEXT_PUBLIC_PREVIEW_UNBUILT=true`. With it,
+a screen whose endpoint the API does not serve yet renders typed sample
+data under a "Preview, not connected" badge, with its writes disabled, so
+the whole product can be seen locally. Leave it empty in production. See
+`CONTRACT.md`, "Preview mode". `node scripts/shots.mjs` walks all five apps
+and drops screenshots in `design/shots/` for a visual review.
 
 ## Checks
 

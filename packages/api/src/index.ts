@@ -15,6 +15,16 @@
  */
 
 export { ApiProvider } from "./provider";
+export {
+  previewEnabled,
+  isPreview,
+  isMissingEndpoint,
+  withPreview,
+  withPreviewExtras,
+  PREVIEW_WRITE_REASON,
+  type Previewable,
+} from "./preview";
+export * as previewSamples from "./preview-samples";
 export { getQueryClient, makeQueryClient } from "./query-client";
 export { keys, type CustomerFilters, type Coordinates } from "./keys";
 export * from "./queries";

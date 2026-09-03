@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { DemoAuthFlow } from "@kypstamping/ui/auth";
 
 export const metadata: Metadata = {
-  title: "Accept invitation · KYPStamping Business",
+  title: "Accept invitation · KYP Stamping Business",
   // The token rides in the query string.
   robots: { index: false, follow: false },
 };

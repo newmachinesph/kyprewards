@@ -94,6 +94,18 @@ export function relativeTime(iso: string | null | undefined, now: Date = new Dat
   const then = new Date(iso);
   if (Number.isNaN(then.getTime())) return iso;
   const minutes = Math.round((now.getTime() - then.getTime()) / 60000);
+  // A future instant - a run's end date, an add-on's renewal, a pending
+  // stamp's expiry - used to read "Just now". It is "in 3 days".
+  if (minutes <= -1) {
+    const ahead = -minutes;
+    if (ahead < 60) return `in ${ahead} minute${ahead === 1 ? "" : "s"}`;
+    const hours = Math.round(ahead / 60);
+    if (hours < 24) return `in ${hours} hour${hours === 1 ? "" : "s"}`;
+    const days = Math.round(hours / 24);
+    if (days === 1) return "Tomorrow";
+    if (days < 7) return `in ${days} days`;
+    return then.toLocaleDateString("en-PH", { day: "numeric", month: "long" });
+  }
   if (minutes < 1) return "Just now";
   if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
   const hours = Math.round(minutes / 60);

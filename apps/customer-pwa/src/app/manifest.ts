@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "KYPStamping",
-    short_name: "KYPStamping",
-    description: "Keep every local reward in one pocket.",
+    name: "KYP",
+    short_name: "KYP",
+    description: "One card for every shop you already visit.",
     start_url: "/",
     display: "standalone",
     background_color: "#faf8f3",

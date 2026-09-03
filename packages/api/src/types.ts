@@ -47,7 +47,12 @@ export type StaffRole = "Owner" | "Manager" | "Cashier" | "Analyst" | "Campaign"
  * cannot exist - which is how "Reserved" ended up displayed with no way to
  * act on it.
  */
-export type RedemptionStatus = "Reserved" | "Approved" | "Cancelled" | "Reversed";
+export type RedemptionStatus =
+  | "Reserved"
+  | "Awaiting customer"
+  | "Approved"
+  | "Cancelled"
+  | "Reversed";
 export type CampaignStatus = "Completed" | "Running" | "Scheduled";
 export type ChannelName =
   | "In-app"
@@ -195,6 +200,7 @@ export type BusinessProfile = {
   organizationId: string;
   merchantId: string;
   adminTenantId: string;
+  founding?: boolean;
 };
 
 export type BusinessCustomer = {
@@ -235,6 +241,9 @@ export type Program = {
   target: number;
   rewardName: string;
   rewardValueCentavos: number;
+  /** The stamp-card rules, once the API carries them. Absent today. */
+  rules?: StampRules;
+  preview?: boolean;
 };
 
 export type Automation = {
@@ -353,6 +362,15 @@ export type Billing = {
   allowances: Allowance[];
   smsCreditBalance: number;
   invoices: Invoice[];
+  /* From the two platform flags. Absent until the backend carries them,
+     which the screens read as closed. */
+  paidTiersOpen?: boolean;
+  creditPurchasesOpen?: boolean;
+  /** `["qrph"]`: the only method the PayMongo account supports. */
+  paymentMethods?: string[];
+  founding?: boolean;
+  foundingCreditMonths?: number;
+  preview?: boolean;
 };
 
 /* ── Merchant-owned integration state ─────────────────────────────────
@@ -404,6 +422,25 @@ export type WalletCard = {
   imageUrl: string | null;
   /** Metres from the position the caller sent, or null when none was. */
   distanceMetres: number | null;
+
+  /* Everything below arrives with the stamp-card contract. Absent today. */
+  state?: CardState;
+  pendingStamp?: PendingStamp | null;
+  rules?: StampRules;
+  nextStampAt?: string | null;
+  /** After a run closes: when a held reward must be redeemed by. */
+  redeemBy?: string | null;
+  closeOutcome?: "expired" | "carriedOver" | null;
+  successorProgram?: string | null;
+  completions?: number;
+  /** The KYP Stamping badge shows on Launch shops. */
+  badge?: boolean;
+  plan?: PlanName;
+  tier?: CardTier | null;
+  bonusWindow?: CardBonusWindow | null;
+  missions?: MissionProgress[];
+  storeCreditCentavos?: number;
+  preview?: boolean;
 };
 
 export type DiscoverPlace = {
@@ -477,6 +514,8 @@ export type Tenant = {
   health: number;
   risk: TenantRisk;
   joinedOn: string;
+  founding?: boolean;
+  featured?: boolean;
 };
 
 export type SupportTicket = {
@@ -622,10 +661,12 @@ export type RedemptionResult = {
   customerId: string;
   rewardName: string;
   valueCentavos: number;
-  status: "reserved" | "approved" | "cancelled" | "reversed";
+  status: "reserved" | "awaiting_customer" | "approved" | "cancelled" | "reversed";
   reservedAt: string;
   committedAt: string | null;
   cancelledAt: string | null;
+  /** Set once the customer has approved on their phone. */
+  customerApprovedAt?: string | null;
 };
 
 /* ── The eight program types ──────────────────────────────────────────
@@ -949,6 +990,294 @@ export type PartnerApplication = {
   /** Set when approval provisioned the workspace. */
   merchantId: string | null;
   createdAt: string;
+  /** Recorded on approval through 31 December 2026. Absent today. */
+  founding?: boolean;
+  setupNotes?: string;
+};
+
+/* ── The stamp-card contract, ahead of the backend ─────────────────────
+   Shapes from backend/CONTRACT.md, "The stamp-card contract to implement"
+   and the queued D8 conditions. Every field is optional on the types the API
+   already returns, because today's responses do not carry them; the screens
+   render what arrives and never compute a rule locally. */
+
+export type CardState = "pending" | "active" | "completed" | "closed";
+export type CloseBehaviour = "expire" | "carryOver";
+
+/** The merchant's settings on a stamp program. Every plan, shown on the card. */
+export type StampRules = {
+  welcomeStamp: boolean;
+  /** 1440 is once a day. */
+  cooldownMinutes: number;
+  minSpendCentavos: number;
+  /** One number for unclaimed stamps and earned rewards (D2). Zero is never. */
+  expiryDays: number;
+  startsAt: string | null;
+  endsAt: string | null;
+  onClose: CloseBehaviour;
+  successorProgramId: string | null;
+  rewardGraceDays: number;
+  /** Zero is unlimited. */
+  maxCompletions: number;
+};
+
+export type PendingStamp = { expiresAt: string };
+
+/** How a card looks under a suki tier, on the card itself. */
+export type CardTier = {
+  name: string;
+  rank: number;
+  nextName: string | null;
+  /** Visits or pesos still needed for the next rung, in the tier's basis. */
+  nextIn: number | null;
+  basis: "visits" | "spend";
+  benefit: string;
+};
+
+export type CardBonusWindow = {
+  name: string;
+  multiplier: number;
+  endsAt: string;
+  /** True while the window is running right now. */
+  live: boolean;
+};
+
+export type MissionProgress = {
+  missionId: string;
+  name: string;
+  progress: number;
+  target: number;
+  endsOn: string;
+  bonus: string;
+  completed: boolean;
+};
+
+/** A reward waiting for the customer's approval on their phone. */
+export type PendingApproval = {
+  id: string;
+  businessId: string;
+  business: string;
+  reward: string;
+  valueCentavos: number;
+  branch: string;
+  staff: string;
+  requestedAt: string;
+  expiresAt: string;
+  preview?: boolean;
+};
+
+/** What `POST /transactions` adds once the rules exist. */
+export type VisitOutcome = {
+  welcomeStampConfirmed?: boolean;
+  /** False when the visit recorded but earned nothing: cooldown or spend. */
+  earned?: boolean;
+  nextStampAt?: string | null;
+  reason?: string | null;
+  cardState?: CardState;
+  completed?: boolean;
+};
+
+/* ── The Core and Grow levers ──────────────────────────────────────── */
+
+export type BonusWindow = {
+  id: string;
+  name: string;
+  multiplier: number;
+  /** Mon..Sun, empty for every day. */
+  days: string[];
+  fromHour: number;
+  toHour: number;
+  startsOn: string;
+  endsOn: string | null;
+  /** Null for every branch. */
+  branchIds: string[] | null;
+  status: "scheduled" | "live" | "paused" | "ended";
+  estimatedCostCentavos: number;
+  stampsGranted: number;
+  preview?: boolean;
+};
+
+export type PromoCode = {
+  id: string;
+  code: string;
+  grants: "stamp" | "points" | "coupon";
+  amount: number;
+  couponName: string | null;
+  startsOn: string;
+  endsOn: string | null;
+  redemptions: number;
+  limitPerMember: number;
+  status: "active" | "paused" | "ended";
+  preview?: boolean;
+};
+
+/** Peso credit issued by hand, apart from cashback. Signed centavos. */
+export type StoreCreditEntry = {
+  id: string;
+  customerId: string;
+  customer: string;
+  amountCentavos: number;
+  balanceAfterCentavos: number;
+  reason: string;
+  issuedBy: string;
+  occurredAt: string;
+  preview?: boolean;
+};
+
+export type SukiTier = {
+  id: string;
+  name: string;
+  rank: number;
+  threshold: number;
+  benefit: string;
+  /** 10000 is the base earn rate. */
+  earnRateBps: number;
+  members: number;
+  preview?: boolean;
+};
+
+export type SukiTierProgram = {
+  basis: "visits" | "spend";
+  /** Quiet days before a member drops a rung. */
+  downgradeAfterDays: number;
+  tiers: SukiTier[];
+  preview?: boolean;
+};
+
+export type Mission = {
+  id: string;
+  name: string;
+  goal: "visits" | "items" | "spend";
+  targetCount: number;
+  itemNames: string[];
+  startsOn: string;
+  endsOn: string;
+  bonus: string;
+  bonusUnits: number;
+  participants: number;
+  completions: number;
+  status: "scheduled" | "live" | "ended";
+  preview?: boolean;
+};
+
+export type GiftTransfer = {
+  id: string;
+  businessId: string;
+  business: string;
+  fromName: string;
+  toName: string;
+  kind: "reward" | "points";
+  reward: string | null;
+  units: number;
+  message: string;
+  sentAt: string;
+  status: "sent" | "accepted";
+  direction: "sent" | "received";
+  preview?: boolean;
+};
+
+export type CategoryRate = {
+  id: string;
+  category: string;
+  rateBps: number;
+  items: string[];
+  preview?: boolean;
+};
+
+export type FeaturedPlacement = {
+  active: boolean;
+  source: "plan" | "addon" | null;
+  renewsOn: string | null;
+  priceCentavos: number;
+  preview?: boolean;
+};
+
+/* ── The public marketplace ────────────────────────────────────────── */
+
+export type PublicBranch = {
+  /** The join slug printed on that branch's poster. */
+  slug: string;
+  name: string;
+  neighborhood: string;
+  city: string;
+  address: string;
+  hours: OpeningHours[];
+  open: boolean;
+  latitude: number | null;
+  longitude: number | null;
+};
+
+export type PublicShop = {
+  slug: string;
+  name: string;
+  category: string;
+  neighborhood: string;
+  city: string;
+  address: string;
+  hours: OpeningHours[];
+  open: boolean;
+  image: string | null;
+  /** The headline program's reward in plain words. */
+  reward: string;
+  program: string | null;
+  target: number;
+  featured: boolean;
+  distanceMetres: number | null;
+  about: string;
+  branches: PublicBranch[];
+  memberCount: number;
+  preview?: boolean;
+};
+
+export type DiscoverFacet = { name: string; count: number; preview?: boolean };
+
+export type PublicDiscoverQuery = {
+  category?: string;
+  neighborhood?: string;
+  lat?: number;
+  lng?: number;
+  search?: string;
+  limit?: number;
+  cursor?: string;
+};
+
+/* ── Billing, behind the two flags ─────────────────────────────────── */
+
+export type QrPayment = {
+  intentId: string;
+  /** A data URL the screen can put straight into an img. */
+  qrImage: string;
+  expiresAt: string;
+  amountCentavos: number;
+  status: "awaiting" | "paid" | "expired" | "failed";
+  reference: string;
+  preview?: boolean;
+};
+
+export type CreditBundle = "payg" | "1000" | "5000";
+
+export type CreditPurchase = {
+  bundle: CreditBundle;
+  segments: number;
+  perSegmentCentavos: number;
+  totalCentavos: number;
+};
+
+export type AddOnSubscription = {
+  id: string;
+  merchantId: string;
+  business: string;
+  addOn: "featured" | "branch_reporting" | "setup";
+  status: "active" | "cancelled" | "pending";
+  priceCentavos: number;
+  renewsOn: string | null;
+  preview?: boolean;
+};
+
+export type PushState = {
+  vapidPublicKey: string;
+  subscribed: boolean;
+  preview?: boolean;
 };
 
 /** What a stranger sees the instant they scan the counter poster. */

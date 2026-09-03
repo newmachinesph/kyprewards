@@ -2,7 +2,7 @@ export default function Loading() {
   return (
     <main
       className="mx-auto min-h-[100dvh] max-w-[460px] animate-pulse bg-[var(--paper)] p-5 phone-shell"
-      aria-label="Loading KYPStamping"
+      aria-label="Loading KYP"
     >
       <div className="h-12 border-b border-[var(--line)]" />
       <div className="mt-8 h-4 w-36 rounded bg-[var(--surface-2)]" />

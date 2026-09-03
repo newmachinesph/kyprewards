@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { FeedbackForm } from "@/components/FeedbackForm";
 
 export const metadata: Metadata = {
-  title: "How was your visit? · KYPStamping",
+  title: "How was your visit?",
   // The id is the only thing standing between a stranger and this form, so
   // it must not end up in an index.
   robots: { index: false, follow: false },

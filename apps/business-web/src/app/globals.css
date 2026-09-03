@@ -74,3 +74,31 @@ button:disabled {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ── Join materials on paper ─────────────────────────────────────────
+   The poster, sticker and table tent are one print job: each sheet is a
+   page, the app chrome is not. */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+.print-sheet {
+  break-after: page;
+  page-break-after: always;
+}
+.print-sheet:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+@media print {
+  html,
+  body {
+    background: #fff;
+  }
+  body > * {
+    display: none !important;
+  }
+  body > .print-root {
+    display: block !important;
+  }
+}

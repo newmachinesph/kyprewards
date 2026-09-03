@@ -6,7 +6,7 @@ export default function OfflinePage() {
     <main className="mx-auto grid min-h-[100dvh] max-w-[460px] place-items-center bg-[var(--paper)] p-7 text-center phone-shell">
       <div>
         <div className="flex justify-center">
-          <BrandMark />
+          <BrandMark label="KYP" tagline={null} />
         </div>
         <span className="mx-auto mt-12 grid size-14 place-items-center rounded-2xl bg-[var(--surface-2)] text-[var(--muted-strong)]">
           <WifiOff />

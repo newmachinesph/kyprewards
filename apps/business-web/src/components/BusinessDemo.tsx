@@ -16,6 +16,12 @@ const VIEWS: readonly BusinessView[] = [
   "customers",
   "business",
   "programs",
+  "bonus-windows",
+  "promo-codes",
+  "store-credit",
+  "suki-tiers",
+  "missions",
+  "gifts",
   "favorite-orders",
   "birthday",
   "redemptions",
@@ -24,6 +30,7 @@ const VIEWS: readonly BusinessView[] = [
   "analytics",
   "integrations",
   "staff",
+  "billing",
   "settings",
 ];
 

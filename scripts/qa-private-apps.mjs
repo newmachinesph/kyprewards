@@ -58,6 +58,9 @@ const ADMIN_VIEWS = [
   "support", "audit", "economics", "settings",
 ];
 
+const UNBUILT_ROUTES =
+  /\/(admin\/add-ons|admin\/partner-applications\/[^/]+\/notes|business\/(bonus-windows|promo-codes|store-credit|suki-tiers|missions|gifts|featured|payments|credits)|business\/programs\/[^/]+\/(category-rates|close-preview)|customer\/(redemptions\/pending|gifts|push)|public\/(discover|shops))/;
+
 const browser = await chromium.launch({ headless: true });
 const problems = [];
 const checks = [];
@@ -79,6 +82,11 @@ async function openApp(label, baseUrl, views, signIn) {
     // 402 is a plan gate, which is an answer rather than a fault: a card
     // below its plan renders an upgrade line from exactly this response.
     if (response.status() === 402) return;
+    // Preview mode: a route the backend has not shipped answers 404 once and
+    // the hook falls back to sample data under a badge. That is the contract
+    // working, not a fault. The list mirrors the last section of
+    // packages/api/src/endpoints.ts; a 404 anywhere else is still reported.
+    if (response.status() === 404 && UNBUILT_ROUTES.test(new URL(response.url()).pathname)) return;
     problems.push(`${label} ${response.status()} ${new URL(response.url()).pathname}`);
   });
 

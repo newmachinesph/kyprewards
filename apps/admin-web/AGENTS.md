@@ -29,8 +29,8 @@ private apps to the spec.
 
 Views, in nav order (`src/components/AdminShell.tsx`): Overview, Businesses,
 Applications (the partner queue from `/partners`), People, Operations,
-Integrations, Support queue, Audit ledger, Revenue & margin, Platform
-settings. All server state comes from `@kypstamping/api`; `AdminState.tsx`
+Integrations, Support queue, Audit ledger, Revenue & margin, Add-ons,
+Platform settings. All server state comes from `@kypstamping/api`; `AdminState.tsx`
 holds view state that must survive navigation.
 
 Controls with nothing behind them say so on screen rather than toasting:
@@ -54,37 +54,36 @@ that pattern.
 - Network-wide policy: quiet hours, frequency caps, consent rules, provider
   policy.
 
+## Built 2026-09-04
+
+Views in nav order: Overview, Businesses, Applications, People, Operations,
+Integrations, Support queue, Audit ledger, Revenue & margin, Add-ons,
+Platform settings. Titles are "KYP Stamping Platform". Applications show
+every intake answer, a founding-merchant checkbox (on by default through
+31 December 2026, sent in the decide body the API ignores today) and setup
+notes (save disabled with `PREVIEW_WRITE_REASON`). Businesses carry plan,
+founding, featured, filters and a drawer with that tenant's add-ons.
+Add-ons is a new view over `useAddOns()` with the catalogue from
+`src/lib/catalog.ts` (a mirror of `plans.ts`; keep identical). Platform
+settings renders `billing.paid_tiers` and `billing.credit_purchases`: off
+with a `PreviewBadge` and a disabled switch until `/admin/flags` returns
+them, then live through `setPlatformFlag`. Operations lists every transport
+and says "Not reported by the API" rather than borrowing a green light.
+Gross margin is labelled channel cost only. Everything under "Known gaps"
+below is what is left.
+
 ## Known gaps, in order
 
-1. **Brand copy.** Titles and metadata say "KYPStamping"; the site says
-   "KYP Stamping". Decide once in `app/layout.tsx` and apply.
-2. **Applications.** Check the queue captures the twelve answers of the
-   partner form (`marketing-site/src/components/partner-intake`), records
-   founding-merchant status on approval, and gives the operator somewhere to
-   note the setup-with-a-person step. Approval creates a Launch workspace;
-   nothing else is purchasable.
-3. **Plans and add-ons.** There is no route to move a merchant to a paid
-   tier and no endpoint for Featured in Discover or extra branch reporting.
-   Do not add a plan switcher that answers 409 silently; the tenant view says
-   the paid tiers are not purchasable yet.
-4. **The two billing flags.** Platform settings shows `billing.paid_tiers`
-   and `billing.credit_purchases` through the existing `/admin/flags` with
-   the beta note "off through December 2026"; flipping one writes the audit
-   entry the endpoint already records. Turning a flag on is what opens
-   billing in January 2027, not a deploy.
-5. **Privacy operations.** Verify the People view exposes aggregates only and
-   that any per-customer access path is a scoped grant with a reason and an
-   expiry, logged to the audit ledger. The privacy workflows themselves
-   (export, deletion, consent) live in the merchant and customer apps; this
-   app monitors them.
-6. **Push provider.** The site no longer names a push provider. Service
-   health and the delivery views must not name Firebase or any provider that
-   is not integrated; push is in-app delivery today.
-7. **Economics labels.** "Gross margin" is channel cost only; infrastructure
-   is not modelled. Say so next to the figure.
-8. **Recovery queue.** Replay exists and works; make sure the count of
-   failures the Overview shows is derived from the same queue the
-   Integrations view lists.
+1. **Integrations view** still carries hardcoded figures ("Events · 24
+   hours", "Duplicate-safe 99.98%", "Delivery p95") and a "Demo control
+   data" badge. Replace them with API data or remove them.
+2. **Backend routes to ship** before the preview badges disappear:
+   `GET /admin/add-ons`, `PATCH /admin/partner-applications/{id}/notes`,
+   `founding` on the decide body, the two billing flags in `/admin/flags`.
+3. **The auth pages' visible copy** lives in `packages/ui/auth`; only their
+   titles were changed here.
+4. **People** reports "Not reported by the API yet" for the privacy
+   counters; the backend has no aggregate privacy-operations read.
 
 ## Rules specific to this app
 

@@ -38,9 +38,9 @@ export function FeedbackForm({ feedbackId }: { feedbackId: string }) {
   }
 
   return (
-    <main className="mx-auto grid min-h-dvh max-w-md place-items-center px-5 py-10">
+    <main className="phone-shell mx-auto grid min-h-[100dvh] max-w-[460px] place-items-center border-x border-[rgb(24_18_12/8%)] bg-[var(--paper)] px-5 py-10">
       <div className="w-full">
-        <BrandMark />
+        <BrandMark label="KYP" tagline={null} />
         {done ? (
           <div
             aria-live="polite"

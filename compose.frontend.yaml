@@ -55,8 +55,23 @@ services:
       - .:/workspace
       - marketing_node_modules:/workspace/node_modules
 
+  marketplace:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      target: development
+    command: npm run dev:marketplace -- --hostname 0.0.0.0
+    environment:
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3004:3004"
+    volumes:
+      - .:/workspace
+      - marketplace_node_modules:/workspace/node_modules
+
 volumes:
   business_node_modules:
   admin_node_modules:
   customer_node_modules:
   marketing_node_modules:
+  marketplace_node_modules:

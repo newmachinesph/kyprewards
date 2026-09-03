@@ -149,6 +149,20 @@ while it is on screen. The full shape is in `../backend/CONTRACT.md` under
 - No claim that staff fraud is prevented.
 - No analytics in the signed-in apps or the marketplace.
 
+## Preview mode (decided 2026-09-04)
+
+The frontend is built ahead of the backend so the whole product can be
+seen. `packages/api/src/preview.ts` wraps a read of a route that does not
+exist yet: the API is called first, and only a 404, 405 or 501 with
+`NEXT_PUBLIC_PREVIEW_UNBUILT=true` falls back to the typed samples in
+`preview-samples.ts`. Every sample row carries `preview: true`;
+`PreviewBadge` renders where `isPreview(data)` is true and writes beside it
+are disabled with `PREVIEW_WRITE_REASON`. The flag is local only. The hooks
+ahead of the backend are the last section of `queries.ts`; the routes they
+expect are the last section of `endpoints.ts` and mirror
+`../backend/CONTRACT.md`. The day a route ships, the sample stops rendering
+with no frontend change.
+
 ## Adding or changing a call
 
 1. Check `http://localhost:8000/openapi.json` and the live response.

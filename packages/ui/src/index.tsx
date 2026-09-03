@@ -37,7 +37,10 @@ export function brandColor(token: string) {
 type BrandMarkProps = {
   compact?: boolean;
   inverse?: boolean;
+  /** "KYP Stamping" on merchant surfaces; "KYP" alone on kyp.ph and the wallet. */
   label?: string;
+  /** The lockup line under the wordmark. `null` removes it. */
+  tagline?: string | null;
 };
 
 /* Seal badge — 16 rounded scallops around a solid disc, gold ring, K monogram.
@@ -100,6 +103,7 @@ export function BrandMark({
   compact = false,
   inverse = false,
   label = "KYP Stamping",
+  tagline = "Keep stamping · Earn the reward",
 }: BrandMarkProps) {
   return (
     <div className="flex items-center gap-3" role="img" aria-label={label}>
@@ -127,15 +131,62 @@ export function BrandMark({
               label
             )}
           </span>
-          <span
-            className={`mt-1 block font-mono text-[9px] font-semibold uppercase tracking-[0.14em] ${
-              inverse ? "text-white/55" : "text-[var(--muted)]"
-            }`}
-          >
-            Keep stamping · Earn the reward
-          </span>
+          {tagline ? (
+            <span
+              className={`mt-1 block font-mono text-[9px] font-semibold uppercase tracking-[0.14em] ${
+                inverse ? "text-white/55" : "text-[var(--muted)]"
+              }`}
+            >
+              {tagline}
+            </span>
+          ) : null}
         </span>
       )}
+    </div>
+  );
+}
+
+/**
+ * Marks data that came from preview mode rather than the API.
+ *
+ * Rendered wherever `isPreview(data)` is true, and nowhere else: a merchant
+ * on production never sees it because production never renders samples.
+ */
+export function PreviewBadge({ className = "" }: { className?: string }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--accent-strong)] bg-[rgb(232_163_61/10%)] px-2.5 py-1 font-mono text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--accent-strong)] ${className}`}
+      title="Sample data. This endpoint is not connected yet."
+    >
+      Preview · not connected
+    </span>
+  );
+}
+
+/**
+ * The panel a preview screen opens with: what is being shown, and that the
+ * writes beside it are disabled until the API ships the route.
+ */
+export function PreviewNotice({
+  feature,
+  detail,
+}: {
+  feature: string;
+  detail?: string;
+}) {
+  return (
+    <div
+      role="note"
+      className="flex flex-col gap-2 rounded-2xl border border-dashed border-[var(--accent-strong)] bg-[rgb(232_163_61/8%)] p-4 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p className="text-sm">
+        <span className="font-extrabold">{feature}</span>
+        <span className="text-[var(--muted-strong)]">
+          {" "}
+          is shown from sample data. {detail ?? "Saving opens when the API ships this route."}
+        </span>
+      </p>
+      <PreviewBadge />
     </div>
   );
 }

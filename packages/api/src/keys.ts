@@ -133,10 +133,42 @@ export const keys = {
       [...keys.integrations.all, "webhook-deliveries", environment] as const,
   },
 
-  /** Unauthenticated. Read by the marketing site's poster route. */
+  /** Unauthenticated. Read by the marketing site's poster route and kyp.ph. */
   public: {
     all: ["public"] as const,
     join: (slug: string) => [...keys.public.all, "join", slug] as const,
+    discover: (query: Record<string, unknown> = {}) =>
+      [...keys.public.all, "discover", query] as const,
+    shop: (slug: string) => [...keys.public.all, "shop", slug] as const,
+    categories: () => [...keys.public.all, "categories"] as const,
+    neighborhoods: () => [...keys.public.all, "neighborhoods"] as const,
+  },
+
+  /* Ahead of the backend. Each lives under the domain that owns it so the
+     domain's `all` prefix still invalidates it. */
+  levers: {
+    all: ["business", "levers"] as const,
+    bonusWindows: () => [...keys.levers.all, "bonus-windows"] as const,
+    promoCodes: () => [...keys.levers.all, "promo-codes"] as const,
+    storeCredit: (customerId?: string) =>
+      [...keys.levers.all, "store-credit", customerId ?? "all"] as const,
+    sukiTiers: () => [...keys.levers.all, "suki-tiers"] as const,
+    missions: () => [...keys.levers.all, "missions"] as const,
+    gifts: () => [...keys.levers.all, "gifts"] as const,
+    categoryRates: (programId: string) =>
+      [...keys.levers.all, "category-rates", programId] as const,
+    featured: () => [...keys.levers.all, "featured"] as const,
+    closePreview: (programId: string, onClose: string) =>
+      [...keys.levers.all, "close-preview", programId, onClose] as const,
+  },
+  wallet: {
+    approvals: () => [...keys.customer.all, "approvals"] as const,
+    gifts: () => [...keys.customer.all, "gifts"] as const,
+    push: () => [...keys.customer.all, "push"] as const,
+  },
+  billing: {
+    payment: (intentId: string) => [...keys.business.all, "payment", intentId] as const,
+    addOns: () => [...keys.admin.all, "add-ons"] as const,
   },
 } as const;
 

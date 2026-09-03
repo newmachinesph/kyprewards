@@ -72,7 +72,7 @@ const scopeOptions = [
 const connectionOptions = [
   {
     id: "sidecar",
-    name: "KYPStamping terminal",
+    name: "KYP Stamping terminal",
     icon: SquareTerminal,
     eyebrow: "No POS changes",
     description: "Scan, earn, and redeem beside any register, with an offline-safe queue.",
@@ -83,7 +83,7 @@ const connectionOptions = [
     name: "Custom API",
     icon: Code2,
     eyebrow: "For developers",
-    description: "Send normalized sales, refunds, and redemption events directly to KYPStamping.",
+    description: "Send normalized sales, refunds, and redemption events directly to KYP Stamping.",
     availability: "Sandbox ready",
   },
   {
@@ -99,7 +99,7 @@ const connectionOptions = [
     name: "Scheduled pull",
     icon: PlugZap,
     eyebrow: "Any register",
-    description: "Let KYPStamping fetch sales on a schedule when your POS cannot send webhooks.",
+    description: "Let KYP Stamping fetch sales on a schedule when your POS cannot send webhooks.",
     availability: "Sandbox ready",
   },
 ] as const;
@@ -482,7 +482,7 @@ export function IntegrationsView({
             POS & API integrations
           </h1>
           <p className="mt-2 max-w-[68ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-            Choose how sales reach KYPStamping, issue least-privilege keys, sign webhooks,
+            Choose how sales reach KYP Stamping, issue least-privilege keys, sign webhooks,
             and trace every event without tying loyalty to one POS vendor. API
             access and webhooks are included from the Grow plan.
           </p>
@@ -877,7 +877,7 @@ export function IntegrationsView({
           <div className="border-b border-[var(--line)] p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <Eyebrow>03 · POS → KYPStamping</Eyebrow>
+                <Eyebrow>03 · POS → KYP Stamping</Eyebrow>
                 <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
                   Inbound webhook
                 </h2>
@@ -977,7 +977,7 @@ export function IntegrationsView({
           <div className="border-b border-[var(--line)] p-5 sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <Eyebrow>04 · KYPStamping → your system</Eyebrow>
+                <Eyebrow>04 · KYP Stamping → your system</Eyebrow>
                 <h2 className="mt-1 text-xl font-extrabold tracking-[-0.02em]">
                   Outbound webhook
                 </h2>

@@ -27,7 +27,7 @@ import {
   claimFirstStamp,
   useDataRequests,
   useDiscover,
-  useWallet,
+  useWalletWithPreview,
 } from "@kypstamping/api";
 import type { CustomerProfile, WalletCard } from "@kypstamping/api";
 import { useCoordinates } from "@/components/useCoordinates";
@@ -103,8 +103,12 @@ type CustomerState = {
   channels: Record<ChannelKey, boolean>;
   toggleChannel: (key: ChannelKey) => boolean;
 
-  /** Cards still in the wallet — a business the customer left is gone. */
+  /** Cards still in the wallet — a business the customer left is gone.
+   *  Real cards first; locally, preview samples follow them under a badge. */
   wallet: WalletCard[];
+  walletQuery: { isPending: boolean; error: Error | null; refetch: () => void };
+  /** Whether the last profile edit reached the API. */
+  profileSave: { isPending: boolean; error: Error | null; isSuccess: boolean };
   leftBusinessIds: string[];
   leaveBusiness: (walletId: string) => void;
 
@@ -367,7 +371,20 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
   const requestDeletion = useCallback(() => dataRequest.mutate("deletion"), [dataRequest]);
   const requestExport = useCallback(() => dataRequest.mutate("export"), [dataRequest]);
 
-  const { data: cards = [] } = useWallet();
+  const walletRead = useWalletWithPreview();
+  const cards = useMemo(() => walletRead.data ?? [], [walletRead.data]);
+  const walletQuery = useMemo(
+    () => ({
+      isPending: walletRead.isPending,
+      error: walletRead.error,
+      refetch: () => void walletRead.refetch(),
+    }),
+    [walletRead],
+  );
+  const profileSave = useMemo(
+    () => ({ isPending: save.isPending, error: save.error, isSuccess: save.isSuccess }),
+    [save.isPending, save.error, save.isSuccess],
+  );
   const wallet = useMemo(
     () => cards.filter((card) => !leftBusinessIds.includes(card.id)),
     [cards, leftBusinessIds],
@@ -380,6 +397,8 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
       channels,
       toggleChannel,
       wallet,
+      walletQuery,
+      profileSave,
       leftBusinessIds,
       leaveBusiness,
       joinedIds,
@@ -398,6 +417,8 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
       channels,
       toggleChannel,
       wallet,
+      walletQuery,
+      profileSave,
       leftBusinessIds,
       leaveBusiness,
       joinedIds,

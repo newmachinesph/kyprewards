@@ -197,7 +197,7 @@ export default function ProductPage() {
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SiteEyebrow>The rules you set</SiteEyebrow>
               <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
-                Eight settings. Every one on the free plan.
+                Eleven settings. Every one on the free plan.
               </h2>
               <p className="mt-5 max-w-[44ch] text-sm leading-relaxed text-[var(--muted-strong)]">
                 A stamp card is a promise, and the promise should be yours to
@@ -247,10 +247,25 @@ export default function ProductPage() {
                   detail:
                     "Wrong customer, double tap, a stamp that should not have happened — one tap undoes it, and the ledger keeps both the stamp and the reversal.",
                 },
+                {
+                  title: "A season, or forever",
+                  detail:
+                    "A card can run from a start date to an end date — the Ber months, a fiesta week — or with no end at all. Nothing is earned outside the window, the card closes by itself, and the dates are on the card before the first stamp.",
+                },
+                {
+                  title: "When a card closes",
+                  detail:
+                    "Unfinished stamps expire, or carry over to a successor card you name — your choice. A reward already earned is always honoured, for a grace period you set, 30 days unless you change it. Cancelling an earned reward is not on the menu.",
+                },
+                {
+                  title: "Once, or again and again",
+                  detail:
+                    "How many times one customer can complete the card in a run: once, a number, or no limit. At the limit the card reads completed and stops earning; a reward already held stays theirs.",
+                },
               ].map((item, index) => (
                 <article
                   key={item.title}
-                  className={`p-6 sm:p-8 ${index === 0 ? "bg-[var(--accent)]" : "bg-[var(--surface)]"}`}
+                  className={`p-6 sm:last:odd:col-span-2 sm:p-8 ${index === 0 ? "bg-[var(--accent)]" : "bg-[var(--surface)]"}`}
                 >
                   <h3 className="text-lg font-extrabold tracking-[-0.02em]">
                     {item.title}

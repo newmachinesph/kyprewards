@@ -1056,7 +1056,8 @@ export const getPartnerApplications = (status?: string): Promise<PartnerApplicat
 /** Approving provisions the workspace and mails the sign-in. */
 export const decidePartnerApplication = (
   applicationId: string,
-  body: { approve: boolean; reason?: string },
+  /** `founding` and `setupNotes` are ahead of the backend; it ignores them today. */
+  body: { approve: boolean; reason?: string; founding?: boolean; setupNotes?: string },
 ): Promise<PartnerApplication> =>
   http(`/admin/partner-applications/${applicationId}/decide`, { method: "POST", body });
 
@@ -1242,3 +1243,185 @@ export const setPlatformFlag = (key: string, value: boolean): Promise<ToggleResu
 /** Moves every dead-lettered delivery back into the send queue. */
 export const replayRecoveryQueue = (): Promise<{ queued: number }> =>
   http("/admin/recovery-queue/replay", { method: "POST" });
+
+/* ── Ahead of the backend ──────────────────────────────────────────────
+   Paths and shapes from backend/CONTRACT.md. None of these exist on the
+   service yet; the hooks in queries.ts wrap each read in `withPreview` so a
+   local build renders sample data under a badge until the route ships.
+   Writes are plain: a missing route answers 404 and the screen says so. */
+
+import type {
+  AddOnSubscription,
+  BonusWindow,
+  CategoryRate,
+  CloseBehaviour,
+  CreditBundle,
+  DiscoverFacet,
+  FeaturedPlacement,
+  GiftTransfer,
+  Mission,
+  PendingApproval,
+  PromoCode,
+  PublicDiscoverQuery,
+  PublicShop,
+  PushState,
+  QrPayment,
+  StampRules,
+  StoreCreditEntry,
+  SukiTierProgram,
+} from "./types.ts";
+import { httpPage } from "./http.ts";
+import type { Page } from "./http.ts";
+
+/* The stamp card */
+
+/** The rules travel with the program; PATCH takes any subset. */
+export const setStampRules = (programId: string, rules: Partial<StampRules>): Promise<Program> =>
+  http(`/business/programs/${programId}`, { method: "PATCH", body: rules });
+
+/** How many open cards a close would expire or carry over, before the merchant commits. */
+export const previewClose = (
+  programId: string,
+  onClose: CloseBehaviour,
+): Promise<{ openCards: number; expiring: number; carriedOver: number; heldRewards: number }> =>
+  http(`/business/programs/${programId}/close-preview`, { query: { onClose } });
+
+/** Rewards waiting for this customer's approval on their phone. */
+export const getPendingApprovals = (): Promise<PendingApproval[]> =>
+  http("/customer/redemptions/pending");
+
+export const approveRedemption = (redemptionId: string): Promise<PendingApproval> =>
+  http(`/customer/redemptions/${redemptionId}/approve`, { method: "POST" });
+
+export const declineRedemption = (redemptionId: string): Promise<PendingApproval> =>
+  http(`/customer/redemptions/${redemptionId}/decline`, { method: "POST" });
+
+/* Core and Grow levers */
+
+export const getBonusWindows = (): Promise<BonusWindow[]> => http("/business/bonus-windows");
+
+export const createBonusWindow = (
+  body: Omit<BonusWindow, "id" | "status" | "estimatedCostCentavos" | "stampsGranted" | "preview">,
+): Promise<BonusWindow> => http("/business/bonus-windows", { method: "POST", body });
+
+export const updateBonusWindow = (id: string, body: Partial<BonusWindow>): Promise<BonusWindow> =>
+  http(`/business/bonus-windows/${id}`, { method: "PATCH", body });
+
+export const getPromoCodes = (): Promise<PromoCode[]> => http("/business/promo-codes");
+
+export const createPromoCode = (
+  body: Omit<PromoCode, "id" | "redemptions" | "status" | "preview">,
+): Promise<PromoCode> => http("/business/promo-codes", { method: "POST", body });
+
+export const updatePromoCode = (id: string, body: Partial<PromoCode>): Promise<PromoCode> =>
+  http(`/business/promo-codes/${id}`, { method: "PATCH", body });
+
+/** The customer types a public code into their wallet. */
+export const redeemPromoCode = (body: { businessId: string; code: string }): Promise<WalletCard> =>
+  http("/customer/promo-codes/redeem", { method: "POST", body });
+
+export const getStoreCredit = (customerId?: string): Promise<StoreCreditEntry[]> =>
+  http("/business/store-credit", { query: { customerId } });
+
+export const issueStoreCredit = (
+  body: { customerId: string; amountCentavos: number; reason: string },
+  idempotencyKey: string,
+): Promise<StoreCreditEntry> =>
+  http("/business/store-credit", { method: "POST", body, idempotencyKey });
+
+export const spendStoreCredit = (
+  body: { customerId: string; amountCentavos: number },
+  idempotencyKey: string,
+): Promise<StoreCreditEntry> =>
+  http("/business/store-credit/spend", { method: "POST", body, idempotencyKey });
+
+export const getSukiTiers = (): Promise<SukiTierProgram> => http("/business/suki-tiers");
+
+export const setSukiTiers = (body: SukiTierProgram): Promise<SukiTierProgram> =>
+  http("/business/suki-tiers", { method: "PUT", body });
+
+export const getMissions = (): Promise<Mission[]> => http("/business/missions");
+
+export const createMission = (
+  body: Omit<Mission, "id" | "participants" | "completions" | "status" | "preview">,
+): Promise<Mission> => http("/business/missions", { method: "POST", body });
+
+export const updateMission = (id: string, body: Partial<Mission>): Promise<Mission> =>
+  http(`/business/missions/${id}`, { method: "PATCH", body });
+
+export const getBusinessGifts = (): Promise<GiftTransfer[]> => http("/business/gifts");
+
+export const getCustomerGifts = (): Promise<GiftTransfer[]> => http("/customer/gifts");
+
+/** Pasalubong: a member sends a reward or points to another member at the same shop. */
+export const sendGift = (
+  body: {
+    membershipId: string;
+    toMemberCode: string;
+    rewardId?: string;
+    units?: number;
+    message: string;
+  },
+  idempotencyKey: string,
+): Promise<GiftTransfer> => http("/customer/gifts", { method: "POST", body, idempotencyKey });
+
+export const getCategoryRates = (programId: string): Promise<CategoryRate[]> =>
+  http(`/business/programs/${programId}/category-rates`);
+
+export const setCategoryRates = (
+  programId: string,
+  body: Omit<CategoryRate, "id" | "preview">[],
+): Promise<CategoryRate[]> =>
+  http(`/business/programs/${programId}/category-rates`, { method: "PUT", body });
+
+export const getFeaturedPlacement = (): Promise<FeaturedPlacement> => http("/business/featured");
+
+/** Buys the ₱299 add-on on Launch or Core; answers with the QR to pay. */
+export const purchaseFeaturedPlacement = (): Promise<QrPayment> =>
+  http("/business/featured", { method: "POST" });
+
+/* The public marketplace */
+
+export const getPublicDiscover = (query: PublicDiscoverQuery = {}): Promise<Page<PublicShop>> =>
+  httpPage("/public/discover", { query });
+
+export const getPublicShop = (slug: string): Promise<PublicShop> =>
+  http(`/public/shops/${encodeURIComponent(slug)}`);
+
+export const getPublicCategories = (): Promise<DiscoverFacet[]> =>
+  http("/public/discover/categories");
+
+export const getPublicNeighborhoods = (): Promise<DiscoverFacet[]> =>
+  http("/public/discover/neighborhoods");
+
+/* Billing, behind the two flags */
+
+/** QR Ph for an invoice. Reloading returns the same intent while it is unexpired. */
+export const startInvoicePayment = (invoiceId: string): Promise<QrPayment> =>
+  http(`/business/invoices/${invoiceId}/pay`, { method: "POST" });
+
+export const purchaseCredits = (body: { bundle: CreditBundle; segments: number }): Promise<QrPayment> =>
+  http("/business/credits/purchase", { method: "POST", body });
+
+export const getPayment = (intentId: string): Promise<QrPayment> =>
+  http(`/business/payments/${intentId}`);
+
+export const getAddOns = (): Promise<AddOnSubscription[]> => http("/admin/add-ons");
+
+/* Web push */
+
+export const getPushState = (): Promise<PushState> => http("/customer/push");
+
+export const subscribePush = (subscription: PushSubscriptionJSON): Promise<PushState> =>
+  http("/customer/push/subscribe", { method: "POST", body: { subscription } });
+
+export const unsubscribePush = (): Promise<void> =>
+  http("/customer/push/subscribe", { method: "DELETE" });
+
+/* Founding merchants */
+
+export const setApplicationNotes = (
+  applicationId: string,
+  body: { setupNotes: string },
+): Promise<PartnerApplication> =>
+  http(`/admin/partner-applications/${applicationId}/notes`, { method: "PATCH", body });

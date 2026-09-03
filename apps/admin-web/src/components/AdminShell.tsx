@@ -22,6 +22,7 @@ import {
   LifeBuoy,
   LogOut,
   Menu,
+  PackagePlus,
   PlugZap,
   Search,
   Settings2,
@@ -40,33 +41,49 @@ export type AdminView =
   | "support"
   | "audit"
   | "economics"
+  | "addons"
   | "settings";
 
-const nav = [
-  { label: "Overview", icon: CircleGauge, view: "overview" as AdminView },
-  { label: "Businesses", icon: Building2, view: "businesses" as AdminView },
-  { label: "Applications", icon: ClipboardCheck, view: "partners" as AdminView },
-  { label: "People", icon: Users, view: "people" as AdminView },
-  { label: "Operations", icon: Activity, view: "operations" as AdminView },
+type NavItem = {
+  label: string;
+  icon: typeof CircleGauge;
+  view: AdminView;
+  countsOpenTickets?: boolean;
+};
+
+const navGroups: { group: string; items: NavItem[] }[] = [
   {
-    label: "Integrations",
-    icon: PlugZap,
-    view: "integrations" as AdminView,
+    group: "Network",
+    items: [
+      { label: "Overview", icon: CircleGauge, view: "overview" },
+      { label: "Businesses", icon: Building2, view: "businesses" },
+      { label: "Applications", icon: ClipboardCheck, view: "partners" },
+      { label: "People", icon: Users, view: "people" },
+    ],
   },
   {
-    label: "Support queue",
-    icon: LifeBuoy,
-    countsOpenTickets: true,
-    view: "support" as AdminView,
+    group: "Operations",
+    items: [
+      { label: "Operations", icon: Activity, view: "operations" },
+      { label: "Integrations", icon: PlugZap, view: "integrations" },
+      { label: "Support queue", icon: LifeBuoy, countsOpenTickets: true, view: "support" },
+      { label: "Audit ledger", icon: FileClock, view: "audit" },
+    ],
   },
-  { label: "Audit ledger", icon: FileClock, view: "audit" as AdminView },
-  { label: "Revenue & margin", icon: Coins, view: "economics" as AdminView },
   {
-    label: "Platform settings",
-    icon: Settings2,
-    view: "settings" as AdminView,
+    group: "Revenue",
+    items: [
+      { label: "Revenue & margin", icon: Coins, view: "economics" },
+      { label: "Add-ons", icon: PackagePlus, view: "addons" },
+    ],
+  },
+  {
+    group: "Platform",
+    items: [{ label: "Platform settings", icon: Settings2, view: "settings" }],
   },
 ];
+
+const nav: NavItem[] = navGroups.flatMap((group) => group.items);
 
 /**
  * Every view, in nav order.
@@ -189,28 +206,35 @@ export function AdminShell({
       ].slice(0, 8)
     : [];
 
-  const navContent = nav.map((item) => {
-    const Icon = item.icon;
-    const active = activeView === item.view;
-    const count = "countsOpenTickets" in item ? openTicketCount : 0;
-    return (
-      <button
-        type="button"
-        key={item.label}
-        onClick={() => navigate(item.view)}
-        aria-current={active ? "page" : undefined}
-        className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition ${active ? "bg-[var(--paper)] text-[var(--ink)]" : "text-white/70 hover:bg-white/7 hover:text-white"}`}
-      >
-        <Icon size={17} aria-hidden="true" />
-        <span className="flex-1">{item.label}</span>
-        {count > 0 && (
-          <span className="grid min-w-6 place-items-center rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-[10px] font-extrabold text-[var(--ink)]">
-            {count}
-          </span>
-        )}
-      </button>
-    );
-  });
+  const navContent = navGroups.map((group) => (
+    <div key={group.group} className="space-y-1">
+      <p className="px-3 pb-1 pt-3 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white/40 first:pt-0">
+        {group.group}
+      </p>
+      {group.items.map((item) => {
+        const Icon = item.icon;
+        const active = activeView === item.view;
+        const count = item.countsOpenTickets ? openTicketCount : 0;
+        return (
+          <button
+            type="button"
+            key={item.label}
+            onClick={() => navigate(item.view)}
+            aria-current={active ? "page" : undefined}
+            className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition ${active ? "bg-[var(--paper)] text-[var(--ink)]" : "text-white/70 hover:bg-white/7 hover:text-white"}`}
+          >
+            <Icon size={17} aria-hidden="true" />
+            <span className="flex-1">{item.label}</span>
+            {count > 0 && (
+              <span className="grid min-w-6 place-items-center rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-[10px] font-extrabold text-[var(--ink)]">
+                {count}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  ));
 
   return (
     <div className="min-h-[100dvh] lg:grid lg:grid-cols-[264px_minmax(0,1fr)]">
@@ -223,11 +247,11 @@ export function AdminShell({
       <aside className="sticky top-0 hidden h-[100dvh] overflow-hidden bg-[var(--ink)] px-4 py-5 text-[var(--paper)] lg:flex lg:flex-col">
         <div className="absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_left,rgb(232_163_61/20%),transparent_64%)]" />
         <div className="relative px-2">
-          <BrandMark inverse label="KYPStamping Platform" />
+          <BrandMark inverse label="KYP Stamping" tagline="Platform administration" />
         </div>
 
         <nav
-          className="relative mt-10 min-h-0 flex-1 space-y-1 overflow-y-auto pr-1"
+          className="relative mt-6 min-h-0 flex-1 space-y-1 overflow-y-auto pr-1"
           aria-label="Platform navigation"
         >
           {navContent}
@@ -371,7 +395,7 @@ export function AdminShell({
         {mobileOpen && (
           <div className="fixed inset-0 top-17 z-40 overflow-y-auto bg-[var(--ink)] p-4 lg:hidden">
             <div className="mb-6">
-              <BrandMark inverse label="KYPStamping Platform" />
+              <BrandMark inverse label="KYP Stamping" tagline="Platform administration" />
             </div>
             <nav className="space-y-1" aria-label="Mobile platform navigation">
               {navContent}

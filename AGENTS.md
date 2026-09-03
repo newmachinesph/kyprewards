@@ -90,10 +90,14 @@ from training data.
 
 1. **No control that only toasts.** Every button does what it says or says on
    screen why it cannot. A control with no endpoint behind it names that.
-2. **No faked rules.** If the API does not enforce a stamp-card rule (cooldown,
-   minimum spend, pending welcome stamp, customer-approved redemption), the app
-   does not simulate it client-side. Show what the API returns; list the gap in
-   the app's `AGENTS.md`; coordinate with the backend.
+2. **No faked rules, and preview mode for unbuilt routes.** The app never
+   simulates a rule client-side. A screen whose endpoint does not exist yet
+   is still built to the contract; locally, with
+   `NEXT_PUBLIC_PREVIEW_UNBUILT=true`, its hook renders typed sample data
+   (`packages/api/src/preview.ts`, `preview-samples.ts`) under `PreviewBadge`
+   and its writes are disabled with `PREVIEW_WRITE_REASON`. In production
+   the flag is unset and the screen shows its honest empty state. Never wrap
+   an endpoint that exists; a 404 there is a missing resource.
 3. **Plan gates come from the API's plan** and are rendered with `PlanTag`.
    Tier names and the feature-to-tier mapping come from `plans.ts`.
 4. **Units:** money is integer centavos through `pesoFromCentavos`; time is

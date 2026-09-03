@@ -221,6 +221,21 @@ export const featureMatrix: FeatureGroup[] = [
         hint: "Raise the target from 8 to 10 and every card already started still finishes at 8. New cards start at 10.",
         cells: [true, true, true, true],
       },
+      {
+        label: "Run window",
+        hint: "Optional. A card can run from a start date to an end date, or forever. Nothing is earned outside the window and the card closes by itself at the end. The dates are on the card before the first stamp.",
+        cells: ["Optional, you set it", "Optional, you set it", "Optional, you set it", "Optional, you set it"],
+      },
+      {
+        label: "What happens when a card closes",
+        hint: "Unfinished stamps either expire or carry over to a successor card you name. A reward already earned is always honoured, for a grace period you set — default 30 days. Invalidating an earned reward is not something we offer.",
+        cells: ["You choose", "You choose", "You choose", "You choose"],
+      },
+      {
+        label: "Completions per member",
+        hint: "Once, a number, or unlimited per run. At the limit the card reads completed and stops earning; a reward already held is unaffected.",
+        cells: ["You set it", "You set it", "You set it", "You set it"],
+      },
     ],
   },
   {
