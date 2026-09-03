@@ -3460,7 +3460,18 @@ function CampaignsView({ notify }: { notify: Notify }) {
   // These three were uncontrolled selects, so the composer showed choices that
   // never reached the scheduled campaign.
   const [audienceSegment, setAudienceSegment] = useState("Almost regulars");
-  const [sendTime, setSendTime] = useState("Tuesday, 1:30 PM");
+  // A real instant, not prose. The three options here were display strings -
+  // "Tuesday, 1:30 PM", "Now after preflight", "At each customer's usual
+  // time" - and nothing downstream could act on any of them. The last was a
+  // per-recipient feature that does not exist at all.
+  const [sendNow, setSendNow] = useState(true);
+  const [sendAt, setSendAt] = useState("");
+  const scheduledFor = sendNow ? new Date().toISOString() : sendAt ? new Date(sendAt).toISOString() : "";
+  const sendTime = sendNow
+    ? "As soon as it is scheduled"
+    : sendAt
+      ? new Date(sendAt).toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" })
+      : "";
   const [frequencyPolicy, setFrequencyPolicy] = useState("Respect 2 promos / week");
   const [channels, setChannels] = useState<Record<string, boolean>>({
     "In-app": true,
@@ -3700,14 +3711,21 @@ function CampaignsView({ notify }: { notify: Notify }) {
             <label className="grid gap-2 text-xs font-bold">
               Send time
               <select
-                value={sendTime}
-                onChange={(event) => setSendTime(event.target.value)}
+                value={sendNow ? "now" : "later"}
+                onChange={(event) => setSendNow(event.target.value === "now")}
                 className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
               >
-                <option>Tuesday, 1:30 PM</option>
-                <option>Now after preflight</option>
-                <option>At each customer’s usual time</option>
+                <option value="now">Send as soon as I schedule it</option>
+                <option value="later">Send at a time I pick</option>
               </select>
+              {!sendNow && (
+                <input
+                  type="datetime-local"
+                  value={sendAt}
+                  onChange={(event) => setSendAt(event.target.value)}
+                  className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
+                />
+              )}
             </label>
             <label className="grid gap-2 text-xs font-bold">
               Frequency policy
@@ -3811,12 +3829,17 @@ function CampaignsView({ notify }: { notify: Notify }) {
                   notify("Write the message before scheduling it.", "error");
                   return;
                 }
+                if (!scheduledFor) {
+                  notify("Pick when this should send.", "error");
+                  return;
+                }
                 schedule.mutate(
                   {
                     name: campaignName.trim() || "Untitled campaign",
                     audience: `${audienceSegment} · ${reachable.toLocaleString()} selected`,
                     channels: selectedChannels.map((channel) => channel.name),
                     sendTime,
+                    scheduledFor,
                     frequencyPolicy,
                   },
                   {

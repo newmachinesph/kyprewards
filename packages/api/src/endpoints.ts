@@ -536,7 +536,12 @@ export type CampaignDraft = {
   name: string;
   audience: string;
   channels: string[];
+  /** The label a merchant reads. */
   sendTime?: string;
+  /** When it actually goes, ISO-8601. The worker selects on this and it was
+   *  never sent, so every campaign sat at "Scheduled - 0 sent" for ever while
+   *  a task ran every sixty seconds and could never match a row. */
+  scheduledFor?: string;
   frequencyPolicy?: string;
 };
 

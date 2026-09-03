@@ -644,7 +644,12 @@ export function DemoAuthFlow({
    */
   const [signedInAs, setSignedInAs] = useState<string | null>(null);
   useEffect(() => {
-    if (mode !== "login" && mode !== "create") return;
+    // Sign-up only. Asking on /login too meant a 401 by design on the most
+    // visited page in the product, for no benefit: somebody opening sign-in
+    // while signed in is ordinary, while landing on sign-*up* after pressing
+    // Back is the case that offered a second wallet to somebody who had just
+    // made their first.
+    if (mode !== "create") return;
     let live = true;
     getSession()
       .then((session) => {
