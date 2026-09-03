@@ -467,6 +467,92 @@ function AuthShell({
   );
 }
 
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+]; // fmt: skip
+
+/** Days that exist in a given month, ignoring leap years. */
+function daysIn(month: number): number {
+  return [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1] ?? 31;
+}
+
+/**
+ * Birthday as two selects: day and month, no year.
+ *
+ * No year on purpose. A birthday treat needs to know when to fire, not how
+ * old anybody is, and an age is the kind of thing that is worth stealing and
+ * can never be un-leaked. The API stores the same two numbers.
+ *
+ * Selects rather than a date input, because `type="date"` cannot express a
+ * date without a year - it would force a year to be picked, stored, and then
+ * thrown away. The day list narrows to the chosen month so 31 February is
+ * never on offer, and a day already picked that the new month does not have
+ * is cleared rather than left sitting there invalid.
+ */
+function BirthdayField({
+  day,
+  month,
+  onDayChange,
+  onMonthChange,
+}: {
+  day: string;
+  month: string;
+  onDayChange: (value: string) => void;
+  onMonthChange: (value: string) => void;
+}) {
+  const selectClass =
+    "min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-sm font-semibold outline-none transition focus:border-[var(--accent-strong)]";
+  const limit = month ? daysIn(Number(month)) : 31;
+  return (
+    <fieldset className="grid gap-2">
+      <legend className="text-xs font-extrabold text-[var(--ink)]">
+        Birthday, optional
+      </legend>
+      <div className="grid grid-cols-2 gap-3">
+        <select
+          aria-label="Birthday month"
+          value={month}
+          className={selectClass}
+          onChange={(event) => {
+            const next = event.target.value;
+            onMonthChange(next);
+            // 31 January, then switching to February, would otherwise leave a
+            // day the API refuses - and the error would arrive on submit,
+            // pointing at a field the person had stopped looking at.
+            if (next && Number(day) > daysIn(Number(next))) onDayChange("");
+          }}
+        >
+          <option value="">Month</option>
+          {MONTHS.map((name, index) => (
+            <option key={name} value={index + 1}>
+              {name}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Birthday day"
+          value={day}
+          className={selectClass}
+          onChange={(event) => onDayChange(event.target.value)}
+        >
+          <option value="">Day</option>
+          {Array.from({ length: limit }, (_, index) => index + 1).map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
+      </div>
+      <p className="text-[11px] font-semibold leading-relaxed text-[var(--muted-strong)]">
+        Shops you join can send you something on your birthday. We ask for the
+        day and month only - never the year - and you can add or change it
+        later.
+      </p>
+    </fieldset>
+  );
+}
+
 function Field({
   label,
   type = "text",
@@ -564,6 +650,11 @@ export function DemoAuthFlow({
   // made: the account gets a terms_accepted_at and a terms_version proving
   // consent that was never given, which is worse evidence than none.
   const [accepted, setAccepted] = useState(false);
+  // Day and month, held as the strings the two selects produce. Empty means
+  // "not given", which is a valid answer: the field is optional and a wallet
+  // works without it.
+  const [birthdayDay, setBirthdayDay] = useState("");
+  const [birthdayMonth, setBirthdayMonth] = useState("");
   const [notice, setNotice] = useState("");
   const [sent, setSent] = useState(false);
   const [channel, setChannel] = useState<"mobile" | "email">("mobile");
@@ -1195,6 +1286,15 @@ export function DemoAuthFlow({
                 name: name.trim(),
                 mobile: identifier.trim(),
                 email: email.trim() || undefined,
+                // Both or neither: the API refuses a half-filled birthday,
+                // and the form treats a partly answered optional question as
+                // not answered rather than blocking the sign-up over it.
+                ...(birthdayDay && birthdayMonth
+                  ? {
+                      birthdayDay: Number(birthdayDay),
+                      birthdayMonth: Number(birthdayMonth),
+                    }
+                  : {}),
                 acceptedTerms: accepted,
               });
               window.sessionStorage.setItem("kypstamping-customer-signup-name", name);
@@ -1212,6 +1312,12 @@ export function DemoAuthFlow({
           <Field label="Full name" value={name} onChange={setName} autoComplete="name" />
           <Field label="Mobile number" type="tel" value={identifier} onChange={setIdentifier} autoComplete="tel" />
           <Field label="Email, optional" type="email" value={email} onChange={setEmail} autoComplete="email" required={false} />
+          <BirthdayField
+            day={birthdayDay}
+            month={birthdayMonth}
+            onDayChange={setBirthdayDay}
+            onMonthChange={setBirthdayMonth}
+          />
           <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">
             <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-0.5 size-4 accent-[var(--ink)]" />
             <span>

@@ -180,6 +180,12 @@ export const registerCustomer = (body: {
   name: string;
   mobile: string;
   email?: string;
+  /**
+   * Day and month, no year. Optional, but the API takes both or neither -
+   * a month with no day cannot schedule a birthday treat.
+   */
+  birthdayDay?: number;
+  birthdayMonth?: number;
   /** As above: the checkbox the form already enforces, now recorded. */
   acceptedTerms: boolean;
 }): Promise<{ sent: boolean }> =>
@@ -426,6 +432,9 @@ export const updateCustomerProfile = (body: {
   email?: string;
   mobile?: string;
   city?: string;
+  /** Both or neither, day and month only. See `registerCustomer`. */
+  birthdayDay?: number;
+  birthdayMonth?: number;
 }): Promise<CustomerProfile> => http("/customer/profile", { method: "PATCH", body });
 
 /**

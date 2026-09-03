@@ -74,7 +74,7 @@ export const plans = [
       "Unlimited branches, three reported separately",
       "All eight program types, two running at once",
       "QR, NFC, and printable counter modes",
-      "Scheduled and birthday campaigns",
+      "Scheduled and birthday campaigns, 1,000 emails",
     ],
     name: "Core",
     monthly: 499,
@@ -90,7 +90,7 @@ export const plans = [
       "Unlimited customers",
       "Unlimited branches, five reported separately",
       "Segments, referrals, reviews, and automations",
-      "100 SMS credits monthly, plus messaging apps",
+      "3,000 campaign emails a month",
       "RFM, cohort, and reward-liability analytics",
     ],
     name: "Grow",
@@ -107,7 +107,7 @@ export const plans = [
       "Unlimited customers",
       "Ten branches reported separately, 50 staff",
       "API, webhooks, POS, and commerce adapters",
-      "500 SMS credits monthly, plus messaging apps",
+      "10,000 campaign emails a month",
       "Wallet passes, approvals, and priority onboarding",
     ],
     name: "Scale",
@@ -284,14 +284,14 @@ export const featureMatrix: FeatureGroup[] = [
         cells: ["1,000", "10,000", "50,000", "200,000"],
       },
       {
-        label: "Email",
-        hint: "Sign-in codes, reward notices, staff invitations and data-export links. They always send, on every plan, and nothing counts against an allowance. Campaigns go out in-app, by push, or through messaging apps and SMS.",
-        cells: [true, true, true, true],
+        label: "Email campaigns",
+        hint: "A monthly campaign allowance on the paid tiers. Past it, buy more — you are never cut off mid-send or pushed up a tier to finish a month. Sign-in codes, reward notices, staff invitations and data-export links are separate: they always send, on every plan including the free one, and never count against this.",
+        cells: ["—", "1,000", "3,000", "10,000"],
       },
       {
         label: "SMS credits",
-        hint: "Sent by us, through a carrier gateway. SMS has a real per-message cost, so it is credit-based on every plan and none is included below Grow.",
-        cells: ["—", "—", "100", "500"],
+        hint: "Bought, not bundled. SMS costs real money on every single send, and folding credits into a plan hides that until the invoice arrives. Buy what you need, see the cost before each send, and keep whatever you do not use.",
+        cells: ["Add-on", "Add-on", "Add-on", "Add-on"],
       },
       {
         label: "SMS from your own phone",
@@ -414,16 +414,16 @@ export const channelRates = [
   },
   {
     channel: "SMS",
-    included: "100 on Grow, 500 on Scale",
+    included: "Add-on credits, on every plan",
     overage: "₱0.95 per 160-character segment",
     detail:
       "The one channel that works on any phone, with no app and no data. Used when nothing cheaper will reach them.",
   },
   {
     channel: "Email",
-    included: "Sign-in codes and receipts, on every plan",
-    overage: "Not sold for campaigns",
+    included: "1,000 → 10,000 campaigns per month",
+    overage: "Add-on bundles",
     detail:
-      "Reserved for the messages a customer is waiting on - a sign-in code, a reward notice, a copy of their data. Campaigns go out through the channels above.",
+      "Sign-in codes, reward notices and data exports always send, on every plan, and never touch the allowance. The allowance is for campaigns, and only the paid tiers carry one.",
   },
 ];

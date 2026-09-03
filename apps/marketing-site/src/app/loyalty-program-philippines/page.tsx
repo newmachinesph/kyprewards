@@ -217,7 +217,7 @@ export default function LoyaltyPhilippinesPage() {
                   icon: QrCode,
                   title: "SMS",
                   detail:
-                    "High-attention moments. Credits by plan, then ₱0.95 per segment.",
+                    "High-attention moments. Add-on credits at ₱0.95 per segment, priced before you send.",
                 },
                 {
                   icon: MessageCircle,

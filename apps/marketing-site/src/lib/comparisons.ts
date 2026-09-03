@@ -86,7 +86,7 @@ export const comparisons: Comparison[] = [
         label: "Messaging",
         competitor: "Unlimited push notifications advertised",
         kypstamping:
-          "In-app and push included; email allowance and SMS credits/overage shown before sending",
+          "In-app and push included; email allowance by plan, SMS credits bought as needed, cost shown before sending",
       },
       {
         label: "Advanced connections",

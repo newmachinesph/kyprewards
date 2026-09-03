@@ -139,6 +139,7 @@ import {
   Gift,
   Heart,
   Link2,
+  Mail,
   MessageCircle,
   MessageSquareText,
   Nfc,
@@ -3407,6 +3408,18 @@ const channelConfig: {
     unit: 0.95,
     note: "₱0.95 / segment",
     status: "ready",
+  },
+  {
+    // Sold on the paid tiers, but it needs a marketing sender the deployment
+    // may not have yet - campaign email cannot share the relay that carries
+    // sign-in codes. Planned until that sender is connected, so a merchant
+    // does not compose a whole campaign to be refused on send.
+    name: "Email",
+    audienceKey: "email",
+    icon: Mail,
+    unit: 0,
+    note: "Not sending yet",
+    status: "planned",
   },
   {
     name: "Viber",

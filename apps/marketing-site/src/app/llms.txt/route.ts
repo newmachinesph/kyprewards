@@ -63,7 +63,7 @@ ${plans.map(planLine).join("\n")}
 
 ## Message delivery, priced separately from software
 
-Every plan carries a monthly allowance per channel. Past the allowance you pay the add-on rate; there is no forced upgrade. SMS costs real money on every send, so it is credit-based on every plan. Email is transactional only - sign-in codes, reward notices, staff invitations, data exports - and is not sold as a campaign channel on any plan.
+Paid plans carry a monthly campaign email allowance: 1,000 on Core, 3,000 on Grow, 10,000 on Scale, none on the free Launch plan. Past it you buy more; there is no forced upgrade and nobody is cut off mid-month. SMS is not bundled on any tier - it costs real money on every send, so credits are bought separately and the cost is shown before each send. Sign-in codes, reward notices, staff invitations and data exports are transactional: they always send, on every plan, and never count against an allowance.
 
 ${channelRates
   .map(

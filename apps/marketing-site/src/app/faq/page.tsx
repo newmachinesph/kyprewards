@@ -56,7 +56,7 @@ const groups = [
     questions: [
       [
         "Which messaging channels are included?",
-        "Campaigns go out through the in-app inbox, push, and SMS. Messaging apps - Viber and WhatsApp - are being connected next; when they land, a campaign will try them before falling back to SMS, because they cost a fraction as much to deliver. Email is reserved for the messages a customer is waiting on: sign-in codes, reward notices, staff invitations and data exports. It is not sold as a campaign channel on any plan.",
+        "The in-app inbox and push are included on every plan. Email campaigns come with the paid tiers - 1,000 a month on Core, 3,000 on Grow, 10,000 on Scale - and none on the free plan. SMS is bought as credits rather than bundled, because it costs real money on every single send and folding it into a price hides that until the invoice. Messaging apps, Viber and WhatsApp, are being connected next; a campaign will try them before falling back to SMS, because they cost a fraction as much to deliver. Sign-in codes, reward notices and data exports are separate from all of this: they always send, on every plan, and never touch an allowance.",
       ],
       [
         "Why is SMS not unlimited?",
