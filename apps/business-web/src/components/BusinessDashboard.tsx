@@ -47,6 +47,7 @@ import {
   useBusinessProfile,
   useLocations,
   useMessagingPolicy,
+  useSetupProgress,
   usePrograms,
   useStaff,
   useTimeToSecondVisit,
@@ -139,7 +140,7 @@ export function BusinessDashboard({
 }) {
   const [period, setPeriod] = useState<(typeof periods)[number]["id"]>("week");
   const [scanOpen, setScanOpen] = useState(false);
-  const { testStampDone, completeTestStamp, startScanHandoff, workspace } = useDemoState();
+  const { completeTestStamp, startScanHandoff, workspace } = useDemoState();
 
   // Server state, from the API. Defaulted to empty rather than guarded one by
   // one: the dashboard is a wall of counters, and blanking the whole page
@@ -153,6 +154,12 @@ export function BusinessDashboard({
   const { data: automationRows = [] } = useAutomations();
   const { data: visits } = useVisitTrend(period);
   const { data: policy } = useMessagingPolicy();
+  // From the API, not React state. The checklist tracked its last step in
+  // memory, so "Ready for the first rush" reset to 4 of 5 on every reload and
+  // could never reach 5 of 5 however many test stamps were run - the server
+  // had recorded it the whole time and nothing ever read the row back.
+  const { data: setupProgress } = useSetupProgress();
+  const testStampDone = setupProgress?.enabled ?? false;
   const { data: audienceRows = [] } = useAudience();
   const widestReach = Math.max(...audienceRows.map((row) => row.reachable), 0);
   // Never zero: dividing by it would make every bar NaN tall.

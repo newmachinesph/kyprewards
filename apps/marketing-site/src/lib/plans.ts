@@ -224,7 +224,10 @@ export const featureMatrix: FeatureGroup[] = [
         label: "RFM and lifecycle scoring",
         cells: [false, false, true, true],
       },
-      { label: "Import and export", cells: [false, true, true, true] },
+      // Was "Import and export", which contradicted the "Data export" row
+      // four groups below: export is free on every plan and a Launch shop can
+      // download its customer CSV today. Only the import is gated.
+      { label: "Customer import", cells: [false, true, true, true] },
       {
         label: "Consent ledger and privacy rights",
         hint: "Consent, export, and deletion requests are built in on every plan — they are not an upsell.",

@@ -110,9 +110,13 @@ const roleConfig = {
     signInTitle: "Welcome back to the counter.",
     signInDescription:
       "Sign in to manage customers, programs, campaigns, locations, and integrations.",
+    // Was a receipt for the seeded demo bakery - "Workspace: Sweet Crumbs
+    // Bakery, Role: Owner - all locations" - so the first thing a stranger
+    // saw on our sign-in page was somebody else's account, for a business
+    // that really is listed in Discover. These say what signing in does.
     steps: [
-      ["Workspace", "Sweet Crumbs Bakery"],
-      ["Role", "Owner · all locations"],
+      ["Workspace", "Yours, and any you have been invited to"],
+      ["Role", "Whatever your owner gave you"],
       ["Next", "Choose a workspace"],
     ],
   },
@@ -141,8 +145,8 @@ const roleConfig = {
     signInDescription:
       "Use your mobile number or email. We will send a one-time code—no password needed.",
     steps: [
-      ["Member", "Jacqueline Daniel"],
-      ["Wallet", "4 local businesses"],
+      ["Member", "Your number, no password"],
+      ["Wallet", "Every shop you have joined"],
       ["Privacy", "Permissions stay visible"],
     ],
   },
@@ -207,7 +211,10 @@ function CustomerAuthVisual({ mode }: { mode: DemoAuthMode }) {
             <Croissant size={19} />
           </span>
           <div>
-            <p className="text-sm font-extrabold tracking-[-0.025em]">Sweet Crumbs</p>
+            {/* Named the seeded demo bakery, which is a real business in
+                Discover, above a streak the visitor does not have. An
+                illustration should not be mistakable for someone's card. */}
+            <p className="text-sm font-extrabold tracking-[-0.025em]">Your local favourite</p>
             <p className="mt-0.5 text-[10px] font-semibold text-white/50">Closest reward</p>
           </div>
         </div>
@@ -379,7 +386,7 @@ function AuthShell({
         </div>
         <div className="relative my-auto max-w-md py-16">
           <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[var(--accent)]">
-            Demo access receipt
+            Signing in
           </p>
           <h2 className="mt-5 text-4xl font-extrabold leading-[0.98] tracking-[-0.03em] xl:text-5xl">
             Every role enters through a clear, trusted door.
@@ -953,6 +960,12 @@ export function DemoAuthFlow({
             if (!businessName.trim()) { setNotice("Enter your business name."); return; }
             if (!name.trim()) { setNotice("Enter your full name."); return; }
             if (!identifier.trim()) { setNotice("Enter your work email."); return; }
+            // Checked here so the rule is stated in the words the caption
+            // uses. Left to the API, the sign-up page answered "password:
+            // String should have at least 10 characters" - a Pydantic
+            // validator's own sentence, shown to somebody creating their
+            // first account. The reset-password screen already did this.
+            if (password.length < 10) { setNotice("Use at least 10 characters."); return; }
             if (!accepted) { setNotice("Accept the terms to continue."); return; }
 
             setBusy(true);

@@ -301,6 +301,15 @@ export const useIntegrations = (options?: Options<Integration[]>): Query<Integra
 
 /** The dashboard's headline counters. Short stale time — this is the number a
  *  merchant watches move while stamping. */
+export const useSetupProgress = (
+  options?: Options<{ id: string; enabled: boolean }>,
+): Query<{ id: string; enabled: boolean }> =>
+  useQuery({
+    queryKey: keys.business.analytics.setupProgress(),
+    queryFn: api.getSetupProgress,
+    ...options,
+  });
+
 export const useAudience = (options?: Options<AudienceChannel[]>): Query<AudienceChannel[]> =>
   useQuery({
     queryKey: keys.business.analytics.audience(),

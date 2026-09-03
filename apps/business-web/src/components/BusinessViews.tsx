@@ -32,6 +32,7 @@ import {
   type Program,
   type RedemptionResult,
   useAudience,
+  useAutomations,
   useCampaigns,
   useFavoriteOrders,
   useIntegrations,
@@ -105,6 +106,7 @@ import {
   useCommitRedemption,
   useReserveRedemption,
   useSetSetting,
+  useToggleAutomation,
   useVoidVisit,
 } from "@/components/mutations";
 import { brandColor, Button, Eyebrow, Pill, StampDots, ViewFrame } from "@kypstamping/ui";
@@ -2796,6 +2798,15 @@ function FavoriteOrdersView({
 }
 function BirthdayView({ notify }: { notify: Notify }) {
   const { data: customers = [] } = useBusinessCustomers();
+  // The pill asserted "Automation live" whatever the automation was actually
+  // doing, and "Save journey" reported "Birthday journey saved with channel
+  // guardrails" while saving nothing at all - this screen has no editable
+  // state to save. The automation behind it is real and already toggleable,
+  // so the button switches that instead of announcing a fiction.
+  const { data: automationRows = [] } = useAutomations();
+  const birthday = automationRows.find((row) => row.id === "auto_birthday");
+  const live = birthday?.status === "Live";
+  const toggle = useToggleAutomation();
   // Was a literal list of three dates under a "next 30 days" heading, so it
   // was only ever correct on the day it was written.
   const upcoming = customers
@@ -2814,7 +2825,11 @@ function BirthdayView({ notify }: { notify: Notify }) {
       eyebrow="Birthday moments"
       title="Birthday offers"
       description="Build one thoughtful birthday journey with explicit eligibility, a budget ceiling, and channel-specific consent."
-      action={<Pill tone="success">Automation live</Pill>}
+      action={
+        <Pill tone={live ? "success" : "warning"}>
+          {birthday ? (live ? "Automation live" : "Automation paused") : "No automation yet"}
+        </Pill>
+      }
     >
       <div className="grid gap-3 lg:grid-cols-[0.82fr_1.18fr]">
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
@@ -2923,11 +2938,25 @@ function BirthdayView({ notify }: { notify: Notify }) {
           <Button
             tone="accent"
             className="mt-6"
+            disabled={!birthday || toggle.isPending}
             onClick={() =>
-              notify("Birthday journey saved with channel guardrails.")
+              birthday &&
+              toggle.mutate(birthday.id, {
+                onSuccess: (result) =>
+                  notify(
+                    result.enabled
+                      ? "Birthday journey is live. It sends on the day, inside your quiet hours."
+                      : "Birthday journey paused. Nothing will send until you switch it back on.",
+                  ),
+                onError: (failure) => notify(failure.message, "error"),
+              })
             }
           >
-            Save journey
+            {toggle.isPending
+              ? "Saving…"
+              : live
+                ? "Pause this journey"
+                : "Switch this journey on"}
           </Button>
         </section>
       </div>
@@ -2954,7 +2983,7 @@ function RedemptionsView({ notify }: { notify: Notify }) {
     <ViewFrame
       eyebrow="Value ledger"
       title="Redemptions"
-      description="Every reward event shows the customer, branch, approving staff member, value, status, and reversal path."
+      description="Every reward event, with its value, status and reversal path. Branch and approver are shown where the sale recorded them."
       action={
         <Button
           tone="quiet"
@@ -2991,11 +3020,14 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                     {item.customer}
                   </td>
                   <td className="px-4 py-4 text-sm">{item.reward}</td>
+                  {/* Empty cells read as a broken table under headers that
+                      promise a value. Analytics already calls the same case
+                      Unattributed. */}
                   <td className="px-4 py-4 text-xs text-[var(--muted-strong)]">
-                    {item.branch}
+                    {item.branch || "—"}
                   </td>
                   <td className="px-4 py-4 text-xs text-[var(--muted-strong)]">
-                    {item.staff}
+                    {item.staff || "Unattributed"}
                   </td>
                   <td className="px-4 py-4 text-sm font-bold">
                     {item.valueCentavos ? pesoFromCentavos(item.valueCentavos) : "—"}
@@ -3643,12 +3675,16 @@ function CampaignsView({ notify }: { notify: Notify }) {
           <div className="mt-6 grid grid-cols-2 gap-2">
             <Button
               tone="quiet"
-              disabled={testSend.isPending}
+              disabled={testSend.isPending || !message.trim()}
               onClick={() =>
+                // The merchant's own copy, which is the entire point of a
+                // test. This sent a fixed sentence - "This is how your next
+                // campaign will look when it arrives" - so the one feature
+                // whose job is to show you your message never showed it.
                 testSend.mutate(
                   {
-                    subject: "Campaign preview",
-                    body: "This is how your next campaign will look when it arrives.",
+                    subject: campaignName.trim() || "Campaign preview",
+                    body: message.trim(),
                   },
                   {
                     // Never to a customer: the API sends it to whoever is

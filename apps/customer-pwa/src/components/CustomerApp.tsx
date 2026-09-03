@@ -815,15 +815,25 @@ function HomeView({
 /** Chips come from the data, so a "Cafés" chip cannot fail to match a "Café"
  *  card the way the hand-written list did. Derived per render now that both
  *  lists arrive from a request. */
-const walletCategoriesFrom = (cards: WalletCard[], places: DiscoverPlace[]) => [
-  "All",
-  ...Array.from(
-    new Set([
-      ...cards.map((card) => card.category),
-      ...places.map((place) => place.category),
-    ]),
-  ),
-];
+const walletCategoriesFrom = (cards: WalletCard[], places: DiscoverPlace[]) => {
+  // Deduped on a folded key, not the raw string. Merchants type their own
+  // category and the seeded places carry their own spellings, so the filter
+  // row read "cafe, Cafe, Café, Bakery, Cafe or bakery" - five chips, three
+  // of which were the same word. The first spelling seen is the one shown.
+  const seen = new Map<string, string>();
+  for (const label of [
+    ...cards.map((card) => card.category),
+    ...places.map((place) => place.category),
+  ]) {
+    const key = label
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .trim()
+      .toLowerCase();
+    if (key && !seen.has(key)) seen.set(key, label);
+  }
+  return ["All", ...seen.values()];
+};
 
 
 function WalletView({

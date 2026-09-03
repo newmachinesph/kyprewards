@@ -754,6 +754,14 @@ export const createCustomer = (body: {
 export const recordTestStamp = (): Promise<VisitResult> =>
   http("/business/onboarding/test-stamp", { method: "POST" });
 
+/** Whether the merchant's setup checklist has had its test stamp run. Named
+ *  for the merchant's checklist, not "onboarding": `getOnboarding` is already
+ *  the platform console's application queue, and one name for two unrelated
+ *  things is how Branch Performance ended up announcing itself as Staff
+ *  Performance. */
+export const getSetupProgress = (): Promise<{ id: string; enabled: boolean }> =>
+  http("/business/onboarding");
+
 /* ── The other six program types ──────────────────────────────────────
    Stamps and Points settle through /transactions. Each of these has its own
    rule, and a merchant can run several at once. */

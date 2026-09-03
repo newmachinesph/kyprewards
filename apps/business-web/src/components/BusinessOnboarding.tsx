@@ -343,7 +343,7 @@ export function BusinessOnboarding() {
                 Pick your first program.
               </h1>
               <p className="mt-2 text-sm text-[var(--muted-strong)]">
-                Start with one. You can run several at once once you are live.
+                Start with one. Free runs one programme at a time; paid plans run more.
               </p>
               <div className="mt-7 space-y-3">
                 {PROGRAMS.map((item) => {

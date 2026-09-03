@@ -18,13 +18,13 @@ const REASSURANCE = [
     icon: Rocket,
     title: "Free while we are in beta",
     detail:
-      "No card, no trial clock. You keep your program and your customer list whatever you decide afterwards.",
+      "The paid plans are not open yet, so everyone is on the free one: no card, no trial clock. You keep your program and your customer list whatever you decide afterwards.",
   },
   {
     icon: HeartHandshake,
     title: "We set the first program up",
     detail:
-      "You will not open an empty dashboard. It arrives configured to the answers you give here.",
+      "A person reads this and configures your first program from these answers before you sign in. If you would rather not wait, the free plan sets itself up in about a minute.",
   },
   {
     icon: HandCoins,
