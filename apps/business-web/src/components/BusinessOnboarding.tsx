@@ -325,8 +325,8 @@ export function BusinessOnboarding() {
                       className="min-h-12 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-sm font-semibold outline-none focus:border-[var(--accent-strong)]"
                     />
                     <span className="text-[10px] font-semibold text-[var(--muted)]">
-                      The free plan runs one location. Add branches from
-                      Settings once you move up a plan.
+                      Branches are not limited on any plan. Add more from
+                      Settings whenever you open one.
                     </span>
                   </label>
                 </div>

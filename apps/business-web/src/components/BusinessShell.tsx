@@ -142,8 +142,8 @@ export function BusinessShell({
   // the workspace is whatever the API says it is.
   const { data: profile } = useBusinessProfile();
   const { data: workspaces = [] } = useWorkspaces();
-  const frontLine =
-    workspaces.find((entry) => entry.merchantId === profile?.merchantId)?.role === "Cashier";
+  const role = workspaces.find((entry) => entry.merchantId === profile?.merchantId)?.role ?? "";
+  const frontLine = role === "Cashier";
   const workspaceName = workspace?.businessName ?? profile?.shortName ?? "";
   const workspaceInitials = workspaceName
     .split(/\s+/)
@@ -278,8 +278,11 @@ export function BusinessShell({
                 <span className="block truncate text-xs font-bold">
                   {workspaceName}
                 </span>
+                {/* The signed-in person's actual role. This read "Owner
+                    workspace" to everybody, including the cashier on the till
+                    tablet, whose session is nothing of the kind. */}
                 <span className="block truncate text-[10px] text-[var(--muted)]">
-                  Owner workspace
+                  {role ? `${role} workspace` : "Workspace"}
                 </span>
               </span>
               <ChevronDown size={14} className={`transition ${accountOpen ? "rotate-180" : ""}`} aria-hidden="true" />

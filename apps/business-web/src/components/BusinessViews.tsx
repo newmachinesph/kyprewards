@@ -647,6 +647,38 @@ function ScanView({
     useCounterStore();
   const record = useRecordVisit();
 
+  /**
+   * Which shop this till is standing in.
+   *
+   * The counter never asked and never sent one, so every sale and every
+   * handover rung up through the product recorded a blank branch - on a
+   * product whose paid tiers sell per-branch reporting. A till does not move
+   * between shops, so it is remembered on the device rather than asked once
+   * per sale, and it defaults to the shop's first branch.
+   */
+  const [tillBranch, setTillBranch] = useState("");
+  useEffect(() => {
+    if (tillBranch || locations.length === 0) return;
+    let stored = "";
+    try {
+      stored = window.localStorage.getItem(TILL_BRANCH_KEY) ?? "";
+    } catch {
+      stored = "";
+    }
+    const known = locations.some((branch) => branch.id === stored);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTillBranch(known ? stored : locations[0].id);
+  }, [locations, tillBranch]);
+
+  function chooseTillBranch(id: string) {
+    setTillBranch(id);
+    try {
+      window.localStorage.setItem(TILL_BRANCH_KEY, id);
+    } catch {
+      // A locked-down browser. The branch still applies for this session.
+    }
+  }
+
   const [identifier, setIdentifier] = useState("");
   const [notFound, setNotFound] = useState("");
   const [newName, setNewName] = useState("");
@@ -782,6 +814,9 @@ function ScanView({
     record.mutate(
       {
         customerId: scanned.id,
+        // Which shop rang it up. Blank on every counter sale until now, which
+        // left branch reporting with nothing to report on.
+        branchId: tillBranch || undefined,
         // Centavos on the wire, always. The cashier types pesos.
         amountCentavos,
         // Stable until this visit settles, so a cashier who presses again
@@ -952,6 +987,8 @@ function ScanView({
                               reserve.mutate(
                                 {
                                   customerId: scanned.id,
+                                  // The shop that actually handed it over.
+                                  branchId: tillBranch || undefined,
                                   idempotencyKey: idempotencyKey(
                                     "redeem",
                                     `${scanned.id}_${idempotencyReference}_${redeemAttempt}`,
@@ -1131,9 +1168,30 @@ function ScanView({
           <div className="flex items-center justify-between">
             <div>
               <Eyebrow>Recent counter activity</Eyebrow>
-              <h2 className="mt-1 text-lg font-extrabold">
-                {locations[0] ? `Today at ${locations[0].name}` : "Today at the counter"}
-              </h2>
+              {/* Named locations[0] whatever branch the till was standing in,
+                  so a Manila counter filed its own sales under "Today at
+                  BGC". It is the picker now, and what it says is what every
+                  sale below is recorded against. */}
+              {locations.length > 1 ? (
+                <label className="mt-1 flex items-center gap-2 text-lg font-extrabold">
+                  <span className="sr-only">This till is at</span>
+                  <select
+                    value={tillBranch}
+                    onChange={(event) => chooseTillBranch(event.target.value)}
+                    className="rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-2 py-1 text-lg font-extrabold outline-none focus:border-[var(--accent-strong)]"
+                  >
+                    {locations.map((branch) => (
+                      <option key={branch.id} value={branch.id}>
+                        {branch.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <h2 className="mt-1 text-lg font-extrabold">
+                  {locations[0] ? `Today at ${locations[0].name}` : "Today at the counter"}
+                </h2>
+              )}
             </div>
             <button
               type="button"
@@ -1195,6 +1253,9 @@ function ScanView({
  * with a "continue to join" button is the interstitial this whole flow
  * exists to remove.
  */
+/** The branch this till is standing in, remembered per device. */
+const TILL_BRANCH_KEY = "kypstamping-till-branch";
+
 const POSTER_ORIGIN =
   process.env.NEXT_PUBLIC_CUSTOMER_APP_URL ?? "https://app.kypstamping.ph";
 
@@ -5067,21 +5128,34 @@ function SettingsView({ notify }: { notify: Notify }) {
             </p>
             <div className="mt-6 divide-y divide-white/12 border-y border-white/12">
               {billing.allowances.map((item) => {
-                const pct = Math.min(100, Math.round((item.used / item.included) * 100));
+                // Zero included means unlimited - the convention the API uses
+                // for members and, since branches stopped being metered, for
+                // locations too. Divided through, it produced Infinity, which
+                // clamped to a full-width red bar: "Locations 5 / 0" in the
+                // colour of a blown budget, directly above "Your plan is free.
+                // Nothing will be charged."
+                const unlimited = item.included === 0;
+                const pct = unlimited
+                  ? 0
+                  : Math.min(100, Math.round((item.used / item.included) * 100));
                 return (
                   <div key={item.label} className="py-3">
                     <div className="flex justify-between text-xs">
                       <span className="text-white/55">{item.label}</span>
                       <strong>
-                        {item.used.toLocaleString()} / {item.included.toLocaleString()}
+                        {unlimited
+                          ? `${item.used.toLocaleString()} · no limit`
+                          : `${item.used.toLocaleString()} / ${item.included.toLocaleString()}`}
                       </strong>
                     </div>
-                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/12">
-                      <div
-                        className={`h-full rounded-full ${pct >= 90 ? "bg-[var(--danger)]" : "bg-[var(--accent)]"}`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
+                    {!unlimited && (
+                      <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/12">
+                        <div
+                          className={`h-full rounded-full ${pct >= 90 ? "bg-[var(--danger)]" : "bg-[var(--accent)]"}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}

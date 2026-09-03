@@ -246,32 +246,39 @@ export function BusinessDashboard({
             "On pace" - four numbers with nothing behind them, sitting next to
             four that are measured. A real figure loses its meaning next to an
             invented one, so each now says what it counts. */}
+        {/* The same reasoning as the revenue line below, which already got
+            this right: a refused request is not a zero. A Cashier is blocked
+            from /business/metrics by design, and all four tiles rendered the
+            fallback as fact - VISITS 0, STAMPS ISSUED 0 - on a shop that had
+            taken fifteen that day. */}
         <StatCard
           className="col-span-6 lg:col-span-3"
           label="Visits"
-          value={String(metrics.visitsToday)}
-          detail="today"
+          value={metricsError ? "—" : String(metrics.visitsToday)}
+          detail={metricsError ? "hidden for your role" : "today"}
           icon={Repeat2}
           accent
         />
         <StatCard
           className="col-span-6 lg:col-span-3"
           label="New regulars"
-          value={String(metrics.newRegulars)}
-          detail={`${metrics.repeatRate}% repeat rate`}
+          value={metricsError ? "—" : String(metrics.newRegulars)}
+          detail={
+            metricsError ? "hidden for your role" : `${metrics.repeatRate}% repeat rate`
+          }
           icon={UserPlus}
         />
         <StatCard
           className="col-span-6 lg:col-span-3"
           label="Stamps issued"
-          value={String(metrics.stampsIssued)}
-          detail="all time"
+          value={metricsError ? "—" : String(metrics.stampsIssued)}
+          detail={metricsError ? "hidden for your role" : "all time"}
           icon={Stamp}
         />
         <StatCard
           className="col-span-6 lg:col-span-3"
           label="Redemptions"
-          value={String(metrics.redemptions)}
+          value={metricsError ? "—" : String(metrics.redemptions)}
           detail={
             // A refused request is not a zero. The API correctly blocks a
             // Cashier from /business/metrics, and this rendered the fallback
