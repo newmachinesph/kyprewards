@@ -31,7 +31,7 @@ import {
 } from "@kypstamping/api";
 import type { CustomerProfile, WalletCard } from "@kypstamping/api";
 import { useCoordinates } from "@/components/useCoordinates";
-import { PENDING_CLAIM_KEY, PENDING_CLAIM_SHOP_KEY } from "@/components/FirstStamp";
+import { forgetClaim, readClaim } from "@/components/FirstStamp";
 
 /**
  * Everything the wallet owns, in one place.
@@ -175,12 +175,7 @@ function usePendingFirstStamp(): boolean {
 
   useEffect(() => {
     if (settled.current) return;
-    let token: string | null = null;
-    try {
-      token = window.sessionStorage.getItem(PENDING_CLAIM_KEY);
-    } catch {
-      token = null;
-    }
+    const token = readClaim();
     if (!token) return;
     settled.current = true;
     // Marks the start of an async job this effect owns, not derived state.
@@ -194,14 +189,7 @@ function usePendingFirstStamp(): boolean {
       .then(() => true)
       .catch((failure) => failure instanceof ApiError)
       .then((settledByServer) => {
-        if (settledByServer) {
-          try {
-            window.sessionStorage.removeItem(PENDING_CLAIM_KEY);
-            window.sessionStorage.removeItem(PENDING_CLAIM_SHOP_KEY);
-          } catch {
-            // Nothing to do; the guard above stops a retry loop either way.
-          }
-        }
+        if (settledByServer) forgetClaim();
         void queryClient.invalidateQueries({ queryKey: keys.customer.all });
         setClaiming(false);
       });

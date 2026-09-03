@@ -955,6 +955,10 @@ export type PartnerApplication = {
 export type FirstStampOffer = {
   claimToken: string;
   business: string;
+  /** So a signed-in visitor's wallet can be checked against this poster
+   *  before they tap. Somebody already holding the card was told "A stamp for
+   *  you - keep it", and only found out otherwise after tapping. */
+  businessId: string;
   branch: string;
   program: string;
   reward: string;

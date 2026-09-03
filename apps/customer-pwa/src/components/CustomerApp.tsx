@@ -720,9 +720,15 @@ function HomeView({
             "Rooted · 1.7 km" - so the home screen recommended two places that
             did not exist and never changed. They are the nearest businesses
             the customer has not joined. */}
+        {/* An empty suggestion list means one of two opposite things, and this
+            asserted the flattering one. A brand-new account with no
+            memberships was told it had joined everything nearby, while the
+            list was still loading. */}
         {suggestions.length === 0 ? (
           <p className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-[11px] text-[var(--muted)]">
-            You have joined everything nearby. Explore to find more.
+            {discover.length === 0
+              ? "Looking for places near you…"
+              : "You have joined everything nearby. Explore to find more."}
           </p>
         ) : (
           <div className="grid grid-cols-[1.2fr_0.8fr] gap-3">

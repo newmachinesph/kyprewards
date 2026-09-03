@@ -41,6 +41,7 @@ import {
   type InvitePreview,
   type Workspace,
 } from "@kypstamping/api";
+import Link from "next/link";
 import { BrandMark, StampDots } from "./index";
 
 /*
@@ -91,7 +92,7 @@ const subscribeToPendingShop = () => () => {};
 
 function readPendingShop(): string {
   try {
-    return window.sessionStorage.getItem(PENDING_CLAIM_SHOP_KEY) ?? "";
+    return window.localStorage.getItem(PENDING_CLAIM_SHOP_KEY) ?? "";
   } catch {
     return "";
   }
@@ -168,8 +169,18 @@ const roleConfig = {
   },
 } as const;
 
-function CustomerAuthVisual({ mode }: { mode: DemoAuthMode }) {
+function CustomerAuthVisual({
+  mode,
+  sentTo,
+}: {
+  mode: DemoAuthMode;
+  /** Null while unknown, "" when this tab never asked for a code. */
+  sentTo?: string | null;
+}) {
   if (mode === "verify") {
+    // On a cold open nothing was sent, so the badge does not say a code is
+    // ready - it sat above "We have lost track of where that code was sent."
+    const cold = sentTo === "";
     return (
       <div className="customer-auth-visual customer-auth-code-card">
         <span className="grid size-12 place-items-center rounded-xl bg-[var(--surface)] text-[var(--accent-strong)] shadow-sm">
@@ -177,13 +188,15 @@ function CustomerAuthVisual({ mode }: { mode: DemoAuthMode }) {
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--muted-strong)]">
-            Code ready
+            {cold ? "No code yet" : "Code ready"}
           </p>
           {/* It said "Sent to your mobile" on the email path too, so somebody
               who signed in with an address sat waiting for an SMS. The line
               under the input names the real destination; this one no longer
               contradicts it. */}
-          <p className="mt-1 text-sm font-extrabold tracking-[-0.02em]">Check your messages</p>
+          <p className="mt-1 text-sm font-extrabold tracking-[-0.02em]">
+            {cold ? "Start from sign-in" : "Check your messages"}
+          </p>
         </div>
         <div className="flex gap-1" aria-hidden="true">
           {Array.from({ length: 6 }).map((_, index) => (
@@ -254,11 +267,13 @@ function CustomerAuthShell({
   title,
   description,
   children,
+  sentTo,
 }: {
   mode: DemoAuthMode;
   title: string;
   description: string;
   children: ReactNode;
+  sentTo?: string | null;
 }) {
   const stageLabel = mode === "verify" ? "Verify" : mode === "create" ? "Join KYPStamping" : "Welcome back";
 
@@ -270,7 +285,7 @@ function CustomerAuthShell({
         </header>
 
         <div className="px-5 pb-5">
-          <CustomerAuthVisual mode={mode} />
+          <CustomerAuthVisual mode={mode} sentTo={sentTo} />
         </div>
 
         <div className="customer-auth-sheet flex-1 rounded-t-[18px] bg-[var(--paper)] px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-6">
@@ -376,18 +391,20 @@ function AuthShell({
   title,
   description,
   children,
+  sentTo,
 }: {
   role: DemoAuthRole;
   mode: DemoAuthMode;
   title: string;
   description: string;
   children: ReactNode;
+  sentTo?: string | null;
 }) {
   const config = roleConfig[role];
 
   if (role === "customer") {
     return (
-      <CustomerAuthShell mode={mode} title={title} description={description}>
+      <CustomerAuthShell mode={mode} title={title} description={description} sentTo={sentTo}>
         {children}
       </CustomerAuthShell>
     );
@@ -614,6 +631,32 @@ export function DemoAuthFlow({
   // than waiting for six digits to be typed first.
   const sentTo = useSyncExternalStore(subscribeToOtpIdentifier, readOtpIdentifier, noOtpIdentifierOnServer);
   const pendingShop = useSyncExternalStore(subscribeToPendingShop, readPendingShop, noPendingShopOnServer);
+
+  /**
+   * Whoever is already signed in on this device, if anyone.
+   *
+   * These screens never asked. Pressing Back after signing up landed on
+   * /create-account, which cheerfully offered to set up a second wallet for
+   * somebody who had just finished making their first - and filling it in
+   * really did start another registration. Not a redirect, because signing in
+   * as a different account is a legitimate thing to want; the screen just
+   * stops pretending nobody is here.
+   */
+  const [signedInAs, setSignedInAs] = useState<string | null>(null);
+  useEffect(() => {
+    if (mode !== "login" && mode !== "create") return;
+    let live = true;
+    getSession()
+      .then((session) => {
+        if (live && session.kind === role) setSignedInAs(session.name || "your account");
+      })
+      .catch(() => {
+        // Not signed in is the ordinary answer here, and it arrives as a 401.
+      });
+    return () => {
+      live = false;
+    };
+  }, [mode, role]);
 
   function go(path: string) {
     window.location.assign(path);
@@ -903,8 +946,29 @@ export function DemoAuthFlow({
         ? "/onboarding"
         : "/workspaces";
     }
+    // A cold open contradicted itself: "Enter the six-digit code we just sent
+    // you" over "We have lost track of where that code was sent." Nothing was
+    // just sent - this tab has never asked for one.
     return (
-      <AuthShell role={role} mode="verify" title={role === "customer" ? "Enter your code." : "Confirm it is you."} description={role === "admin" ? "Enter the six-digit code from your administrator authenticator." : role === "customer" ? "Enter the six-digit code we just sent you." : "Enter the six-digit code we just sent you."}>
+      <AuthShell
+        role={role}
+        mode="verify"
+        title={
+          role === "customer" && sentTo === ""
+            ? "Ask for a fresh code."
+            : role === "customer"
+              ? "Enter your code."
+              : "Confirm it is you."
+        }
+        description={
+          role === "admin"
+            ? "Enter the six-digit code from your administrator authenticator."
+            : sentTo === ""
+              ? "This page was opened without a code being sent. Start again from sign-in and we will text you one."
+              : "Enter the six-digit code we just sent you."
+        }
+        sentTo={sentTo}
+      >
         <form onSubmit={(event) => submitVerify(event, verifyDestination())} className="space-y-5">
           <label className="grid gap-2 text-xs font-extrabold">
             Six-digit verification code
@@ -954,6 +1018,20 @@ export function DemoAuthFlow({
             >
               Resend code
             </button>
+          )}
+          {/* A number with no wallet still gets "Sent to +63...", because the
+              request deliberately does not reveal whether an account exists -
+              but then every code is refused and there was nowhere to go. The
+              sign-up link is the missing half of that: it costs an enumerator
+              nothing and it is exactly what somebody who mistyped a digit, or
+              who never had a wallet, actually needs. */}
+          {role === "customer" && (
+            <a
+              href="/create-account"
+              className="flex min-h-11 items-center justify-center text-xs font-extrabold text-[var(--accent-strong)] hover:underline"
+            >
+              No code arriving? Create a wallet
+            </a>
           )}
           {/* The way out. When the code cannot be checked at all this is the
               only thing on the screen that does anything, so it says what it
@@ -1084,6 +1162,17 @@ export function DemoAuthFlow({
             : "Keep rewards from nearby businesses together, with permissions you can change anytime."
         }
       >
+        {/* Pressing Back after signing up landed here, offering a second
+            wallet to somebody who had just made their first. */}
+        {signedInAs && (
+          <div className="mb-5 rounded-2xl bg-[var(--surface-2)] px-4 py-3 text-xs font-bold text-[var(--muted-strong)]">
+            You are already signed in as {signedInAs}.{" "}
+            <Link href="/#home" className="text-[var(--accent-strong)] underline underline-offset-2">
+              Open your wallet
+            </Link>
+            , or fill this in to set up a different one.
+          </div>
+        )}
         <form
           onSubmit={async (event) => {
             event.preventDefault();

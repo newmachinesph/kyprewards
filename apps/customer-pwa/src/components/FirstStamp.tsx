@@ -10,6 +10,7 @@ import {
   getSession,
   offerFirstStamp,
   readFirstStamp,
+  useWallet,
   type FirstStampOffer,
 } from "@kypstamping/api";
 import { BrandMark, StampDots } from "@kypstamping/ui";
@@ -23,12 +24,17 @@ import { BrandMark, StampDots } from "@kypstamping/ui";
  */
 
 /**
- * Survives the hop through registration and the OTP screen.
+ * Survives the hop through registration and the OTP screen - and the tab.
  *
- * The claim cannot settle until there is an account to settle it against, so
- * the token has to outlive three navigations. sessionStorage, because it
- * should not outlive the tab: a token left in localStorage would sit there
- * long after the visit it belonged to.
+ * This was sessionStorage, on the reasoning that a claim should not outlive
+ * the visit it belonged to. The reasoning was right and the mechanism was
+ * wrong: on a cheap Android you leave the browser to read the SMS, Chrome
+ * discards the tab, and the stamp the poster had just promised was gone -
+ * silently, on the one path this whole product uses to acquire customers.
+ *
+ * localStorage with a stamped time instead, so it survives the tab and still
+ * cannot sit there for days. Half an hour is far longer than a sign-up and far
+ * shorter than a second visit.
  */
 export const PENDING_CLAIM_KEY = "kypstamping-pending-first-stamp";
 /** The shop the pending stamp belongs to, so the sign-up screen can say what
@@ -36,14 +42,43 @@ export const PENDING_CLAIM_KEY = "kypstamping-pending-first-stamp";
  *  talked about wallets in general and never mentioned the shop or the stamp,
  *  which is the moment somebody decides this was a waste of time. */
 export const PENDING_CLAIM_SHOP_KEY = "kypstamping-pending-first-stamp-shop";
+const PENDING_CLAIM_AT_KEY = "kypstamping-pending-first-stamp-at";
+const CLAIM_TTL_MS = 30 * 60 * 1000;
 
 export function rememberClaim(token: string, shop = "") {
   try {
-    window.sessionStorage.setItem(PENDING_CLAIM_KEY, token);
-    if (shop) window.sessionStorage.setItem(PENDING_CLAIM_SHOP_KEY, shop);
+    window.localStorage.setItem(PENDING_CLAIM_KEY, token);
+    window.localStorage.setItem(PENDING_CLAIM_AT_KEY, String(Date.now()));
+    if (shop) window.localStorage.setItem(PENDING_CLAIM_SHOP_KEY, shop);
   } catch {
     // A private window. The stamp is lost, which is a shame and not a crash;
     // staff can still scan them in at the counter.
+  }
+}
+
+/** The pending token, or null when there is none or it has gone stale. */
+export function readClaim(): string | null {
+  try {
+    const token = window.localStorage.getItem(PENDING_CLAIM_KEY);
+    if (!token) return null;
+    const at = Number(window.localStorage.getItem(PENDING_CLAIM_AT_KEY) ?? 0);
+    if (!at || Date.now() - at > CLAIM_TTL_MS) {
+      forgetClaim();
+      return null;
+    }
+    return token;
+  } catch {
+    return null;
+  }
+}
+
+export function forgetClaim() {
+  try {
+    for (const key of [PENDING_CLAIM_KEY, PENDING_CLAIM_SHOP_KEY, PENDING_CLAIM_AT_KEY]) {
+      window.localStorage.removeItem(key);
+    }
+  } catch {
+    // Nothing to do; the guard in the settler stops a retry loop either way.
   }
 }
 
@@ -60,6 +95,13 @@ export function FirstStamp({ slug }: { slug: string }) {
    * different promises.
    */
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  // Only asked for once we know somebody is signed in, and only used to tell
+  // an existing member the truth before they tap rather than after.
+  const { data: cards = [] } = useWallet({ enabled: signedIn === true });
+  const alreadyMember =
+    signedIn === true &&
+    Boolean(offer?.businessId) &&
+    cards.some((card) => card.businessId === offer?.businessId);
   // StrictMode invokes an effect twice in development, and this one has a
   // side effect on the server. Guarding by slug rather than a flag, so a
   // genuine change still re-runs.
@@ -201,7 +243,11 @@ export function FirstStamp({ slug }: { slug: string }) {
                 {/* Only the anonymous visitor is definitely new. A signed-in
                     member with four stamps was being told this was their
                     first, above a card reading 1 of 8. */}
-                {signedIn ? "A stamp for you." : "That’s your first stamp."}
+                {alreadyMember
+                  ? "You already have this card."
+                  : signedIn
+                    ? "A stamp for you."
+                    : "That’s your first stamp."}
               </h1>
               <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
                 At {offer.business} · {offer.branch}
@@ -221,12 +267,14 @@ export function FirstStamp({ slug }: { slug: string }) {
                 keeping, which is the whole reason it comes second. */}
             <div className="mt-4 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-7">
               <p className="text-sm font-extrabold">
-                {signedIn ? "Keep it." : "Keep it with your number."}
+                {alreadyMember ? "Ask staff to scan you in." : signedIn ? "Keep it." : "Keep it with your number."}
               </p>
               <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                {signedIn
-                  ? "It goes on the card you already have."
-                  : "One number, no app, no password. It saves this stamp and every one after it."}
+                {alreadyMember
+                  ? "The poster is for first-time visitors. Show your code at the counter and staff will add today's stamp."
+                  : signedIn
+                    ? "It goes on the card you already have."
+                    : "One number, no app, no password. It saves this stamp and every one after it."}
               </p>
               {/* The claim is minted here, on the tap, rather than when the
                   page loaded - so opening a poster link costs nothing and
@@ -236,7 +284,7 @@ export function FirstStamp({ slug }: { slug: string }) {
                   points at. */}
               <button
                 type="button"
-                disabled={busy}
+                disabled={busy || alreadyMember}
                 onClick={() =>
                   signedIn ? keepOnExistingWallet() : keep("/create-account")
                 }
@@ -244,10 +292,12 @@ export function FirstStamp({ slug }: { slug: string }) {
               >
                 {busy
                   ? "Holding it…"
-                  : signedIn
-                    ? "Add it to my wallet"
-                    : "Save my stamp"}{" "}
-                {!busy && <ArrowRight size={16} />}
+                  : alreadyMember
+                    ? "Already on your card"
+                    : signedIn
+                      ? "Add it to my wallet"
+                      : "Save my stamp"}{" "}
+                {!busy && !alreadyMember && <ArrowRight size={16} />}
               </button>
               {!signedIn && (
                 <button

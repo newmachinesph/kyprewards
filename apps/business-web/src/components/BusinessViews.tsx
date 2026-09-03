@@ -1276,6 +1276,30 @@ function JoinCodeView({ notify }: { notify: Notify }) {
   // to match what /public/join/{slug} resolves, so it is built once here.
   const slug = `${slugify(profile?.shortName ?? "")}-${slugify(selected)}`;
   const joinUrl = `${POSTER_ORIGIN}/join/${slug}`;
+  // A workspace that has not finished onboarding has no short name and no
+  // branch, so this built the slug "-" and offered Print poster and Copy link
+  // beside a QR pointing at /join/- , which is a 404. Every poster that shop
+  // printed was dead before the ink dried, and nothing said so.
+  const ready = Boolean(slugify(profile?.shortName ?? "") && slugify(selected));
+
+  if (!ready) {
+    return (
+      <ViewFrame
+        eyebrow="Enrollment"
+        title="Join codes"
+        description="A poster needs your shop's name and at least one branch. Finish setting up and the code appears here."
+      >
+        <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+          <p className="text-sm font-extrabold">Not ready to print yet</p>
+          <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-[var(--muted-strong)]">
+            Add your business name and a branch first. A code printed before
+            then points at nothing, and a customer scanning it is told the
+            counter code is not one we recognise.
+          </p>
+        </section>
+      </ViewFrame>
+    );
+  }
 
   return (
     <ViewFrame
