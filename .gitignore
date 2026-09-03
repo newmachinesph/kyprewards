@@ -10,3 +10,13 @@ coverage/
 tsconfig.tsbuildinfo
 design/
 .vercel/
+
+# Written by `vercel link`; holds the project id, not a secret, but it is
+# per-machine.
+.vercel
+
+# `.env` carries a deploy token. `.env.example` is the documented shape and
+# has to stay tracked - the blanket rule the Vercel CLI added would hide it
+# from anyone cloning fresh.
+.env*
+!.env.example
