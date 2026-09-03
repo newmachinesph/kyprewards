@@ -1,7 +1,10 @@
 # `@kypstamping/api`
 
-The data layer for all four apps. Wired: every screen in the merchant
-workspace, the customer wallet and the platform console reads this service.
+The data layer for the apps. Wired: every screen in the merchant workspace,
+the customer wallet and the platform console reads this service, and the
+marketing site uses its public endpoints. The marketplace will use its
+public reads once a public Discover endpoint exists; it never carries a
+session.
 
 ## The split
 

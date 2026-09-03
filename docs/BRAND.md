@@ -144,3 +144,18 @@ The one piece of product UI that is also brand. `StampDots` in `@kypstamping/ui`
 
 Direct, warm, specific. Sentence case. No exclamation marks, no emoji as icons.
 Say "3 more visits to a free drink", not "You're on your way!".
+
+## 9. Two names, one mark
+
+The audiences were split across two domains on 2026-09-03.
+
+| Name | Where | Who reads it |
+|---|---|---|
+| **KYP Stamping** (two words in prose; the wordmark stays `KYP` + `Stamping`) | kypstamping.ph, biz.kypstamping.ph, admin.kypstamping.ph | shop owners, staff, platform operators |
+| **KYP** | kyp.ph and the wallet at app.kyp.ph | shoppers |
+
+The seal, palette and type are shared. The wallet and the marketplace use
+`KYP` alone in amber as their wordmark and never show "Stamping"; the
+merchant surfaces use the full lockup. Footers on the shopper side may say
+"KYP is operated by KYPStamping" and nothing more specific: there is no
+registered entity to name yet.
