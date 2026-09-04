@@ -11,7 +11,7 @@ import {
   ShieldCheck,
   Stamp,
 } from "lucide-react";
-import { ApiError, answerHeardFrom, submitPartnerApplication } from "@kypstamping/api";
+import { ApiError, answerHeardFrom, fieldErrors, submitPartnerApplication } from "@kypstamping/api";
 import {
   displayMobile,
   isCompleteMobile,
@@ -49,6 +49,32 @@ const STEPS = [
 ] as const;
 
 type Errors = Partial<Record<keyof PartnerDraft, string>>;
+
+/**
+ * Which step owns each answer, so a field the server rejects can be shown
+ * where it is edited.
+ *
+ * The form checks the shape of a mobile number; the API checks whether it is
+ * a number at all, which needs a carrier list this bundle has no business
+ * carrying. So a well-shaped number with an impossible prefix passes here and
+ * fails there - and used to come back as a form-level alert on the review
+ * step, three screens from the input, with nothing marked.
+ */
+const STEP_OF: Record<keyof PartnerDraft, number> = {
+  businessName: 0,
+  category: 0,
+  branches: 0,
+  address: 0,
+  mapsLink: 0,
+  notOnMaps: 0,
+  ownerName: 1,
+  mobile: 1,
+  email: 1,
+  facebook: 1,
+  volume: 2,
+  existing: 2,
+  mechanic: 2,
+};
 
 function validate(step: number, draft: PartnerDraft): Errors {
   const errors: Errors = {};
@@ -148,6 +174,18 @@ export function PartnerIntake() {
       // whole application to a failed request.
       clear();
     } catch (failure) {
+      // A field the server refused belongs under that field, on the step it
+      // is edited on. Anything else is a message about the whole submission.
+      const refused: Errors = {};
+      for (const { field, message } of fieldErrors(failure)) {
+        if (field in STEP_OF) refused[field as keyof PartnerDraft] = message;
+      }
+      const [first] = Object.keys(refused) as (keyof PartnerDraft)[];
+      if (first) {
+        setErrors(refused);
+        setStep(STEP_OF[first]);
+        return;
+      }
       setFailed(
         failure instanceof ApiError
           ? // 409 is "you already have one waiting", which is worth reading.

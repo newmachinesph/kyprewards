@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import { useDemoState } from "@/components/DemoState";
+import { planFor, usePlanGate } from "@/lib/plan";
 import type { Automation } from "@kypstamping/api";
 import {
   isPreview,
@@ -170,7 +171,14 @@ export function BusinessDashboard({
   // Rewards the customer has not yet approved on their phone.
   const { data: redemptionRows = [] } = useRedemptions();
   const pendingApprovals = redemptionRows.filter((row) => row.status === "Awaiting customer").length;
-  const { data: bonusWindows = [] } = useBonusWindows();
+  // Only asked for on a plan that has them. Fetched unconditionally, this
+  // answered 402 on every dashboard load for every free shop - harmless on
+  // screen, because the banner is optional, but a guaranteed pair of refusals
+  // in the log of a merchant who has done nothing wrong.
+  const gate = usePlanGate();
+  const { data: bonusWindows = [] } = useBonusWindows({
+    enabled: gate.covers(planFor("Bonus windows")),
+  });
   const liveWindow = bonusWindows.find((window) => window.status === "live");
   // Never zero: dividing by it would make every bar NaN tall.
   const busiest = Math.max(1, ...(visits?.bars ?? []).map((bar) => bar.visits));
@@ -984,7 +992,12 @@ function bandFor(rate: number) {
 
 function ReturnScore() {
   const { data: metrics = EMPTY_BUSINESS_METRICS } = useBusinessMetrics();
-  const { data: secondVisit } = useTimeToSecondVisit();
+  // The median is a sentence this ring adds when the plan carries cohorts;
+  // asking for it on a plan that does not is a 402 nobody reads.
+  const gate = usePlanGate();
+  const { data: secondVisit } = useTimeToSecondVisit({
+    enabled: gate.covers(planFor("Cohorts and time to second visit")),
+  });
   const rate = Math.max(0, Math.min(100, metrics.repeatRate));
   const band = bandFor(rate);
 
