@@ -34,7 +34,7 @@ export default function Home() {
       <section className="border-b border-[var(--line)] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-[1200px] gap-10 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:py-24">
           <div>
-            <Eyebrow>Metro Manila</Eyebrow>
+            <Eyebrow>Philippines</Eyebrow>
             <h1 className="mt-5 max-w-[14ch] text-5xl font-bold leading-[0.98] tracking-[-0.025em] sm:text-6xl lg:text-7xl">
               Rewards from the shops around you
             </h1>

@@ -1097,7 +1097,7 @@
     "consentHistory": [
       {
         "id": "con_1",
-        "change": "Created a KYPStamping wallet",
+        "change": "Created a KYP Stamping wallet",
         "scope": "Account",
         "occurredAt": "2026-02-12"
       },
@@ -1459,7 +1459,7 @@
     "adapters": [
       {
         "id": "sidecar",
-        "name": "KYPStamping terminal",
+        "name": "KYP Stamping terminal",
         "category": "POS-independent",
         "status": "Available",
         "connected": 42,
@@ -1525,7 +1525,7 @@
       {
         "businessId": "biz_3",
         "business": "Aster Wellness",
-        "adapter": "KYPStamping terminal",
+        "adapter": "KYP Stamping terminal",
         "branches": "4 / 4",
         "credential": "Device keys managed",
         "events": 6392,

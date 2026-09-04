@@ -513,7 +513,7 @@ export default function FeaturesPage() {
             <p className="max-w-[56ch] text-base leading-relaxed text-[var(--muted-strong)]">
               Every global loyalty tool bills in dollars, emails in English and
               assumes a card reader. Here is what changes when the product is
-              made in Manila for shops in Manila, Cebu and Davao.
+              made in Manila for shops anywhere in the Philippines.
             </p>
           </div>
           <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

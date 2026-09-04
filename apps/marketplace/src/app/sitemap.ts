@@ -16,6 +16,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     at("/discover", 0.9),
     at("/how-it-works", 0.6),
     at("/for-shops", 0.4),
+    at("/privacy", 0.3),
+    at("/terms", 0.3),
     ...categories.map((f) => at(categoryPath(f.name), 0.7)),
     ...neighborhoods.map((f) => at(neighborhoodPath(f.name), 0.7)),
     ...shops.map((shop) => at(shopPath(shop.slug), 0.8)),

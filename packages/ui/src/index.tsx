@@ -36,7 +36,17 @@ export function brandColor(token: string) {
 
 type BrandMarkProps = {
   compact?: boolean;
+  /** On a dark ink ground: gold wordmark, white tagline. */
   inverse?: boolean;
+  /**
+   * On the amber `--accent` ground, where both other tones fail.
+   *
+   * Amber is a light colour (relative luminance 0.42), so the instinct to go
+   * white is wrong: white on it measures 2.16:1, worse than the 2.80:1 of the
+   * default gold wordmark, and the muted tagline sat at 2.70:1. Ink reads
+   * 8.61:1 and ink-soft 7.14:1, both clear of AA at any size.
+   */
+  onAccent?: boolean;
   /** "KYP Stamping" on merchant surfaces; "KYP" alone on kyp.ph and the wallet. */
   label?: string;
   /** The lockup line under the wordmark. `null` removes it. */
@@ -102,6 +112,7 @@ export function SealMark({
 export function BrandMark({
   compact = false,
   inverse = false,
+  onAccent = false,
   label = "KYP Stamping",
   tagline = "Keep stamping · Earn the reward",
 }: BrandMarkProps) {
@@ -115,9 +126,11 @@ export function BrandMark({
               <>
                 <span
                   className={
-                    inverse
-                      ? "text-[var(--accent)]"
-                      : "text-[var(--accent-strong)]"
+                    onAccent
+                      ? "text-[var(--ink)]"
+                      : inverse
+                        ? "text-[var(--accent)]"
+                        : "text-[var(--accent-strong)]"
                   }
                 >
                   KYP
@@ -134,7 +147,11 @@ export function BrandMark({
           {tagline ? (
             <span
               className={`mt-1 block font-mono text-[9px] font-semibold uppercase tracking-[0.14em] ${
-                inverse ? "text-white/55" : "text-[var(--muted)]"
+                onAccent
+                  ? "text-[var(--ink-soft)]"
+                  : inverse
+                    ? "text-white/55"
+                    : "text-[var(--muted)]"
               }`}
             >
               {tagline}

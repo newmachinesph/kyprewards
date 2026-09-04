@@ -101,7 +101,10 @@ export default function RootLayout({
                 "@type": "Organization",
                 "@id": `${siteUrl}/#organization`,
                 name: "KYP Stamping",
-                alternateName: ["KYPStamping", "KYP"],
+                // The unspaced spelling stays only as an alternate: people do
+                // search it, and an alternateName is what that field is for.
+                // Everything a reader sees says "KYP Stamping".
+                alternateName: ["KYP Stamping", "KYPStamping", "KYP"],
                 url: siteUrl,
                 description:
                   "A digital loyalty platform designed for Philippine local businesses.",

@@ -22,7 +22,10 @@ export function SiteHeader() {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex h-[72px] max-w-[1200px] items-center gap-6">
           <Link href="/" className="focus-ring shrink-0 rounded-xl" aria-label="KYP home">
-            <BrandMark label="KYP" tagline="Rewards from the shops around you" />
+            {/* No tagline in the bar: at nav size the line ran wider than the
+                mark it belongs to and pushed the links about. It still sits
+                under the mark in the footer, where there is room for it. */}
+            <BrandMark label="KYP" tagline={null} />
           </Link>
           <nav className="hidden items-center gap-0.5 md:flex" aria-label="Primary navigation">
             {links.map((link) => (

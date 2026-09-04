@@ -43,6 +43,7 @@ import {
 } from "@kypstamping/api";
 import Link from "next/link";
 import { BrandMark, StampDots } from "./index";
+import { displayMobile, normalizeMobile, toE164 } from "./format";
 
 /*
  * The password and verification code that used to live here were checked in
@@ -106,6 +107,17 @@ const noPendingShopOnServer = () => "";
  *  relative path these apps do not serve. */
 const marketingSiteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://kypstamping.ph";
+
+/**
+ * Where a *shopper's* terms and privacy notice live.
+ *
+ * kypstamping.ph is the merchant side and its legal pages are written for
+ * somebody running a shop: workspaces, staff accounts, billing. A person
+ * joining a loyalty card is not that reader, and sending them there to agree
+ * to it was asking for consent to the wrong document.
+ */
+const shopperSiteUrl =
+  process.env.NEXT_PUBLIC_MARKETPLACE_URL ?? "https://kyp.ph";
 
 export type DemoAuthRole = "business" | "admin" | "customer";
 export type DemoAuthMode =
@@ -281,7 +293,10 @@ function CustomerAuthShell({
     <main className="customer-auth min-h-[100dvh] bg-[#d9d5ce] sm:px-5 sm:py-6">
       <section className="phone-shell relative mx-auto flex min-h-[100dvh] max-w-[460px] flex-col overflow-hidden border-x border-[rgb(24_18_12/8%)] bg-[var(--accent)] sm:min-h-[calc(100dvh-3rem)] sm:rounded-[var(--radius-card)] sm:border sm:shadow-[0_28px_90px_rgb(24_18_12/20%)]">
         <header className="flex items-center justify-between gap-4 px-5 pb-4 pt-[max(1.1rem,env(safe-area-inset-top))]">
-          <BrandMark label="KYP" tagline="One card for every shop" />
+          {/* Ink, not white: this header sits on the amber `--accent`, which
+              is a light ground. White on it measures 2.16:1 and the default
+              gold wordmark 2.80:1 - both below AA. Ink is 8.61:1. */}
+          <BrandMark onAccent label="KYP" tagline="One card for every shop" />
         </header>
 
         <div className="px-5 pb-5">
@@ -293,9 +308,6 @@ function CustomerAuthShell({
           <div className="mt-5 flex items-center justify-between gap-4">
             <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[var(--accent-strong)]">
               {stageLabel}
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-[var(--success)]">
-              <span className="size-1.5 rounded-full bg-[var(--success)]" /> Private by default
             </span>
           </div>
           <h1 className="mt-3 text-[2rem] font-extrabold leading-[0.98] tracking-[-0.03em]">
@@ -506,7 +518,11 @@ function BirthdayField({
   const limit = month ? daysIn(Number(month)) : 31;
   return (
     <fieldset className="grid gap-2">
-      <legend className="text-xs font-extrabold text-[var(--ink)]">
+      {/* A legend is laid out by the browser outside the fieldset's own box,
+          so the grid `gap-2` never applied between it and the selects and
+          this label sat flush against them while every sibling field had
+          8px. The margin restores the spacing the grid could not give it. */}
+      <legend className="mb-2 text-xs font-extrabold text-[var(--ink)]">
         Birthday, optional
       </legend>
       <div className="grid grid-cols-2 gap-3">
@@ -582,6 +598,64 @@ function Field({
         onChange={(event) => onChange(event.target.value)}
         className="min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-sm font-semibold outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
       />
+    </label>
+  );
+}
+
+/**
+ * A Philippine mobile number, with the country code already on the form.
+ *
+ * `+63` is printed into the field rather than typed: every customer of this
+ * product is in the Philippines, so asking each of them to type the same
+ * three characters - and to guess whether it wants `+63`, `0` or neither -
+ * is work the form can do once. Ten digits go in, grouped as they are read
+ * aloud, and E.164 comes back out, which is the only spelling the API should
+ * ever be handed.
+ *
+ * Paste still works in every spelling: `normalizeMobile` takes `0917…`,
+ * `+63 917…` or `639…` down to the same ten digits.
+ */
+function MobileField({
+  label,
+  value,
+  onChange,
+  autoComplete = "tel",
+}: {
+  label: string;
+  /** E.164, or "" while the number is incomplete. */
+  value: string;
+  onChange: (e164: string) => void;
+  autoComplete?: string;
+}) {
+  const national = normalizeMobile(value);
+  return (
+    <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
+      {label}
+      <span className="flex min-h-12 items-center gap-2 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 transition focus-within:border-[var(--accent-strong)]">
+        <span aria-hidden="true" className="text-sm font-bold text-[var(--muted-strong)]">
+          +63
+        </span>
+        <span className="h-5 w-px bg-[var(--line-strong)]" aria-hidden="true" />
+        <input
+          type="tel"
+          inputMode="numeric"
+          autoComplete={autoComplete}
+          // The grouped form is what is shown; the digits are what is kept.
+          value={displayMobile(national)}
+          placeholder="917 555 0182"
+          aria-describedby="mobile-hint"
+          onChange={(event) => {
+            const digits = normalizeMobile(event.target.value);
+            // E.164 once it is a whole number, "" until then, so a caller
+            // never sends the API half a number.
+            onChange(toE164(digits) || digits);
+          }}
+          className="min-w-0 flex-1 bg-transparent py-3 text-sm font-semibold outline-none placeholder:font-normal placeholder:text-[var(--muted)]"
+        />
+      </span>
+      <span id="mobile-hint" className="text-[11px] font-semibold text-[var(--muted-strong)]">
+        Ten digits, starting with 9.
+      </span>
     </label>
   );
 }
@@ -874,20 +948,22 @@ export function DemoAuthFlow({
           </div>
         )}
         <form onSubmit={submitLogin} className="space-y-5" noValidate>
-          <Field
-            label={role === "customer" ? (channel === "mobile" ? "Mobile number" : "Email address") : config.identifierLabel}
-            type={role === "customer" && channel === "mobile" ? "tel" : "email"}
-            value={identifier}
-            onChange={setIdentifier}
-            // The hint follows the toggle. A customer who switched to email
-            // was still shown a mobile number as the example.
-            placeholder={
-              role === "customer" && channel === "email"
-                ? "jacqueline.daniel@example.com"
-                : config.identifier
-            }
-            autoComplete={role === "customer" && channel === "mobile" ? "tel" : "email"}
-          />
+          {role === "customer" && channel === "mobile" ? (
+            <MobileField label="Mobile number" value={identifier} onChange={setIdentifier} />
+          ) : (
+            <Field
+              label={role === "customer" ? "Email address" : config.identifierLabel}
+              type={role === "customer" ? "email" : config.identifierType}
+              value={identifier}
+              onChange={setIdentifier}
+              // The hint follows the toggle. A customer who switched to email
+              // was still shown a mobile number as the example.
+              placeholder={
+                role === "customer" ? "jacqueline.daniel@example.com" : config.identifier
+              }
+              autoComplete={role === "customer" ? "email" : "email"}
+            />
+          )}
           {role !== "customer" && (
             <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
               Password
@@ -928,12 +1004,29 @@ export function DemoAuthFlow({
           </PrimaryButton>
         </form>
 
-        {(role === "customer" || role === "business") && (
+        {role === "customer" && (
           <p className="mt-6 text-center text-xs text-[var(--muted-strong)]">
             New to KYP?{" "}
             <a href="/create-account" className="font-extrabold text-[var(--accent-strong)] hover:underline">
-              {role === "business" ? "Create a business account" : "Create your wallet"}
+              Create your wallet
             </a>
+          </p>
+        )}
+        {/* No self-registration for shops. A workspace exists because an
+            application was approved, so the only honest link here is to the
+            application - offering "create a business account" invited people
+            past the queue that decides who gets one. */}
+        {role === "business" && (
+          <p className="mt-6 text-center text-xs leading-relaxed text-[var(--muted-strong)]">
+            New shop?{" "}
+            <a
+              href={`${marketingSiteUrl}/partners`}
+              className="font-extrabold text-[var(--accent-strong)] hover:underline"
+            >
+              Apply to join
+            </a>
+            . We set up your workspace once the application is approved, and email you the
+            way in.
           </p>
         )}
       </AuthShell>
@@ -1184,7 +1277,7 @@ export function DemoAuthFlow({
           <Field label="Business name" value={businessName} onChange={setBusinessName} autoComplete="organization" />
           <Field label="Your full name" value={name} onChange={setName} autoComplete="name" />
           <Field label="Work email" type="email" value={identifier} onChange={setIdentifier} autoComplete="email" />
-          <Field label="Mobile number" type="tel" value={email} onChange={setEmail} autoComplete="tel" />
+          <MobileField label="Mobile number" value={email} onChange={setEmail} />
           <label className="grid gap-2 text-xs font-extrabold">
             Password
             <span className="relative flex items-center">
@@ -1310,7 +1403,7 @@ export function DemoAuthFlow({
           className="space-y-5"
         >
           <Field label="Full name" value={name} onChange={setName} autoComplete="name" />
-          <Field label="Mobile number" type="tel" value={identifier} onChange={setIdentifier} autoComplete="tel" />
+          <MobileField label="Mobile number" value={identifier} onChange={setIdentifier} />
           <Field label="Email, optional" type="email" value={email} onChange={setEmail} autoComplete="email" required={false} />
           <BirthdayField
             day={birthdayDay}
@@ -1323,7 +1416,7 @@ export function DemoAuthFlow({
             <span>
               I agree to the{" "}
               <a
-                href={`${marketingSiteUrl}/terms`}
+                href={`${shopperSiteUrl}/terms`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-bold underline underline-offset-2"
@@ -1332,7 +1425,7 @@ export function DemoAuthFlow({
               </a>{" "}
               and the{" "}
               <a
-                href={`${marketingSiteUrl}/privacy`}
+                href={`${shopperSiteUrl}/privacy`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-bold underline underline-offset-2"

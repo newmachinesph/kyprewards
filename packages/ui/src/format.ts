@@ -230,3 +230,35 @@ export function looksLikeMemberCode(typed: string): boolean {
   if (trimmed.startsWith("+")) return false;
   return trimmed.replace(/\D/g, "").length === 13;
 }
+
+/* ── Philippine mobile numbers ──────────────────────────────────────────
+   Shared by every form that asks for one, so the marketing site's partner
+   intake and the wallet's sign-in agree about what a number looks like.
+   These moved here from the intake form when the wallet needed them too. */
+
+/**
+ * Any way a Filipino writes their own number, into the ten national digits.
+ *
+ * `0917…`, `+63917…`, `63917…`, and the same with spaces or dashes all mean
+ * the same person. Rejecting nine of those ten spellings is a form blaming
+ * somebody for its own narrowness.
+ */
+export function normalizeMobile(typed: string): string {
+  const digits = typed.replace(/\D/g, "");
+  if (digits.startsWith("63")) return digits.slice(2, 12);
+  if (digits.startsWith("0")) return digits.slice(1, 11);
+  return digits.slice(0, 10);
+}
+
+/** `917 555 0182` — grouped the way it is read aloud. */
+export function displayMobile(national: string): string {
+  const [, a = "", b = "", c = ""] = /^(\d{0,3})(\d{0,3})(\d{0,4})$/.exec(national) ?? [];
+  return [a, b, c].filter(Boolean).join(" ");
+}
+
+/** Ten digits starting with 9. The carrier prefix is the API's business. */
+export const isCompleteMobile = (national: string) => /^9\d{9}$/.test(national);
+
+/** The ten national digits as the API wants them. `""` while incomplete. */
+export const toE164 = (national: string) =>
+  isCompleteMobile(national) ? `+63${national}` : "";

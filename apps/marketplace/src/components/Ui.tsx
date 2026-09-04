@@ -97,3 +97,30 @@ export function Section({
     </section>
   );
 }
+
+/**
+ * What a listing surface says when it has nothing to list.
+ *
+ * A directory with no shops in it is a normal state for a new marketplace,
+ * not an error - but rendering nothing at all reads as a broken page, which
+ * is what the home page did before this existed.
+ */
+export function EmptyState({
+  title,
+  children,
+  action,
+}: {
+  title: string;
+  children: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-dashed border-[var(--line-strong)] p-10 text-center">
+      <p className="text-lg font-bold">{title}</p>
+      <p className="mx-auto mt-2 max-w-[46ch] text-sm leading-relaxed text-[var(--muted-strong)]">
+        {children}
+      </p>
+      {action ? <div className="mt-6 flex justify-center">{action}</div> : null}
+    </div>
+  );
+}

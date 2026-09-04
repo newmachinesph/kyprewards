@@ -34,7 +34,7 @@ export default function Image() {
             Rewards from the shops around you
           </div>
           <div style={{ display: "flex", fontSize: 26, color: muted, letterSpacing: 4, textTransform: "uppercase" }}>
-            kyp.ph · Metro Manila
+            kyp.ph · Philippines
           </div>
         </div>
       </div>

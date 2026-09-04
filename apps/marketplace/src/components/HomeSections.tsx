@@ -6,6 +6,7 @@ import { isPreview, usePublicCategories, usePublicDiscover } from "@kypstamping/
 import { PreviewBadge, QueryBoundary } from "@kypstamping/ui";
 import { ArrowRight, LocateFixed } from "lucide-react";
 import { categoryPath } from "@/lib/routes";
+import { ActionLink, EmptyState } from "./Ui";
 import { ShopCard } from "./ShopCard";
 import { useCoordinates } from "./useCoordinates";
 
@@ -19,6 +20,11 @@ export function CategoryChips() {
       label="categories"
       rows={1}
     >
+      {categories.data?.length === 0 && (
+        <p className="text-sm text-[var(--muted-strong)]">
+          Categories appear here as shops join.
+        </p>
+      )}
       <ul className="flex flex-wrap gap-2" aria-label="Categories">
         {categories.data?.map((facet) => (
           <li key={facet.name}>
@@ -81,6 +87,23 @@ export function FeaturedRow() {
       label="featured shops"
       rows={2}
     >
+      {/* A directory with nothing in it is where this marketplace starts, so
+          it says so. Rendering nothing at all - which is what an empty
+          `picks` used to do - leaves a blank band under the hero that reads
+          as a page that failed to load. */}
+      {picks.length === 0 && (
+        <EmptyState
+          title="No shops listed yet"
+          action={
+            <ActionLink href="/for-shops" tone="dark">
+              Run a shop? Get listed
+            </ActionLink>
+          }
+        >
+          Shops appear here the moment they switch on a loyalty card — every one of them, on
+          every plan, with no placement to buy. We are signing up the first ones now.
+        </EmptyState>
+      )}
       {picks.length > 0 && (
         <div>
           <div className="flex flex-wrap items-end justify-between gap-3">

@@ -21,8 +21,11 @@ const groups = [
   {
     title: "Legal",
     links: [
-      ["Privacy", `${merchantSiteUrl}/privacy`],
-      ["Terms", `${merchantSiteUrl}/terms`],
+      // kyp.ph's own, written for shoppers. The merchant notice on
+      // kypstamping.ph is about workspaces, staff and billing - not the
+      // document a person joining a stamp card should be reading.
+      ["Privacy", "/privacy"],
+      ["Terms", "/terms"],
     ],
   },
 ];
@@ -67,8 +70,8 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-[var(--line)] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-[1200px] flex-col gap-2 py-5 text-[11px] font-semibold text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
-          <span>KYP is operated by KYPStamping.</span>
-          <span>Metro Manila first.</span>
+          <span>KYP is operated by KYP Solutions.</span>
+          <span>Shops across the Philippines.</span>
         </div>
       </div>
     </footer>
