@@ -114,8 +114,12 @@ await step("open notifications", async () => {
 });
 
 await step("open the profile", async () => {
-  await p.getByRole("button", { name: "Profile" }).last().click();
+  // Notifications is a sheet over the tab bar now, so the tab is reached by
+  // its hash the way the two steps above reach theirs.
+  await p.goto(`${BASE}/#profile`, { waitUntil: "networkidle" });
   await p.waitForTimeout(2000);
+  const heading = await p.locator("main").innerText();
+  if (!/profile/i.test(heading)) throw new Error("the profile did not open");
 });
 
 await step("change a channel consent", async () => {

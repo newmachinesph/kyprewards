@@ -172,15 +172,13 @@ build renders typed sample data under a "Preview, not connected" badge
 | admin-web | complete: applications with founding status, businesses, add-ons, the two billing flags, honest transport health | `apps/admin-web/AGENTS.md` |
 | marketplace | complete: directory, filters, shop pages, how it works, the two doors, sitemap; preview shops until the public Discover routes ship | `apps/marketplace/AGENTS.md` |
 
-The backend implements the eight program types, campaigns, journeys,
-analytics, roles, imports, branding, approvals, the offline queue and
-geofencing (`../backend/BACKLOG.md`). It does **not** yet implement the
-pending welcome stamp (today `/customer/first-stamp/claim` writes a real
-stamp from a two-hour offer), the cooldown, minimum spend, stamp expiry,
-customer-approved redemption, target grandfathering, or the Core and Grow
-levers added on 2026-09-03 (bonus windows, promo codes, store credit, suki
-tiers, missions, category earning, gifting). Frontend work on any of those
-starts by asking the backend for the endpoint, not by simulating it.
+The backend caught up on 2026-09-04: the stamp-card rules including the D8
+conditions, customer-approved redemption, the pending welcome stamp, the
+public Discover routes, founding merchants, web push, billing over QR Ph
+behind the two flags, add-ons, the two email senders, and the Core and Grow
+levers all answer from the API (`../backend/PROJECT.md`). Preview mode now
+only fills what is still missing on a given response; a screen showing the
+badge locally is pointing at a route to check in `../backend/CONTRACT.md`.
 
 ## Decided on 2026-09-04 (`../PLAN.md`, D1 to D8)
 

@@ -226,6 +226,10 @@ export type BusinessCustomer = {
    *  merchant's view, not the customer's. Empty where sales carry no branch. */
   homeBranch: string;
   branches: string[];
+  /** Peso credit issued by hand, the membership's balance. Absent before the levers shipped. */
+  storeCreditCentavos?: number;
+  /** The suki tier's name, or null when the shop runs no ladder. */
+  tier?: string | null;
 };
 
 export type Program = {

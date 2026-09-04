@@ -100,13 +100,16 @@ await step("a real join code shows the shop, an unknown one does not", async () 
   }, API);
   if (known.status !== 200) throw new Error(`join API answered ${known.status}`);
 
-  await p.goto(`${BASE}/join/sweet-crumbs-kapitolyo`, { waitUntil: "networkidle" });
+  // The poster lands on the customer domain since the two-domain split; the
+  // marketing site no longer serves /join at all.
+  const WALLET = process.env.CUSTOMER_APP_URL ?? "http://localhost:3002";
+  await p.goto(`${WALLET}/join/sweet-crumbs-kapitolyo`, { waitUntil: "networkidle" });
   const shown = await p.locator("body").innerText();
-  if (!shown.includes(known.body.business)) {
+  if (!shown.includes(known.body.business) && !shown.includes(known.body.shortName)) {
     throw new Error(`page does not name ${known.body.business}`);
   }
 
-  const missed = await p.goto(`${BASE}/join/not-a-real-shop`, { waitUntil: "networkidle" });
+  const missed = await p.goto(`${WALLET}/join/not-a-real-shop`, { waitUntil: "networkidle" });
   const missing = await p.locator("body").innerText();
 
   // The important half: a made-up code must never render as a real shop.
@@ -165,7 +168,8 @@ await step("only the free tier is buyable, the rest say coming soon", async () =
     if (!text.includes(name)) throw new Error(`${name} is missing from the page`);
   }
 
-  const live = p.getByRole("link", { name: /start free/i }).first();
+  // "Apply to join": the free plan is entered by application during the beta.
+  const live = p.getByRole("link", { name: /apply to join|start free/i }).first();
   if (!(await live.count())) throw new Error("the free plan has no working call to action");
 
   // And nothing clickable is pretending to sell them.

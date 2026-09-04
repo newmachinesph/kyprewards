@@ -792,3 +792,345 @@ describe("durability", () => {
     );
   });
 });
+
+/* ── Ahead of the backend, now behind it ─────────────────────────────
+   The routes the frontend built against before they existed. Each case
+   asserts on the real body, so the day a shape drifts the app finds out
+   here rather than in a wallet. */
+
+describe("the public marketplace", () => {
+  let api: typeof import("./endpoints.ts");
+  persona = "customer";
+
+  before(async () => {
+    if (!reachable) return;
+    api = await import("./endpoints.ts");
+  });
+
+  live("discover lists every shop with a live program, featured first", async () => {
+    const page = await api.getPublicDiscover({ limit: 50 });
+
+    assert.ok(page.items.length > 0, "no shops listed");
+    assert.equal(page.total, page.items.length);
+    const first = page.items[0];
+    for (const key of ["slug", "name", "category", "neighborhood", "reward", "about"]) {
+      assert.equal(typeof (first as Record<string, unknown>)[key], "string", key);
+    }
+    assert.equal(typeof first.featured, "boolean");
+    assert.equal(typeof first.open, "boolean");
+    assert.ok(Array.isArray(first.hours));
+    assert.ok(Array.isArray(first.branches));
+    assert.ok(first.branches.length > 0, "a shop with no branches cannot be joined");
+    assert.equal(typeof first.branches[0].slug, "string");
+    // Featured rows never trail an unfeatured one.
+    const firstPlain = page.items.findIndex((s) => !s.featured);
+    const lastFeatured = page.items.map((s) => s.featured).lastIndexOf(true);
+    assert.ok(firstPlain === -1 || lastFeatured < firstPlain, "featured after plain");
+    // Never a sample row from the API.
+    assert.equal((first as { preview?: boolean }).preview, undefined);
+  });
+
+  live("a branch slug from discover resolves on the poster route", async () => {
+    const page = await api.getPublicDiscover({ limit: 5 });
+    const branch = page.items[0].branches[0];
+    const poster = await api.getJoinPage(branch.slug);
+
+    assert.equal(poster.branch, branch.name);
+  });
+
+  live("one shop by slug, and the facets", async () => {
+    const page = await api.getPublicDiscover({ limit: 1 });
+    const shop = await api.getPublicShop(page.items[0].slug);
+    assert.equal(shop.slug, page.items[0].slug);
+
+    const [categories, neighborhoods] = await Promise.all([
+      api.getPublicCategories(),
+      api.getPublicNeighborhoods(),
+    ]);
+    assert.ok(categories.length > 0);
+    assert.equal(typeof categories[0].name, "string");
+    assert.ok(Number.isInteger(categories[0].count));
+    assert.ok(neighborhoods.length > 0);
+  });
+
+  live("distance is metres when a position is sent", async () => {
+    const page = await api.getPublicDiscover({ lat: 14.5716, lng: 121.0602, limit: 5 });
+    const near = page.items.find((s) => s.distanceMetres !== null);
+    assert.ok(near, "no shop carries a distance");
+    assert.ok(Number.isInteger(near.distanceMetres));
+  });
+
+  live("the push state names whether push is configured", async () => {
+    const state = await api.getPushState();
+    assert.equal(typeof state.vapidPublicKey, "string");
+    assert.equal(typeof state.subscribed, "boolean");
+  });
+});
+
+describe("billing behind the flags", () => {
+  let api: typeof import("./endpoints.ts");
+  persona = "owner";
+
+  before(async () => {
+    if (!reachable) return;
+    api = await import("./endpoints.ts");
+  });
+
+  live("billing carries the two flags and QR Ph as the only method", async () => {
+    const billing = await api.getBilling();
+
+    assert.equal(typeof billing.paidTiersOpen, "boolean");
+    assert.equal(typeof billing.creditPurchasesOpen, "boolean");
+    assert.deepEqual(billing.paymentMethods, ["qrph"]);
+    assert.equal(typeof billing.founding, "boolean");
+    assert.equal(billing.foundingCreditMonths, 3);
+  });
+
+  live("a paid tier is refused while the flag is off, with the beta wording", async () => {
+    const billing = await api.getBilling();
+    if (billing.paidTiersOpen) return;
+    const { ApiError } = await import("./http.ts");
+    await assert.rejects(
+      api.changePlan("Core"),
+      (error: unknown) =>
+        error instanceof ApiError && error.status === 409 && /beta|not open/i.test(error.message),
+    );
+  });
+
+  live("credit purchase is refused while its flag is off", async () => {
+    const billing = await api.getBilling();
+    if (billing.creditPurchasesOpen) return;
+    const { ApiError } = await import("./http.ts");
+    await assert.rejects(
+      api.purchaseCredits({ bundle: "payg", segments: 100 }),
+      (error: unknown) => error instanceof ApiError && error.status === 409,
+    );
+  });
+
+  live("featured placement answers with its source and the add-on price", async () => {
+    const featured = await api.getFeaturedPlacement();
+    assert.equal(typeof featured.active, "boolean");
+    assert.ok([null, "plan", "addon"].includes(featured.source));
+    assert.equal(featured.priceCentavos, 29_900);
+  });
+});
+
+describe("the stamp card, as sold", () => {
+  let api: typeof import("./endpoints.ts");
+  persona = "owner";
+
+  before(async () => {
+    if (!reachable) return;
+    api = await import("./endpoints.ts");
+  });
+
+  live("a stamp program carries every rule the site publishes", async () => {
+    const programs = await api.getPrograms();
+    const stamps = programs.find((p) => p.type === "Stamps");
+    assert.ok(stamps, "no stamp program");
+    assert.ok(stamps.rules, "no rules on the stamp program");
+    const rules = stamps.rules;
+    assert.equal(typeof rules.welcomeStamp, "boolean");
+    for (const key of ["cooldownMinutes", "minSpendCentavos", "expiryDays", "rewardGraceDays", "maxCompletions"] as const) {
+      assert.ok(Number.isInteger(rules[key]), key);
+    }
+    assert.ok(["expire", "carryOver"].includes(rules.onClose));
+    assert.ok(rules.startsAt === null || isIso(rules.startsAt));
+    assert.ok(rules.endsAt === null || isIso(rules.endsAt));
+    // A program that is not a stamp card carries no rules.
+    const other = programs.find((p) => p.type !== "Stamps");
+    if (other) assert.equal(other.rules ?? null, null);
+  });
+
+  live("a target above thirty is refused on the field", async () => {
+    const stamps = (await api.getPrograms()).find((p) => p.type === "Stamps");
+    assert.ok(stamps);
+    const { ApiError, fieldErrors } = await import("./http.ts");
+    await assert.rejects(
+      api.updateProgram(stamps.id, { target: 31 }),
+      (error: unknown) =>
+        error instanceof ApiError &&
+        error.status === 422 &&
+        fieldErrors(error).some((f) => f.field === "target"),
+    );
+  });
+
+  live("the close preview counts open cards for either outcome", async () => {
+    const stamps = (await api.getPrograms()).find((p) => p.type === "Stamps");
+    assert.ok(stamps);
+    const preview = await api.previewClose(stamps.id, "expire");
+    for (const key of ["openCards", "expiring", "carriedOver", "heldRewards"] as const) {
+      assert.ok(Number.isInteger(preview[key]), key);
+    }
+    assert.equal(preview.carriedOver, 0);
+  });
+});
+
+describe("the Core and Grow levers", () => {
+  let api: typeof import("./endpoints.ts");
+  persona = "owner";
+
+  before(async () => {
+    if (!reachable) return;
+    api = await import("./endpoints.ts");
+  });
+
+  live("bonus windows carry their schedule, status and an estimated cost", async () => {
+    const windows = await api.getBonusWindows();
+    assert.ok(Array.isArray(windows));
+    for (const w of windows) {
+      assert.ok(Number.isFinite(w.multiplier) && w.multiplier >= 1);
+      assert.ok(Array.isArray(w.days));
+      assert.ok(["scheduled", "live", "paused", "ended"].includes(w.status), w.status);
+      assert.ok(isCentavos(w.estimatedCostCentavos));
+      assert.ok(Number.isInteger(w.stampsGranted));
+      assert.equal((w as { preview?: boolean }).preview, undefined);
+    }
+  });
+
+  live("promo codes are uppercase and say what they grant", async () => {
+    const codes = await api.getPromoCodes();
+    for (const c of codes) {
+      assert.equal(c.code, c.code.toUpperCase());
+      assert.ok(["stamp", "points", "coupon"].includes(c.grants));
+      assert.ok(["active", "paused", "ended"].includes(c.status));
+      assert.ok(Number.isInteger(c.redemptions));
+    }
+  });
+
+  live("store credit is signed centavos with a running balance and a reason", async () => {
+    const entries = await api.getStoreCredit();
+    for (const e of entries) {
+      assert.ok(isCentavos(e.amountCentavos));
+      assert.ok(isCentavos(e.balanceAfterCentavos));
+      assert.equal(typeof e.reason, "string");
+      assert.ok(isIso(e.occurredAt));
+    }
+  });
+
+  live("suki tiers climb by rank with a benefit and an earn rate", async () => {
+    const program = await api.getSukiTiers();
+    assert.ok(["visits", "spend"].includes(program.basis));
+    assert.ok(Number.isInteger(program.downgradeAfterDays));
+    const ranks = program.tiers.map((t) => t.rank);
+    assert.deepEqual(ranks, [...ranks].sort((a, b) => a - b));
+    for (const t of program.tiers) {
+      assert.equal(typeof t.benefit, "string");
+      assert.ok(Number.isInteger(t.earnRateBps) && t.earnRateBps >= 10_000);
+    }
+  });
+
+  live("missions carry a goal, a window and a bonus", async () => {
+    const missions = await api.getMissions();
+    for (const m of missions) {
+      assert.ok(["visits", "items", "spend"].includes(m.goal));
+      assert.ok(Number.isInteger(m.targetCount) && m.targetCount > 0);
+      assert.ok(["scheduled", "live", "ended"].includes(m.status));
+      assert.match(m.endsOn, /^\d{4}-\d{2}-\d{2}$/);
+    }
+  });
+
+  live("gifts name both members and where they went", async () => {
+    const gifts = await api.getBusinessGifts();
+    for (const g of gifts) {
+      assert.ok(["reward", "points"].includes(g.kind));
+      assert.equal(typeof g.fromName, "string");
+      assert.equal(typeof g.toName, "string");
+      assert.ok(isIso(g.sentAt));
+    }
+  });
+
+  live("category rates are basis points per category", async () => {
+    const points = (await api.getPrograms()).find((p) => p.type === "Points");
+    if (!points) return;
+    const rates = await api.getCategoryRates(points.id);
+    for (const r of rates) {
+      assert.equal(typeof r.category, "string");
+      assert.ok(Number.isInteger(r.rateBps));
+      assert.ok(Array.isArray(r.items));
+    }
+  });
+});
+
+describe("the wallet's card states", () => {
+  let api: typeof import("./endpoints.ts");
+  persona = "customer";
+
+  before(async () => {
+    if (!reachable) return;
+    api = await import("./endpoints.ts");
+  });
+
+  live("every card names its state, plan and badge, and its own target", async () => {
+    const cards = await api.getWallet();
+    assert.ok(cards.length > 0, "no cards");
+    for (const card of cards) {
+      assert.ok(
+        ["pending", "active", "completed", "closed"].includes(card.state ?? ""),
+        `card state ${String(card.state)}`,
+      );
+      assert.equal(typeof card.badge, "boolean");
+      assert.ok(["Launch", "Core", "Grow", "Scale"].includes(card.plan ?? ""));
+      assert.ok(Number.isInteger(card.target));
+      assert.ok(card.pendingStamp === null || isIso(card.pendingStamp?.expiresAt));
+      assert.equal((card as { preview?: boolean }).preview, undefined);
+    }
+    const stamps = cards.find((c) => c.kind === "Stamps");
+    assert.ok(stamps?.rules, "a stamp card carries its rules");
+  });
+
+  live("gifts sent and received carry a direction", async () => {
+    const gifts = await api.getCustomerGifts();
+    assert.ok(Array.isArray(gifts));
+    for (const g of gifts) assert.ok(["sent", "received"].includes(g.direction));
+  });
+
+  live("a promo code for a shop the customer never joined is refused plainly", async () => {
+    const { ApiError } = await import("./http.ts");
+    await assert.rejects(
+      api.redeemPromoCode({ businessId: "biz_does_not_exist", code: "WELCOME" }),
+      (error: unknown) => error instanceof ApiError && [404, 409].includes(error.status),
+    );
+  });
+
+  live("pending approvals is a list, empty or not", async () => {
+    const pending = await api.getPendingApprovals();
+    assert.ok(Array.isArray(pending));
+    for (const row of pending) {
+      assert.ok(isIso(row.expiresAt));
+      assert.ok(isCentavos(row.valueCentavos));
+    }
+  });
+});
+
+describe("founding merchants and add-ons", () => {
+  let api: typeof import("./endpoints.ts");
+  persona = "admin";
+
+  before(async () => {
+    if (!reachable) return;
+    api = await import("./endpoints.ts");
+  });
+
+  live("tenants carry founding and featured", async () => {
+    const tenants = await api.getTenants();
+    assert.equal(typeof tenants[0].founding, "boolean");
+    assert.equal(typeof tenants[0].featured, "boolean");
+  });
+
+  live("applications carry founding and setup notes", async () => {
+    const applications = await api.getPartnerApplications();
+    if (applications.length === 0) return;
+    assert.equal(typeof applications[0].founding, "boolean");
+    assert.equal(typeof applications[0].setupNotes, "string");
+  });
+
+  live("add-ons list with a business name and centavos", async () => {
+    const addOns = await api.getAddOns();
+    for (const row of addOns) {
+      assert.equal(typeof row.business, "string");
+      assert.ok(isCentavos(row.priceCentavos));
+      assert.ok(["featured", "branch_reporting", "setup"].includes(row.addOn));
+    }
+  });
+});

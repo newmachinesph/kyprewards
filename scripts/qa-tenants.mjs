@@ -83,19 +83,45 @@ for (const shop of SHOPS) {
 /* ── Each shop's own customer, so nothing is shared ────────────────── */
 
 const members = new Map();
+const mobiles = new Map();
 for (const shop of SHOPS) {
   await check(`${shop.name}: a walk-in joins`, async () => {
+    const mobile = `+6391755${Math.floor(Math.random() * 9e4 + 1e4)}`;
     const made = await call(shop.who, "/customers", {
       method: "POST",
-      body: { name: `${shop.name} regular`, mobile: `+6391755${Math.floor(Math.random() * 9e4 + 1e4)}` },
+      body: { name: `${shop.name} regular`, mobile },
     });
     expect(made.status, 201, "create customer");
     if (!/^\d{13}$/.test(made.body.memberCode)) {
       throw new Error(`member code is not thirteen digits: ${made.body.memberCode}`);
     }
     members.set(shop.who, made.body.id);
+    mobiles.set(shop.who, mobile);
     return made.body.memberCode;
   });
+}
+
+/**
+ * The customer's own session, so they can approve a redemption on their
+ * phone: since the stamp-card rules landed, a reserved reward waits for
+ * `POST /customer/redemptions/{id}/approve` before the counter may commit.
+ * The one-time code is read back from the dev sink, as a person reads it
+ * from their phone.
+ */
+async function signInCustomer(who) {
+  const key = `${who}_customer`;
+  const mobile = mobiles.get(who);
+  const asked = await call(key, "/auth/otp/request", { method: "POST", body: { identifier: mobile } });
+  expect(asked.status, 200, "otp request");
+  const sent = await call(key, "/_dev/messages?purpose=otp&limit=1");
+  const code = sent.body?.[0]?.body?.match(/\d{6}/)?.[0];
+  if (!code) throw new Error("no one-time code reached the dev sink");
+  const verified = await call(key, "/auth/otp/verify", {
+    method: "POST",
+    body: { identifier: mobile, code },
+  });
+  expect(verified.status, 200, "otp verify");
+  return key;
 }
 
 /* ── Whatever each shop actually runs ──────────────────────────────── */
@@ -110,6 +136,14 @@ for (const shop of SHOPS) {
   if (runs("Stamps")) {
     await check(`${shop.name}: a stamp card fills and pays out`, async () => {
       const card = runs("Stamps");
+      // A real card earns once a day; this suite fills one in a sitting, so
+      // the shop sets its cooldown to zero first, the way a merchant would
+      // for a lunch-and-dinner service. The cooldown has its own tests.
+      const eased = await call(shop.who, `/business/programs/${card.id}`, {
+        method: "PATCH",
+        body: { cooldownMinutes: 0 },
+      });
+      expect(eased.status, 200, "set the cooldown to zero");
       for (let i = 0; i < card.target; i += 1) {
         const taken = await call(shop.who, "/transactions", {
           method: "POST",
@@ -132,6 +166,20 @@ for (const shop of SHOPS) {
         body: { customerId: customer },
       });
       expect(held.status, 201, "reserve");
+      expect(held.body.status, "awaiting_customer", "a reserve waits for the customer");
+      // Committing before the customer approves is refused.
+      const early = await call(shop.who, `/redemptions/${held.body.id}/commit`, { method: "POST" });
+      expect(early.status, 409, "commit before approval");
+      const asCustomer = await signInCustomer(shop.who);
+      const pending = await call(asCustomer, "/customer/redemptions/pending");
+      expect(pending.status, 200, "pending approvals");
+      if (!pending.body.some((row) => row.id === held.body.id)) {
+        throw new Error("the reservation is not waiting in the customer's wallet");
+      }
+      const approved = await call(asCustomer, `/customer/redemptions/${held.body.id}/approve`, {
+        method: "POST",
+      });
+      expect(approved.status, 200, "customer approves");
       const done = await call(shop.who, `/redemptions/${held.body.id}/commit`, { method: "POST" });
       expect(done.status, 200, "commit");
     });

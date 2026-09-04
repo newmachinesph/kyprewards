@@ -82,13 +82,12 @@ sheets on the customer domain, the six lever views, the billing view with
 the ladder in its off state and the QR Ph payment sheet, plan gating on
 every tier's feature. What is left:
 
-1. **Backend routes and fields to ship** before the preview badges go: the
-   `rules` block on a program and its PATCH, `POST /business/programs/{id}/close-preview`,
-   the outcome fields on `POST /transactions`, the `awaiting_customer`
-   redemption status, bonus windows, promo codes, store credit, suki tiers,
-   missions, gifts, category rates, featured placement, the billing flags on
-   `GET /business/billing`, `POST /business/credits/purchase`,
-   `GET /business/payments/{id}`, QR Ph on `POST /business/invoices/{id}/pay`.
+1. **Every route this app was built ahead of now exists** (2026-09-04): the
+   `rules` block and close preview, the transaction outcome fields, the
+   awaiting-customer redemption status, the six levers, category rates,
+   featured placement, the billing flags, credit purchase, payments and
+   QR Ph on invoices. A preview badge that still shows here means a real
+   404 worth investigating, not an unbuilt route.
 2. **Suki tier per customer** is not on `BusinessCustomer`; the customer
    drawer says "Arrives with suki tiers" until the API carries it.
 3. **Notification switches** write new keys (`notifyRedemptions`,

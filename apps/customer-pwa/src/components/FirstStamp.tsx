@@ -208,7 +208,7 @@ export function FirstStamp({ slug }: { slug: string }) {
             className="mt-8 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-7"
           >
             <h1 className="text-2xl font-extrabold tracking-[-0.02em]">
-              Something went sideways.
+              That join code did not work.
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">{failed}</p>
             {/* This page is what a printed poster points at, and it had no

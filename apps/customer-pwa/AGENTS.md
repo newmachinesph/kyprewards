@@ -86,15 +86,16 @@ Every write against an unbuilt route is disabled with
 
 ## Known gaps, in order
 
-1. **Backend routes and fields to ship** before the preview badges go:
-   card state, `pendingStamp`, `rules`, `nextStampAt`, `redeemBy`, `badge`,
-   `tier`, `bonusWindow`, `missions`, `storeCreditCentavos` on the wallet
-   card; `GET /customer/redemptions/pending` with approve and decline;
-   `GET`/`POST /customer/gifts`; `POST /customer/promo-codes/redeem`;
-   `GET /customer/push` with subscribe and unsubscribe. The pending stamp
-   sample counts it inside `progress`; `earnedStamps` in `cards.tsx`
-   subtracts it while `state === "pending"`. If the backend ships
-   `progress` excluding it, drop that subtraction.
+1. **Every route and field this app was built ahead of now exists**
+   (2026-09-04): card state, `pendingStamp`, `rules`, `nextStampAt`,
+   `redeemBy`, `badge`, `plan`, `tier`, `bonusWindow`, `missions`,
+   `storeCreditCentavos`; pending approvals with approve and decline; gifts;
+   promo-code redemption; push. The API reports a pending card with
+   `progress` 0, so `earnedStamps` in `cards.tsx` is a no-op on real data
+   and only trims the sample card; the three sample cards still render
+   locally after the real ones because `useWalletWithPreview` appends them.
+   Switch the wallet back to `useWallet()` when the samples are no longer
+   wanted.
 2. **`DiscoverPlace.featured`** does not exist on the wallet's discover
    read; the app keeps the API's order. Add the flag when the backend has it.
 3. **Reward gifts** send no `rewardId` because a wallet card carries none;

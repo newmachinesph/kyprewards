@@ -83,15 +83,20 @@ character classes; copy must state that rule and no other.
 | `POST /public/playbook` | marketing resource request |
 | `POST /public/partner-applications`, `PATCH .../heard-from` | the partner application on `/partners` |
 
-The marketplace needs a public Discover read that does not exist yet.
-`GET /customer/discover` is session-scoped. Ask the backend for a public,
-paged listing before building the directory.
+The marketplace reads `GET /public/discover` (paged, `category`,
+`neighborhood`, `search`, `lat`, `lng`), `GET /public/shops/{slug}`,
+`GET /public/discover/categories` and `/neighborhoods`, shipped 2026-09-04
+with their own rate-limit bucket of 300 a minute; a 429 carries CORS headers.
 
-## The stamp-card contract the apps must be ready for
+## The stamp-card contract (shipped 2026-09-04)
 
-These are what the site promises and the API does not yet enforce. When the
-backend ships each one, the app reads it from the response rather than
-computing it locally.
+These are what the site promises. The backend now enforces every row below;
+the app reads each from the response rather than computing it locally. The
+wallet card carries `state`, `pendingStamp`, `rules`, `nextStampAt`,
+`redeemBy`, `closeOutcome`, `successorProgram`, `completions`, `badge` and
+`plan`; the transaction result carries `welcomeStampConfirmed`, `earned`,
+`nextStampAt`, `reason`, `cardState` and `completed`; the redemption result
+carries `customerApprovedAt` and the business list shows "Awaiting customer".
 
 | Rule | What the wallet and counter will need from the API |
 |---|---|

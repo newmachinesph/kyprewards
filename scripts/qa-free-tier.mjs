@@ -102,6 +102,7 @@ const shop = {
 let merchantId = null;
 let customerId = null;
 let memberCode = null;
+let programId = null;
 
 const ok = (r, ...allowed) => {
   if (!allowed.includes(r.status)) {
@@ -168,6 +169,10 @@ await step("the onboarding left a live stamp card", async () => {
   const live = programs.body.filter((p) => p.status === "Live");
   if (live.length !== 1) throw new Error(`${live.length} live programs, expected 1`);
   if (live[0].type !== "Stamps") throw new Error(`live program is ${live[0].type}`);
+  programId = live[0].id;
+  if (!live[0].rules || live[0].rules.welcomeStamp !== true) {
+    throw new Error("a new stamp card should carry its rules with the welcome stamp on");
+  }
   return `${live[0].name}, ${live[0].target} stamps`;
 });
 
@@ -198,6 +203,34 @@ await step("a member code is issued and is scannable", async () => {
   return memberCode;
 });
 
+await step("the cooldown refuses a second stamp in the same day, with the next time", async () => {
+  const first = ok(
+    await merchant.call("/transactions", {
+      method: "POST",
+      headers: { "Idempotency-Key": `free_${run}_cool_1` },
+      body: { customerId, amountCentavos: 12_000 },
+    }),
+    201,
+  );
+  const second = await merchant.call("/transactions", {
+    method: "POST",
+    headers: { "Idempotency-Key": `free_${run}_cool_2` },
+    body: { customerId, amountCentavos: 12_000 },
+  });
+  if (second.status !== 409 || !second.body?.nextStampAt) {
+    throw new Error(`a second stamp inside the cooldown answered ${second.status} without nextStampAt`);
+  }
+  // The shop sets its own cooldown; this suite fills a card in one sitting.
+  ok(
+    await merchant.call(`/business/programs/${programId}`, {
+      method: "PATCH",
+      body: { cooldownMinutes: 0 },
+    }),
+    200,
+  );
+  return `stamp ${first.body.stampsAfter}, then 409 until ${second.body.nextStampAt}`;
+});
+
 await step("stamp the card to its target and earn the reward", async () => {
   const balance = ok(await merchant.call(`/customers/${customerId}/balance`), 200);
   let reward = null;
@@ -225,6 +258,23 @@ await step("redeem the reward at the counter", async () => {
     }),
     201,
   );
+  // The reward waits for the customer's approval on their phone. The first
+  // regular is signed in with a real one-time code to give it.
+  const regular = actor();
+  const identifier = mobile("00");
+  ok(await regular.call("/auth/otp/request", { method: "POST", body: { identifier } }), 200);
+  const sent = ok(await regular.call("/_dev/messages?purpose=otp&limit=1"), 200);
+  const code = sent.body[0]?.body?.match(/\d{6}/)?.[0];
+  if (!code) throw new Error("no one-time code reached the dev sink for the regular");
+  ok(await regular.call("/auth/otp/verify", { method: "POST", body: { identifier, code } }), 200);
+  const pending = ok(await regular.call("/customer/redemptions/pending"), 200);
+  if (!pending.body.some((row) => row.id === reserved.body.id)) {
+    throw new Error("the reservation is not waiting in the customer's wallet");
+  }
+  ok(
+    await regular.call(`/customer/redemptions/${reserved.body.id}/approve`, { method: "POST" }),
+    200,
+  );
   ok(await merchant.call(`/redemptions/${reserved.body.id}/commit`, { method: "POST" }), 200);
   return reserved.body.rewardName;
 });
@@ -241,7 +291,10 @@ await step("a mistaken stamp can be reversed", async () => {
   ok(await merchant.call(`/transactions/${stamped.body.id}/void`, { method: "POST" }), 200);
 });
 
-await step("email campaigns are included, and cost against the 500", async () => {
+await step("email campaigns are not on the free plan, and say so", async () => {
+  // The pricing page carries no email allowance on Launch since the channels
+  // were re-priced; the only honest answer to an email campaign here is a
+  // refusal that names the plan, never a quiet queue.
   const created = await merchant.call("/business/campaigns", {
     method: "POST",
     body: {
@@ -251,17 +304,16 @@ await step("email campaigns are included, and cost against the 500", async () =>
       sendTime: new Date(Date.now() + 86_400_000).toISOString(),
     },
   });
-  if (created.status === 402) {
-    throw new Error("the free plan sells 500 emails but refuses to schedule a campaign");
+  if (![402, 409].includes(created.status)) {
+    throw new Error(`the free plan has no email allowance but answered ${created.status}`);
   }
-  ok(created, 201);
 
   const billing = ok(await merchant.call("/business/billing"), 200);
   const email = billing.body.allowances.find((row) => row.label === "Email");
-  if (!email || email.included !== 500) {
-    throw new Error(`email allowance is ${email ? email.included : "missing"}, expected 500`);
+  if (email && email.included > 0) {
+    throw new Error(`email allowance is ${email.included} on a plan that sells none`);
   }
-  return `${email.used} of ${email.included} used`;
+  return `HTTP ${created.status}, no email allowance`;
 });
 
 await step("SMS is not included, and says so rather than sending", async () => {
@@ -453,7 +505,8 @@ await step("the customer wallet renders the free shop's card", async () => {
       };
     }),
   );
-  await page.goto(APPS.customer, { waitUntil: "networkidle" });
+  // The Wallet tab lists every card by shop; Home shows the nearest reward.
+  await page.goto(`${APPS.customer}/#wallet`, { waitUntil: "networkidle" });
   await page.waitForTimeout(1500);
   const text = await page.locator("body").innerText();
   if (!text.includes(shop.name)) {
