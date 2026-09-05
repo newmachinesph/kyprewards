@@ -243,6 +243,10 @@ export const updateLocation = (
     city: string;
     address: string;
     status: string;
+    // The display pairs the listing prints, one row per span. The API
+    // replaces the whole list, so an empty array clears the hours rather
+    // than leaving yesterday's behind.
+    hours: OpeningHours[];
     latitude: number;
     longitude: number;
   }>,
@@ -598,6 +602,7 @@ export const createLocation = (body: {
   city: string;
   address?: string;
   status?: string;
+  hours?: OpeningHours[];
   latitude?: number;
   longitude?: number;
 }): Promise<BusinessLocation> => http("/business/locations", { method: "POST", body });

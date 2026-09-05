@@ -17,7 +17,7 @@ import {
 import { brandColor, Button, Eyebrow, Pill, PreviewBadge, StampDots } from "@kypstamping/ui";
 import { longDate, pesoFromCentavos } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
-import { MapPin, Sparkles } from "lucide-react";
+import { Clock3, MapPin, Sparkles } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate } from "@/lib/plan";
 import { addOns } from "@/lib/plans";
 import { PaymentSheet } from "@/components/views/PaymentSheet";
@@ -93,18 +93,35 @@ export function DiscoverPanel({ notify }: { notify: Notify }) {
                 <StampDots filled={0} total={live.target} />
               </div>
             )}
+            {/* One icon per line, and no line without content. A branch is
+                provisioned with an empty address, so the pin used to sit
+                beside nothing while the hours dropped to a second line with
+                no icon of their own. Both are worth prompting for: they are
+                what a shopper reads before deciding to walk over. */}
             {first && (
-              <div className="mt-3 flex items-start gap-2 text-[11px] text-[var(--muted-strong)]">
-                <MapPin size={13} className="mt-0.5 shrink-0" />
-                <span>
-                  {first.address}
-                  {first.hours.length > 0 && (
-                    <>
-                      <br />
-                      {first.hours.map((hours) => `${hours.days} ${hours.time}`).join(" · ")}
-                    </>
-                  )}
-                </span>
+              <div className="mt-3 grid gap-1.5 text-[11px] text-[var(--muted-strong)]">
+                {first.address ? (
+                  <span className="flex items-start gap-2">
+                    <MapPin size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
+                    {first.address}
+                  </span>
+                ) : (
+                  <span className="flex items-start gap-2 text-[var(--muted)]">
+                    <MapPin size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
+                    No street address yet — add one so shoppers can find the door.
+                  </span>
+                )}
+                {first.hours.length > 0 ? (
+                  <span className="flex items-start gap-2">
+                    <Clock3 size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
+                    {first.hours.map((hours) => `${hours.days} ${hours.time}`).join(" · ")}
+                  </span>
+                ) : (
+                  <span className="flex items-start gap-2 text-[var(--muted)]">
+                    <Clock3 size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
+                    No opening hours yet — your listing cannot say whether you are open.
+                  </span>
+                )}
               </div>
             )}
             {locations.length > 1 && (

@@ -39,6 +39,7 @@ import {
   useBranding,
   useBusinessProfile,
   type BusinessLocation,
+  type OpeningHours,
   type BusinessProfile,
   type StaffMember,
 } from "@kypstamping/api";
@@ -180,6 +181,146 @@ export function NewProgramDialog({
   );
 }
 
+/* ── Opening hours ──────────────────────────────────────────────────────
+   Stored as display pairs - [{days, time}] - because the backend does not
+   reason about a schedule; it prints what the shop wrote. That makes a free
+   text box tempting and wrong: five branches typing "9am-6pm", "9:00 AM –
+   6:00 PM" and "Mon-Sun 9-6" is a directory that looks abandoned.
+
+   So the shape is chosen and the string is composed. Days come from a list,
+   the two ends come from native time inputs, and the pair is written in the
+   one format kyp.ph renders. */
+
+const DAY_SPANS = [
+  "Mon – Sun",
+  "Mon – Fri",
+  "Mon – Sat",
+  "Sat – Sun",
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+  "Sun",
+];
+
+/** "18:00" from a time input, to "6:00 PM" as the listing shows it. */
+function toDisplayTime(value: string): string {
+  const [h, m] = value.split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return "";
+  const suffix = h < 12 ? "AM" : "PM";
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  return `${hour}:${String(m).padStart(2, "0")} ${suffix}`;
+}
+
+/** The inverse, for reading a saved row back into the two inputs. */
+function toInputTime(display: string): string {
+  const match = /^(d{1,2}):(d{2})s*(AM|PM)$/i.exec(display.trim());
+  if (!match) return "";
+  let hour = Number(match[1]) % 12;
+  if (match[3].toUpperCase() === "PM") hour += 12;
+  return `${String(hour).padStart(2, "0")}:${match[2]}`;
+}
+
+const splitRange = (time: string) => {
+  // En dash is what this app writes; a hyphen is what a person pastes.
+  const [open = "", close = ""] = time.split(/s*[–-]s*/);
+  return { open: toInputTime(open), close: toInputTime(close) };
+};
+
+type HourRow = { days: string; open: string; close: string };
+
+const toRows = (hours: OpeningHours[]): HourRow[] =>
+  hours.map((entry) => ({ days: entry.days, ...splitRange(entry.time) }));
+
+/** Rows back to what the API stores. Incomplete rows are dropped rather than
+ *  written as "9:00 AM – ", which would render as a broken listing. */
+const toHours = (rows: HourRow[]): OpeningHours[] =>
+  rows
+    .filter((row) => row.days && row.open && row.close)
+    .map((row) => ({
+      days: row.days,
+      time: `${toDisplayTime(row.open)} – ${toDisplayTime(row.close)}`,
+    }));
+
+function HoursEditor({
+  rows,
+  onChange,
+}: {
+  rows: HourRow[];
+  onChange: (rows: HourRow[]) => void;
+}) {
+  const set = (index: number, patch: Partial<HourRow>) =>
+    onChange(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+
+  return (
+    <fieldset className="grid gap-2 border-0 p-0">
+      <legend className="mb-2 text-xs font-extrabold text-[var(--ink)]">
+        Opening hours
+      </legend>
+      <p className="-mt-1 mb-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
+        Shown on your listing and on the shop page. Add a row per span — weekdays
+        and weekends can differ, and each branch keeps its own.
+      </p>
+
+      {rows.length === 0 && (
+        <p className="rounded-xl border border-dashed border-[var(--line-strong)] p-3 text-[11px] text-[var(--muted-strong)]">
+          No hours set. Your listing says so rather than guessing.
+        </p>
+      )}
+
+      {rows.map((row, index) => (
+        <div key={index} className="grid gap-2 sm:grid-cols-[1.2fr_1fr_1fr_auto] sm:items-center">
+          <select
+            aria-label="Days"
+            value={row.days}
+            onChange={(event) => set(index, { days: event.target.value })}
+            className={inputClass}
+          >
+            <option value="">Pick days</option>
+            {DAY_SPANS.map((span) => (
+              <option key={span} value={span}>
+                {span}
+              </option>
+            ))}
+          </select>
+          <input
+            type="time"
+            aria-label="Opens"
+            value={row.open}
+            onChange={(event) => set(index, { open: event.target.value })}
+            className={inputClass}
+          />
+          <input
+            type="time"
+            aria-label="Closes"
+            value={row.close}
+            onChange={(event) => set(index, { close: event.target.value })}
+            className={inputClass}
+          />
+          <button
+            type="button"
+            onClick={() => onChange(rows.filter((_, i) => i !== index))}
+            aria-label={`Remove ${row.days || "this"} hours`}
+            className="focus-ring inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--line-strong)] px-3 text-xs font-bold text-[var(--muted-strong)] transition hover:border-[var(--danger)] hover:text-[var(--danger)]"
+          >
+            Remove
+          </button>
+        </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={() => onChange([...rows, { days: "", open: "09:00", close: "18:00" }])}
+        className="focus-ring mt-1 inline-flex min-h-10 w-fit items-center gap-2 rounded-xl border border-[var(--line-strong)] px-4 text-xs font-extrabold transition hover:border-[var(--ink)]"
+      >
+        <span aria-hidden="true">+</span> Add hours
+      </button>
+    </fieldset>
+  );
+}
+
 export function NewLocationDialog({
   onClose,
   notify,
@@ -192,6 +333,7 @@ export function NewLocationDialog({
     invalidates: [keys.business.locations(), keys.business.profile()],
   });
   const [banner, setBanner] = useState("");
+  const [hours, setHours] = useState<HourRow[]>([]);
   const form = useForm<LocationInput>({
     resolver: zodResolver(locationSchema),
     defaultValues: { name: "", address: "", city: "" },
@@ -203,7 +345,7 @@ export function NewLocationDialog({
         className="grid gap-5"
         onSubmit={form.handleSubmit((values) => {
           setBanner("");
-          create.mutate(values, {
+          create.mutate({ ...values, hours: toHours(hours) }, {
             onSuccess: (branch) => {
               notify(`${branch.name} added. Its join code is ready to print.`);
               onClose();
@@ -233,6 +375,7 @@ export function NewLocationDialog({
         <Field label="City" error={form.formState.errors.city?.message}>
           <input {...form.register("city")} placeholder="Pasig" className={inputClass} />
         </Field>
+        <HoursEditor rows={hours} onChange={setHours} />
         <div className="grid gap-2 sm:grid-cols-2">
           <Button tone="quiet" type="button" onClick={onClose}>
             Cancel
@@ -411,6 +554,7 @@ export function EditLocationDialog({
   const update = useUpdateLocation();
   const [banner, setBanner] = useState("");
   const [status, setStatus] = useState(location.status);
+  const [hours, setHours] = useState<HourRow[]>(() => toRows(location.hours));
   const form = useForm<LocationInput>({
     resolver: zodResolver(locationSchema),
     defaultValues: {
@@ -427,7 +571,7 @@ export function EditLocationDialog({
         onSubmit={form.handleSubmit((values) => {
           setBanner("");
           update.mutate(
-            { id: location.id, ...values, status },
+            { id: location.id, ...values, status, hours: toHours(hours) },
             {
               onSuccess: (saved) => {
                 notify(`${saved.name} saved.`);
@@ -455,6 +599,7 @@ export function EditLocationDialog({
         <Field label="City" error={form.formState.errors.city?.message}>
           <input {...form.register("city")} className={inputClass} />
         </Field>
+        <HoursEditor rows={hours} onChange={setHours} />
         <Field label="Status">
           <select
             value={status}
