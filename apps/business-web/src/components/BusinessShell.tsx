@@ -269,11 +269,15 @@ export function BusinessShell({
                     strokeWidth={active ? 2.2 : 1.8}
                     aria-hidden="true"
                   />
-                  <span className="flex-1">{item.label}</span>
+                  {/* Truncate rather than wrap: every row stays one line
+                      high, so a label longer than the sidebar shortens
+                      instead of pushing its own row taller than its
+                      neighbours. */}
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
                   {"plan" in item && item.plan && !gate.covers(item.plan) && (
                     <span
                       title={`Opens with ${item.plan}`}
-                      className={`rounded-full px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.1em] ${active ? "bg-white/15 text-[var(--accent)]" : "bg-[rgb(232_163_61/18%)] text-[var(--accent-strong)]"}`}
+                      className={`shrink-0 rounded-full px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.1em] ${active ? "bg-white/15 text-[var(--accent)]" : "bg-[rgb(232_163_61/18%)] text-[var(--accent-strong)]"}`}
                     >
                       {item.plan}
                     </span>
@@ -288,7 +292,12 @@ export function BusinessShell({
   );
 
   return (
-    <div className="min-h-[100dvh] md:grid md:grid-cols-[248px_minmax(0,1fr)]">
+    // 248px left "Bonus windows" 6px short of its own row once a plan badge
+    // sits beside it, so the label wrapped to two lines and that one row grew
+    // taller than the rest. Measured at 254px for the longest label plus its
+    // icon, gaps, padding and badge; 268 keeps a little room for a longer
+    // label later.
+    <div className="min-h-[100dvh] md:grid md:grid-cols-[268px_minmax(0,1fr)]">
       <a
         href="#main-content"
         className="fixed left-4 top-3 z-[100] -translate-y-20 rounded-full bg-[var(--ink)] px-4 py-2 text-sm font-bold text-[var(--paper)] shadow-xl transition focus:translate-y-0"
