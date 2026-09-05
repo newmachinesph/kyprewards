@@ -76,7 +76,9 @@ try {
 
   await mobilePage.goto(`${baseUrl}/login`, { waitUntil: "networkidle" });
   await mobilePage.getByRole("heading", { name: "Open your wallet." }).waitFor();
-  await mobilePage.getByText("Sweet Crumbs", { exact: true }).waitFor();
+  // Deliberately not a real shop's name: 0ba2c7f renamed this illustration
+  // off "Sweet Crumbs" so a visitor cannot mistake it for someone's card.
+  await mobilePage.getByText("Your local favourite", { exact: true }).waitFor();
   await mobilePage.getByRole("button", { name: "Text me a code" }).waitFor();
   await mobilePage.waitForTimeout(700);
   const loginFit = await viewportState(mobilePage);
