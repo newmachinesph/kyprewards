@@ -61,8 +61,10 @@ function ShopBody({ shop }: { shop: PublicShop }) {
       <div>
         <div className="relative aspect-[16/7] overflow-hidden rounded-2xl bg-[var(--ink)]">
           {shop.image ? (
+            // Out of flow, or the banner takes the photo's shape instead of
+            // 16:7 - see the note in ShopCard.
             // eslint-disable-next-line @next/next/no-img-element -- the API names the host; next/image needs it configured
-            <img src={shop.image} alt="" className="size-full object-cover" />
+            <img src={shop.image} alt="" className="absolute inset-0 size-full object-cover" />
           ) : (
             <span
               aria-hidden="true"

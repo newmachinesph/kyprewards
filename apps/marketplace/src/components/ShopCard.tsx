@@ -25,10 +25,23 @@ export function OpenDot({ open }: { open: boolean }) {
 export function ShopCard({ shop }: { shop: PublicShop }) {
   return (
     <li className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] transition hover:-translate-y-0.5 hover:border-[var(--line-strong)]">
-      <div className="relative aspect-[5/3] bg-[var(--surface-2)]">
+      <div className="relative aspect-[5/3] overflow-hidden bg-[var(--surface-2)]">
         {shop.image ? (
+          // Positioned out of flow, which is what makes the 5:3 hold. An
+          // in-flow `size-full` image resolves its height against a parent
+          // whose own height is still auto, so the percentage is indefinite,
+          // the image falls back to its natural size, and the box grows to
+          // fit it - aspect-ratio only sizes a box the content has not
+          // already sized. Every card took the shape of whatever the shop
+          // uploaded: a 4:3 photo made a 4:3 card, a phone portrait made a
+          // card twice as tall as the one beside it.
           // eslint-disable-next-line @next/next/no-img-element -- the API names the host; next/image needs it configured
-          <img src={shop.image} alt="" className="size-full object-cover" loading="lazy" />
+          <img
+            src={shop.image}
+            alt=""
+            className="absolute inset-0 size-full object-cover"
+            loading="lazy"
+          />
         ) : (
           <span
             aria-hidden="true"
