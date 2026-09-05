@@ -30,7 +30,8 @@
     "qa:marketplace": "node scripts/qa-marketplace.mjs",
     "qa:free-tier": "node scripts/qa-free-tier.mjs",
     "qa:journey": "node scripts/qa-journey.mjs",
-    "qa:fuzz": "node scripts/qa-fuzz.mjs"
+    "qa:fuzz": "node scripts/qa-fuzz.mjs",
+    "qa:all": "node scripts/qa-all.mjs"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",
