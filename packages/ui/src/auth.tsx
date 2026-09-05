@@ -653,7 +653,13 @@ function MobileField({
           className="min-w-0 flex-1 bg-transparent py-3 text-sm font-semibold outline-none placeholder:font-normal placeholder:text-[var(--muted)]"
         />
       </span>
-      <span id="mobile-hint" className="text-[11px] font-semibold text-[var(--muted-strong)]">
+      {/* Not shown: the printed +63 and the grouped placeholder already say
+          it, and paste takes 0917, +63 917 and 639 alike, so the rule was
+          instruction nobody needed to follow. Kept for a screen reader, which
+          gets neither of those - the +63 is decorative and a placeholder is
+          not a description. `sr-only` is out of flow, so the label's grid gap
+          does not leave a hole where this used to be. */}
+      <span id="mobile-hint" className="sr-only">
         Ten digits, starting with 9.
       </span>
     </label>
