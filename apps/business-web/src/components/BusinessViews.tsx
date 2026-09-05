@@ -655,6 +655,7 @@ function ScanView({
   const [refusalText, setRefusalText] = useState("");
   const gate = usePlanGate();
   const creditPlan = planFor("Store credit");
+  const feedbackPlan = planFor("Private feedback and review requests");
   const { data: creditEntries = [] } = useStoreCredit(scanned?.id, { enabled: Boolean(scanned) });
   const creditBalance = scanned ? creditBalanceOf(creditEntries, scanned.id) : 0;
   const creditBlocked = writeBlock(gate, creditPlan, isPreview(creditEntries));
@@ -1174,26 +1175,35 @@ function ScanView({
                 <Button tone="accent" className="mt-7" onClick={startOver}>
                   Scan the next customer
                 </Button>
+                {/* Hidden rather than disabled below Grow, which is the one
+                    place this app breaks its own rule of showing every
+                    feature. A feature screen can afford to advertise the tier
+                    it needs; the counter cannot. This sits between "scan the
+                    next customer" and the undo, in front of a queue, and a
+                    free shop pressing it only ever got "Feedback needs the
+                    Grow plan or above" - an upsell in the way of the till. */}
+                {gate.covers(feedbackPlan) && (
+                  <button
+                    type="button"
+                    disabled={askFeedback.isPending}
+                    onClick={() =>
+                      askFeedback.mutate(
+                        { customerId: done.customerId },
+                        {
+                          onSuccess: () =>
+                            notify(`Asked ${done.customerName} how it went.`),
+                          onError: (failure) => notify(failure.message, "error"),
+                        },
+                      )
+                    }
+                    className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/20 text-xs font-extrabold text-white/70 transition hover:bg-white/5 disabled:opacity-50"
+                  >
+                    <MessageCircle size={14} />
+                    {askFeedback.isPending ? "Sending…" : "Ask how it went"}
+                  </button>
+                )}
                 {/* Right here, because this is where a wrong scan is
                     noticed - one customer back, before the queue moves on. */}
-                <button
-                  type="button"
-                  disabled={askFeedback.isPending}
-                  onClick={() =>
-                    askFeedback.mutate(
-                      { customerId: done.customerId },
-                      {
-                        onSuccess: () =>
-                          notify(`Asked ${done.customerName} how it went.`),
-                        onError: (failure) => notify(failure.message, "error"),
-                      },
-                    )
-                  }
-                  className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/20 text-xs font-extrabold text-white/70 transition hover:bg-white/5 disabled:opacity-50"
-                >
-                  <MessageCircle size={14} />
-                  {askFeedback.isPending ? "Sending…" : "Ask how it went"}
-                </button>
                 <button
                   type="button"
                   disabled={undo.isPending}
