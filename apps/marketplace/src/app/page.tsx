@@ -53,7 +53,10 @@ export default function Home() {
                 <input
                   type="search"
                   name="search"
-                  placeholder="Search by shop or category"
+                  // Short enough to survive a 390px phone beside the Search
+                  // button, where "Search by shop or category" was cut off
+                  // mid-word.
+                  placeholder="Shop or category"
                   className="focus-ring min-h-13 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] pl-11 pr-4 text-sm"
                 />
               </label>

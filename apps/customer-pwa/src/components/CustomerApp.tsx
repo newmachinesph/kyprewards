@@ -2199,7 +2199,7 @@ function WalletSheet({
           >
             {card.business}
           </h2>
-          <p className="mt-1 text-[11px] text-white/45">{card.program}</p>
+          <p className="mt-1 text-[11px] text-white/55">{card.program}</p>
           <p className="mt-2 text-sm text-white/60">
             {card.state === "pending" ? `${earnedStamps(card)} of ${card.target} · 1 pending` : card.balance}
           </p>
@@ -2814,8 +2814,14 @@ function CustomerWallet() {
         </div>
       </header>
 
+      {/* The scroller runs to the bottom of the shell, under both the tab bar
+          and the My QR button - deliberately, because both are translucent and
+          content blurring past them is the point. The end of a list is not:
+          the button floats 76px up and stands 48 tall, so the last 124px of
+          every list was unreachable, and on the wallet that was a whole card's
+          name and balance with nothing left to scroll. */}
       <div
-        className="customer-scroll max-h-[calc(100dvh-68px)] min-h-[calc(100dvh-68px)] overflow-y-auto"
+        className="customer-scroll max-h-[calc(100dvh-68px)] min-h-[calc(100dvh-68px)] overflow-y-auto pb-[124px]"
       >
         {content}
       </div>

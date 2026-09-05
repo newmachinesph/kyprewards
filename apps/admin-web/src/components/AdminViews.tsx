@@ -1019,7 +1019,7 @@ function ProviderPolicyCard({ notify }: { notify: Notify }) {
           <label key={key} className="flex items-center justify-between gap-4 py-3 text-xs">
             <span className="text-white/50">
               {label}
-              <span className="ml-1 text-white/30">({unit})</span>
+              <span className="ml-1 text-white/55">({unit})</span>
             </span>
             <input
               type="number"
@@ -1042,14 +1042,14 @@ function ProviderPolicyCard({ notify }: { notify: Notify }) {
       <label className="mt-5 grid gap-2">
         <span className="text-xs text-white/50">
           Enquiries and applications go to
-          <span className="ml-1 text-white/30">(demo enquiries, partner applications)</span>
+          <span className="ml-1 text-white/55">(demo enquiries, partner applications)</span>
         </span>
         <input
           type="email"
           value={shown.internalInbox ?? ""}
           onChange={(event) => setDraft({ ...shown, internalInbox: event.target.value })}
           placeholder="inbox@example.com"
-          className="min-h-10 w-full rounded-lg border border-white/15 bg-[var(--ink-soft)] px-3 text-xs font-bold text-white outline-none placeholder:font-normal placeholder:text-white/25 focus:border-[var(--accent)]"
+          className="min-h-10 w-full rounded-lg border border-white/15 bg-[var(--ink-soft)] px-3 text-xs font-bold text-white outline-none placeholder:font-normal placeholder:text-white/55 focus:border-[var(--accent)]"
           {...noAutofill}
         />
       </label>

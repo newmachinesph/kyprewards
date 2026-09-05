@@ -395,7 +395,7 @@ export default function LoyaltyPhilippinesPage() {
               </div>
             ))}
           </div>
-          <p className="mt-6 text-[11px] leading-relaxed text-white/45">
+          <p className="mt-6 text-[11px] leading-relaxed text-white/55">
             Sources: DTI MSME statistics; DataReportal, Digital Philippines. A paper punch
             card asks a customer to carry something extra. A phone does not.
           </p>

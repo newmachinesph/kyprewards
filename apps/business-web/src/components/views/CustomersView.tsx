@@ -451,7 +451,7 @@ export function CustomersView({ notify }: { notify: Notify }) {
                 {selected.homeBranch ? ` · ${selected.homeBranch}` : ""}
               </p>
               {selected.branches.length > 1 && (
-                <p className="mt-1 text-[11px] text-white/45">
+                <p className="mt-1 text-[11px] text-white/55">
                   Also seen at {selected.branches.slice(1).join(", ")}
                 </p>
               )}

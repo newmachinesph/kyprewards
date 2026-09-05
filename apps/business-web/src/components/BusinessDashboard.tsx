@@ -311,7 +311,10 @@ export function BusinessDashboard({
           className="col-span-6 lg:col-span-3"
           label="Stamps issued"
           value={metricsError ? "—" : String(metrics.stampsIssued)}
-          detail={metricsError ? "hidden for your role" : "all time"}
+          // "all time", against a figure the API filters to since local
+          // midnight. A shop that had stamped all week read a zero here on a
+          // quiet morning and went looking for the outage.
+          detail={metricsError ? "hidden for your role" : "today"}
           icon={Stamp}
         />
         <StatCard
@@ -326,7 +329,9 @@ export function BusinessDashboard({
             // reads a zero as a failed scan and scans them again.
             metricsError
               ? "member revenue hidden for your role"
-              : `${pesoCompactFromCentavos(metrics.memberRevenueCentavos)} member revenue`
+              : // Counted since local midnight, like visits and stamps; the
+                // revenue beside it is the whole ledger, so both say which.
+                `today · ${pesoCompactFromCentavos(metrics.memberRevenueCentavos)} all-time revenue`
           }
           icon={Gift}
           trend="flat"
@@ -437,7 +442,7 @@ export function BusinessDashboard({
                     <li key={line}>{line}</li>
                   ))}
                 {!livePrograms[0].rules && (
-                  <li className="text-white/40">Defaults shown; the rules editor saves them when the API carries them.</li>
+                  <li className="text-white/55">Defaults shown; the rules editor saves them when the API carries them.</li>
                 )}
               </ul>
             )}

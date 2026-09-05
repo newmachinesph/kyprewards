@@ -208,7 +208,7 @@ export function AdminShell({
 
   const navContent = navGroups.map((group) => (
     <div key={group.group} className="space-y-1">
-      <p className="px-3 pb-1 pt-3 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white/40 first:pt-0">
+      <p className="px-3 pb-1 pt-3 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white/55 first:pt-0">
         {group.group}
       </p>
       {group.items.map((item) => {

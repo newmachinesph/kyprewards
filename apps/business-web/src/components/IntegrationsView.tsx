@@ -539,7 +539,7 @@ export function IntegrationsView({
             ["Environment", environment === "sandbox" ? "Sandbox · test data" : "Preview only · not live"],
           ].map(([term, detail]) => (
             <div key={term} className="bg-[var(--ink)] px-4 py-4">
-              <dt className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/45">
+              <dt className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/55">
                 {term}
               </dt>
               <dd className="mt-1 break-all font-mono text-xs font-bold text-white/90">

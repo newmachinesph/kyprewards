@@ -261,7 +261,7 @@ function ProgramStock({ program, notify }: { program: Program; notify: Notify })
               <li key={tier.id} className="flex justify-between gap-3 text-xs">
                 <span className="truncate">
                   {tier.name}
-                  <span className="text-white/45"> · from {tier.threshold} visits</span>
+                  <span className="text-white/55"> · from {tier.threshold} visits</span>
                 </span>
                 <span className="shrink-0 font-bold">
                   {isPoints

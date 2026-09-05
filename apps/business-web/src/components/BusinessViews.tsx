@@ -881,7 +881,7 @@ function ScanView({
                     placeholder="0917 555 0182"
                     className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
                   />
-                  <span className="text-[10px] font-semibold text-white/45">
+                  <span className="text-[10px] font-semibold text-white/55">
                     A hardware scanner types here and presses Enter.
                   </span>
                 </label>
@@ -1170,7 +1170,7 @@ function ScanView({
                     </>
                   );
                 })()}
-                <p className="mt-4 font-mono text-[10px] text-white/40">{done.id}</p>
+                <p className="mt-4 font-mono text-[10px] text-white/55">{done.id}</p>
                 <Button tone="accent" className="mt-7" onClick={startOver}>
                   Scan the next customer
                 </Button>
@@ -1367,7 +1367,7 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
                 className="size-full object-cover"
               />
             ) : (
-              <span className="text-xs font-semibold text-white/45">
+              <span className="text-xs font-semibold text-white/55">
                 No storefront photo yet
               </span>
             )}

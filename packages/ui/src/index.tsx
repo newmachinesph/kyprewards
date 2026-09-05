@@ -146,7 +146,9 @@ export function BrandMark({
           </span>
           {tagline ? (
             <span
-              className={`mt-1 block font-mono text-[9px] font-semibold uppercase tracking-[0.14em] ${
+              // Balanced because it does wrap: in the 268px merchant sidebar
+              // it broke after "THE" and left REWARD alone on a second line.
+              className={`mt-1 block text-balance font-mono text-[9px] font-semibold uppercase tracking-[0.14em] ${
                 onAccent
                   ? "text-[var(--ink-soft)]"
                   : inverse
