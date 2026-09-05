@@ -970,6 +970,8 @@ export type ProviderPolicy = {
   webhookRetryHours: number;
   offlineReplayDays: number;
   auditRetentionDays: number;
+  /** Where demo enquiries and partner applications are announced. */
+  internalInbox: string;
 };
 
 /** A shop asking to join, and what was decided about it. */

@@ -163,7 +163,9 @@ async function openShop(index, rules) {
   const program = programs.body.find((p) => p.status === "Live" && p.type === "Stamps");
   if (!program) throw new Error("onboarding left no live stamp card");
 
-  const { window, ...patch } = rules;
+  // `window` labels the scenario for this suite; the API takes startsAt and
+  // endsAt, so it is left out of the body rather than destructured away.
+  const patch = Object.fromEntries(Object.entries(rules).filter(([key]) => key !== "window"));
   const saved = await merchant.call(`/business/programs/${program.id}`, {
     method: "PATCH",
     body: { ...patch, target: rules.target },
@@ -544,7 +546,6 @@ if (spender) {
  */
 const walletShop = scenarios.find((s) => s.balance > 0);
 if (walletShop) {
-  const found = await walletShop.merchant.call(`/customers/${walletShop.customerId}`).catch(() => null);
   const list = await walletShop.merchant.call("/business/customers?limit=100");
   const rows = Array.isArray(list.body) ? list.body : (list.body?.items ?? []);
   const mine = rows.find((r) => r.id === walletShop.customerId);

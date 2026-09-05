@@ -1033,6 +1033,27 @@ function ProviderPolicyCard({ notify }: { notify: Notify }) {
           </label>
         ))}
       </div>
+      {/* Not a number, so not in the list above. It is here rather than in
+          its own card because it is the same thing: a value somebody would
+          otherwise need a release to change. This one pointed at a mailbox
+          that did not exist, so every demo enquiry and partner application
+          notice bounced while the enquiry itself was filed correctly - the
+          quietest way to miss a shop asking to join. */}
+      <label className="mt-5 grid gap-2">
+        <span className="text-xs text-white/50">
+          Enquiries and applications go to
+          <span className="ml-1 text-white/30">(demo enquiries, partner applications)</span>
+        </span>
+        <input
+          type="email"
+          value={shown.internalInbox ?? ""}
+          onChange={(event) => setDraft({ ...shown, internalInbox: event.target.value })}
+          placeholder="inbox@example.com"
+          className="min-h-10 w-full rounded-lg border border-white/15 bg-[var(--ink-soft)] px-3 text-xs font-bold text-white outline-none placeholder:font-normal placeholder:text-white/25 focus:border-[var(--accent)]"
+          {...noAutofill}
+        />
+      </label>
+
       <Button
         tone="accent"
         className="mt-5"
