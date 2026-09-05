@@ -20,6 +20,9 @@ import {
   formatMemberCode,
   longDate,
   timeOfDay,
+  splitRange,
+  toDisplayTime,
+  toInputTime,
 } from "../packages/ui/src/format.ts";
 
 /* ── Money ────────────────────────────────────────────────────────── */
@@ -149,3 +152,41 @@ assert.equal(formatMemberCode(""), "");
 assert.equal(formatMemberCode(null), "");
 
 console.log("format checks passed");
+
+/* ── Opening hours ────────────────────────────────────────────────────
+   A branch's hours are display pairs the listing prints verbatim, composed
+   in the merchant form from a day span and two native time inputs. This
+   pair of converters shipped once with its backslashes eaten by a shell
+   heredoc, so nothing parsed: every saved row loaded blank, and the next
+   save would have dropped the shop's hours without a word. */
+
+assert.equal(toDisplayTime("09:00"), "9:00 AM");
+assert.equal(toDisplayTime("18:00"), "6:00 PM");
+assert.equal(toDisplayTime("00:30"), "12:30 AM", "midnight is twelve, not zero");
+assert.equal(toDisplayTime("12:00"), "12:00 PM", "noon is twelve, not zero");
+assert.equal(toDisplayTime("07:05"), "7:05 AM", "minutes keep their leading zero");
+assert.equal(toDisplayTime(""), "", "nothing in, nothing out");
+
+assert.equal(toInputTime("9:00 AM"), "09:00");
+assert.equal(toInputTime("6:00 PM"), "18:00");
+assert.equal(toInputTime("12:30 AM"), "00:30");
+assert.equal(toInputTime("12:00 PM"), "12:00");
+assert.equal(toInputTime("9:00 am"), "09:00", "case is the shop's business");
+assert.equal(toInputTime("nonsense"), "", "an unparseable row loads empty, not wrong");
+
+// Every half hour, both ways. This is the check that fails the moment the
+// regex loses a backslash again.
+for (let minutes = 0; minutes < 24 * 60; minutes += 30) {
+  const value = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+  assert.equal(toInputTime(toDisplayTime(value)), value, `${value} did not survive the round trip`);
+}
+
+assert.deepEqual(splitRange("9:00 AM – 6:00 PM"), { open: "09:00", close: "18:00" });
+// A hyphen is what somebody pastes; an en dash is what this app writes.
+assert.deepEqual(splitRange("9:00 AM - 6:00 PM"), { open: "09:00", close: "18:00" });
+assert.deepEqual(splitRange("7:30 AM–8:00 PM"), { open: "07:30", close: "20:00" });
+assert.deepEqual(
+  splitRange("all day"),
+  { open: "", close: "" },
+  "free text typed before this editor existed loads blank rather than lying",
+);

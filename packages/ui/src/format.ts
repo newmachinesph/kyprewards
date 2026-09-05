@@ -262,3 +262,39 @@ export const isCompleteMobile = (national: string) => /^9\d{9}$/.test(national);
 /** The ten national digits as the API wants them. `""` while incomplete. */
 export const toE164 = (national: string) =>
   isCompleteMobile(national) ? `+63${national}` : "";
+
+/* ── Opening hours ─────────────────────────────────────────────────────
+   A branch stores its hours as display pairs the listing prints verbatim,
+   so the merchant form composes the string rather than accepting one. The
+   pair of converters below is the whole of that, and it shipped once with
+   its backslashes eaten by a shell heredoc - `d` as `d` - which parsed
+   nothing, loaded every saved row as blank, and would have dropped a
+   shop's hours the next time they pressed save. Hence the tests. */
+
+/** "18:00" from a time input, to "6:00 PM" as a listing shows it. */
+export function toDisplayTime(value: string): string {
+  const [h, m] = value.split(":").map(Number);
+  // `isFinite`, not `isNaN`: an empty value splits to one part, so the
+  // minutes are `undefined` rather than NaN, `Number.isNaN(undefined)` is
+  // false, and an empty input formatted as "12:undefined AM".
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return "";
+  const suffix = h < 12 ? "AM" : "PM";
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  return `${hour}:${String(m).padStart(2, "0")} ${suffix}`;
+}
+
+/** The inverse, for reading a saved row back into a time input. */
+export function toInputTime(display: string): string {
+  const match = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(display.trim());
+  if (!match) return "";
+  let hour = Number(match[1]) % 12;
+  if (match[3].toUpperCase() === "PM") hour += 12;
+  return `${String(hour).padStart(2, "0")}:${match[2]}`;
+}
+
+/** "9:00 AM – 6:00 PM" back into the two ends, as time inputs want them.
+ *  An en dash is what this app writes; a hyphen is what a person pastes. */
+export function splitRange(time: string): { open: string; close: string } {
+  const [open = "", close = ""] = time.split(/\s*[–-]\s*/);
+  return { open: toInputTime(open), close: toInputTime(close) };
+}

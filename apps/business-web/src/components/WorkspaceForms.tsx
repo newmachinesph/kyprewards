@@ -43,6 +43,8 @@ import {
   type BusinessProfile,
   type StaffMember,
 } from "@kypstamping/api";
+import { ImageIcon } from "lucide-react";
+import { splitRange, toDisplayTime } from "@kypstamping/ui/format";
 import { BRAND_COLORS, Button, Dialog, FieldLabel } from "@kypstamping/ui";
 import {
   useCreateProgram,
@@ -204,30 +206,6 @@ const DAY_SPANS = [
   "Sat",
   "Sun",
 ];
-
-/** "18:00" from a time input, to "6:00 PM" as the listing shows it. */
-function toDisplayTime(value: string): string {
-  const [h, m] = value.split(":").map(Number);
-  if (Number.isNaN(h) || Number.isNaN(m)) return "";
-  const suffix = h < 12 ? "AM" : "PM";
-  const hour = h % 12 === 0 ? 12 : h % 12;
-  return `${hour}:${String(m).padStart(2, "0")} ${suffix}`;
-}
-
-/** The inverse, for reading a saved row back into the two inputs. */
-function toInputTime(display: string): string {
-  const match = /^(d{1,2}):(d{2})s*(AM|PM)$/i.exec(display.trim());
-  if (!match) return "";
-  let hour = Number(match[1]) % 12;
-  if (match[3].toUpperCase() === "PM") hour += 12;
-  return `${String(hour).padStart(2, "0")}:${match[2]}`;
-}
-
-const splitRange = (time: string) => {
-  // En dash is what this app writes; a hyphen is what a person pastes.
-  const [open = "", close = ""] = time.split(/s*[–-]s*/);
-  return { open: toInputTime(open), close: toInputTime(close) };
-};
 
 type HourRow = { days: string; open: string; close: string };
 
@@ -457,26 +435,70 @@ export function EditProfileDialog({
         <Field label="Category" error={form.formState.errors.category?.message}>
           <input {...form.register("category")} className={inputClass} />
         </Field>
-        <Field label="Storefront photo">
-          <input
-            type="file"
-            // The same list the API enforces. Restating it here only changes
-            // which files the picker offers - the check that matters is the
-            // content-type one on the server.
-            accept="image/png,image/jpeg,image/webp"
-            className={`${inputClass} file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--ink)] file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-[var(--paper)]`}
-            disabled={uploadImage.isPending}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (!file) return;
-              setBanner("");
-              uploadImage.mutate(file, {
-                onSuccess: () => notify("Storefront photo updated."),
-                onError: (failure) => setBanner(failure.message),
-              });
-            }}
-          />
-        </Field>
+        {/* A fieldset rather than the Field wrapper, which renders a <label>:
+            the control here is itself a label for a hidden input, and a label
+            inside a label is neither valid nor clickable.
+
+            The native control was left visible, so the row read "Choose File
+            | No file chosen" in the browser's own font next to five styled
+            inputs - and it said "no file chosen" even for a shop that already
+            had a photo, because a file input cannot show what is stored. The
+            thumbnail is what answers that question. */}
+        <fieldset className="grid gap-2">
+          <legend className="mb-2">
+            <FieldLabel>Storefront photo</FieldLabel>
+          </legend>
+          <div className="flex items-center gap-3">
+            <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl border border-[var(--line-strong)] bg-[var(--surface-2)]">
+              {branding?.imageUrl ? (
+                // A presigned storage URL, re-signed on each read and on a
+                // host the image optimiser is not configured for.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={branding.imageUrl} alt="" className="size-full object-cover" />
+              ) : (
+                <ImageIcon size={18} className="text-[var(--muted)]" aria-hidden="true" />
+              )}
+            </span>
+            <div className="min-w-0">
+              <label
+                className={`focus-within:ring-2 focus-within:ring-[var(--accent)] inline-flex min-h-9 cursor-pointer items-center rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-xs font-extrabold transition hover:border-[var(--ink)] ${
+                  uploadImage.isPending ? "cursor-wait opacity-60" : ""
+                }`}
+              >
+                {uploadImage.isPending
+                  ? "Uploading…"
+                  : branding?.imageUrl
+                    ? "Replace photo"
+                    : "Choose photo"}
+                <input
+                  type="file"
+                  // The same list the API enforces. Restating it here only
+                  // changes which files the picker offers - the check that
+                  // matters is the content-type one on the server.
+                  accept="image/png,image/jpeg,image/webp"
+                  className="sr-only"
+                  disabled={uploadImage.isPending}
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (!file) return;
+                    setBanner("");
+                    uploadImage.mutate(file, {
+                      onSuccess: () => notify("Storefront photo updated."),
+                      onError: (failure) => setBanner(failure.message),
+                    });
+                    // Cleared so choosing the same file twice fires a change
+                    // again - after a failed upload, picking it once more is
+                    // exactly what a person does.
+                    event.target.value = "";
+                  }}
+                />
+              </label>
+              <p className="mt-1.5 text-[11px] leading-relaxed text-[var(--muted-strong)]">
+                Shown on your kyp.ph listing, on every plan. PNG, JPG or WebP, up to 2 MB.
+              </p>
+            </div>
+          </div>
+        </fieldset>
         {/* The other half of "custom branding". The photo was the only part
             with a control, so the colour token the API stores and the wallet
             card reads could not be changed from anywhere in the product. */}
