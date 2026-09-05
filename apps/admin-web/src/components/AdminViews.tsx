@@ -972,8 +972,33 @@ function ProviderPolicyCard({ notify }: { notify: Notify }) {
     );
   }
 
+  // `shrink-0` so nothing injected into the row can squeeze the box: a flex
+  // child shrinks below its width by default, and the attributes below stop
+  // the usual culprit rather than relying on that alone.
   const field =
-    "min-h-9 w-28 rounded-lg border border-white/15 bg-[var(--ink-soft)] px-2 text-right text-xs font-bold text-white outline-none focus:border-[var(--accent)]";
+    "min-h-9 w-28 shrink-0 rounded-lg border border-white/15 bg-[var(--ink-soft)] px-2 text-right text-xs font-bold text-white outline-none focus:border-[var(--accent)]";
+
+  /**
+   * Keep password managers out of these boxes.
+   *
+   * "Email complaint pause" is the only label on this card containing the
+   * word Email, and a manager classifying fields by their nearby text reads
+   * that as an email box: it plants its badge inside the input, which both
+   * narrows the visible field and paints a coloured mark in it. One row of
+   * five ends up shorter than the rest for a reason nothing in this file
+   * explains - the markup is identical, and it renders correctly in a
+   * browser with no extensions at every width from 420px up.
+   *
+   * Every basis point and centavo ceiling on this card is a number, so none
+   * of them wants autofill from anything.
+   */
+  const noAutofill = {
+    autoComplete: "off",
+    "data-1p-ignore": true,
+    "data-lpignore": "true",
+    "data-bwignore": true,
+    "data-form-type": "other",
+  } as const;
 
   return (
     <article className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
@@ -1003,6 +1028,7 @@ function ProviderPolicyCard({ notify }: { notify: Notify }) {
                 setDraft({ ...shown, [key]: Number(event.target.value) })
               }
               className={field}
+              {...noAutofill}
             />
           </label>
         ))}
