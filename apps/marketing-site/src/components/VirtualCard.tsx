@@ -114,7 +114,9 @@ function WalletCardVisual() {
               <Stamp size={20} />
             </span>
             <div>
-              <p className="text-base font-extrabold tracking-[-0.025em]">Sweet Crumbs</p>
+              <p className="text-base font-extrabold tracking-[-0.025em]">
+                Sweet Crumbs
+              </p>
               <p className="mt-0.5 text-[11px]" style={{ color: ink(62) }}>
                 Bakery
               </p>
@@ -131,7 +133,11 @@ function WalletCardVisual() {
           <p className="max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em]">
             3 more visits, then free pastry.
           </p>
-          <div className="mt-5 flex gap-1.5" role="img" aria-label="Five of eight stamps collected">
+          <div
+            className="mt-5 flex gap-1.5"
+            role="img"
+            aria-label="Five of eight stamps collected"
+          >
             {Array.from({ length: 8 }, (_, index) => (
               <span
                 key={index}
@@ -169,7 +175,9 @@ function WalletCardVisual() {
           >
             Member
           </p>
-          <p className="mt-1 text-base font-extrabold tracking-[-0.025em]">Jacqueline Daniel</p>
+          <p className="mt-1 text-base font-extrabold tracking-[-0.025em]">
+            Jacqueline Daniel
+          </p>
           <p className="mt-1 font-mono text-[11px]" style={{ color: ink(72) }}>
             {/* A real code: thirteen digits, check digit valid. */}
             2912 4077 0315 7
@@ -189,7 +197,10 @@ function WalletCardVisual() {
 
   return (
     <div>
-      <div className="flip-card mx-auto w-full max-w-[420px]" data-flipped={flipped}>
+      <div
+        className="flip-card mx-auto w-full max-w-[420px]"
+        data-flipped={flipped}
+      >
         <div className="flip-card-mover">
           <div className="flip-card-face flip-card-front">{face}</div>
           <div className="flip-card-face flip-card-back">{back}</div>
@@ -214,7 +225,9 @@ function PhoneMock({ step }: { step: number }) {
     <div className="mx-auto w-[280px] rounded-[38px] border-[10px] border-[var(--ink)] bg-[var(--paper)] shadow-[0_30px_90px_rgb(24_18_12/28%)]">
       <div className="flex h-[520px] flex-col overflow-hidden rounded-[28px]">
         <div className="flex items-center justify-between px-5 pb-2 pt-4">
-          <span className="font-mono text-[9px] font-bold text-[var(--muted)]">9:41</span>
+          <span className="font-mono text-[9px] font-bold text-[var(--muted)]">
+            9:41
+          </span>
           <span className="h-1.5 w-10 rounded-full bg-[var(--line-strong)]" />
         </div>
 
@@ -224,7 +237,11 @@ function PhoneMock({ step }: { step: number }) {
               <ScanLine size={30} />
             </span>
             <div className="grid size-36 place-items-center rounded-2xl border-2 border-dashed border-[var(--line-strong)] bg-[var(--surface)]">
-              <QrCode size={78} className="text-[var(--ink)]" aria-hidden="true" />
+              <QrCode
+                size={78}
+                className="text-[var(--ink)]"
+                aria-hidden="true"
+              />
             </div>
             <p className="text-sm font-extrabold">Sweet Crumbs</p>
             <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
@@ -241,7 +258,11 @@ function PhoneMock({ step }: { step: number }) {
             <p className="text-lg font-extrabold leading-tight">
               A welcome stamp is waiting for you.
             </p>
-            <div className="flex gap-1.5" role="img" aria-label="One pending stamp of eight">
+            <div
+              className="flex gap-1.5"
+              role="img"
+              aria-label="One pending stamp of eight"
+            >
               {Array.from({ length: 8 }, (_, index) => (
                 <span
                   key={index}
@@ -254,8 +275,8 @@ function PhoneMock({ step }: { step: number }) {
               ))}
             </div>
             <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
-              Show your code on your first visit and it&rsquo;s yours — plus
-              one for the visit. Valid 30 days.
+              Show your code on your first visit and it&rsquo;s yours — plus one
+              for the visit. Valid 30 days.
             </p>
           </div>
         )}
@@ -267,16 +288,33 @@ function PhoneMock({ step }: { step: number }) {
             </p>
             <div className="mt-3 space-y-2.5">
               {[
-                { name: "Sweet Crumbs", meta: "5 of 8 · Free pastry", tone: "var(--ink)", fg: "var(--paper)" },
-                { name: "Brew Point Coffee", meta: "240 points", tone: "var(--accent)", fg: "var(--ink)" },
-                { name: "Rooted Studio", meta: "Reward ready", tone: "var(--success)", fg: "var(--paper)" },
+                {
+                  name: "Sweet Crumbs",
+                  meta: "5 of 8 · Free pastry",
+                  tone: "var(--ink)",
+                  fg: "var(--paper)",
+                },
+                {
+                  name: "Brew Point Coffee",
+                  meta: "240 points",
+                  tone: "var(--accent)",
+                  fg: "var(--ink)",
+                },
+                {
+                  name: "Rooted Studio",
+                  meta: "Reward ready",
+                  tone: "var(--success)",
+                  fg: "var(--paper)",
+                },
               ].map((card) => (
                 <div
                   key={card.name}
                   className="rounded-2xl px-4 py-3.5"
                   style={{ background: card.tone, color: card.fg }}
                 >
-                  <p className="text-sm font-extrabold tracking-[-0.02em]">{card.name}</p>
+                  <p className="text-sm font-extrabold tracking-[-0.02em]">
+                    {card.name}
+                  </p>
                   <p className="mt-0.5 text-[11px] opacity-70">{card.meta}</p>
                 </div>
               ))}
@@ -290,7 +328,11 @@ function PhoneMock({ step }: { step: number }) {
         {step === 3 && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
             <div className="rounded-2xl bg-white p-3 shadow-[0_10px_30px_rgb(24_18_12/16%)]">
-              <QrCode size={120} className="text-[var(--ink)]" aria-hidden="true" />
+              <QrCode
+                size={120}
+                className="text-[var(--ink)]"
+                aria-hidden="true"
+              />
             </div>
             <p className="font-mono text-xs font-bold">2912 4077 0315 7</p>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--success)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--paper)]">
@@ -352,7 +394,11 @@ export function VirtualCard() {
         </div>
 
         <div className="mt-16 grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-          <div className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-8">
+          {/* `min-w-0`: a grid item's default min-width is auto, so the card
+              inside refused to shrink and forced this panel to 380px on a
+              320px phone - the page scrolled sideways and the panel's right
+              edge was off it. */}
+          <div className="min-w-0 rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
             <WalletCardVisual />
             <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-[var(--line)] pt-6">
               {[

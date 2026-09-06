@@ -9,9 +9,20 @@
 html {
   scroll-behavior: smooth;
   background: var(--paper);
+  /* The hero and product decorations are deliberately offset past their
+     section edge - `-right-28`, `translate-x-1/3` - and nothing was clipping
+     them, so a 480px ring hanging off a 390px phone made the whole page
+     scroll sideways by six pixels. `clip` rather than `hidden` because
+     `hidden` would make this the containing block for every sticky element
+     on the site. */
+  overflow-x: clip;
 }
 body {
   margin: 0;
+  /* On `html` alone this does nothing: that value is propagated to the
+     viewport, which leaves the element itself unclipped. Set on both, `html`
+     answers for the viewport and `body` does the actual clipping. */
+  overflow-x: clip;
   background:
     radial-gradient(circle at 15% 4%, rgb(232 163 61 / 11%), transparent 25rem),
     var(--paper);
