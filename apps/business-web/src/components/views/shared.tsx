@@ -21,11 +21,16 @@ export type Notify = (message: string, intent?: NotifyIntent) => void;
 
 /** Who is signed in, for "issued by" lines. Cached under the session key. */
 export const useSessionInfo = () =>
-  useQuery({ queryKey: keys.session.current(), queryFn: getSession, staleTime: 60_000 });
+  useQuery({
+    queryKey: keys.session.current(),
+    queryFn: getSession,
+    staleTime: 60_000,
+  });
 
 /** A fresh reference for an idempotency key. Same fallback as the counter store. */
 export const newReference = () =>
-  globalThis.crypto?.randomUUID?.() ?? `${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
+  globalThis.crypto?.randomUUID?.() ??
+  `${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
 
 export const inputClass =
   "min-h-11 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)] disabled:opacity-60";
@@ -60,7 +65,9 @@ export function useExport(notify: Notify) {
         notify(`${kind} export downloaded.`);
       } catch (failure) {
         notify(
-          failure instanceof ApiError ? failure.message : "Could not prepare that export.",
+          failure instanceof ApiError
+            ? failure.message
+            : "Could not prepare that export.",
           "error",
         );
       } finally {
@@ -84,9 +91,28 @@ export function Field({
       {label}
       {children}
       {hint ? (
-        <span className="text-[10px] font-semibold text-[var(--muted)]">{hint}</span>
+        <span className="text-[10px] font-semibold text-[var(--muted)]">
+          {hint}
+        </span>
       ) : null}
     </label>
+  );
+}
+
+/**
+ * What a panel says when it has nothing to show.
+ *
+ * Six panels rendered a heading, or a table's header row, over blank space -
+ * campaign history, the delivery desk, connected services, counter activity,
+ * top regular choices, redemptions. A merchant cannot tell a screen with no
+ * data yet from one that failed to load, and the ones here are the screens
+ * they check when they are already worried.
+ */
+export function NothingYet({ children }: { children: ReactNode }) {
+  return (
+    <p className="px-1 py-8 text-center text-xs leading-relaxed text-[var(--muted-strong)]">
+      {children}
+    </p>
   );
 }
 
@@ -94,7 +120,10 @@ export function Field({
 export function BlockedNote({ reason }: { reason: string | null }) {
   if (!reason) return null;
   return (
-    <p role="note" className="text-[11px] font-semibold text-[var(--muted-strong)]">
+    <p
+      role="note"
+      className="text-[11px] font-semibold text-[var(--muted-strong)]"
+    >
       {reason}
     </p>
   );

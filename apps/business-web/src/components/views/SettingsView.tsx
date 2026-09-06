@@ -26,7 +26,12 @@ import {
   useToggleIntegration,
 } from "@/components/mutations";
 import { planFor, refusal, usePlanGate } from "@/lib/plan";
-import { inputClass, useExport, type Notify } from "@/components/views/shared";
+import {
+  inputClass,
+  useExport,
+  type Notify,
+  NothingYet,
+} from "@/components/views/shared";
 
 /**
  * Quiet hours and frequency caps.
@@ -41,10 +46,13 @@ function MessagingPolicyCard({ notify }: { notify: Notify }) {
   const shown = draft ?? policy;
 
   if (!shown) {
-    return <article className="h-64 animate-pulse rounded-2xl border border-[var(--line)] bg-[var(--surface-2)]" />;
+    return (
+      <article className="h-64 animate-pulse rounded-2xl border border-[var(--line)] bg-[var(--surface-2)]" />
+    );
   }
 
-  const edit = (field: keyof MessagingPolicy, value: number) => setDraft({ ...shown, [field]: value });
+  const edit = (field: keyof MessagingPolicy, value: number) =>
+    setDraft({ ...shown, [field]: value });
 
   return (
     <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
@@ -53,7 +61,8 @@ function MessagingPolicyCard({ notify }: { notify: Notify }) {
         <div>
           <p className="text-sm font-extrabold">Messaging limits</p>
           <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-            Nothing sends inside quiet hours, and nobody hears from you more often than these caps allow. Every channel, including the free ones.
+            Nothing sends inside quiet hours, and nobody hears from you more
+            often than these caps allow. Every channel, including the free ones.
           </p>
         </div>
       </div>
@@ -66,7 +75,10 @@ function MessagingPolicyCard({ notify }: { notify: Notify }) {
             ["maxPerWeek", "Max per week", 200],
           ] as const
         ).map(([field, label, max]) => (
-          <label key={field} className="grid gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">
+          <label
+            key={field}
+            className="grid gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]"
+          >
             {label}
             <input
               type="number"
@@ -109,7 +121,12 @@ function CustomFieldsCard({ notify }: { notify: Notify }) {
   const { data: fields = [] } = useCustomFields();
   const add = useAddCustomField();
   const [label, setLabel] = useState("");
-  const key = label.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^[^a-z]+/, "").slice(0, 60);
+  const key = label
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^[^a-z]+/, "")
+    .slice(0, 60);
   const blocked = gate.reason(needed);
 
   return (
@@ -119,19 +136,28 @@ function CustomFieldsCard({ notify }: { notify: Notify }) {
         <PlanTag plan={needed} included={gate.covers(needed)} />
       </div>
       <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-        What this shop needs to remember about someone, beyond visits and spend. They appear on every customer record.
+        What this shop needs to remember about someone, beyond visits and spend.
+        They appear on every customer record.
       </p>
       {fields.length > 0 && (
         <ul className="mt-4 flex flex-wrap gap-2">
           {fields.map((field) => (
-            <li key={field.key} className="rounded-full bg-[var(--surface-2)] px-3 py-1 text-[10px] font-extrabold">
+            <li
+              key={field.key}
+              className="rounded-full bg-[var(--surface-2)] px-3 py-1 text-[10px] font-extrabold"
+            >
               {field.label}
             </li>
           ))}
         </ul>
       )}
       <div className="mt-4 flex gap-2">
-        <input value={label} onChange={(event) => setLabel(event.target.value)} placeholder="Allergies" className={inputClass} />
+        <input
+          value={label}
+          onChange={(event) => setLabel(event.target.value)}
+          placeholder="Allergies"
+          className={inputClass}
+        />
         <Button
           tone="quiet"
           disabled={!key || add.isPending || Boolean(blocked)}
@@ -152,7 +178,11 @@ function CustomFieldsCard({ notify }: { notify: Notify }) {
           Add
         </Button>
       </div>
-      {blocked && <p className="mt-2 text-[11px] font-semibold text-[var(--muted-strong)]">{blocked}</p>}
+      {blocked && (
+        <p className="mt-2 text-[11px] font-semibold text-[var(--muted-strong)]">
+          {blocked}
+        </p>
+      )}
     </article>
   );
 }
@@ -182,17 +212,24 @@ function ApprovalsCard({ notify }: { notify: Notify }) {
       </p>
       <ul className="mt-4 space-y-3">
         {pending.map((request) => (
-          <li key={request.id} className="rounded-xl border border-[var(--line)] p-3">
+          <li
+            key={request.id}
+            className="rounded-xl border border-[var(--line)] p-3"
+          >
             <p className="text-xs font-extrabold">{request.action}</p>
             <p className="mt-0.5 text-[10px] text-[var(--muted-strong)]">
               {request.target}
-              {request.amountCentavos ? ` · ${pesoFromCentavos(request.amountCentavos)}` : ""}
+              {request.amountCentavos
+                ? ` · ${pesoFromCentavos(request.amountCentavos)}`
+                : ""}
             </p>
             <div className="mt-3 grid grid-cols-2 gap-2">
-              {([
-                ["Reject", false],
-                ["Approve", true],
-              ] as const).map(([verb, approve]) => (
+              {(
+                [
+                  ["Reject", false],
+                  ["Approve", true],
+                ] as const
+              ).map(([verb, approve]) => (
                 <Button
                   key={verb}
                   tone={approve ? "accent" : "quiet"}
@@ -201,8 +238,12 @@ function ApprovalsCard({ notify }: { notify: Notify }) {
                     decide.mutate(
                       { id: request.id, approve },
                       {
-                        onSuccess: () => notify(`${request.action} ${approve ? "approved" : "rejected"}.`),
-                        onError: (failure) => notify(refusal(failure, needed), "error"),
+                        onSuccess: () =>
+                          notify(
+                            `${request.action} ${approve ? "approved" : "rejected"}.`,
+                          ),
+                        onError: (failure) =>
+                          notify(refusal(failure, needed), "error"),
                       },
                     )
                   }
@@ -219,12 +260,30 @@ function ApprovalsCard({ notify }: { notify: Notify }) {
 }
 
 const NOTIFICATIONS = [
-  ["notifyRedemptions", "Reward redemptions", "One line whenever a reward is handed over or reversed"],
-  ["notifyDailySummary", "Daily summary", "Visits, stamps and redemptions, every evening"],
-  ["notifyLowCredits", "Low SMS credits", "When the balance drops under a day of sends"],
+  [
+    "notifyRedemptions",
+    "Reward redemptions",
+    "One line whenever a reward is handed over or reversed",
+  ],
+  [
+    "notifyDailySummary",
+    "Daily summary",
+    "Visits, stamps and redemptions, every evening",
+  ],
+  [
+    "notifyLowCredits",
+    "Low SMS credits",
+    "When the balance drops under a day of sends",
+  ],
 ] as const;
 
-const SUPPORT_CATEGORIES = ["Counter", "Program", "Billing", "Privacy", "Something else"] as const;
+const SUPPORT_CATEGORIES = [
+  "Counter",
+  "Program",
+  "Billing",
+  "Privacy",
+  "Something else",
+] as const;
 
 function SupportCard({ notify }: { notify: Notify }) {
   const raise = useRaiseSupportRequest();
@@ -260,11 +319,19 @@ function SupportCard({ notify }: { notify: Notify }) {
       >
         <label className="grid gap-1.5 text-xs font-bold">
           Subject
-          <input value={subject} onChange={(event) => setSubject(event.target.value)} className={inputClass} />
+          <input
+            value={subject}
+            onChange={(event) => setSubject(event.target.value)}
+            className={inputClass}
+          />
         </label>
         <label className="grid gap-1.5 text-xs font-bold">
           About
-          <select value={category} onChange={(event) => setCategory(event.target.value)} className={inputClass}>
+          <select
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            className={inputClass}
+          >
             {SUPPORT_CATEGORIES.map((option) => (
               <option key={option}>{option}</option>
             ))}
@@ -272,7 +339,12 @@ function SupportCard({ notify }: { notify: Notify }) {
         </label>
         <label className="grid gap-1.5 text-xs font-bold">
           What happened
-          <textarea value={detail} onChange={(event) => setDetail(event.target.value)} rows={3} className={`${inputClass} py-2`} />
+          <textarea
+            value={detail}
+            onChange={(event) => setDetail(event.target.value)}
+            rows={3}
+            className={`${inputClass} py-2`}
+          />
         </label>
         <Button type="submit" disabled={!subject.trim() || raise.isPending}>
           {raise.isPending ? "Sending…" : "Send"}
@@ -291,7 +363,10 @@ export function SettingsView({ notify }: { notify: Notify }) {
   const { runExport, busy } = useExport(notify);
   const deletion = useRaiseSupportRequest();
   const connected = useMemo(
-    () => Object.fromEntries(integrations.map((row) => [row.id, row.status === "Connected"])),
+    () =>
+      Object.fromEntries(
+        integrations.map((row) => [row.id, row.status === "Connected"]),
+      ),
     [integrations],
   );
 
@@ -300,7 +375,8 @@ export function SettingsView({ notify }: { notify: Notify }) {
     setSetting.mutate(
       { key, value: next },
       {
-        onSuccess: () => notify(`${label} ${next ? "turned on" : "turned off"}.`),
+        onSuccess: () =>
+          notify(`${label} ${next ? "turned on" : "turned off"}.`),
         onError: (failure) => notify(refusal(failure), "error"),
       },
     );
@@ -317,8 +393,17 @@ export function SettingsView({ notify }: { notify: Notify }) {
           <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
             <div className="border-b border-[var(--line)] p-5">
               <Eyebrow>Channels & services</Eyebrow>
-              <h2 className="mt-1 text-lg font-extrabold">Connect the tools you already use</h2>
+              <h2 className="mt-1 text-lg font-extrabold">
+                Connect the tools you already use
+              </h2>
             </div>
+            {integrations.filter((integration) => integration.id !== "int_pos")
+              .length === 0 && (
+              <NothingYet>
+                Nothing to connect yet. Point of sale, messaging and webhooks
+                appear here as they are switched on for your plan.
+              </NothingYet>
+            )}
             <div className="grid sm:grid-cols-2">
               {integrations
                 .filter((integration) => integration.id !== "int_pos")
@@ -343,18 +428,30 @@ export function SettingsView({ notify }: { notify: Notify }) {
                           title={isPlanned ? "Not available yet" : undefined}
                           onClick={() =>
                             toggle.mutate(integration.id, {
-                              onSuccess: (result) => notify(`${integration.name} ${result.enabled ? "connected" : "disconnected"}.`),
-                              onError: (failure) => notify(refusal(failure), "error"),
+                              onSuccess: (result) =>
+                                notify(
+                                  `${integration.name} ${result.enabled ? "connected" : "disconnected"}.`,
+                                ),
+                              onError: (failure) =>
+                                notify(refusal(failure), "error"),
                             })
                           }
                           className={`relative h-6 w-10 shrink-0 rounded-full before:absolute before:-inset-y-2.5 before:-inset-x-2 before:content-[''] ${isPlanned ? "cursor-not-allowed bg-[var(--line)] opacity-60" : isConnected ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                         >
-                          <span className={`absolute top-1 size-4 rounded-full bg-white transition ${isConnected ? "left-5" : "left-1"}`} />
+                          <span
+                            className={`absolute top-1 size-4 rounded-full bg-white transition ${isConnected ? "left-5" : "left-1"}`}
+                          />
                         </button>
                       </div>
-                      <p className="mt-6 text-sm font-extrabold">{integration.name}</p>
-                      <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--accent-strong)]">{integration.category}</p>
-                      <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">{integration.detail}</p>
+                      <p className="mt-6 text-sm font-extrabold">
+                        {integration.name}
+                      </p>
+                      <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
+                        {integration.category}
+                      </p>
+                      <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
+                        {integration.detail}
+                      </p>
                     </article>
                   );
                 })}
@@ -368,7 +465,9 @@ export function SettingsView({ notify }: { notify: Notify }) {
                 <div key={key} className="flex items-start gap-3 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-extrabold">{label}</p>
-                    <p className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">{detail}</p>
+                    <p className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">
+                      {detail}
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -379,7 +478,9 @@ export function SettingsView({ notify }: { notify: Notify }) {
                     onClick={() => flip(key, label)}
                     className={`relative h-6 w-10 shrink-0 rounded-full ${settings[key] ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                   >
-                    <span className={`absolute top-1 size-4 rounded-full bg-white transition ${settings[key] ? "left-5" : "left-1"}`} />
+                    <span
+                      className={`absolute top-1 size-4 rounded-full bg-white transition ${settings[key] ? "left-5" : "left-1"}`}
+                    />
                   </button>
                 </div>
               ))}
@@ -392,11 +493,20 @@ export function SettingsView({ notify }: { notify: Notify }) {
               <PlanTag plan="Launch" included />
             </div>
             <p className="mt-3 text-xs leading-relaxed text-[var(--muted-strong)]">
-              Consent is per purpose and per channel, kept in a ledger the customer can read from their wallet. Export and deletion are on every plan.
+              Consent is per purpose and per channel, kept in a ledger the
+              customer can read from their wallet. Export and deletion are on
+              every plan.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button tone="quiet" icon={<FileDown size={15} />} disabled={busy === "customers"} onClick={() => runExport("customers")}>
-                {busy === "customers" ? "Preparing…" : "Export your customer list"}
+              <Button
+                tone="quiet"
+                icon={<FileDown size={15} />}
+                disabled={busy === "customers"}
+                onClick={() => runExport("customers")}
+              >
+                {busy === "customers"
+                  ? "Preparing…"
+                  : "Export your customer list"}
               </Button>
               <Button
                 tone="quiet"
@@ -409,7 +519,10 @@ export function SettingsView({ notify }: { notify: Notify }) {
                       category: "Privacy",
                     },
                     {
-                      onSuccess: (ticket) => notify(`Deletion request logged. Reference ${ticket.id}.`),
+                      onSuccess: (ticket) =>
+                        notify(
+                          `Deletion request logged. Reference ${ticket.id}.`,
+                        ),
                       onError: (failure) => notify(refusal(failure), "error"),
                     },
                   )
@@ -419,7 +532,8 @@ export function SettingsView({ notify }: { notify: Notify }) {
               </Button>
             </div>
             <p className="mt-3 text-[11px] leading-relaxed text-[var(--muted)]">
-              A deletion goes to a person because it is irreversible; it is logged with your name and the time.
+              A deletion goes to a person because it is irreversible; it is
+              logged with your name and the time.
             </p>
           </article>
         </section>
@@ -427,7 +541,9 @@ export function SettingsView({ notify }: { notify: Notify }) {
         <aside className="space-y-3">
           <article className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
             <Eyebrow>Workspace</Eyebrow>
-            <p className="mt-5 text-2xl font-extrabold">{profile?.name ?? "—"}</p>
+            <p className="mt-5 text-2xl font-extrabold">
+              {profile?.name ?? "—"}
+            </p>
             <div className="mt-5 divide-y divide-white/12 border-y border-white/12">
               {[
                 ["Plan", profile?.plan ?? "—"],
@@ -435,17 +551,27 @@ export function SettingsView({ notify }: { notify: Notify }) {
                 ["Timezone", profile?.timezone ?? "—"],
                 ["Owner", profile?.owner ?? "—"],
               ].map(([label, value]) => (
-                <div key={label} className="flex justify-between gap-4 py-3 text-sm">
+                <div
+                  key={label}
+                  className="flex justify-between gap-4 py-3 text-sm"
+                >
                   <span className="text-white/55">{label}</span>
                   <span className="font-bold">{value}</span>
                 </div>
               ))}
             </div>
             <div className="mt-5 grid grid-cols-2 gap-2">
-              <a href="/workspaces" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 text-xs font-extrabold">
+              <a
+                href="/workspaces"
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 text-xs font-extrabold"
+              >
                 Switch workspace
               </a>
-              <Button tone="quiet" className="border-white/20 bg-white/5 text-white hover:bg-white/10" onClick={() => signOut()}>
+              <Button
+                tone="quiet"
+                className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+                onClick={() => signOut()}
+              >
                 Sign out
               </Button>
             </div>

@@ -1,9 +1,17 @@
 "use client";
 
+import { NothingYet } from "@/components/views/shared";
 import { useState } from "react";
 import { sharedScenario } from "@kypstamping/demo-data";
 import type { Environment } from "@kypstamping/api";
-import { Button, Dialog, Eyebrow, FieldLabel, Panel, Skeleton } from "@kypstamping/ui";
+import {
+  Button,
+  Dialog,
+  Eyebrow,
+  FieldLabel,
+  Panel,
+  Skeleton,
+} from "@kypstamping/ui";
 import { PlanTag } from "@kypstamping/ui/shell";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import {
@@ -75,7 +83,8 @@ const connectionOptions = [
     name: "KYP Stamping terminal",
     icon: SquareTerminal,
     eyebrow: "No POS changes",
-    description: "Scan, earn, and redeem beside any register, with an offline-safe queue.",
+    description:
+      "Scan, earn, and redeem beside any register, with an offline-safe queue.",
     availability: "Ready now",
   },
   {
@@ -83,7 +92,8 @@ const connectionOptions = [
     name: "Custom API",
     icon: Code2,
     eyebrow: "For developers",
-    description: "Send normalized sales, refunds, and redemption events directly to KYP Stamping.",
+    description:
+      "Send normalized sales, refunds, and redemption events directly to KYP Stamping.",
     availability: "Sandbox ready",
   },
   {
@@ -91,7 +101,8 @@ const connectionOptions = [
     name: "POS webhook",
     icon: Store,
     eyebrow: "Any register",
-    description: "Post sale and refund events from your existing POS using the shared event contract.",
+    description:
+      "Post sale and refund events from your existing POS using the shared event contract.",
     availability: "Sandbox ready",
   },
   {
@@ -99,15 +110,17 @@ const connectionOptions = [
     name: "Scheduled pull",
     icon: PlugZap,
     eyebrow: "Any register",
-    description: "Let KYP Stamping fetch sales on a schedule when your POS cannot send webhooks.",
+    description:
+      "Let KYP Stamping fetch sales on a schedule when your POS cannot send webhooks.",
     availability: "Sandbox ready",
   },
 ] as const;
 
-
-
-
-function StatusBadge({ status }: { status: DeliveryStatus | CredentialStatus }) {
+function StatusBadge({
+  status,
+}: {
+  status: DeliveryStatus | CredentialStatus;
+}) {
   const classes = {
     Active: "bg-[rgb(15_118_85/12%)] text-[var(--success)]",
     Revoked: "bg-[var(--surface-2)] text-[var(--muted-strong)]",
@@ -150,7 +163,9 @@ function DeliveryDrawer({
         <Skeleton className="h-64 w-full" />
       ) : error || !delivery ? (
         <p className="text-sm text-[var(--muted-strong)]">
-          {error instanceof ApiError ? error.message : "That delivery could not be read."}
+          {error instanceof ApiError
+            ? error.message
+            : "That delivery could not be read."}
         </p>
       ) : (
         <div className="grid gap-5">
@@ -162,12 +177,16 @@ function DeliveryDrawer({
                 ["Status", delivery.status],
                 [
                   "Response",
-                  delivery.responseStatus === null ? "no reply" : String(delivery.responseStatus),
+                  delivery.responseStatus === null
+                    ? "no reply"
+                    : String(delivery.responseStatus),
                 ],
                 ["Attempts", `${delivery.attempts} of ${delivery.maxAttempts}`],
                 [
                   "Next attempt",
-                  delivery.nextAttemptAt ? relativeTime(delivery.nextAttemptAt) : "none scheduled",
+                  delivery.nextAttemptAt
+                    ? relativeTime(delivery.nextAttemptAt)
+                    : "none scheduled",
                 ],
               ] as const
             ).map(([label, value]) => (
@@ -185,7 +204,9 @@ function DeliveryDrawer({
               <p className="text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]">
                 What went wrong
               </p>
-              <p className="mt-1.5 text-xs leading-relaxed">{delivery.detail}</p>
+              <p className="mt-1.5 text-xs leading-relaxed">
+                {delivery.detail}
+              </p>
             </div>
           )}
 
@@ -203,7 +224,9 @@ function DeliveryDrawer({
           <p className="text-[10px] text-[var(--muted)]">
             Request {delivery.requestId || "unknown"} · created{" "}
             {relativeTime(delivery.createdAt)}
-            {delivery.deliveredAt ? ` · delivered ${relativeTime(delivery.deliveredAt)}` : ""}
+            {delivery.deliveredAt
+              ? ` · delivered ${relativeTime(delivery.deliveredAt)}`
+              : ""}
           </p>
         </div>
       )}
@@ -221,9 +244,8 @@ export function IntegrationsView({
   const [environment, setEnvironment] = useState<Environment>("sandbox");
   const [inspecting, setInspecting] = useState("");
   // Matches the adapter the platform control room reports for this tenant.
-  const [connection, setConnection] = useState<(typeof connectionOptions)[number]["id"]>(
-    "custom",
-  );
+  const [connection, setConnection] =
+    useState<(typeof connectionOptions)[number]["id"]>("custom");
   const { data: credentials = [] } = useCredentials(environment);
   const { data: deliveries = [], refetch: refetchDeliveries } =
     useWebhookDeliveries(environment);
@@ -247,21 +269,24 @@ export function IntegrationsView({
     setDraftUrl(null);
     setDraftEvents(null);
   };
-  const revealSecret = useApiMutation<{ secret: string }, string>(revealWebhookSecret);
+  const revealSecret = useApiMutation<{ secret: string }, string>(
+    revealWebhookSecret,
+  );
   const rotateEndpointSecret = useApiMutation<{ secret: string }, string>(
     rotateWebhookSecret,
     { invalidates: [keys.integrations.webhookEndpoints(environment)] },
   );
   // One endpoint per environment, and one key is "the active secret".
   const activeCredential = credentials.find(
-    (credential) => credential.status === "Active" && credential.environment === environment,
+    (credential) =>
+      credential.status === "Active" && credential.environment === environment,
   );
 
   const credentialKeys = [keys.integrations.credentials(environment)];
-  const create = useApiMutation<CredentialCreated, Parameters<typeof createCredential_>[0]>(
-    createCredential_,
-    { invalidates: credentialKeys },
-  );
+  const create = useApiMutation<
+    CredentialCreated,
+    Parameters<typeof createCredential_>[0]
+  >(createCredential_, { invalidates: credentialKeys });
   const rotate = useApiMutation<CredentialCreated, string>(rotateCredential_, {
     invalidates: credentialKeys,
   });
@@ -300,13 +325,13 @@ export function IntegrationsView({
 
   const secretPrefix = environment === "sandbox" ? "sk_test" : "sk_live_demo";
   const providerSlug = connection === "sidecar" ? "terminal" : connection;
-  const inboundUrl = `${(contract?.apiBase ?? "")}/integrations/${providerSlug}/webhook`;
+  const inboundUrl = `${contract?.apiBase ?? ""}/integrations/${providerSlug}/webhook`;
   // Every value below is the shared scenario's own visit, so the request the
   // merchant copies matches the event the wallet and the control room show.
   const quickstart = `curl --request POST \\
-  --url ${(contract?.apiBase ?? "")}/transactions \\
+  --url ${contract?.apiBase ?? ""}/transactions \\
   --header 'Authorization: Bearer ${secretPrefix}_••••••••' \\
-  --header '${(contract?.idempotency.header ?? "Idempotency-Key")}: ${sharedScenario.delivery.idempotencyKey}' \\
+  --header '${contract?.idempotency.header ?? "Idempotency-Key"}: ${sharedScenario.delivery.idempotencyKey}' \\
   --header 'X-Merchant-ID: ${sharedScenario.merchantId}' \\
   --data '{
     "external_transaction_id": "${sharedScenario.externalTransactionId}",
@@ -378,7 +403,9 @@ export function IntegrationsView({
           // The only moment the secret exists in readable form. The list
           // afterwards carries a preview and nothing more.
           setOneTimeSecret(credential.secret);
-          notify("Credential created. Copy the secret now - it is not shown again.");
+          notify(
+            "Credential created. Copy the secret now - it is not shown again.",
+          );
         },
         onError: (failure) => notify(failure.message, "error"),
       },
@@ -420,7 +447,10 @@ export function IntegrationsView({
 
   function sendTestWebhook() {
     if (!webhookUrl.startsWith("https://")) {
-      notify("Use an HTTPS destination before sending a sample webhook.", "error");
+      notify(
+        "Use an HTTPS destination before sending a sample webhook.",
+        "error",
+      );
       return;
     }
     if (subscribedEvents.length === 0) {
@@ -482,9 +512,9 @@ export function IntegrationsView({
             POS & API integrations
           </h1>
           <p className="mt-2 max-w-[68ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-            Choose how sales reach KYP Stamping, issue least-privilege keys, sign webhooks,
-            and trace every event without tying loyalty to one POS vendor. API
-            access and webhooks are included from the Grow plan.
+            Choose how sales reach KYP Stamping, issue least-privilege keys,
+            sign webhooks, and trace every event without tying loyalty to one
+            POS vendor. API access and webhooks are included from the Grow plan.
           </p>
         </div>
       </header>
@@ -535,8 +565,16 @@ export function IntegrationsView({
           {[
             ["Organization", profile?.organizationId ?? ""],
             ["Merchant", profile?.merchantId ?? ""],
-            ["Branch access", `${locations.length} branches`],
-            ["Environment", environment === "sandbox" ? "Sandbox · test data" : "Preview only · not live"],
+            [
+              "Branch access",
+              `${locations.length} branch${locations.length === 1 ? "" : "es"}`,
+            ],
+            [
+              "Environment",
+              environment === "sandbox"
+                ? "Sandbox · test data"
+                : "Preview only · not live",
+            ],
           ].map(([term, detail]) => (
             <div key={term} className="bg-[var(--ink)] px-4 py-4">
               <dt className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/55">
@@ -559,7 +597,8 @@ export function IntegrationsView({
             </h2>
           </div>
           <p className="max-w-md text-xs leading-relaxed text-[var(--muted)]">
-            Provider cards are setup previews—not claims of a live or approved integration.
+            Provider cards are setup previews—not claims of a live or approved
+            integration.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 xl:grid-cols-4">
@@ -573,12 +612,18 @@ export function IntegrationsView({
                 aria-pressed={active}
                 onClick={() => {
                   setConnection(option.id);
-                  notify(`${option.name} is now the active connection in this demo.`);
+                  notify(
+                    `${option.name} is now the active connection in this demo.`,
+                  );
                 }}
                 className={`min-h-64 p-5 text-left transition focus-visible:z-10 ${
-                  index > 0 ? "border-t border-[var(--line)] sm:border-t-0 sm:border-l" : ""
+                  index > 0
+                    ? "border-t border-[var(--line)] sm:border-t-0 sm:border-l"
+                    : ""
                 } ${index === 2 ? "sm:border-t xl:border-t-0" : ""} ${
-                  active ? "bg-[var(--ink)] text-[var(--paper)]" : "hover:bg-[var(--surface-2)]"
+                  active
+                    ? "bg-[var(--ink)] text-[var(--paper)]"
+                    : "hover:bg-[var(--surface-2)]"
                 }`}
               >
                 <span
@@ -590,12 +635,16 @@ export function IntegrationsView({
                 </span>
                 <span
                   className={`mt-7 block text-[9px] font-extrabold uppercase tracking-[0.12em] ${
-                    active ? "text-[var(--accent)]" : "text-[var(--accent-strong)]"
+                    active
+                      ? "text-[var(--accent)]"
+                      : "text-[var(--accent-strong)]"
                   }`}
                 >
                   {option.eyebrow}
                 </span>
-                <span className="mt-1 block text-base font-extrabold">{option.name}</span>
+                <span className="mt-1 block text-base font-extrabold">
+                  {option.name}
+                </span>
                 <span
                   className={`mt-2 block text-xs leading-relaxed ${
                     active ? "text-white/60" : "text-[var(--muted-strong)]"
@@ -604,7 +653,11 @@ export function IntegrationsView({
                   {option.description}
                 </span>
                 <span className="mt-5 inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.09em]">
-                  {active ? <CheckCircle2 size={13} /> : <ArrowRight size={13} />}
+                  {active ? (
+                    <CheckCircle2 size={13} />
+                  ) : (
+                    <ArrowRight size={13} />
+                  )}
                   {active ? "Selected" : option.availability}
                 </span>
               </button>
@@ -628,8 +681,8 @@ export function IntegrationsView({
               </span>
             </div>
             <p className="mt-2 max-w-2xl text-xs leading-relaxed text-[var(--muted-strong)]">
-              Use a different key per terminal or server. Branch and action scopes make
-              a leaked credential less useful.
+              Use a different key per terminal or server. Branch and action
+              scopes make a leaked credential less useful.
             </p>
           </div>
 
@@ -679,14 +732,18 @@ export function IntegrationsView({
                       />
                       <span
                         className={`grid size-5 place-items-center rounded-md border ${
-                          selected ? "border-white/30 bg-white/12" : "border-[var(--line-strong)]"
+                          selected
+                            ? "border-white/30 bg-white/12"
+                            : "border-[var(--line-strong)]"
                         }`}
                       >
                         {selected && <Check size={13} strokeWidth={3} />}
                       </span>
                       <span>
                         {scope.label}
-                        <span className={`block font-mono text-[9px] ${selected ? "text-white/50" : "text-[var(--muted)]"}`}>
+                        <span
+                          className={`block font-mono text-[9px] ${selected ? "text-white/50" : "text-[var(--muted)]"}`}
+                        >
                           {scope.id}
                         </span>
                       </span>
@@ -703,7 +760,9 @@ export function IntegrationsView({
                 tone="quiet"
                 icon={<RotateCcw size={15} />}
                 disabled={!activeCredential || rotate.isPending}
-                onClick={() => activeCredential && rotateCredential(activeCredential.id)}
+                onClick={() =>
+                  activeCredential && rotateCredential(activeCredential.id)
+                }
               >
                 {rotate.isPending ? "Rotating…" : "Rotate active secret"}
               </Button>
@@ -711,9 +770,15 @@ export function IntegrationsView({
           </div>
 
           {oneTimeSecret && (
-            <div className="border-b border-[rgb(143_85_16/22%)] bg-[rgb(232_163_61/12%)] p-5 sm:p-6" role="status">
+            <div
+              className="border-b border-[rgb(143_85_16/22%)] bg-[rgb(232_163_61/12%)] p-5 sm:p-6"
+              role="status"
+            >
               <div className="flex items-start gap-3">
-                <KeyRound size={18} className="mt-0.5 shrink-0 text-[var(--accent-strong)]" />
+                <KeyRound
+                  size={18}
+                  className="mt-0.5 shrink-0 text-[var(--accent-strong)]"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-extrabold">Copy this secret now</p>
                   <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
@@ -727,7 +792,9 @@ export function IntegrationsView({
                     <button
                       type="button"
                       aria-label="Copy one-time sample secret"
-                      onClick={() => copyValue(oneTimeSecret, "One-time sample secret")}
+                      onClick={() =>
+                        copyValue(oneTimeSecret, "One-time sample secret")
+                      }
                       className="grid size-9 shrink-0 place-items-center rounded-lg bg-[var(--ink)] text-[var(--paper)]"
                     >
                       <Copy size={15} />
@@ -749,9 +816,10 @@ export function IntegrationsView({
           <div className="divide-y divide-[var(--line)]">
             {visibleCredentials.length === 0 && (
               <p className="p-6 text-xs leading-relaxed text-[var(--muted-strong)]">
-                No {environment === "sandbox" ? "sandbox" : "production preview"} keys
-                yet. Create one above — keys issued in one environment never work
-                in the other.
+                No{" "}
+                {environment === "sandbox" ? "sandbox" : "production preview"}{" "}
+                keys yet. Create one above — keys issued in one environment
+                never work in the other.
               </p>
             )}
             {visibleCredentials.map((credential) => (
@@ -759,17 +827,22 @@ export function IntegrationsView({
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-extrabold">{credential.label}</h3>
+                      <h3 className="text-sm font-extrabold">
+                        {credential.label}
+                      </h3>
                       <StatusBadge status={credential.status} />
                     </div>
                     <p className="mt-1 text-xs text-[var(--muted)]">
-                      {credential.branch} · Last used {relativeTime(credential.lastUsedAt)}
+                      {credential.branch} · Last used{" "}
+                      {relativeTime(credential.lastUsedAt)}
                     </p>
                   </div>
                   {credential.status === "Active" && (
                     <button
                       type="button"
-                      onClick={() => revokeCredential(credential.id, credential.label)}
+                      onClick={() =>
+                        revokeCredential(credential.id, credential.label)
+                      }
                       className="text-left text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--danger)]"
                     >
                       Revoke key
@@ -789,7 +862,12 @@ export function IntegrationsView({
                     <button
                       type="button"
                       aria-label={`Copy ${credential.label} client key`}
-                      onClick={() => copyValue(credential.clientKey, `${credential.label} client key`)}
+                      onClick={() =>
+                        copyValue(
+                          credential.clientKey,
+                          `${credential.label} client key`,
+                        )
+                      }
                       className="grid size-9 shrink-0 place-items-center rounded-lg hover:bg-[var(--surface-2)]"
                     >
                       <Copy size={14} />
@@ -799,7 +877,9 @@ export function IntegrationsView({
                     <span className="block text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted)]">
                       Secret
                     </span>
-                    <code className="mt-0.5 block text-xs font-bold">••••••••••••Q4N8</code>
+                    <code className="mt-0.5 block text-xs font-bold">
+                      ••••••••••••Q4N8
+                    </code>
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-1.5">
@@ -825,10 +905,26 @@ export function IntegrationsView({
             </div>
             <ol className="divide-y divide-[var(--line)]">
               {[
-                ["1", "Scope the identity", "Organization → merchant → branch → terminal"],
-                ["2", "Sign the request", "Bearer secret plus tenant and idempotency headers"],
-                ["3", "Normalize the sale", "One transaction model across every POS adapter"],
-                ["4", "Append the ledger", "Immutable earn, redeem, refund, or reversal entry"],
+                [
+                  "1",
+                  "Scope the identity",
+                  "Organization → merchant → branch → terminal",
+                ],
+                [
+                  "2",
+                  "Sign the request",
+                  "Bearer secret plus tenant and idempotency headers",
+                ],
+                [
+                  "3",
+                  "Normalize the sale",
+                  "One transaction model across every POS adapter",
+                ],
+                [
+                  "4",
+                  "Append the ledger",
+                  "Immutable earn, redeem, refund, or reversal entry",
+                ],
               ].map(([number, title, detail]) => (
                 <li key={number} className="flex gap-3 p-5">
                   <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[var(--ink)] text-xs font-extrabold text-[var(--paper)]">
@@ -849,7 +945,9 @@ export function IntegrationsView({
             <div className="flex items-start justify-between gap-3 border-b border-white/12 p-5">
               <div>
                 <Eyebrow>Quickstart</Eyebrow>
-                <h2 className="mt-1 text-lg font-extrabold">Record a PHP sale</h2>
+                <h2 className="mt-1 text-lg font-extrabold">
+                  Record a PHP sale
+                </h2>
               </div>
               <button
                 type="button"
@@ -864,9 +962,12 @@ export function IntegrationsView({
               <code>{quickstart}</code>
             </pre>
             <div className="flex items-start gap-2 border-t border-white/12 px-5 py-4 text-[10px] leading-relaxed text-white/55">
-              <ShieldCheck size={14} className="mt-0.5 shrink-0 text-[var(--accent)]" />
-              +63 E.164 phone format, centavo amounts, and a stable idempotency key
-              prevent common integration mistakes.
+              <ShieldCheck
+                size={14}
+                className="mt-0.5 shrink-0 text-[var(--accent)]"
+              />
+              +63 E.164 phone format, centavo amounts, and a stable idempotency
+              key prevent common integration mistakes.
             </div>
           </section>
         </div>
@@ -885,8 +986,8 @@ export function IntegrationsView({
               <Webhook size={20} className="text-[var(--accent-strong)]" />
             </div>
             <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
-              Give this versioned endpoint and signing requirements to your POS or
-              ecommerce developer.
+              Give this versioned endpoint and signing requirements to your POS
+              or ecommerce developer.
             </p>
           </div>
           <div className="space-y-5 p-5 sm:p-6">
@@ -948,7 +1049,10 @@ export function IntegrationsView({
                 The steps come from /contract, which is what we actually do. */}
             {contract?.webhookSignature && (
               <div className="flex items-start gap-3 rounded-2xl bg-[rgb(15_118_85/9%)] p-4">
-                <BadgeCheck size={18} className="mt-0.5 shrink-0 text-[var(--success)]" />
+                <BadgeCheck
+                  size={18}
+                  className="mt-0.5 shrink-0 text-[var(--success)]"
+                />
                 <div className="min-w-0">
                   <p className="text-xs font-extrabold">
                     Verify every delivery we send
@@ -964,8 +1068,8 @@ export function IntegrationsView({
                     </code>{" "}
                     in constant time. Reject anything older than{" "}
                     {contract.webhookSignature.toleranceSeconds} seconds — the
-                    timestamp is inside the signature, so a captured body
-                    cannot be replayed later.
+                    timestamp is inside the signature, so a captured body cannot
+                    be replayed later.
                   </p>
                 </div>
               </div>
@@ -985,7 +1089,8 @@ export function IntegrationsView({
               <Link2 size={20} className="text-[var(--accent-strong)]" />
             </div>
             <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
-              Subscribe your own endpoint to loyalty, customer, and redemption changes.
+              Subscribe your own endpoint to loyalty, customer, and redemption
+              changes.
             </p>
           </div>
           <div className="space-y-5 p-5 sm:p-6">
@@ -1028,7 +1133,13 @@ export function IntegrationsView({
             </fieldset>
             <div className="flex flex-wrap gap-2">
               <Button
-                icon={testSending ? <RefreshCcw size={15} className="animate-spin" /> : <TestTube2 size={15} />}
+                icon={
+                  testSending ? (
+                    <RefreshCcw size={15} className="animate-spin" />
+                  ) : (
+                    <TestTube2 size={15} />
+                  )
+                }
                 disabled={testSending}
                 onClick={sendTestWebhook}
               >
@@ -1093,7 +1204,9 @@ export function IntegrationsView({
                       rotateEndpointSecret.mutate(outbound.id, {
                         onSuccess: ({ secret }) => {
                           setOneTimeSecret(secret);
-                          notify("Signing secret rotated. Update your endpoint now.");
+                          notify(
+                            "Signing secret rotated. Update your endpoint now.",
+                          );
                         },
                         onError: (failure) => notify(failure.message, "error"),
                       });
@@ -1117,7 +1230,9 @@ export function IntegrationsView({
                         onSuccess: () => {
                           clearDraft();
                           setOneTimeSecret(null);
-                          notify("Outbound endpoint removed. Nothing is being delivered.");
+                          notify(
+                            "Outbound endpoint removed. Nothing is being delivered.",
+                          );
                         },
                         onError: (failure) => notify(failure.message, "error"),
                       });
@@ -1134,8 +1249,9 @@ export function IntegrationsView({
               </p>
             )}
             <p className="flex items-start gap-2 text-[10px] leading-relaxed text-[var(--muted)]">
-              <Clock3 size={13} className="mt-0.5 shrink-0" /> Failed live deliveries will
-              retry with exponential backoff and move to a recoverable dead-letter state.
+              <Clock3 size={13} className="mt-0.5 shrink-0" /> Failed live
+              deliveries will retry with exponential backoff and move to a
+              recoverable dead-letter state.
             </p>
           </div>
         </Panel>
@@ -1149,7 +1265,8 @@ export function IntegrationsView({
               Recent integration events
             </h2>
             <p className="mt-2 text-xs text-[var(--muted-strong)]">
-              Payloads stay redacted; IDs and recovery status remain visible to operators.
+              Payloads stay redacted; IDs and recovery status remain visible to
+              operators.
             </p>
           </div>
           <Button
@@ -1168,6 +1285,12 @@ export function IntegrationsView({
           </Button>
         </div>
         <div className="divide-y divide-[var(--line)]">
+          {deliveries.length === 0 && (
+            <NothingYet>
+              No integration events yet. Every webhook this workspace sends, and
+              every retry, lands here as soon as one fires.
+            </NothingYet>
+          )}
           {deliveries.map((delivery) => (
             <article
               key={delivery.id}
@@ -1180,7 +1303,9 @@ export function IntegrationsView({
                   </code>
                   <StatusBadge status={delivery.status} />
                 </div>
-                <p className="mt-2 break-all text-sm font-extrabold">{delivery.event}</p>
+                <p className="mt-2 break-all text-sm font-extrabold">
+                  {delivery.event}
+                </p>
               </div>
               <div>
                 <p className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted)]">
@@ -1189,7 +1314,9 @@ export function IntegrationsView({
                 <p className="mt-1 text-xs font-bold">{delivery.source}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-[var(--muted-strong)]">{delivery.detail}</p>
+                <p className="text-xs font-semibold text-[var(--muted-strong)]">
+                  {delivery.detail}
+                </p>
                 <code className="mt-1 block text-[9px] text-[var(--muted)]">
                   {delivery.requestId}
                 </code>
@@ -1221,21 +1348,25 @@ export function IntegrationsView({
           {
             icon: SquareTerminal,
             title: "Use the sidecar now",
-            detail: "Keep loyalty separate from the POS while preserving the same ledger and redemption rules.",
+            detail:
+              "Keep loyalty separate from the POS while preserving the same ledger and redemption rules.",
             action: "Open counter",
             onClick: () => onNavigate("scan"),
           },
           {
             icon: ServerCog,
             title: "Sandbox contract",
-            detail: "Customer lookup, sale, refund, void, balance, reward, and redemption flows share /api/v1.",
+            detail:
+              "Customer lookup, sale, refund, void, balance, reward, and redemption flows share /api/v1.",
             action: "Copy API base",
-            onClick: () => copyValue((contract?.apiBase ?? ""), "Planned API base"),
+            onClick: () =>
+              copyValue(contract?.apiBase ?? "", "Planned API base"),
           },
           {
             icon: TriangleAlert,
             title: "Using an unusual POS?",
-            detail: "Any register that can post webhooks or expose a read API connects through the same event contract.",
+            detail:
+              "Any register that can post webhooks or expose a read API connects through the same event contract.",
             // There is no readiness checklist to open, and inventing a toast
             // that says there is helps nobody. An unusual register is a
             // conversation - the contact page is where that starts.
@@ -1271,7 +1402,10 @@ export function IntegrationsView({
         })}
       </section>
       {inspecting && (
-        <DeliveryDrawer deliveryId={inspecting} onClose={() => setInspecting("")} />
+        <DeliveryDrawer
+          deliveryId={inspecting}
+          onClose={() => setInspecting("")}
+        />
       )}
     </main>
   );
