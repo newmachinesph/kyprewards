@@ -21,10 +21,17 @@ const urls = {
   marketing: process.env.MARKETING_APP_URL ?? "http://localhost:3003",
   marketplace: process.env.MARKETPLACE_APP_URL ?? "http://localhost:3004",
 };
-const OWNER = { email: "mara@sweetcrumbs.ph", password: "DemoPass123!" };
+// The seeded owner by default; overridable because the seeded shop is on Grow,
+// and the plan a workspace is on changes most of what these screens render.
+// Point them at a shop the free plan actually made and the walk captures what
+// a Launch merchant sees rather than what a paid one does.
+const OWNER = {
+  email: process.env.OWNER_EMAIL ?? "mara@sweetcrumbs.ph",
+  password: process.env.OWNER_PASSWORD ?? "DemoPass123!",
+};
 const ADMIN = { email: "admin@kypstamping.ph", password: "DemoPass123!" };
 const ADMIN_MFA_SECRET = process.env.ADMIN_MFA_SECRET ?? "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
-const CUSTOMER_MOBILE = "+63 917 555 0182";
+const CUSTOMER_MOBILE = process.env.CUSTOMER_MOBILE ?? "+63 917 555 0182";
 
 const only = new Set(process.argv.slice(2));
 const wants = (app) => only.size === 0 || only.has(app);

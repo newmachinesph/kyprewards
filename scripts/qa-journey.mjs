@@ -1314,5 +1314,10 @@ console.log(`\n──────────────── ${unique.length}
 for (const line of unique) console.log(" -", line);
 console.log("");
 
-await browser.close();
+// A close that hangs or throws is not a failed walk. This is a nine-act run
+// with four contexts open for two minutes, and twice it reported no problems
+// and still exited 1 - the verdict is the problem list, not the teardown.
+await browser.close().catch((failure) => {
+  console.log(`(the browser did not close cleanly: ${failure.message.split("\n")[0]})`);
+});
 process.exit(unique.length ? 1 : 0);
