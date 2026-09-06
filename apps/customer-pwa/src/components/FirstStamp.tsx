@@ -74,7 +74,11 @@ export function readClaim(): string | null {
 
 export function forgetClaim() {
   try {
-    for (const key of [PENDING_CLAIM_KEY, PENDING_CLAIM_SHOP_KEY, PENDING_CLAIM_AT_KEY]) {
+    for (const key of [
+      PENDING_CLAIM_KEY,
+      PENDING_CLAIM_SHOP_KEY,
+      PENDING_CLAIM_AT_KEY,
+    ]) {
       window.localStorage.removeItem(key);
     }
   } catch {
@@ -199,7 +203,11 @@ export function FirstStamp({ slug }: { slug: string }) {
 
   return (
     <main className="phone-shell mx-auto grid min-h-[100dvh] max-w-[460px] place-items-center border-x border-[rgb(24_18_12/8%)] bg-[var(--paper)] px-5 py-10">
-      <div className="w-full">
+      {/* `min-w-0` because the parent is a grid: a grid item's default
+          min-width is auto, so the stamp row - eight dots on a six-stamp card
+          is already wider than a 390px phone - pushed the whole column out
+          past the viewport, and the poster screen scrolled sideways. */}
+      <div className="w-full min-w-0">
         <BrandMark label="KYP" tagline={null} />
 
         {failed && !offer ? (
@@ -210,14 +218,16 @@ export function FirstStamp({ slug }: { slug: string }) {
             <h1 className="text-2xl font-extrabold tracking-[-0.02em]">
               That join code did not work.
             </h1>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">{failed}</p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
+              {failed}
+            </p>
             {/* This page is what a printed poster points at, and it had no
                 link, no button, nothing - on a phone the only way out was to
                 type a URL by hand. A mis-scan is the likeliest cause, and
                 either way no visit is lost: staff can add it at the till. */}
             <p className="mt-3 text-xs leading-relaxed text-[var(--muted)]">
-              A code can be misread by a camera. Staff can add your visit at
-              the counter, so nothing is lost either way.
+              A code can be misread by a camera. Staff can add your visit at the
+              counter, so nothing is lost either way.
             </p>
             <Link
               href="/"
@@ -267,13 +277,21 @@ export function FirstStamp({ slug }: { slug: string }) {
                 keeping, which is the whole reason it comes second. */}
             <div className="mt-4 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-7">
               <p className="text-sm font-extrabold">
-                {alreadyMember ? "Ask staff to scan you in." : signedIn ? "Keep it." : "Keep it with your number."}
+                {alreadyMember
+                  ? "Ask staff to scan you in."
+                  : signedIn
+                    ? "Keep it."
+                    : "Keep it with your number."}
               </p>
               <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                 {alreadyMember
                   ? "The poster is for first-time visitors. Show your code at the counter and staff will add today's stamp."
                   : signedIn
-                    ? "It goes on the card you already have."
+                    ? // This branch is a member of KYP who is not a member
+                      // here - `alreadyMember` covers the other case above.
+                      // It said "the card you already have" over a card
+                      // reading 1 of 8, which is the card this tap creates.
+                      "A new card, in the wallet you already have."
                     : "One number, no app, no password. It saves this stamp and every one after it."}
               </p>
               {/* The claim is minted here, on the tap, rather than when the

@@ -41,6 +41,26 @@ button:disabled {
 .app-scrollbar {
   scrollbar-color: var(--line-strong) transparent;
   scrollbar-width: thin;
+  /* A shadow at whichever edge still has content behind it.
+     The sidebar's menu is taller than a 900px laptop window - 941px of items
+     in a 565px box - so seven entries and half of "Missions" sat below a fold
+     with nothing marking it, on a thin overlay scrollbar that only appears
+     once you are already scrolling. The two `local` layers scroll with the
+     content and cover the two `scroll` shadows when there is nothing more
+     that way, so each shadow shows only while it is telling the truth. */
+  background:
+    linear-gradient(var(--paper) 30%, rgb(250 248 243 / 0)) top / 100% 22px
+      no-repeat local,
+    linear-gradient(rgb(250 248 243 / 0), var(--paper) 70%) bottom / 100% 22px
+      no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgb(24 18 12 / 16%), rgb(24 18 12 / 0))
+      top / 100% 9px no-repeat scroll,
+    radial-gradient(
+        farthest-side at 50% 100%,
+        rgb(24 18 12 / 16%),
+        rgb(24 18 12 / 0)
+      )
+      bottom / 100% 9px no-repeat scroll;
 }
 .metric-grid {
   grid-template-columns: repeat(12, minmax(0, 1fr));

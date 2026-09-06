@@ -1,5 +1,11 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { PreviewBadge, QueryBoundary, Skeleton } from "@kypstamping/ui";
 import {
   useBilling,
@@ -68,7 +74,14 @@ import {
   useToggleAutomation,
   useVoidVisit,
 } from "@/components/mutations";
-import { brandColor, Button, Eyebrow, Pill, StampDots, ViewFrame } from "@kypstamping/ui";
+import {
+  brandColor,
+  Button,
+  Eyebrow,
+  Pill,
+  StampDots,
+  ViewFrame,
+} from "@kypstamping/ui";
 import {
   daysUntilBirthday,
   longDate,
@@ -116,7 +129,13 @@ import { useDemoState } from "@/components/DemoState";
 import { IntegrationsView } from "@/components/IntegrationsView";
 import { overageRates, channelRates } from "@/lib/plans";
 import { planFor, refusal, usePlanGate, writeBlock } from "@/lib/plan";
-import { BlockedNote, initialsOf, useExport, type Notify } from "@/components/views/shared";
+import {
+  BlockedNote,
+  NothingYet,
+  initialsOf,
+  useExport,
+  type Notify,
+} from "@/components/views/shared";
 import { creditBalanceOf } from "@/components/views/StoreCreditView";
 import { DiscoverPanel } from "@/components/views/DiscoverPanel";
 import { AnalyticsView } from "@/components/views/AnalyticsView";
@@ -137,9 +156,15 @@ import { SukiTiersView } from "@/components/views/SukiTiersView";
  * What the counter says after a stamp, once the API carries the outcome
  * fields. A refusal is worded as one and shown on screen as well as toasted.
  */
-function outcomeMessage(visit: VisitResult & VisitOutcome): { heading: string; text: string; refused: boolean } {
+function outcomeMessage(visit: VisitResult & VisitOutcome): {
+  heading: string;
+  text: string;
+  refused: boolean;
+} {
   if (visit.earned === false) {
-    const when = visit.nextStampAt ? ` Next stamp ${timeOfDay(visit.nextStampAt)}, ${longDate(visit.nextStampAt)}.` : "";
+    const when = visit.nextStampAt
+      ? ` Next stamp ${timeOfDay(visit.nextStampAt)}, ${longDate(visit.nextStampAt)}.`
+      : "";
     return {
       heading: "No stamp this visit.",
       text: `${visit.reason ? `${visit.reason}.` : "The cooldown or minimum spend was not met."}${when} The visit is recorded.`,
@@ -147,15 +172,25 @@ function outcomeMessage(visit: VisitResult & VisitOutcome): { heading: string; t
     };
   }
   if (visit.cardState === "closed") {
-    return { heading: "This card is closed.", text: `${visit.customerName} keeps any held reward; nothing more can be earned on it.`, refused: true };
+    return {
+      heading: "This card is closed.",
+      text: `${visit.customerName} keeps any held reward; nothing more can be earned on it.`,
+      refused: true,
+    };
   }
   if (visit.welcomeStampConfirmed) {
-    return { heading: "Welcome stamp confirmed.", text: `${visit.customerName}'s card reads ${visit.stampsAfter}.`, refused: false };
+    return {
+      heading: "Welcome stamp confirmed.",
+      text: `${visit.customerName}'s card reads ${visit.stampsAfter}.`,
+      refused: false,
+    };
   }
   if (visit.completed) {
     return {
       heading: "Card completed.",
-      text: visit.rewardEarned ? `${visit.rewardEarned.name} is held until ${visit.customerName} approves it on their phone.` : `${visit.customerName} has finished this card.`,
+      text: visit.rewardEarned
+        ? `${visit.rewardEarned.name} is held until ${visit.customerName} approves it on their phone.`
+        : `${visit.customerName} has finished this card.`,
       refused: false,
     };
   }
@@ -189,7 +224,9 @@ function OtherProgramActions({
 }) {
   const { data: programs = [] } = usePrograms();
   const live = (type: string) =>
-    programs.find((program) => program.type === type && program.status === "Live");
+    programs.find(
+      (program) => program.type === type && program.status === "Live",
+    );
 
   const coupon = useRedeemCoupon();
   const giftCard = useRedeemGiftCard();
@@ -239,8 +276,8 @@ function OtherProgramActions({
       {discount && quote && amountCentavos > 0 && (
         <p className="text-xs font-bold">
           {quote.tier ? `${quote.tier} tier: ` : ""}
-          {(quote.rateBps / 100).toFixed(quote.rateBps % 100 ? 2 : 0)}% off &middot; member
-          pays{" "}
+          {(quote.rateBps / 100).toFixed(quote.rateBps % 100 ? 2 : 0)}% off
+          &middot; member pays{" "}
           <span className="font-extrabold text-[var(--success)]">
             {pesoFromCentavos(quote.netCentavos)}
           </span>
@@ -251,7 +288,9 @@ function OtherProgramActions({
         <div className="flex gap-2">
           <input
             value={couponCode}
-            onChange={(event) => setCouponCode(event.target.value.toUpperCase())}
+            onChange={(event) =>
+              setCouponCode(event.target.value.toUpperCase())
+            }
             placeholder="Coupon code"
             className="min-h-10 flex-1 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-mono outline-none focus:border-[var(--accent-strong)]"
           />
@@ -288,10 +327,16 @@ function OtherProgramActions({
             tone="quiet"
             // Needs the purchase amount: a gift card pays for something, and
             // spending an unstated amount off a card is not a transaction.
-            disabled={!cardCode.trim() || amountCentavos <= 0 || giftCard.isPending}
+            disabled={
+              !cardCode.trim() || amountCentavos <= 0 || giftCard.isPending
+            }
             onClick={() =>
               giftCard.mutate(
-                { code: cardCode.trim(), amountCentavos, reason: "Paid at the counter" },
+                {
+                  code: cardCode.trim(),
+                  amountCentavos,
+                  reason: "Paid at the counter",
+                },
                 {
                   onSuccess: (card) => {
                     setCardCode("");
@@ -304,7 +349,9 @@ function OtherProgramActions({
               )
             }
           >
-            {amountCentavos > 0 ? `Pay ${pesoFromCentavos(amountCentavos)}` : "Enter an amount"}
+            {amountCentavos > 0
+              ? `Pay ${pesoFromCentavos(amountCentavos)}`
+              : "Enter an amount"}
           </Button>
           <Button
             tone="quiet"
@@ -328,47 +375,66 @@ function OtherProgramActions({
             card && (
               <>
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="font-mono text-xs font-bold">{card.code}</span>
+                  <span className="font-mono text-xs font-bold">
+                    {card.code}
+                  </span>
                   <span className="text-sm font-extrabold">
                     {pesoFromCentavos(card.balanceCentavos)}
                   </span>
                 </div>
                 <p className="mt-1 text-[11px] text-[var(--muted-strong)]">
                   {card.issuedToName} &middot; {card.status}
-                  {card.expiresOn ? ` · expires ${longDate(card.expiresOn)}` : ""}
+                  {card.expiresOn
+                    ? ` · expires ${longDate(card.expiresOn)}`
+                    : ""}
                 </p>
                 {cardEntries.length > 0 && (
                   <ul className="mt-2 space-y-1 border-t border-[var(--line)] pt-2">
-                    {cardEntries.slice(-3).reverse().map((entry) => (
-                      <li key={entry.id} className="flex justify-between gap-3 text-[11px]">
-                        <span className="min-w-0 truncate text-[var(--muted-strong)]">
-                          {entry.reason || entry.kind}
-                        </span>
-                        <span className="shrink-0 font-semibold">
-                          {pesoFromCentavos(entry.amountCentavos)}
-                        </span>
-                      </li>
-                    ))}
+                    {cardEntries
+                      .slice(-3)
+                      .reverse()
+                      .map((entry) => (
+                        <li
+                          key={entry.id}
+                          className="flex justify-between gap-3 text-[11px]"
+                        >
+                          <span className="min-w-0 truncate text-[var(--muted-strong)]">
+                            {entry.reason || entry.kind}
+                          </span>
+                          <span className="shrink-0 font-semibold">
+                            {pesoFromCentavos(entry.amountCentavos)}
+                          </span>
+                        </li>
+                      ))}
                   </ul>
                 )}
-                {card.status === "active" && card.holderAccountId !== customerId && (
-                  <Button
-                    tone="quiet"
-                    className="mt-3 w-full"
-                    disabled={transfer.isPending}
-                    onClick={() =>
-                      transfer.mutate(
-                        { code: card.code, toAccountId: customerId, toName: customerName },
-                        {
-                          onSuccess: () => notify(`Card ${card.code} is now ${customerName}'s.`),
-                          onError: (failure) => notify(failure.message, "error"),
-                        },
-                      )
-                    }
-                  >
-                    Transfer to {customerName}
-                  </Button>
-                )}
+                {card.status === "active" &&
+                  card.holderAccountId !== customerId && (
+                    <Button
+                      tone="quiet"
+                      className="mt-3 w-full"
+                      disabled={transfer.isPending}
+                      onClick={() =>
+                        transfer.mutate(
+                          {
+                            code: card.code,
+                            toAccountId: customerId,
+                            toName: customerName,
+                          },
+                          {
+                            onSuccess: () =>
+                              notify(
+                                `Card ${card.code} is now ${customerName}'s.`,
+                              ),
+                            onError: (failure) =>
+                              notify(failure.message, "error"),
+                          },
+                        )
+                      }
+                    >
+                      Transfer to {customerName}
+                    </Button>
+                  )}
               </>
             )
           )}
@@ -382,7 +448,9 @@ function OtherProgramActions({
         <div className="flex gap-2">
           <input
             value={referralCode}
-            onChange={(event) => setReferralCode(event.target.value.toUpperCase())}
+            onChange={(event) =>
+              setReferralCode(event.target.value.toUpperCase())
+            }
             placeholder="Referral code"
             className="min-h-10 flex-1 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-mono outline-none focus:border-[var(--accent-strong)]"
           />
@@ -395,7 +463,9 @@ function OtherProgramActions({
                 {
                   onSuccess: () => {
                     setReferralCode("");
-                    notify("Referral claimed. Both sides pay on the qualifying visit.");
+                    notify(
+                      "Referral claimed. Both sides pay on the qualifying visit.",
+                    );
                   },
                   onError: (failure) => notify(failure.message, "error"),
                 },
@@ -428,7 +498,9 @@ function OtherProgramActions({
                     { customerId, programId: item.programId },
                     {
                       onSuccess: (left) =>
-                        notify(`Pass used. ${left.remaining} left on the bundle.`),
+                        notify(
+                          `Pass used. ${left.remaining} left on the bundle.`,
+                        ),
                       onError: (failure) => notify(failure.message, "error"),
                     },
                   )
@@ -444,7 +516,8 @@ function OtherProgramActions({
                   buyPass.mutate(
                     { customerId, programId: item.programId },
                     {
-                      onSuccess: (bought) => notify(`Bundle sold. ${bought.remaining} passes.`),
+                      onSuccess: (bought) =>
+                        notify(`Bundle sold. ${bought.remaining} passes.`),
                       onError: (failure) => notify(failure.message, "error"),
                     },
                   )
@@ -470,7 +543,9 @@ function OtherProgramActions({
               onClick={() =>
                 benefit.mutate(item.subscriptionId, {
                   onSuccess: (left) =>
-                    notify(`Benefit used. ${left.remaining} of ${left.included} left.`),
+                    notify(
+                      `Benefit used. ${left.remaining} of ${left.included} left.`,
+                    ),
                   onError: (failure) => notify(failure.message, "error"),
                 })
               }
@@ -571,7 +646,9 @@ function AddWalkIn({
             add.mutate(
               {
                 name: name.trim(),
-                ...(looksLikeEmail ? { email: identifier } : { mobile: identifier }),
+                ...(looksLikeEmail
+                  ? { email: identifier }
+                  : { mobile: identifier }),
               },
               {
                 onSuccess: (created) => {
@@ -656,8 +733,12 @@ function ScanView({
   const gate = usePlanGate();
   const creditPlan = planFor("Store credit");
   const feedbackPlan = planFor("Private feedback and review requests");
-  const { data: creditEntries = [] } = useStoreCredit(scanned?.id, { enabled: Boolean(scanned) });
-  const creditBalance = scanned ? creditBalanceOf(creditEntries, scanned.id) : 0;
+  const { data: creditEntries = [] } = useStoreCredit(scanned?.id, {
+    enabled: Boolean(scanned),
+  });
+  const creditBalance = scanned
+    ? creditBalanceOf(creditEntries, scanned.id)
+    : 0;
   const creditBlocked = writeBlock(gate, creditPlan, isPreview(creditEntries));
   const spendCredit = useApiMutation(
     ({ amountCentavos, key }: { amountCentavos: number; key: string }) =>
@@ -703,7 +784,8 @@ function ScanView({
   // this tab's hold says so, or the ledger row does.
   const awaiting =
     held?.status === "awaiting_customer" ||
-    redemptions.find((row) => row.id === activeHold?.id)?.status === "Awaiting customer";
+    redemptions.find((row) => row.id === activeHold?.id)?.status ===
+      "Awaiting customer";
 
   useEffect(() => {
     if (!scanHandoff) return;
@@ -759,7 +841,10 @@ function ScanView({
         setNotFound(typed);
         return;
       }
-      const text = failure instanceof ApiError ? failure.message : "Could not look that up.";
+      const text =
+        failure instanceof ApiError
+          ? failure.message
+          : "Could not look that up.";
       setRefusalText(text);
       notify(text, "error");
     } finally {
@@ -811,7 +896,10 @@ function ScanView({
         onSuccess: (visit) => {
           setDone(visit);
           const outcome = outcomeMessage(visit);
-          notify(`${outcome.heading} ${outcome.text}`, outcome.refused ? "error" : "info");
+          notify(
+            `${outcome.heading} ${outcome.text}`,
+            outcome.refused ? "error" : "info",
+          );
         },
         onError: (failure) => {
           // A cooldown or a closed card is a 409 with the reason in it.
@@ -841,7 +929,9 @@ function ScanView({
       title="Scan a customer"
       description="A guided earn-and-redeem flow that remains safe and understandable during the busiest part of service."
       action={
-        <Pill tone={online ? (queue.length ? "warning" : "success") : "warning"}>
+        <Pill
+          tone={online ? (queue.length ? "warning" : "success") : "warning"}
+        >
           <WifiOff size={12} className="mr-1.5" />
           {!online
             ? "No signal - stamps are being held"
@@ -855,7 +945,9 @@ function ScanView({
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
           <div className="flex items-center justify-between">
             <Eyebrow>Secure scanner</Eyebrow>
-            <span className="font-mono text-[10px] text-white/60">CAMERA 01</span>
+            <span className="font-mono text-[10px] text-white/60">
+              CAMERA 01
+            </span>
           </div>
 
           {step === "ready" && (
@@ -886,12 +978,20 @@ function ScanView({
                     A hardware scanner types here and presses Enter.
                   </span>
                 </label>
-                <Button type="submit" tone="accent" className="mt-4 w-full" disabled={looking}>
+                <Button
+                  type="submit"
+                  tone="accent"
+                  className="mt-4 w-full"
+                  disabled={looking}
+                >
                   {looking ? "Looking up\u2026" : "Find customer"}
                 </Button>
               </form>
               {refusalText && !notFound && (
-                <p role="alert" className="mt-4 rounded-xl border border-[var(--danger)] bg-[rgb(178_59_43/12%)] p-3 text-xs font-bold text-[var(--paper)]">
+                <p
+                  role="alert"
+                  className="mt-4 rounded-xl border border-[var(--danger)] bg-[rgb(178_59_43/12%)] p-3 text-xs font-bold text-[var(--paper)]"
+                >
                   {refusalText}
                 </p>
               )}
@@ -959,15 +1059,21 @@ function ScanView({
                   </p>
                   {balance ? (
                     <>
-                      <p className="mt-1 font-extrabold">{balance.programName}</p>
+                      <p className="mt-1 font-extrabold">
+                        {balance.programName}
+                      </p>
                       <div className="mt-4 overflow-x-auto">
-                        <StampDots filled={balance.balance} total={balance.target} />
+                        <StampDots
+                          filled={balance.balance}
+                          total={balance.target}
+                        />
                       </div>
                       {balance.rewardsAvailable > 0 && !activeHold && (
                         <>
                           <p className="mt-3 text-xs font-extrabold text-[var(--success)]">
                             {balance.rewardsAvailable} reward
-                            {balance.rewardsAvailable === 1 ? "" : "s"} ready to redeem
+                            {balance.rewardsAvailable === 1 ? "" : "s"} ready to
+                            redeem
                           </p>
                           <Button
                             tone="accent"
@@ -987,7 +1093,8 @@ function ScanView({
                                 },
                                 {
                                   onSuccess: setHeld,
-                                  onError: (failure) => notify(failure.message, "error"),
+                                  onError: (failure) =>
+                                    notify(failure.message, "error"),
                                 },
                               )
                             }
@@ -1006,49 +1113,70 @@ function ScanView({
                               : `${activeHold.rewardName} is on hold. Hand it over, then confirm.`}
                           </p>
                           {awaiting && (
-                            <p className="mt-2 text-[11px] font-bold text-[var(--muted-strong)]" role="status">
-                              Waiting… the card updates the moment they approve. Nothing is spent yet.
+                            <p
+                              className="mt-2 text-[11px] font-bold text-[var(--muted-strong)]"
+                              role="status"
+                            >
+                              Waiting… the card updates the moment they approve.
+                              Nothing is spent yet.
                             </p>
                           )}
-                          <div className={`mt-3 grid gap-2 ${awaiting ? "grid-cols-1" : "grid-cols-2"}`}>
+                          <div
+                            className={`mt-3 grid gap-2 ${awaiting ? "grid-cols-1" : "grid-cols-2"}`}
+                          >
                             <Button
                               tone="quiet"
-                              disabled={giveBack.isPending || handOver.isPending}
+                              disabled={
+                                giveBack.isPending || handOver.isPending
+                              }
                               onClick={() =>
                                 giveBack.mutate(activeHold.id, {
                                   onSuccess: () => {
                                     setHeld(null);
                                     setRedeemAttempt((n) => n + 1);
-                                    notify("Reward put back. Nothing was spent.");
+                                    notify(
+                                      "Reward put back. Nothing was spent.",
+                                    );
                                   },
-                                  onError: (failure) => notify(failure.message, "error"),
+                                  onError: (failure) =>
+                                    notify(failure.message, "error"),
                                 })
                               }
                             >
                               Put it back
                             </Button>
                             {!awaiting && (
-                            <Button
-                              disabled={handOver.isPending || giveBack.isPending}
-                              onClick={() =>
-                                handOver.mutate(
-                                  {
-                                    id: activeHold.id,
-                                    idempotencyKey: idempotencyKey("commit", activeHold.id),
-                                  },
-                                  {
-                                    onSuccess: (committed) => {
-                                      setHeld(null);
-                                      setRedeemAttempt((n) => n + 1);
-                                      notify(`${committed.rewardName} redeemed.`);
+                              <Button
+                                disabled={
+                                  handOver.isPending || giveBack.isPending
+                                }
+                                onClick={() =>
+                                  handOver.mutate(
+                                    {
+                                      id: activeHold.id,
+                                      idempotencyKey: idempotencyKey(
+                                        "commit",
+                                        activeHold.id,
+                                      ),
                                     },
-                                    onError: (failure) => notify(failure.message, "error"),
-                                  },
-                                )
-                              }
-                            >
-                              {handOver.isPending ? "Confirming…" : "Handed over"}
-                            </Button>
+                                    {
+                                      onSuccess: (committed) => {
+                                        setHeld(null);
+                                        setRedeemAttempt((n) => n + 1);
+                                        notify(
+                                          `${committed.rewardName} redeemed.`,
+                                        );
+                                      },
+                                      onError: (failure) =>
+                                        notify(failure.message, "error"),
+                                    },
+                                  )
+                                }
+                              >
+                                {handOver.isPending
+                                  ? "Confirming…"
+                                  : "Handed over"}
+                              </Button>
                             )}
                           </div>
                         </div>
@@ -1095,14 +1223,20 @@ function ScanView({
                       <Eyebrow>Store credit</Eyebrow>
                       <span className="flex items-center gap-2">
                         {isPreview(creditEntries) && <PreviewBadge />}
-                        <PlanTag plan={creditPlan} included={gate.covers(creditPlan)} />
+                        <PlanTag
+                          plan={creditPlan}
+                          included={gate.covers(creditPlan)}
+                        />
                       </span>
                     </div>
                     <p className="mt-2 text-sm font-extrabold">
-                      {pesoFromCentavos(creditBalance)} on {scanned.name}&rsquo;s account
+                      {pesoFromCentavos(creditBalance)} on {scanned.name}
+                      &rsquo;s account
                     </p>
                     {(() => {
-                      const typedCentavos = Number.isFinite(Number.parseFloat(amount))
+                      const typedCentavos = Number.isFinite(
+                        Number.parseFloat(amount),
+                      )
                         ? Math.round(Number.parseFloat(amount) * 100)
                         : 0;
                       const spend = Math.min(creditBalance, typedCentavos);
@@ -1111,23 +1245,35 @@ function ScanView({
                           tone="quiet"
                           className="mt-3 w-full"
                           icon={<HandCoins size={14} />}
-                          disabled={Boolean(creditBlocked) || spend <= 0 || spendCredit.isPending}
+                          disabled={
+                            Boolean(creditBlocked) ||
+                            spend <= 0 ||
+                            spendCredit.isPending
+                          }
                           title={creditBlocked ?? undefined}
                           onClick={() =>
                             spendCredit.mutate(
                               {
                                 amountCentavos: spend,
-                                key: idempotencyKey("credit-spend", `${scanned.id}_${idempotencyReference}`),
+                                key: idempotencyKey(
+                                  "credit-spend",
+                                  `${scanned.id}_${idempotencyReference}`,
+                                ),
                               },
                               {
                                 onSuccess: (entry) =>
-                                  notify(`${pesoFromCentavos(spend)} paid from credit. ${pesoFromCentavos(entry.balanceAfterCentavos)} left.`),
-                                onError: (failure) => notify(refusal(failure, creditPlan), "error"),
+                                  notify(
+                                    `${pesoFromCentavos(spend)} paid from credit. ${pesoFromCentavos(entry.balanceAfterCentavos)} left.`,
+                                  ),
+                                onError: (failure) =>
+                                  notify(refusal(failure, creditPlan), "error"),
                               },
                             )
                           }
                         >
-                          {spend > 0 ? `Pay ${pesoFromCentavos(spend)} from credit` : "Enter an amount to pay from credit"}
+                          {spend > 0
+                            ? `Pay ${pesoFromCentavos(spend)} from credit`
+                            : "Enter an amount to pay from credit"}
                         </Button>
                       );
                     })()}
@@ -1136,13 +1282,20 @@ function ScanView({
                 )}
 
                 {refusalText && (
-                  <p role="alert" className="mt-5 rounded-xl border border-[var(--danger)] bg-[rgb(178_59_43/8%)] p-3 text-xs font-bold text-[var(--danger)]">
+                  <p
+                    role="alert"
+                    className="mt-5 rounded-xl border border-[var(--danger)] bg-[rgb(178_59_43/8%)] p-3 text-xs font-bold text-[var(--danger)]"
+                  >
                     {refusalText}
                   </p>
                 )}
 
                 <div className="mt-5 grid grid-cols-2 gap-2">
-                  <Button tone="quiet" onClick={startOver} disabled={record.isPending}>
+                  <Button
+                    tone="quiet"
+                    onClick={startOver}
+                    disabled={record.isPending}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={approve} disabled={record.isPending}>
@@ -1160,18 +1313,33 @@ function ScanView({
                   const outcome = outcomeMessage(done);
                   return (
                     <>
-                      <span className={`mx-auto grid size-20 place-items-center rounded-full ${outcome.refused ? "bg-[var(--accent)] text-[var(--ink)]" : "bg-[var(--success)]"}`}>
-                        {outcome.refused ? <Ban size={36} strokeWidth={3} /> : <Check size={36} strokeWidth={3} />}
+                      <span
+                        className={`mx-auto grid size-20 place-items-center rounded-full ${outcome.refused ? "bg-[var(--accent)] text-[var(--ink)]" : "bg-[var(--success)]"}`}
+                      >
+                        {outcome.refused ? (
+                          <Ban size={36} strokeWidth={3} />
+                        ) : (
+                          <Check size={36} strokeWidth={3} />
+                        )}
                       </span>
-                      <h2 className="mt-6 text-3xl font-extrabold tracking-[-0.02em]">{outcome.heading}</h2>
-                      <p role={outcome.refused ? "alert" : undefined} className="mx-auto mt-3 max-w-[36ch] text-sm leading-relaxed text-white/65">
+                      <h2 className="mt-6 text-3xl font-extrabold tracking-[-0.02em]">
+                        {outcome.heading}
+                      </h2>
+                      <p
+                        role={outcome.refused ? "alert" : undefined}
+                        className="mx-auto mt-3 max-w-[36ch] text-sm leading-relaxed text-white/65"
+                      >
                         {outcome.text}
-                        {done.amountCentavos ? ` Recorded with a ${pesoFromCentavos(done.amountCentavos)} purchase.` : ""}
+                        {done.amountCentavos
+                          ? ` Recorded with a ${pesoFromCentavos(done.amountCentavos)} purchase.`
+                          : ""}
                       </p>
                     </>
                   );
                 })()}
-                <p className="mt-4 font-mono text-[10px] text-white/55">{done.id}</p>
+                <p className="mt-4 font-mono text-[10px] text-white/55">
+                  {done.id}
+                </p>
                 <Button tone="accent" className="mt-7" onClick={startOver}>
                   Scan the next customer
                 </Button>
@@ -1192,7 +1360,8 @@ function ScanView({
                         {
                           onSuccess: () =>
                             notify(`Asked ${done.customerName} how it went.`),
-                          onError: (failure) => notify(failure.message, "error"),
+                          onError: (failure) =>
+                            notify(failure.message, "error"),
                         },
                       )
                     }
@@ -1209,7 +1378,10 @@ function ScanView({
                   disabled={undo.isPending}
                   onClick={() =>
                     undo.mutate(
-                      { id: done.id, idempotencyKey: idempotencyKey("void", done.id) },
+                      {
+                        id: done.id,
+                        idempotencyKey: idempotencyKey("void", done.id),
+                      },
                       {
                         onSuccess: () => {
                           notify(`Stamp reversed for ${done.customerName}.`);
@@ -1221,7 +1393,10 @@ function ScanView({
                   }
                   className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 text-xs font-extrabold text-white/55 transition hover:text-white disabled:opacity-50"
                 >
-                  <Undo2 size={14} /> {undo.isPending ? "Reversing…" : "That was a mistake, undo it"}
+                  <Undo2 size={14} />{" "}
+                  {undo.isPending
+                    ? "Reversing…"
+                    : "That was a mistake, undo it"}
                 </button>
               </div>
             </div>
@@ -1252,7 +1427,9 @@ function ScanView({
                 </label>
               ) : (
                 <h2 className="mt-1 text-lg font-extrabold">
-                  {locations[0] ? `Today at ${locations[0].name}` : "Today at the counter"}
+                  {locations[0]
+                    ? `Today at ${locations[0].name}`
+                    : "Today at the counter"}
                 </h2>
               )}
             </div>
@@ -1265,6 +1442,12 @@ function ScanView({
             </button>
           </div>
           <div className="mt-5 divide-y divide-[var(--line)]">
+            {redemptions.length === 0 && (
+              <NothingYet>
+                No rewards handed over here yet. Stamps show on the dashboard;
+                this list fills the first time somebody redeems one.
+              </NothingYet>
+            )}
             {redemptions.slice(0, 4).map((item) => (
               <div
                 key={item.id}
@@ -1324,7 +1507,8 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
   const { data: locations = [] } = useLocations();
   const { data: profile, isPending, error, refetch } = useBusinessProfile();
   const { data: branding } = useBranding();
-  const [editingLocation, setEditingLocation] = useState<BusinessLocation | null>(null);
+  const [editingLocation, setEditingLocation] =
+    useState<BusinessLocation | null>(null);
   const [addingLocation, setAddingLocation] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
 
@@ -1342,7 +1526,9 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
           label="the business profile"
           rows={3}
         >
-          <p className="text-sm text-[var(--muted-strong)]">No profile found.</p>
+          <p className="text-sm text-[var(--muted-strong)]">
+            No profile found.
+          </p>
         </QueryBoundary>
       </ViewFrame>
     );
@@ -1383,51 +1569,58 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
             )}
           </div>
           <div className="p-6">
-          <h2 className="mt-2 text-2xl font-extrabold">{profile.name}</h2>
-          <p className="mt-2 text-sm text-white/60">
-            {profile.category} · owned by {profile.owner}
-          </p>
-          <div className="mt-8 divide-y divide-white/12 border-y border-white/12">
-            {[
-              ["Plan", profile.plan],
-              ["Billing", profile.billing],
-              ["Renewal", longDate(profile.renewalOn)],
-              ["Timezone", profile.timezone],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="flex justify-between gap-4 py-3 text-sm"
-              >
-                <span className="text-white/55">{label}</span>
-                <span className="font-bold">{value}</span>
-              </div>
-            ))}
-            {/* Shown here so the picker in the dialog has somewhere to land:
+            <h2 className="mt-2 text-2xl font-extrabold">{profile.name}</h2>
+            <p className="mt-2 text-sm text-white/60">
+              {profile.category} · owned by {profile.owner}
+            </p>
+            <div className="mt-8 divide-y divide-white/12 border-y border-white/12">
+              {[
+                ["Plan", profile.plan],
+                ["Billing", profile.billing],
+                ["Renewal", longDate(profile.renewalOn)],
+                ["Timezone", profile.timezone],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="flex justify-between gap-4 py-3 text-sm"
+                >
+                  <span className="text-white/55">{label}</span>
+                  <span className="font-bold">{value}</span>
+                </div>
+              ))}
+              {/* Shown here so the picker in the dialog has somewhere to land:
                 the token is stored and editable, and the wallet card that
                 will paint with it is still on one fixed dark ground. */}
-            <div className="flex items-center justify-between gap-4 py-3 text-sm">
-              <span className="flex items-center gap-2 text-white/55">
-                Card colour <PlanTag plan={brandingPlan} included={gate.covers(brandingPlan)} />
-              </span>
-              <span className="flex items-center gap-2 font-bold">
-                {brandColor(branding?.color ?? "ink").label}
-                <span
-                  aria-hidden="true"
-                  className="size-4 rounded-full border border-white/25"
-                  style={{ background: brandColor(branding?.color ?? "ink").background }}
-                />
-              </span>
+              <div className="flex items-center justify-between gap-4 py-3 text-sm">
+                <span className="flex items-center gap-2 text-white/55">
+                  Card colour{" "}
+                  <PlanTag
+                    plan={brandingPlan}
+                    included={gate.covers(brandingPlan)}
+                  />
+                </span>
+                <span className="flex items-center gap-2 font-bold">
+                  {brandColor(branding?.color ?? "ink").label}
+                  <span
+                    aria-hidden="true"
+                    className="size-4 rounded-full border border-white/25"
+                    style={{
+                      background: brandColor(branding?.color ?? "ink")
+                        .background,
+                    }}
+                  />
+                </span>
+              </div>
             </div>
+            <Button
+              tone="accent"
+              className="mt-6"
+              icon={<Pencil size={15} />}
+              onClick={() => setEditingProfile(true)}
+            >
+              Edit public profile
+            </Button>
           </div>
-          <Button
-            tone="accent"
-            className="mt-6"
-            icon={<Pencil size={15} />}
-            onClick={() => setEditingProfile(true)}
-          >
-            Edit public profile
-          </Button>
-        </div>
         </article>
         <div className="space-y-3">
           {locations.map((location, index) => (
@@ -1454,8 +1647,10 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
                 </p>
                 <p className="mt-2 text-[10px] font-bold text-[var(--muted)]">
                   {location.staff} staff · {location.members.toLocaleString()}{" "}
-                  members
-                  {location.hours.length ? ` · ${location.hours.map((hours) => `${hours.days} ${hours.time}`).join(", ")}` : " · hours not set"}
+                  member{location.members === 1 ? "" : "s"}
+                  {location.hours.length
+                    ? ` · ${location.hours.map((hours) => `${hours.days} ${hours.time}`).join(", ")}`
+                    : " · hours not set"}
                 </p>
               </div>
               <button
@@ -1472,7 +1667,10 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
       </section>
       <DiscoverPanel notify={notify} />
       {addingLocation && (
-        <NewLocationDialog onClose={() => setAddingLocation(false)} notify={notify} />
+        <NewLocationDialog
+          onClose={() => setAddingLocation(false)}
+          notify={notify}
+        />
       )}
       {editingLocation && (
         <EditLocationDialog
@@ -1523,6 +1721,12 @@ function FavoriteOrdersView({
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
           <Eyebrow>Top regular choices</Eyebrow>
           <div className="mt-6 space-y-5">
+            {favoriteOrders.length === 0 && (
+              <NothingYet>
+                Nothing to rank yet. This fills once orders arrive from a
+                connected POS or an import.
+              </NothingYet>
+            )}
             {favoriteOrders.map((item, index) => (
               <div key={item.item}>
                 <div className="flex items-end justify-between gap-4">
@@ -1576,7 +1780,8 @@ function FavoriteOrdersView({
               </p>
               <div className="mt-8 rounded-2xl bg-[var(--surface)] p-4">
                 <p className="text-xs font-extrabold">
-                  Audience · {top.regulars} customer{top.regulars === 1 ? "" : "s"}
+                  Audience · {top.regulars} customer
+                  {top.regulars === 1 ? "" : "s"}
                 </p>
                 <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
                   Favourite-order context reaches only the customers who chose
@@ -1624,6 +1829,23 @@ function FavoriteOrdersView({
 }
 function BirthdayView({ notify }: { notify: Notify }) {
   const { data: customers = [] } = useBusinessCustomers();
+  // The journey is a paid lever, and this screen alone offered its primary
+  // action ungated - every sibling shows what it needs. Its editor was also
+  // prefilled with another merchant's copy: "Visit any Sweet Crumbs branch
+  // this week and choose a pastry on us", one press away from sending a
+  // competitor's name to this shop's customers.
+  const gate = usePlanGate();
+  const needed = planFor("Birthday and anniversary journeys");
+  const blocked = writeBlock(gate, needed, false);
+  const { data: profile } = useBusinessProfile();
+  const { data: programs = [] } = usePrograms();
+  const reward = programs.find((program) => program.rewardName)?.rewardName;
+  const shopName = profile?.name ?? "our shop";
+  const branchCount = useLocations().data?.length ?? 1;
+  const draft =
+    `A birthday treat should feel easy. Visit ` +
+    `${branchCount > 1 ? `any ${shopName} branch` : shopName} this week and ` +
+    `${reward ? `${reward.toLowerCase()} is on us` : "we will have something for you"}.`;
   // The pill asserted "Automation live" whatever the automation was actually
   // doing, and "Save journey" reported "Birthday journey saved with channel
   // guardrails" while saving nothing at all - this screen has no editable
@@ -1636,9 +1858,13 @@ function BirthdayView({ notify }: { notify: Notify }) {
   // Was a literal list of three dates under a "next 30 days" heading, so it
   // was only ever correct on the day it was written.
   const upcoming = customers
-    .map((customer) => ({ customer, inDays: daysUntilBirthday(customer.birthday) }))
-    .filter((entry): entry is { customer: typeof entry.customer; inDays: number } =>
-      entry.inDays !== null,
+    .map((customer) => ({
+      customer,
+      inDays: daysUntilBirthday(customer.birthday),
+    }))
+    .filter(
+      (entry): entry is { customer: typeof entry.customer; inDays: number } =>
+        entry.inDays !== null,
     )
     .sort((a, b) => a.inDays - b.inDays);
   const [channels, setChannels] = useState({
@@ -1653,7 +1879,11 @@ function BirthdayView({ notify }: { notify: Notify }) {
       description="Build one thoughtful birthday journey with explicit eligibility, a budget ceiling, and channel-specific consent."
       action={
         <Pill tone={live ? "success" : "warning"}>
-          {birthday ? (live ? "Automation live" : "Automation paused") : "No automation yet"}
+          {birthday
+            ? live
+              ? "Automation live"
+              : "Automation paused"
+            : "No automation yet"}
         </Pill>
       }
     >
@@ -1685,8 +1915,10 @@ function BirthdayView({ notify }: { notify: Notify }) {
                     <p className="text-sm font-extrabold">{customer.name}</p>
                     <p className="mt-0.5 text-xs text-[var(--muted)]">
                       {customer.birthday} ·{" "}
-                      {inDays === 0 ? "today" : `in ${inDays} day${inDays === 1 ? "" : "s"}`} ·{" "}
-                      {customer.favorite}
+                      {inDays === 0
+                        ? "today"
+                        : `in ${inDays} day${inDays === 1 ? "" : "s"}`}{" "}
+                      · {customer.favorite}
                     </p>
                   </div>
                   <Pill tone={reachable > 1 ? "success" : "neutral"}>
@@ -1716,16 +1948,17 @@ function BirthdayView({ notify }: { notify: Notify }) {
             <label className="grid gap-2 text-xs font-bold">
               Reward
               <select className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm">
-                <option>Birthday pastry</option>
+                {reward && <option>{reward}</option>}
                 <option>Double stamp</option>
-                <option>₱100 gift value</option>
+                <option>A free item on us</option>
               </select>
             </label>
           </div>
           <label className="mt-4 grid gap-2 text-xs font-bold">
             Message
             <textarea
-              defaultValue="A birthday treat should feel easy. Visit any Sweet Crumbs branch this week and choose a pastry on us."
+              key={draft}
+              defaultValue={draft}
               rows={4}
               className="rounded-xl border border-white/15 bg-[var(--ink-soft)] p-3 text-sm leading-relaxed outline-none focus:border-[var(--accent)]"
             />
@@ -1764,7 +1997,8 @@ function BirthdayView({ notify }: { notify: Notify }) {
           <Button
             tone="accent"
             className="mt-6"
-            disabled={!birthday || toggle.isPending}
+            title={blocked ?? undefined}
+            disabled={!birthday || toggle.isPending || Boolean(blocked)}
             onClick={() =>
               birthday &&
               toggle.mutate(birthday.id, {
@@ -1784,6 +2018,9 @@ function BirthdayView({ notify }: { notify: Notify }) {
                 ? "Pause this journey"
                 : "Switch this journey on"}
           </Button>
+          <div className="mt-3">
+            <BlockedNote reason={blocked} />
+          </div>
         </section>
       </div>
     </ViewFrame>
@@ -1799,12 +2036,16 @@ function RedemptionsView({ notify }: { notify: Notify }) {
   // liability under a "reward value" label. All three now say what they count.
   const approved = redemptions.filter((item) => item.status === "Approved");
   const reversals = redemptions.length - approved.length;
-  const rewardValue = approved.reduce((sum, item) => sum + item.valueCentavos, 0);
+  const rewardValue = approved.reduce(
+    (sum, item) => sum + item.valueCentavos,
+    0,
+  );
   const approvalRate = redemptions.length
     ? (approved.length / redemptions.length) * 100
     : null;
   const stampLiability =
-    programs.find((program) => program.type === "Stamps")?.liabilityCentavos ?? 0;
+    programs.find((program) => program.type === "Stamps")?.liabilityCentavos ??
+    0;
   return (
     <ViewFrame
       eyebrow="Value ledger"
@@ -1837,6 +2078,16 @@ function RedemptionsView({ notify }: { notify: Notify }) {
               </tr>
             </thead>
             <tbody>
+              {redemptions.length === 0 && (
+                <tr>
+                  <td colSpan={7}>
+                    <NothingYet>
+                      Nothing redeemed yet. A reward appears here the moment a
+                      customer approves handing it over at the counter.
+                    </NothingYet>
+                  </td>
+                </tr>
+              )}
               {redemptions.map((item) => (
                 <tr
                   key={item.id}
@@ -1856,7 +2107,9 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                     {item.staff || "Unattributed"}
                   </td>
                   <td className="px-4 py-4 text-sm font-bold">
-                    {item.valueCentavos ? pesoFromCentavos(item.valueCentavos) : "—"}
+                    {item.valueCentavos
+                      ? pesoFromCentavos(item.valueCentavos)
+                      : "—"}
                   </td>
                   <td className="px-4 py-4">
                     <Pill
@@ -1887,8 +2140,12 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                           disabled={commit.isPending || cancel.isPending}
                           onClick={() =>
                             cancel.mutate(item.id, {
-                              onSuccess: () => notify(`Put ${item.reward} back on ${item.customer}'s card.`),
-                              onError: (failure) => notify(refusal(failure), "error"),
+                              onSuccess: () =>
+                                notify(
+                                  `Put ${item.reward} back on ${item.customer}'s card.`,
+                                ),
+                              onError: (failure) =>
+                                notify(refusal(failure), "error"),
                             })
                           }
                         >
@@ -1903,11 +2160,20 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                           disabled={commit.isPending || cancel.isPending}
                           onClick={() =>
                             commit.mutate(
-                              { id: item.id, idempotencyKey: idempotencyKey("commit", item.id) },
+                              {
+                                id: item.id,
+                                idempotencyKey: idempotencyKey(
+                                  "commit",
+                                  item.id,
+                                ),
+                              },
                               {
                                 onSuccess: () =>
-                                  notify(`Handed ${item.reward} to ${item.customer}.`),
-                                onError: (failure) => notify(failure.message, "error"),
+                                  notify(
+                                    `Handed ${item.reward} to ${item.customer}.`,
+                                  ),
+                                onError: (failure) =>
+                                  notify(failure.message, "error"),
                               },
                             )
                           }
@@ -1920,8 +2186,11 @@ function RedemptionsView({ notify }: { notify: Notify }) {
                           onClick={() =>
                             cancel.mutate(item.id, {
                               onSuccess: () =>
-                                notify(`Put ${item.reward} back on ${item.customer}'s card.`),
-                              onError: (failure) => notify(failure.message, "error"),
+                                notify(
+                                  `Put ${item.reward} back on ${item.customer}'s card.`,
+                                ),
+                              onError: (failure) =>
+                                notify(failure.message, "error"),
                             })
                           }
                         >
@@ -1984,7 +2253,12 @@ function RedemptionsView({ notify }: { notify: Notify }) {
  * transaction, so a merchant can too.
  */
 function SalesLedger({ notify }: { notify: Notify }) {
-  const { data: transactions = [], isPending, error, refetch } = useTransactions();
+  const {
+    data: transactions = [],
+    isPending,
+    error,
+    refetch,
+  } = useTransactions();
   const refund = useRefundVisit();
 
   return (
@@ -2022,8 +2296,13 @@ function SalesLedger({ notify }: { notify: Notify }) {
               </thead>
               <tbody>
                 {transactions.map((item) => (
-                  <tr key={item.id} className="border-b border-[var(--line)] last:border-0">
-                    <td className="px-5 py-4 text-sm font-extrabold">{item.customer}</td>
+                  <tr
+                    key={item.id}
+                    className="border-b border-[var(--line)] last:border-0"
+                  >
+                    <td className="px-5 py-4 text-sm font-extrabold">
+                      {item.customer}
+                    </td>
                     <td className="px-4 py-4 text-xs text-[var(--muted-strong)]">
                       {item.branch}
                     </td>
@@ -2031,10 +2310,16 @@ function SalesLedger({ notify }: { notify: Notify }) {
                       {item.staff || "Unattributed"}
                     </td>
                     <td className="px-4 py-4 text-sm font-bold">
-                      {item.amountCentavos ? pesoFromCentavos(item.amountCentavos) : "—"}
+                      {item.amountCentavos
+                        ? pesoFromCentavos(item.amountCentavos)
+                        : "—"}
                     </td>
                     <td className="px-4 py-4">
-                      <Pill tone={item.status === "recorded" ? "success" : "warning"}>
+                      <Pill
+                        tone={
+                          item.status === "recorded" ? "success" : "warning"
+                        }
+                      >
                         {item.status}
                       </Pill>
                     </td>
@@ -2054,12 +2339,16 @@ function SalesLedger({ notify }: { notify: Notify }) {
                                 // Stable per transaction: a second tap on a
                                 // slow connection replays the first refund
                                 // rather than taking the money back twice.
-                                idempotencyKey: idempotencyKey("refund", item.id),
+                                idempotencyKey: idempotencyKey(
+                                  "refund",
+                                  item.id,
+                                ),
                               },
                               {
                                 onSuccess: () =>
                                   notify(`Refunded ${item.customer}'s sale.`),
-                                onError: (failure) => notify(failure.message, "error"),
+                                onError: (failure) =>
+                                  notify(failure.message, "error"),
                               },
                             )
                           }
@@ -2083,7 +2372,11 @@ function SalesLedger({ notify }: { notify: Notify }) {
 const DEFAULT_CAMPAIGN_CEILING = 1000;
 const DEFAULT_MONTHLY_CEILING = 5000;
 /** `"From ₱0.42 per message"` → 0.42, from plans.ts. */
-const messagingAppRate = Number(/₱([\d.]+)/.exec(channelRates.find((row) => row.channel === "Messaging apps")?.overage ?? "")?.[1] ?? 0);
+const messagingAppRate = Number(
+  /₱([\d.]+)/.exec(
+    channelRates.find((row) => row.channel === "Messaging apps")?.overage ?? "",
+  )?.[1] ?? 0,
+);
 /**
  * What is left of this month's plan allowance, per channel.
  *
@@ -2091,7 +2384,9 @@ const messagingAppRate = Number(/₱([\d.]+)/.exec(channelRates.find((row) => ro
  * label read "Uses allowance". A channel with allowance left costs nothing
  * until that allowance runs out.
  */
-const allowanceRemainingFrom = (allowances: Allowance[]): Record<string, number> =>
+const allowanceRemainingFrom = (
+  allowances: Allowance[],
+): Record<string, number> =>
   Object.fromEntries(
     allowances
       .filter((item) => item.unit === "messages" || item.unit === "credits")
@@ -2099,7 +2394,7 @@ const allowanceRemainingFrom = (allowances: Allowance[]): Record<string, number>
         item.label === "SMS credits" ? "SMS" : item.label,
         Math.max(0, item.included - item.used),
       ]),
-);
+  );
 /**
  * Cost of sending to `count` recipients on one channel, allowance first.
  *
@@ -2198,8 +2493,12 @@ const channelConfig: {
 function CampaignsView({ notify }: { notify: Notify }) {
   const gate = usePlanGate();
   const testSend = useSendCampaignTest();
-  const [campaignCeiling, setCampaignCeiling] = useState(String(DEFAULT_CAMPAIGN_CEILING));
-  const [monthlyCeiling, setMonthlyCeiling] = useState(String(DEFAULT_MONTHLY_CEILING));
+  const [campaignCeiling, setCampaignCeiling] = useState(
+    String(DEFAULT_CAMPAIGN_CEILING),
+  );
+  const [monthlyCeiling, setMonthlyCeiling] = useState(
+    String(DEFAULT_MONTHLY_CEILING),
+  );
   const { data: metrics = EMPTY_BUSINESS_METRICS } = useBusinessMetrics();
   const { data: campaigns = [] } = useCampaigns();
   const schedule = useCreateCampaign();
@@ -2212,10 +2511,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
   // The most any selected channel can reach. The slider used to start at 1,280
   // with a floor of 100, so a shop with three customers could not express its
   // own audience and was shown someone else's.
-  const widestReach = Math.max(
-    ...audienceRows.map((row) => row.reachable),
-    0,
-  );
+  const widestReach = Math.max(...audienceRows.map((row) => row.reachable), 0);
   const [campaignName, setCampaignName] = useState("Tuesday treat");
   const [audience, setAudience] = useState<number | null>(null);
   // These three were uncontrolled selects, so the composer showed choices that
@@ -2227,13 +2523,22 @@ function CampaignsView({ notify }: { notify: Notify }) {
   // per-recipient feature that does not exist at all.
   const [sendNow, setSendNow] = useState(true);
   const [sendAt, setSendAt] = useState("");
-  const scheduledFor = sendNow ? new Date().toISOString() : sendAt ? new Date(sendAt).toISOString() : "";
+  const scheduledFor = sendNow
+    ? new Date().toISOString()
+    : sendAt
+      ? new Date(sendAt).toISOString()
+      : "";
   const sendTime = sendNow
     ? "As soon as it is scheduled"
     : sendAt
-      ? new Date(sendAt).toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" })
+      ? new Date(sendAt).toLocaleString("en-PH", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        })
       : "";
-  const [frequencyPolicy, setFrequencyPolicy] = useState("Respect 2 promos / week");
+  const [frequencyPolicy, setFrequencyPolicy] = useState(
+    "Respect 2 promos / week",
+  );
   const [channels, setChannels] = useState<Record<string, boolean>>({
     "In-app": true,
     Push: true,
@@ -2242,7 +2547,10 @@ function CampaignsView({ notify }: { notify: Notify }) {
     SMS: false,
   });
   const creditsOpen = billing?.creditPurchasesOpen === true;
-  const channelBlocked = (channel: { plan?: "Core" | "Grow" | "Scale"; status: ChannelStatus }) =>
+  const channelBlocked = (channel: {
+    plan?: "Core" | "Grow" | "Scale";
+    status: ChannelStatus;
+  }) =>
     channel.status === "connecting"
       ? "Connecting; not selectable yet"
       : channel.plan && !gate.covers(channel.plan)
@@ -2252,9 +2560,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
   // Blank. This was pre-filled with the seeded demo bakery's advert, so a new
   // shop's composer opened holding another business's promotion, ready to
   // schedule.
-  const [message, setMessage] = useState(
-    "",
-  );
+  const [message, setMessage] = useState("");
   // Measured reach per channel. A channel with no transport yet (Viber,
   // WhatsApp) has no audience key and so reaches nobody, rather
   // than borrowing a number from a fixture.
@@ -2263,7 +2569,8 @@ function CampaignsView({ notify }: { notify: Notify }) {
   const audienceSize = audience ?? widestReach;
   const reachOf = (channel: { audienceKey: string | null }) =>
     channel.audienceKey
-      ? (audienceRows.find((row) => row.channel === channel.audienceKey)?.reachable ?? 0)
+      ? (audienceRows.find((row) => row.channel === channel.audienceKey)
+          ?.reachable ?? 0)
       : 0;
   const selectedChannels = channelConfig.filter(
     (channel) => !channelBlocked(channel) && channels[channel.name],
@@ -2271,13 +2578,19 @@ function CampaignsView({ notify }: { notify: Notify }) {
   const ceilingPerCampaign = Number(campaignCeiling) || 0;
   const ceilingPerMonth = Number(monthlyCeiling) || 0;
   const smsChannel = channelConfig.find((channel) => channel.name === "SMS");
-  const viberChannel = channelConfig.find((channel) => channel.name === "Viber");
+  const viberChannel = channelConfig.find(
+    (channel) => channel.name === "Viber",
+  );
   // ponytail: routing only ever diverts SMS to the cheaper messaging app. One
   // subtraction beats modelling a full per-recipient channel waterfall.
   const smsAudience =
-    smsChannel && channels.SMS ? Math.min(audienceSize, reachOf(smsChannel)) : 0;
+    smsChannel && channels.SMS
+      ? Math.min(audienceSize, reachOf(smsChannel))
+      : 0;
   const divertedToViber =
-    smartRouting && viberChannel ? Math.min(smsAudience, reachOf(viberChannel)) : 0;
+    smartRouting && viberChannel
+      ? Math.min(smsAudience, reachOf(viberChannel))
+      : 0;
   const routingSavings =
     smsChannel && viberChannel
       ? divertedToViber * (smsChannel.unit - viberChannel.unit)
@@ -2304,8 +2617,11 @@ function CampaignsView({ notify }: { notify: Notify }) {
   // deliveryCost is pesos, from the published channel rates in plans.ts; the
   // API sends the average order in centavos. Both are named for their unit
   // because dividing one by the other silently put the ROI out by 100x.
-  const predictedRevenuePesos = (predictedVisits * metrics.averageOrderCentavos) / 100;
-  const roi = deliveryCost ? predictedRevenuePesos / deliveryCost : predictedRevenuePesos;
+  const predictedRevenuePesos =
+    (predictedVisits * metrics.averageOrderCentavos) / 100;
+  const roi = deliveryCost
+    ? predictedRevenuePesos / deliveryCost
+    : predictedRevenuePesos;
   return (
     <ViewFrame
       eyebrow="Campaign studio"
@@ -2321,7 +2637,8 @@ function CampaignsView({ notify }: { notify: Notify }) {
               problems.push("no channel selected");
             }
             if (!message.trim()) problems.push("the message is empty");
-            if (message.length > 320) problems.push("the message is over 320 characters");
+            if (message.length > 320)
+              problems.push("the message is over 320 characters");
             if (ceilingPerCampaign > 0 && deliveryCost > ceilingPerCampaign) {
               problems.push(
                 `estimated cost ${peso(deliveryCost, { decimals: true })} is over the ${peso(ceilingPerCampaign)} campaign ceiling`,
@@ -2332,7 +2649,8 @@ function CampaignsView({ notify }: { notify: Notify }) {
                 `estimated cost ${peso(deliveryCost, { decimals: true })} is over the ${peso(ceilingPerMonth)} monthly ceiling`,
               );
             }
-            if (reachable === 0) problems.push("no reachable customers with consent");
+            if (reachable === 0)
+              problems.push("no reachable customers with consent");
             notify(
               problems.length
                 ? `Preflight failed: ${problems.join("; ")}.`
@@ -2420,13 +2738,20 @@ function CampaignsView({ notify }: { notify: Notify }) {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-extrabold">{channel.name}</span>
+                        <span className="text-sm font-extrabold">
+                          {channel.name}
+                        </span>
                         {channel.status === "connecting" && (
                           <span className="rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted-strong)]">
                             Connecting
                           </span>
                         )}
-                        {channel.plan && <PlanTag plan={channel.plan} included={gate.covers(channel.plan)} />}
+                        {channel.plan && (
+                          <PlanTag
+                            plan={channel.plan}
+                            included={gate.covers(channel.plan)}
+                          />
+                        )}
                       </span>
                       <span
                         className={`mt-0.5 block text-[10px] ${active ? "text-white/60" : "text-[var(--muted)]"}`}
@@ -2435,10 +2760,14 @@ function CampaignsView({ notify }: { notify: Notify }) {
                         {allowanceRemaining[channel.name]
                           ? `${allowanceRemaining[channel.name].toLocaleString()} left in plan, then ${channel.note.toLowerCase()}`
                           : channel.note}
-                        {channel.name === "SMS" && !creditsOpen && !allowanceRemaining.SMS
+                        {channel.name === "SMS" &&
+                        !creditsOpen &&
+                        !allowanceRemaining.SMS
                           ? " · SMS credits open with billing"
                           : ""}
-                        {channel.name === "Email" && !blocked ? " · not sending until the API accepts the channel" : ""}
+                        {channel.name === "Email" && !blocked
+                          ? " · not sending until the API accepts the channel"
+                          : ""}
                       </span>
                     </span>
                     {active && <Check size={16} />}
@@ -2512,7 +2841,9 @@ function CampaignsView({ notify }: { notify: Notify }) {
               Spend ceiling per campaign, pesos
               <input
                 value={campaignCeiling}
-                onChange={(event) => setCampaignCeiling(event.target.value.replace(/[^0-9]/g, ""))}
+                onChange={(event) =>
+                  setCampaignCeiling(event.target.value.replace(/[^0-9]/g, ""))
+                }
                 inputMode="numeric"
                 className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]"
               />
@@ -2521,7 +2852,9 @@ function CampaignsView({ notify }: { notify: Notify }) {
               Spend ceiling per month, pesos
               <input
                 value={monthlyCeiling}
-                onChange={(event) => setMonthlyCeiling(event.target.value.replace(/[^0-9]/g, ""))}
+                onChange={(event) =>
+                  setMonthlyCeiling(event.target.value.replace(/[^0-9]/g, ""))
+                }
                 inputMode="numeric"
                 className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]"
               />
@@ -2547,18 +2880,30 @@ function CampaignsView({ notify }: { notify: Notify }) {
           <div className="mt-7 divide-y divide-[rgb(24_18_12/16%)] border-y border-[rgb(24_18_12/16%)]">
             {[
               ["Reachable with consent", reachable.toLocaleString()],
-              ["Estimated delivery cost", peso(deliveryCost, { decimals: true })],
-              ["Predicted visits", predictedVisits],
               [
-                "Predicted visit revenue",
-                peso(predictedRevenuePesos),
+                "Estimated delivery cost",
+                peso(deliveryCost, { decimals: true }),
               ],
+              ["Predicted visits", predictedVisits],
+              ["Predicted visit revenue", peso(predictedRevenuePesos)],
               [
                 "Revenue / delivery cost",
                 deliveryCost ? `${roi.toFixed(1)}×` : "No paid channel",
               ],
-              ["Break-even visits", deliveryCost && metrics.averageOrderCentavos ? String(Math.ceil((deliveryCost * 100) / metrics.averageOrderCentavos)) : "—"],
-              ["Spend ceiling", `${peso(ceilingPerCampaign)} per campaign · ${peso(ceilingPerMonth)} a month`],
+              [
+                "Break-even visits",
+                deliveryCost && metrics.averageOrderCentavos
+                  ? String(
+                      Math.ceil(
+                        (deliveryCost * 100) / metrics.averageOrderCentavos,
+                      ),
+                    )
+                  : "—",
+              ],
+              [
+                "Spend ceiling",
+                `${peso(ceilingPerCampaign)} per campaign · ${peso(ceilingPerMonth)} a month`,
+              ],
             ].map(([label, value]) => (
               <div
                 key={label}
@@ -2614,7 +2959,10 @@ function CampaignsView({ notify }: { notify: Notify }) {
             <Button
               onClick={() => {
                 if (selectedChannels.length === 0) {
-                  notify("Choose at least one channel before scheduling.", "error");
+                  notify(
+                    "Choose at least one channel before scheduling.",
+                    "error",
+                  );
                   return;
                 }
                 // Nobody to send to is a reason not to send. The composer
@@ -2635,8 +2983,14 @@ function CampaignsView({ notify }: { notify: Notify }) {
                   notify("Pick when this should send.", "error");
                   return;
                 }
-                if (ceilingPerCampaign > 0 && deliveryCost > ceilingPerCampaign) {
-                  notify(`Estimated cost ${peso(deliveryCost, { decimals: true })} is over your ${peso(ceilingPerCampaign)} campaign ceiling.`, "error");
+                if (
+                  ceilingPerCampaign > 0 &&
+                  deliveryCost > ceilingPerCampaign
+                ) {
+                  notify(
+                    `Estimated cost ${peso(deliveryCost, { decimals: true })} is over your ${peso(ceilingPerCampaign)} campaign ceiling.`,
+                    "error",
+                  );
                   return;
                 }
                 schedule.mutate(
@@ -2651,7 +3005,8 @@ function CampaignsView({ notify }: { notify: Notify }) {
                   {
                     // A refused channel, an exhausted allowance or a missing
                     // credit balance is the API's answer, and it is shown.
-                    onError: (failure) => notify(refusal(failure, "Core"), "error"),
+                    onError: (failure) =>
+                      notify(refusal(failure, "Core"), "error"),
                     // Was fired outside the mutation, so the screen said
                     // "scheduled" whether or not the request succeeded.
                     onSuccess: () =>
@@ -2672,9 +3027,17 @@ function CampaignsView({ notify }: { notify: Notify }) {
         <div className="flex items-center justify-between border-b border-[var(--line)] p-5">
           <div>
             <Eyebrow>Campaign history</Eyebrow>
-            <h2 className="mt-1 text-lg font-extrabold">Revenue after delivery</h2>
+            <h2 className="mt-1 text-lg font-extrabold">
+              Revenue after delivery
+            </h2>
           </div>
         </div>
+        {campaigns.length === 0 && (
+          <NothingYet>
+            No campaign has been sent from this workspace yet. Once one goes
+            out, its reach, cost and the revenue after it land here.
+          </NothingYet>
+        )}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[780px] text-left">
             <tbody>
@@ -2688,7 +3051,9 @@ function CampaignsView({ notify }: { notify: Notify }) {
                     <p className="mt-0.5 text-[10px] text-[var(--muted)]">
                       {campaign.audience}
                       {campaign.sendTime ? ` · ${campaign.sendTime}` : ""}
-                      {campaign.frequencyPolicy ? ` · ${campaign.frequencyPolicy}` : ""}
+                      {campaign.frequencyPolicy
+                        ? ` · ${campaign.frequencyPolicy}`
+                        : ""}
                     </p>
                   </td>
                   <td className="px-4 py-4 text-xs font-bold">
@@ -2729,7 +3094,10 @@ const messageChannelsFrom = (rows: MessageRecord[]) => [
 function MessageLogView({ notify }: { notify: Notify }) {
   const { runExport, busy: exporting } = useExport(notify);
   const { data: messages = [] } = useMessages();
-  const messageChannels = useMemo(() => messageChannelsFrom(messages), [messages]);
+  const messageChannels = useMemo(
+    () => messageChannelsFrom(messages),
+    [messages],
+  );
   const [channel, setChannel] = useState("All");
   const [query, setQuery] = useState("");
   const rows = messages.filter(
@@ -2815,7 +3183,9 @@ function MessageLogView({ notify }: { notify: Notify }) {
                     </Pill>
                   </td>
                   <td className="px-4 py-4 font-mono text-xs">
-                    {message.costCentavos ? pesoFromCentavos(message.costCentavos) : "Included"}
+                    {message.costCentavos
+                      ? pesoFromCentavos(message.costCentavos)
+                      : "Included"}
                   </td>
                   <td className="px-4 py-4 text-xs text-[var(--muted)]">
                     {message.sentAt}
@@ -2869,9 +3239,7 @@ export function BusinessViewContent({
     campaigns: <CampaignsView notify={notify} />,
     "message-log": <MessageLogView notify={notify} />,
     analytics: <AnalyticsView />,
-    integrations: (
-      <IntegrationsView notify={notify} onNavigate={onNavigate} />
-    ),
+    integrations: <IntegrationsView notify={notify} onNavigate={onNavigate} />,
     staff: <StaffView notify={notify} />,
     billing: <BillingView notify={notify} />,
     settings: <SettingsView notify={notify} />,

@@ -60,17 +60,24 @@ import {
   type ServiceHealth,
 } from "@kypstamping/api";
 import { useAdminState } from "@/components/AdminState";
-import { peso, pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
+import { pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
 import { FOUNDING } from "@/lib/catalog";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
 
-function ViewFrame(props: Omit<Parameters<typeof SharedViewFrame>[0], "wide" | "className">) {
+function ViewFrame(
+  props: Omit<Parameters<typeof SharedViewFrame>[0], "wide" | "className">,
+) {
   return <SharedViewFrame wide className="admin-grid" {...props} />;
 }
 
 function PeopleView({ notify }: { notify: Notify }) {
-  const { data: metrics = EMPTY_PLATFORM_METRICS, isPending, error, refetch } = usePlatformMetrics();
+  const {
+    data: metrics = EMPTY_PLATFORM_METRICS,
+    isPending,
+    error,
+    refetch,
+  } = usePlatformMetrics();
   return (
     <ViewFrame
       eyebrow="Network people"
@@ -84,7 +91,13 @@ function PeopleView({ notify }: { notify: Notify }) {
         />
       }
     >
-      <QueryBoundary isPending={isPending} error={error} onRetry={refetch} label="account aggregates" rows={2}>
+      <QueryBoundary
+        isPending={isPending}
+        error={error}
+        onRetry={refetch}
+        label="account aggregates"
+        rows={2}
+      >
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {(
             [
@@ -94,9 +107,19 @@ function PeopleView({ notify }: { notify: Notify }) {
                 "One person, many memberships",
                 Users,
               ],
-              ["Consent withdrawals", "—", "Not reported by the API yet", ShieldCheck],
+              [
+                "Consent withdrawals",
+                "—",
+                "Not reported by the API yet",
+                ShieldCheck,
+              ],
               ["Data exports", "—", "Not reported by the API yet", Download],
-              ["Deletion requests", "—", "Not reported by the API yet", LockKeyhole],
+              [
+                "Deletion requests",
+                "—",
+                "Not reported by the API yet",
+                LockKeyhole,
+              ],
             ] as const
           ).map(([label, value, detail, icon]) => {
             const Icon = icon;
@@ -105,7 +128,11 @@ function PeopleView({ notify }: { notify: Notify }) {
                 key={String(label)}
                 className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
               >
-                <Icon size={18} className="text-[var(--accent-strong)]" aria-hidden="true" />
+                <Icon
+                  size={18}
+                  className="text-[var(--accent-strong)]"
+                  aria-hidden="true"
+                />
                 <p className="mt-7 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
                   {label}
                 </p>
@@ -121,25 +148,42 @@ function PeopleView({ notify }: { notify: Notify }) {
       <div className="mt-3 grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
           <Eyebrow>Scoped access</Eyebrow>
-          <h2 className="mt-1 text-lg font-extrabold">How a person ever sees a customer record</h2>
+          <h2 className="mt-1 text-lg font-extrabold">
+            How a person ever sees a customer record
+          </h2>
           <dl className="mt-5 divide-y divide-[var(--line)]">
             {(
               [
-                ["Time-limited", "A grant expires on its own, in minutes, not days."],
-                ["Reason-bound", "Every grant names the ticket or trust reason it serves."],
-                ["Audited", "The grant, the reads and the expiry are written to the audit ledger by the API."],
+                [
+                  "Time-limited",
+                  "A grant expires on its own, in minutes, not days.",
+                ],
+                [
+                  "Reason-bound",
+                  "Every grant names the ticket or trust reason it serves.",
+                ],
+                [
+                  "Audited",
+                  "The grant, the reads and the expiry are written to the audit ledger by the API.",
+                ],
               ] as const
             ).map(([term, detail]) => (
-              <div key={term} className="grid gap-1 py-3.5 sm:grid-cols-[140px_1fr]">
+              <div
+                key={term}
+                className="grid gap-1 py-3.5 sm:grid-cols-[140px_1fr]"
+              >
                 <dt className="text-sm font-extrabold">{term}</dt>
-                <dd className="text-xs leading-relaxed text-[var(--muted-strong)]">{detail}</dd>
+                <dd className="text-xs leading-relaxed text-[var(--muted-strong)]">
+                  {detail}
+                </dd>
               </div>
             ))}
           </dl>
           <p className="mt-4 rounded-xl border border-dashed border-[var(--line-strong)] p-3 text-[11px] leading-relaxed text-[var(--muted-strong)]">
-            There is no endpoint to request a grant yet, so this console cannot open one. Consent,
-            export and deletion are handled in the merchant and customer apps; this page will show
-            their counts once the API reports them.
+            There is no endpoint to request a grant yet, so this console cannot
+            open one. Consent, export and deletion are handled in the merchant
+            and customer apps; this page will show their counts once the API
+            reports them.
           </p>
         </section>
         <section className="rounded-2xl bg-[var(--accent)] p-6">
@@ -179,19 +223,68 @@ function PeopleView({ notify }: { notify: Notify }) {
  */
 const TRANSPORTS: { name: string; match: RegExp; detail?: string }[] = [
   { name: "API", match: /^api/i },
-  { name: "Worker", match: /worker/i, detail: "Background jobs run here; a stale worker runs stale code." },
-  { name: "Beat", match: /beat|schedul/i, detail: "The scheduler behind journeys and retries." },
-  { name: "Database", match: /database|postgres/i, detail: "The API check probes it; there is no separate check yet." },
+  {
+    name: "Worker",
+    match: /worker/i,
+    detail: "Background jobs run here; a stale worker runs stale code.",
+  },
+  {
+    name: "Beat",
+    match: /beat|schedul/i,
+    detail: "The scheduler behind journeys and retries.",
+  },
+  {
+    name: "Database",
+    match: /database|postgres/i,
+    detail: "The API check probes it; there is no separate check yet.",
+  },
   { name: "Redis", match: /redis/i },
-  { name: "Email · transactional", match: /transactional/i, detail: "Sign-in codes, reward notices and exports always send, on every plan." },
-  { name: "Email · marketing", match: /marketing/i, detail: "Not connected. Campaign email is refused until a campaign sender separate from the transactional one exists." },
-  { name: "SMS", match: /sms/i, detail: "Stub, no transport. Credits are priced before every send; nothing leaves the platform yet." },
-  { name: "Push", match: /push/i, detail: "In-app delivery only. There is no web push." },
-  { name: "Payments · QR Ph", match: /payment|paymongo/i, detail: "PayMongo webhook not registered. Billing opens with the two flags in Platform settings." },
-  { name: "Webhook delivery", match: /webhook/i, detail: "Outbound events to merchant endpoints; failures land in the recovery queue." },
+  {
+    name: "Email · transactional",
+    match: /transactional/i,
+    detail:
+      "Sign-in codes, reward notices and exports always send, on every plan.",
+  },
+  {
+    name: "Email · marketing",
+    match: /marketing/i,
+    detail:
+      "Not connected. Campaign email is refused until a campaign sender separate from the transactional one exists.",
+  },
+  {
+    name: "SMS",
+    match: /sms/i,
+    detail:
+      "Stub, no transport. Credits are priced before every send; nothing leaves the platform yet.",
+  },
+  {
+    name: "Push",
+    match: /push/i,
+    detail: "In-app delivery only. There is no web push.",
+  },
+  {
+    name: "Payments · QR Ph",
+    match: /payment|paymongo/i,
+    detail:
+      "PayMongo webhook not registered. Billing opens with the two flags in Platform settings.",
+  },
+  {
+    name: "Webhook delivery",
+    match: /webhook/i,
+    detail:
+      "Outbound events to merchant endpoints; failures land in the recovery queue.",
+  },
 ];
 
-function TransportTile({ name, service, detail }: { name: string; service?: ServiceHealth; detail?: string }) {
+function TransportTile({
+  name,
+  service,
+  detail,
+}: {
+  name: string;
+  service?: ServiceHealth;
+  detail?: string;
+}) {
   const degraded = service?.status === "Degraded";
   return (
     <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
@@ -205,7 +298,13 @@ function TransportTile({ name, service, detail }: { name: string; service?: Serv
                 : "bg-[rgb(15_118_85/12%)] text-[var(--success)]"
           }`}
         >
-          {!service ? <CircleAlert size={18} aria-hidden="true" /> : degraded ? <CircleAlert size={18} aria-hidden="true" /> : <Check size={18} aria-hidden="true" />}
+          {!service ? (
+            <CircleAlert size={18} aria-hidden="true" />
+          ) : degraded ? (
+            <CircleAlert size={18} aria-hidden="true" />
+          ) : (
+            <Check size={18} aria-hidden="true" />
+          )}
         </span>
         <Pill tone={!service ? "neutral" : degraded ? "danger" : "success"}>
           {service ? service.status : "Unreported"}
@@ -218,7 +317,9 @@ function TransportTile({ name, service, detail }: { name: string; service?: Serv
       </p>
       {service && (
         <div className="mt-4 flex justify-between border-t border-[var(--line)] pt-3 text-xs">
-          <span className="text-[var(--muted)]">Latency {service.latency}</span>
+          {/* No "Latency" prefix: this field carries a retry count on the
+              webhook card, and the API now sends a string that names itself. */}
+          <span className="text-[var(--muted)]">{service.latency}</span>
           <strong>{service.uptime}</strong>
         </div>
       )}
@@ -227,11 +328,19 @@ function TransportTile({ name, service, detail }: { name: string; service?: Serv
 }
 
 function OperationsView() {
-  const { data: services = [], isPending, error, refetch, isFetching } = useServices();
+  const {
+    data: services = [],
+    isPending,
+    error,
+    refetch,
+    isFetching,
+  } = useServices();
   const { recoveryQueue } = useAdminState();
   const claimed = new Set<string>();
   const tiles = TRANSPORTS.map((transport) => {
-    const service = services.find((s) => !claimed.has(s.name) && transport.match.test(s.name));
+    const service = services.find(
+      (s) => !claimed.has(s.name) && transport.match.test(s.name),
+    );
     if (service) claimed.add(service.name);
     return { ...transport, service };
   });
@@ -244,7 +353,12 @@ function OperationsView() {
       action={
         <Button
           tone="quiet"
-          icon={<RefreshCcw size={16} className={isFetching ? "animate-spin" : ""} />}
+          icon={
+            <RefreshCcw
+              size={16}
+              className={isFetching ? "animate-spin" : ""}
+            />
+          }
           disabled={isFetching}
           onClick={() => refetch()}
         >
@@ -252,17 +366,36 @@ function OperationsView() {
         </Button>
       }
     >
-      <QueryBoundary isPending={isPending} error={error} onRetry={refetch} label="service health" rows={4}>
-        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="Service health">
+      <QueryBoundary
+        isPending={isPending}
+        error={error}
+        onRetry={refetch}
+        label="service health"
+        rows={4}
+      >
+        <section
+          className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+          aria-label="Service health"
+        >
           {tiles.map((tile) => (
-            <TransportTile key={tile.name} name={tile.name} service={tile.service} detail={tile.detail} />
+            <TransportTile
+              key={tile.name}
+              name={tile.name}
+              service={tile.service}
+              detail={tile.detail}
+            />
           ))}
           {unmatched.map((service) => (
-            <TransportTile key={service.name} name={service.name} service={service} />
+            <TransportTile
+              key={service.name}
+              name={service.name}
+              service={service}
+            />
           ))}
         </section>
         <p className="mt-3 text-[10px] font-semibold text-[var(--muted)]">
-          {services.length} check{services.length === 1 ? "" : "s"} reported by the API; the rest are the site&apos;s own account of each transport.
+          {services.length} check{services.length === 1 ? "" : "s"} reported by
+          the API; the rest are the site&apos;s own account of each transport.
         </p>
       </QueryBoundary>
       <div className="mt-3 grid gap-3 xl:grid-cols-[1.15fr_0.85fr]">
@@ -271,37 +404,52 @@ function OperationsView() {
             <div>
               <Eyebrow>Recovery queue</Eyebrow>
               <h2 className="mt-1 text-lg font-extrabold">
-                {recoveryQueue.length} deliver{recoveryQueue.length === 1 ? "y" : "ies"} awaiting replay
+                {recoveryQueue.length} deliver
+                {recoveryQueue.length === 1 ? "y" : "ies"} awaiting replay
               </h2>
             </div>
             <Activity aria-hidden="true" />
           </div>
           <ul className="mt-5 divide-y divide-[var(--line)]">
             {recoveryQueue.slice(0, 6).map((item) => (
-              <li key={item.id} className="flex items-center justify-between gap-3 py-3 text-xs">
+              <li
+                key={item.id}
+                className="flex items-center justify-between gap-3 py-3 text-xs"
+              >
                 <span className="min-w-0">
-                  <code className="block truncate font-extrabold">{item.event}</code>
-                  <span className="block truncate text-[var(--muted-strong)]">{item.tenant} · {item.detail}</span>
+                  <code className="block truncate font-extrabold">
+                    {item.event}
+                  </code>
+                  <span className="block truncate text-[var(--muted-strong)]">
+                    {item.tenant} · {item.detail}
+                  </span>
                 </span>
                 <Pill tone="neutral">{item.direction}</Pill>
               </li>
             ))}
             {recoveryQueue.length === 0 && (
-              <li className="py-4 text-xs font-semibold text-[var(--muted)]">Everything has been replayed.</li>
+              <li className="py-4 text-xs font-semibold text-[var(--muted)]">
+                Everything has been replayed.
+              </li>
             )}
           </ul>
-          <a href="#integrations" className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-[var(--accent-strong)]">
+          <a
+            href="#integrations"
+            className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-[var(--accent-strong)]"
+          >
             Replay from Integrations <ArrowRight size={14} aria-hidden="true" />
           </a>
         </section>
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
           <Eyebrow>Incidents</Eyebrow>
           <h2 className="mt-7 text-2xl font-extrabold tracking-[-0.02em]">
-            {services.some((s) => s.status === "Degraded") ? "A reported check is degraded" : "No reported check is degraded"}
+            {services.some((s) => s.status === "Degraded")
+              ? "A reported check is degraded"
+              : "No reported check is degraded"}
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-white/65">
-            Queue depth, worker liveness and incident timelines are not reported by the API yet;
-            this panel will carry them when they are.
+            Queue depth, worker liveness and incident timelines are not reported
+            by the API yet; this panel will carry them when they are.
           </p>
           {/* No runbook exists to open. Saying so beats reporting that one
               did - an operator in an incident must not be told a document
@@ -327,7 +475,8 @@ function SupportView({ notify }: { notify: Notify }) {
     setTicketNote,
   } = useAdminState();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const selected = tickets.find((ticket) => ticket.id === selectedId) ?? tickets[0];
+  const selected =
+    tickets.find((ticket) => ticket.id === selectedId) ?? tickets[0];
   /**
    * The note being typed, kept local until the field is left.
    *
@@ -348,7 +497,9 @@ function SupportView({ notify }: { notify: Notify }) {
   /** Writes the draft if it says anything new. Returns what the note now is. */
   const commitNote = () => {
     if (selected && noteDraft !== null && noteDraft !== selected.note) {
-      setTicketNote(selected.id, noteDraft, (message) => notify(message, "error"));
+      setTicketNote(selected.id, noteDraft, (message) =>
+        notify(message, "error"),
+      );
     }
     return note;
   };
@@ -423,7 +574,9 @@ function SupportView({ notify }: { notify: Notify }) {
                     {ticket.status}
                   </span>
                 </span>
-                <span className="text-xs font-bold">{relativeTime(ticket.openedAt)}</span>
+                <span className="text-xs font-bold">
+                  {relativeTime(ticket.openedAt)}
+                </span>
               </button>
             ))}
           </div>
@@ -451,7 +604,9 @@ function SupportView({ notify }: { notify: Notify }) {
               <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-white/50">
                 Raised from the website
               </p>
-              <p className="mt-2 text-sm font-extrabold">{selected.contactName}</p>
+              <p className="mt-2 text-sm font-extrabold">
+                {selected.contactName}
+              </p>
               <a
                 href={`mailto:${selected.contactEmail}?subject=${encodeURIComponent(
                   `Re: ${selected.title}`,
@@ -494,11 +649,17 @@ function SupportView({ notify }: { notify: Notify }) {
                 notify(`${selected.id} assigned to ${event.target.value}.`);
               }}
             >
-              {[...new Set([selected.owner, "Unassigned", "Nica", "Mika", "Paolo"])].map(
-                (owner) => (
-                  <option key={owner}>{owner}</option>
-                ),
-              )}
+              {[
+                ...new Set([
+                  selected.owner,
+                  "Unassigned",
+                  "Nica",
+                  "Mika",
+                  "Paolo",
+                ]),
+              ].map((owner) => (
+                <option key={owner}>{owner}</option>
+              ))}
             </select>
           </label>
           <label className="mt-4 grid gap-2 text-xs font-bold">
@@ -523,13 +684,17 @@ function SupportView({ notify }: { notify: Notify }) {
                   noteDraft !== null && noteDraft !== selected.note
                     ? { status, note: noteDraft }
                     : { status };
-                updateTicket(selected.id, pending, (message) => notify(message, "error"));
+                updateTicket(selected.id, pending, (message) =>
+                  notify(message, "error"),
+                );
                 notify(`${selected.id} moved to ${status.toLowerCase()}.`);
               }}
             >
-              {[...new Set([selected.status, ...TICKET_STATUSES])].map((status) => (
-                <option key={status}>{status}</option>
-              ))}
+              {[...new Set([selected.status, ...TICKET_STATUSES])].map(
+                (status) => (
+                  <option key={status}>{status}</option>
+                ),
+              )}
             </select>
           </label>
           <label className="mt-4 grid gap-2 text-xs font-bold">
@@ -551,7 +716,10 @@ function SupportView({ notify }: { notify: Notify }) {
               // without one, and a note typed but not yet blurred is still a
               // note the admin has written.
               if (!note.trim()) {
-                notify("Add an internal note before starting an investigation.", "error");
+                notify(
+                  "Add an internal note before starting an investigation.",
+                  "error",
+                );
                 return;
               }
               // Same single write, for the same reason.
@@ -579,7 +747,11 @@ function AuditView({ notify }: { notify: Notify }) {
       title="Audit ledger"
       description="Every admin access, change, reversal, replay, export, and automated safeguard is recorded for accountability."
       action={
-        <PlatformExportButton kind="audit" label="Export audit log" notify={notify} />
+        <PlatformExportButton
+          kind="audit"
+          label="Export audit log"
+          notify={notify}
+        />
       }
     >
       <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
@@ -635,7 +807,9 @@ function AuditView({ notify }: { notify: Notify }) {
       <div className="mt-3 flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
         <FileClock size={19} className="mt-0.5 text-[var(--accent-strong)]" />
         <div>
-          <p className="text-sm font-extrabold">Append-only by design (planned)</p>
+          <p className="text-sm font-extrabold">
+            Append-only by design (planned)
+          </p>
           <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
             Rows are the API&apos;s. Hashed event chains and signed exports are
             planned; nothing here edits an entry in place.
@@ -670,7 +844,9 @@ function BilledAndSent() {
           </h2>
         </div>
         {invoices.length === 0 ? (
-          <p className="p-5 text-sm text-[var(--muted-strong)]">Nothing issued yet.</p>
+          <p className="p-5 text-sm text-[var(--muted-strong)]">
+            Nothing issued yet.
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[480px] text-left">
@@ -684,14 +860,21 @@ function BilledAndSent() {
               </thead>
               <tbody>
                 {invoices.slice(0, 12).map((invoice) => (
-                  <tr key={invoice.id} className="border-b border-[var(--line)] last:border-0">
-                    <td className="px-5 py-3.5 font-mono text-[11px]">{invoice.merchantId}</td>
+                  <tr
+                    key={invoice.id}
+                    className="border-b border-[var(--line)] last:border-0"
+                  >
+                    <td className="px-5 py-3.5 font-mono text-[11px]">
+                      {invoice.merchantId}
+                    </td>
                     <td className="px-4 py-3.5 text-sm">{invoice.period}</td>
                     <td className="px-4 py-3.5 text-sm font-bold">
                       {pesoFromCentavos(invoice.amountCentavos)}
                     </td>
                     <td className="px-4 py-3.5">
-                      <Pill tone={invoice.status === "Paid" ? "success" : "warning"}>
+                      <Pill
+                        tone={invoice.status === "Paid" ? "success" : "warning"}
+                      >
                         {invoice.status}
                       </Pill>
                     </td>
@@ -707,25 +890,36 @@ function BilledAndSent() {
         <div className="border-b border-[var(--line)] p-5">
           <Eyebrow>Delivery</Eyebrow>
           <h2 className="mt-1 text-lg font-extrabold">
-            {campaigns.reduce((sum, campaign) => sum + campaign.sent, 0).toLocaleString()}{" "}
+            {campaigns
+              .reduce((sum, campaign) => sum + campaign.sent, 0)
+              .toLocaleString()}{" "}
             messages across {campaigns.length} campaign
             {campaigns.length === 1 ? "" : "s"}
           </h2>
         </div>
         {campaigns.length === 0 ? (
-          <p className="p-5 text-sm text-[var(--muted-strong)]">Nothing sent yet.</p>
+          <p className="p-5 text-sm text-[var(--muted-strong)]">
+            Nothing sent yet.
+          </p>
         ) : (
           <ul className="divide-y divide-[var(--line)]">
             {campaigns.slice(0, 8).map((campaign) => (
-              <li key={campaign.id} className="flex items-center gap-3 px-5 py-3.5">
+              <li
+                key={campaign.id}
+                className="flex items-center gap-3 px-5 py-3.5"
+              >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-extrabold">{campaign.name}</p>
+                  <p className="truncate text-sm font-extrabold">
+                    {campaign.name}
+                  </p>
                   <p className="mt-0.5 font-mono text-[10px] text-[var(--muted)]">
                     {campaign.merchantId}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="text-sm font-bold">{campaign.sent.toLocaleString()}</p>
+                  <p className="text-sm font-bold">
+                    {campaign.sent.toLocaleString()}
+                  </p>
                   <p className="text-[10px] text-[var(--muted-strong)]">
                     {pesoFromCentavos(campaign.costCentavos)}
                   </p>
@@ -760,58 +954,69 @@ function EconomicsView() {
     (sum, plan) => sum + plan.monthlyCostCentavos,
     0,
   );
-  const margin = totalPlanMrr ? ((totalPlanMrr - totalPlanCost) / totalPlanMrr) * 100 : 0;
+  const margin = totalPlanMrr
+    ? ((totalPlanMrr - totalPlanCost) / totalPlanMrr) * 100
+    : 0;
   const foundingCount = tenants.filter((tenant) => tenant.founding).length;
-  const foundingExposure = foundingCount * FOUNDING.freeMonths * FOUNDING.coreMonthlyCentavos;
+  const foundingExposure =
+    foundingCount * FOUNDING.freeMonths * FOUNDING.coreMonthlyCentavos;
   return (
     <ViewFrame
       eyebrow="Sustainable growth"
       title="Revenue & margin"
       description="Plan revenue, channel cost and the margin between them, in pesos. Gross margin counts channel cost only; infrastructure is not modelled."
     >
-      <QueryBoundary isPending={isPending} error={error} onRetry={refetch} label="platform economics" rows={2}>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        {[
-          [
-            "Subscription MRR",
-            pesoFromCentavos(metrics.monthlyRecurringRevenueCentavos),
-            "Only Launch is sellable today",
-          ],
-          [
-            "Gross margin",
-            `${metrics.grossMargin}%`,
-            "Channel cost only, infrastructure not modelled",
-          ],
-          [
-            "Net revenue retention",
-            `${metrics.netRevenueRetention}%`,
-            "Against last month's MRR",
-          ],
-          [
-            "SMS credit liability",
-            pesoFromCentavos(metrics.smsLiabilityCentavos),
-            "Prepaid credits not yet sent",
-          ],
-          [
-            "Founding credit exposure",
-            pesoFromCentavos(foundingExposure),
-            `Projection: ${foundingCount} founding × ${FOUNDING.freeMonths} months × ${pesoFromCentavos(FOUNDING.coreMonthlyCentavos)} Core`,
-          ],
-        ].map(([label, value, detail]) => (
-          <article
-            key={label}
-            className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
-          >
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
-              {label}
-            </p>
-            <p className="mt-5 text-2xl font-extrabold tracking-[-0.02em]">
-              {value}
-            </p>
-            <p className="mt-1 text-xs text-[var(--muted-strong)]">{detail}</p>
-          </article>
-        ))}
-      </div>
+      <QueryBoundary
+        isPending={isPending}
+        error={error}
+        onRetry={refetch}
+        label="platform economics"
+        rows={2}
+      >
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          {[
+            [
+              "Subscription MRR",
+              pesoFromCentavos(metrics.monthlyRecurringRevenueCentavos),
+              "Only Launch is sellable today",
+            ],
+            [
+              "Gross margin",
+              `${metrics.grossMargin}%`,
+              "Channel cost only, infrastructure not modelled",
+            ],
+            [
+              "Net revenue retention",
+              `${metrics.netRevenueRetention}%`,
+              "Against last month's MRR",
+            ],
+            [
+              "SMS credit liability",
+              pesoFromCentavos(metrics.smsLiabilityCentavos),
+              "Prepaid credits not yet sent",
+            ],
+            [
+              "Founding credit exposure",
+              pesoFromCentavos(foundingExposure),
+              `Projection: ${foundingCount} founding × ${FOUNDING.freeMonths} months × ${pesoFromCentavos(FOUNDING.coreMonthlyCentavos)} Core`,
+            ],
+          ].map(([label, value, detail]) => (
+            <article
+              key={label}
+              className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"
+            >
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
+                {label}
+              </p>
+              <p className="mt-5 text-2xl font-extrabold tracking-[-0.02em]">
+                {value}
+              </p>
+              <p className="mt-1 text-xs text-[var(--muted-strong)]">
+                {detail}
+              </p>
+            </article>
+          ))}
+        </div>
       </QueryBoundary>
       <BilledAndSent />
       <div className="mt-3 grid gap-3 xl:grid-cols-[1.1fr_0.9fr]">
@@ -913,7 +1118,8 @@ function EconomicsView() {
           <table className="w-full min-w-[760px] text-left">
             <tbody>
               {channelEconomics.map((channel) => {
-                const contribution = channel.revenueCentavos - channel.costCentavos;
+                const contribution =
+                  channel.revenueCentavos - channel.costCentavos;
                 return (
                   <tr
                     key={channel.name}
@@ -923,7 +1129,8 @@ function EconomicsView() {
                       {channel.name}
                     </td>
                     <td className="px-4 py-4 text-xs">
-                      {channel.volume.toLocaleString()} messages
+                      {channel.volume.toLocaleString()} message
+                      {channel.volume === 1 ? "" : "s"}
                     </td>
                     <td className="px-4 py-4 text-xs text-[var(--muted-strong)]">
                       {channel.model}
@@ -937,8 +1144,13 @@ function EconomicsView() {
                     <td
                       className={`px-4 py-4 text-sm font-extrabold ${contribution >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
                     >
-                      {contribution >= 0 ? "+" : ""}
-                      {peso(contribution)}
+                      {/* `peso` on a centavo figure, beside two cells that
+                          convert correctly: ₱0.09 of margin printed as ₱9,
+                          every row a hundred times too big, in the column a
+                          pricing decision is made from. The sign leads, so a
+                          loss reads "-₱0.42" rather than "₱-42". */}
+                      {contribution < 0 ? "-" : "+"}
+                      {pesoFromCentavos(Math.abs(contribution))}
                     </td>
                   </tr>
                 );
@@ -1016,7 +1228,10 @@ function ProviderPolicyCard({ notify }: { notify: Notify }) {
             ["Audit retention", "auditRetentionDays", "days"],
           ] as const
         ).map(([label, key, unit]) => (
-          <label key={key} className="flex items-center justify-between gap-4 py-3 text-xs">
+          <label
+            key={key}
+            className="flex items-center justify-between gap-4 py-3 text-xs"
+          >
             <span className="text-white/50">
               {label}
               <span className="ml-1 text-white/55">({unit})</span>
@@ -1042,12 +1257,16 @@ function ProviderPolicyCard({ notify }: { notify: Notify }) {
       <label className="mt-5 grid gap-2">
         <span className="text-xs text-white/50">
           Enquiries and applications go to
-          <span className="ml-1 text-white/55">(demo enquiries, partner applications)</span>
+          <span className="ml-1 text-white/55">
+            (demo enquiries, partner applications)
+          </span>
         </span>
         <input
           type="email"
           value={shown.internalInbox ?? ""}
-          onChange={(event) => setDraft({ ...shown, internalInbox: event.target.value })}
+          onChange={(event) =>
+            setDraft({ ...shown, internalInbox: event.target.value })
+          }
           placeholder="inbox@example.com"
           className="min-h-10 w-full rounded-lg border border-white/15 bg-[var(--ink-soft)] px-3 text-xs font-bold text-white outline-none placeholder:font-normal placeholder:text-white/55 focus:border-[var(--accent)]"
           {...noAutofill}
@@ -1097,7 +1316,9 @@ function PlatformExportButton({
           await downloadPlatformExport(kind);
         } catch (failure) {
           notify(
-            failure instanceof ApiError ? failure.message : "That export could not be prepared.",
+            failure instanceof ApiError
+              ? failure.message
+              : "That export could not be prepared.",
             "review",
           );
         } finally {
@@ -1121,7 +1342,8 @@ const BILLING_FLAGS = [
   {
     key: "billing.paid_tiers",
     title: "Paid tiers",
-    detail: "Core, Grow and Scale become purchasable; the business app shows QR Ph payment instead of “not open yet”.",
+    detail:
+      "Core, Grow and Scale become purchasable; the business app shows QR Ph payment instead of “not open yet”.",
   },
   {
     key: "billing.credit_purchases",
@@ -1139,10 +1361,12 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
       <div className="flex items-start justify-between gap-3 border-b border-[var(--line)] p-5">
         <div>
           <Eyebrow>Billing</Eyebrow>
-          <h2 className="mt-1 text-lg font-extrabold">Off through December 2026</h2>
+          <h2 className="mt-1 text-lg font-extrabold">
+            Off through December 2026
+          </h2>
           <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-            Turning a flag on opens billing; no deploy needed. Every flip is an audit ledger entry
-            recorded by the API.
+            Turning a flag on opens billing; no deploy needed. Every flip is an
+            audit ledger entry recorded by the API.
           </p>
         </div>
         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--surface-2)]">
@@ -1150,7 +1374,13 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
         </span>
       </div>
       <div className="p-5">
-        <QueryBoundary isPending={isPending} error={error} onRetry={refetch} label="billing flags" rows={2}>
+        <QueryBoundary
+          isPending={isPending}
+          error={error}
+          onRetry={refetch}
+          label="billing flags"
+          rows={2}
+        >
           {BILLING_FLAGS.map((flag, index) => {
             const present = flag.key in flags;
             const enabled = flags[flag.key] ?? false;
@@ -1162,14 +1392,18 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-extrabold">{flag.title}</p>
-                    <code className="font-mono text-[10px] text-[var(--muted)]">{flag.key}</code>
+                    <code className="font-mono text-[10px] text-[var(--muted)]">
+                      {flag.key}
+                    </code>
                     {!present && <PreviewBadge />}
                   </div>
                   <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                     {flag.detail}
                   </p>
                   {!present && (
-                    <p className="mt-1 text-[11px] text-[var(--muted-strong)]">{PREVIEW_WRITE_REASON}</p>
+                    <p className="mt-1 text-[11px] text-[var(--muted-strong)]">
+                      {PREVIEW_WRITE_REASON}
+                    </p>
                   )}
                 </div>
                 <button
@@ -1181,7 +1415,9 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
                   title={present ? undefined : PREVIEW_WRITE_REASON}
                   onClick={() => {
                     const next = toggleFlag(flag.key);
-                    notify(`${flag.title} ${next ? "on" : "off"}. The API wrote it to the audit ledger.`);
+                    notify(
+                      `${flag.title} ${next ? "on" : "off"}. The API wrote it to the audit ledger.`,
+                    );
                   }}
                   className={`relative h-6 w-10 shrink-0 rounded-full disabled:opacity-45 ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                 >
@@ -1194,8 +1430,9 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
           })}
           {anyMissing && (
             <p className="mt-4 text-[11px] leading-relaxed text-[var(--muted)]">
-              A flag the API does not list yet is shown off. It becomes live here the day
-              `/admin/flags` returns it; nothing on this page needs to change.
+              A flag the API does not list yet is shown off. It becomes live
+              here the day `/admin/flags` returns it; nothing on this page needs
+              to change.
             </p>
           )}
         </QueryBoundary>
@@ -1205,7 +1442,12 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
 }
 
 function SettingsView({ notify }: { notify: Notify }) {
-  const { data: administrators = [], isPending, error, refetch } = useAdministrators();
+  const {
+    data: administrators = [],
+    isPending,
+    error,
+    refetch,
+  } = useAdministrators();
   const [reviewOpen, setReviewOpen] = useState(false);
   const signedIn = administrators.filter((person) => person.activeSessions > 0);
   const withoutMfa = administrators.filter((person) => !person.mfaEnabled);
@@ -1276,7 +1518,9 @@ function SettingsView({ notify }: { notify: Notify }) {
                     aria-checked={enabled}
                     onClick={() => {
                       const next = toggleFlag(key);
-                      notify(`${title} ${next ? "enabled" : "disabled"} network-wide.`);
+                      notify(
+                        `${title} ${next ? "enabled" : "disabled"} network-wide.`,
+                      );
                     }}
                     className={`relative h-6 w-10 shrink-0 rounded-full ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                   >
@@ -1305,8 +1549,8 @@ function SettingsView({ notify }: { notify: Notify }) {
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                   {administrators.length} administrator
-                  {administrators.length === 1 ? "" : "s"} ·{" "}
-                  {signedIn.length} signed in now ·{" "}
+                  {administrators.length === 1 ? "" : "s"} · {signedIn.length}{" "}
+                  signed in now ·{" "}
                   {withoutMfa.length
                     ? `${withoutMfa.length} without a second factor`
                     : "all with a second factor"}
@@ -1324,12 +1568,23 @@ function SettingsView({ notify }: { notify: Notify }) {
             </Button>
             {reviewOpen && (
               <div className="mt-4">
-                <QueryBoundary isPending={isPending} error={error} onRetry={refetch} label="administrators" rows={2}>
+                <QueryBoundary
+                  isPending={isPending}
+                  error={error}
+                  onRetry={refetch}
+                  label="administrators"
+                  rows={2}
+                >
                   <ul className="divide-y divide-[var(--line)] rounded-2xl border border-[var(--line)]">
                     {administrators.map((person) => (
-                      <li key={person.id} className="flex items-start gap-3 p-3.5">
+                      <li
+                        key={person.id}
+                        className="flex items-start gap-3 p-3.5"
+                      >
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-extrabold">{person.name}</p>
+                          <p className="truncate text-xs font-extrabold">
+                            {person.name}
+                          </p>
                           <p className="mt-0.5 truncate text-[10px] text-[var(--muted-strong)]">
                             {person.email}
                           </p>
@@ -1337,7 +1592,9 @@ function SettingsView({ notify }: { notify: Notify }) {
                             {person.activeSessions
                               ? `${person.activeSessions} live session${person.activeSessions === 1 ? "" : "s"}`
                               : "not signed in"}
-                            {person.lastSeenAt ? ` · last seen ${relativeTime(person.lastSeenAt)}` : ""}
+                            {person.lastSeenAt
+                              ? ` · last seen ${relativeTime(person.lastSeenAt)}`
+                              : ""}
                           </p>
                         </div>
                         <div className="flex shrink-0 flex-col items-end gap-1">
@@ -1345,7 +1602,9 @@ function SettingsView({ notify }: { notify: Notify }) {
                           <Pill tone={person.isActive ? "success" : "neutral"}>
                             {person.isActive ? "Active" : "Disabled"}
                           </Pill>
-                          {!person.mfaEnabled && <Pill tone="danger">No MFA</Pill>}
+                          {!person.mfaEnabled && (
+                            <Pill tone="danger">No MFA</Pill>
+                          )}
                         </div>
                       </li>
                     ))}

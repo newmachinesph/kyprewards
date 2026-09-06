@@ -1,7 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Button, Eyebrow, PreviewBadge, StampDots, StatCard } from "@kypstamping/ui";
+import {
+  Button,
+  Eyebrow,
+  PreviewBadge,
+  StampDots,
+  StatCard,
+} from "@kypstamping/ui";
 import { cardTerms, DEFAULT_RULES } from "@/components/views/ProgramRules";
 import { greeting, todayLabel } from "@kypstamping/ui/shell";
 import { pesoCompactFromCentavos } from "@kypstamping/ui/format";
@@ -60,7 +66,10 @@ import {
   useVisitTrend,
   EMPTY_BUSINESS_METRICS,
 } from "@kypstamping/api";
-import { useRecordTestStamp, useToggleAutomation } from "@/components/mutations";
+import {
+  useRecordTestStamp,
+  useToggleAutomation,
+} from "@/components/mutations";
 import type { BusinessView } from "@/components/BusinessShell";
 
 /**
@@ -94,14 +103,46 @@ const programPresentation: Record<
   string,
   { icon: typeof Stamp; rule: string; suggestion: string }
 > = {
-  Stamps: { icon: Stamp, rule: "8 visits", suggestion: "Free pastry on the eighth visit" },
-  Points: { icon: Coins, rule: "₱1 = 1 pt", suggestion: "Start with a 250-point first reward" },
-  Discount: { icon: BadgePercent, rule: "5% → 10%", suggestion: "Regular and VIP member rates" },
-  Membership: { icon: Crown, rule: "₱399 / month", suggestion: "Four monthly drinks plus VIP perks" },
-  Coupon: { icon: TicketPercent, rule: "Double stamp", suggestion: "One use · Tuesdays before 4 PM" },
-  Rewards: { icon: Gift, rule: "3 choices", suggestion: "Pastry, drink upgrade, or tote" },
-  Multipass: { icon: CalendarCheck2, rule: "10 for 9", suggestion: "Prepaid visits, 90-day window" },
-  "Gift card": { icon: CreditCard, rule: "₱500", suggestion: "Partial redemption and live balance" },
+  Stamps: {
+    icon: Stamp,
+    rule: "8 visits",
+    suggestion: "Free pastry on the eighth visit",
+  },
+  Points: {
+    icon: Coins,
+    rule: "₱1 = 1 pt",
+    suggestion: "Start with a 250-point first reward",
+  },
+  Discount: {
+    icon: BadgePercent,
+    rule: "5% → 10%",
+    suggestion: "Regular and VIP member rates",
+  },
+  Membership: {
+    icon: Crown,
+    rule: "₱399 / month",
+    suggestion: "Four monthly drinks plus VIP perks",
+  },
+  Coupon: {
+    icon: TicketPercent,
+    rule: "Double stamp",
+    suggestion: "One use · Tuesdays before 4 PM",
+  },
+  Rewards: {
+    icon: Gift,
+    rule: "3 choices",
+    suggestion: "Pastry, drink upgrade, or tote",
+  },
+  Multipass: {
+    icon: CalendarCheck2,
+    rule: "10 for 9",
+    suggestion: "Prepaid visits, 90-day window",
+  },
+  "Gift card": {
+    icon: CreditCard,
+    rule: "₱500",
+    suggestion: "Partial redemption and live balance",
+  },
 };
 
 /** `21` → `9 PM`. The guardrail card printed a fixed "8 PM-8 AM" over a shop
@@ -136,7 +177,6 @@ const automationDefaultsFrom = (automations: Automation[]) =>
     enabled: automation.status === "Live",
   }));
 
-
 export function BusinessDashboard({
   onNavigate,
   notify,
@@ -154,7 +194,8 @@ export function BusinessDashboard({
   // that fills in.
   const { data: profile } = useBusinessProfile();
   const { data: locations = [] } = useLocations();
-  const { data: metrics = EMPTY_BUSINESS_METRICS, error: metricsError } = useBusinessMetrics();
+  const { data: metrics = EMPTY_BUSINESS_METRICS, error: metricsError } =
+    useBusinessMetrics();
   const { data: staff = [] } = useStaff();
   const { data: programs = [], isPending: programsPending } = usePrograms();
   const { data: automationRows = [] } = useAutomations();
@@ -170,7 +211,9 @@ export function BusinessDashboard({
   const widestReach = Math.max(...audienceRows.map((row) => row.reachable), 0);
   // Rewards the customer has not yet approved on their phone.
   const { data: redemptionRows = [] } = useRedemptions();
-  const pendingApprovals = redemptionRows.filter((row) => row.status === "Awaiting customer").length;
+  const pendingApprovals = redemptionRows.filter(
+    (row) => row.status === "Awaiting customer",
+  ).length;
   // Only asked for on a plan that has them. Fetched unconditionally, this
   // answered 402 on every dashboard load for every free shop - harmless on
   // screen, because the banner is optional, but a guaranteed pair of refusals
@@ -186,7 +229,10 @@ export function BusinessDashboard({
   const automations = useMemo(
     () =>
       Object.fromEntries(
-        automationRows.map((automation) => [automation.id, automation.status === "Live"]),
+        automationRows.map((automation) => [
+          automation.id,
+          automation.status === "Live",
+        ]),
       ),
     [automationRows],
   );
@@ -199,7 +245,9 @@ export function BusinessDashboard({
   const setupDone = SETUP_STEPS.length - (testStampDone ? 0 : 1);
   // Null until the programs arrive, where it used to be programs[0] from a
   // fixture that was always populated.
-  const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null);
+  const [selectedProgramId, setSelectedProgramId] = useState<string | null>(
+    null,
+  );
   const selectedProgram =
     programs.find((program) => program.id === selectedProgramId) ?? programs[0];
   const presentation = selectedProgram
@@ -215,7 +263,9 @@ export function BusinessDashboard({
    * 8-visit card could be shown 5 of 6 under its own program's name.
    */
   const liveTarget = livePrograms[0]?.target ?? 0;
-  const liveFilled = Math.round((liveTarget * (livePrograms[0]?.completion ?? 0)) / 100);
+  const liveFilled = Math.round(
+    (liveTarget * (livePrograms[0]?.completion ?? 0)) / 100,
+  );
 
   return (
     <main
@@ -264,7 +314,8 @@ export function BusinessDashboard({
           <Timer size={17} className="text-[var(--accent-strong)]" />
           <span className="font-extrabold">{liveWindow.name} is live</span>
           <span className="text-[var(--muted-strong)]">
-            {liveWindow.multiplier}× stamps · {liveWindow.stampsGranted} granted so far
+            {liveWindow.multiplier}× stamps · {liveWindow.stampsGranted} granted
+            so far
           </span>
           {isPreview(liveWindow) && <PreviewBadge />}
           <button
@@ -303,7 +354,9 @@ export function BusinessDashboard({
           label="New regulars"
           value={metricsError ? "—" : String(metrics.newRegulars)}
           detail={
-            metricsError ? "hidden for your role" : `${metrics.repeatRate}% repeat rate`
+            metricsError
+              ? "hidden for your role"
+              : `${metrics.repeatRate}% repeat rate`
           }
           icon={UserPlus}
         />
@@ -319,7 +372,11 @@ export function BusinessDashboard({
         />
         <StatCard
           className="col-span-6 lg:col-span-3"
-          label="Redemptions"
+          // The period is in the label because the badge beside it is spent on
+          // a different figure: the count is since local midnight, the revenue
+          // is the whole ledger. Saying both in one badge wrapped it onto two
+          // lines and read as one number carrying two periods.
+          label="Redemptions today"
           value={metricsError ? "—" : String(metrics.redemptions)}
           detail={
             // A refused request is not a zero. The API correctly blocks a
@@ -329,9 +386,7 @@ export function BusinessDashboard({
             // reads a zero as a failed scan and scans them again.
             metricsError
               ? "member revenue hidden for your role"
-              : // Counted since local midnight, like visits and stamps; the
-                // revenue beside it is the whole ledger, so both say which.
-                `today · ${pesoCompactFromCentavos(metrics.memberRevenueCentavos)} all-time revenue`
+              : `${pesoCompactFromCentavos(metrics.memberRevenueCentavos)} member revenue`
           }
           icon={Gift}
           trend="flat"
@@ -374,7 +429,7 @@ export function BusinessDashboard({
                 {(visits?.total ?? 0).toLocaleString("en-PH")}
               </p>
               <p className="mt-1 text-xs font-semibold text-[var(--muted)]">
-                visits in the last{" "}
+                visit{(visits?.total ?? 0) === 1 ? "" : "s"} in the last{" "}
                 {periods.find((item) => item.id === period)?.label}
               </p>
             </div>
@@ -393,7 +448,9 @@ export function BusinessDashboard({
                     className={`w-full origin-bottom rounded-t-lg transition-transform duration-300 group-hover:scale-y-[1.04] ${index === visits?.peakIndex ? "bg-[var(--accent)]" : "bg-[var(--ink)]"}`}
                     // Scaled against the tallest bar, so a quiet week still
                     // fills the chart rather than sitting flat at the bottom.
-                    style={{ height: `${Math.round((bar.visits / busiest) * 100)}%` }}
+                    style={{
+                      height: `${Math.round((bar.visits / busiest) * 100)}%`,
+                    }}
                   />
                 </div>
               ))}
@@ -436,13 +493,19 @@ export function BusinessDashboard({
             </div>
             {livePrograms[0]?.type === "Stamps" && (
               <ul className="mt-5 space-y-1 text-[11px] leading-relaxed text-white/60">
-                {cardTerms(livePrograms[0], livePrograms[0].rules ?? DEFAULT_RULES)
+                {cardTerms(
+                  livePrograms[0],
+                  livePrograms[0].rules ?? DEFAULT_RULES,
+                )
                   .slice(1, 4)
                   .map((line) => (
                     <li key={line}>{line}</li>
                   ))}
                 {!livePrograms[0].rules && (
-                  <li className="text-white/55">Defaults shown; the rules editor saves them when the API carries them.</li>
+                  <li className="text-white/55">
+                    Defaults shown; the rules editor saves them when the API
+                    carries them.
+                  </li>
                 )}
               </ul>
             )}
@@ -599,7 +662,8 @@ export function BusinessDashboard({
         <div className="grid lg:grid-cols-[minmax(0,1.55fr)_minmax(310px,0.7fr)]">
           <div className="grid gap-px bg-[var(--line)] sm:grid-cols-2 xl:grid-cols-4">
             {programs.slice(0, 8).map((program) => {
-              const look = programPresentation[program.type] ?? programPresentation.Stamps;
+              const look =
+                programPresentation[program.type] ?? programPresentation.Stamps;
               const Icon = look.icon;
               const active = selectedProgram.id === program.id;
               return (
@@ -636,54 +700,59 @@ export function BusinessDashboard({
                 </p>
               </div>
             ) : (
-            <>
-            <div>
-              <div className="flex items-center justify-between">
-                <Eyebrow>Rule preview</Eyebrow>
-                <span className="rounded-full border border-white/15 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/60">
-                  {selectedProgram.status}
-                </span>
-              </div>
-              <p className="mt-9 text-xs font-bold uppercase tracking-[0.12em] text-white/50">
-                {selectedProgram.status === "Live" ? "Active rule" : "Suggested rule"}
-              </p>
-              {/* The program's own numbers, not the ones for its type.
+              <>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <Eyebrow>Rule preview</Eyebrow>
+                    <span className="rounded-full border border-white/15 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/60">
+                      {selectedProgram.status}
+                    </span>
+                  </div>
+                  <p className="mt-9 text-xs font-bold uppercase tracking-[0.12em] text-white/50">
+                    {selectedProgram.status === "Live"
+                      ? "Active rule"
+                      : "Suggested rule"}
+                  </p>
+                  {/* The program's own numbers, not the ones for its type.
                   This read "8 visits - Free pastry on the eighth visit" under
                   an "Active rule" heading no matter what the shop had actually
                   published: an owner who set ten visits for a free rice meal
                   was told, on their own dashboard, to give it away on the
                   eighth. The type's suggestion is still the fallback for a
                   program that has not set its own. */}
-              <p className="mt-2 text-4xl font-extrabold tracking-[-0.03em]">
-                {selectedProgram.target > 0
-                  ? `${selectedProgram.target} visits`
-                  : presentation.rule}
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-white/65">
-                {selectedProgram.rewardName || presentation.suggestion}
-                {selectedProgram.members > 0
-                  ? ` · ${selectedProgram.completion}% average completion`
-                  : ""}
-              </p>
-            </div>
-            <div className="mt-10 border-t border-dashed border-white/20 pt-5">
-              <div className="flex items-center gap-2 text-xs text-white/65">
-                <ShieldCheck size={15} className="text-[var(--accent)]" />{" "}
-                Existing earned value stays protected.
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  notify(`${selectedProgram.name} opened in Program studio.`, "review");
-                  onNavigate("programs");
-                }}
-                className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-[var(--accent)] px-4 text-xs font-extrabold text-[var(--ink)]"
-              >
-                Configure {selectedProgram.type.toLowerCase()}{" "}
-                <ArrowRight size={14} />
-              </button>
-            </div>
-            </>
+                  <p className="mt-2 text-4xl font-extrabold tracking-[-0.03em]">
+                    {selectedProgram.target > 0
+                      ? `${selectedProgram.target} visits`
+                      : presentation.rule}
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-white/65">
+                    {selectedProgram.rewardName || presentation.suggestion}
+                    {selectedProgram.members > 0
+                      ? ` · ${selectedProgram.completion}% average completion`
+                      : ""}
+                  </p>
+                </div>
+                <div className="mt-10 border-t border-dashed border-white/20 pt-5">
+                  <div className="flex items-center gap-2 text-xs text-white/65">
+                    <ShieldCheck size={15} className="text-[var(--accent)]" />{" "}
+                    Existing earned value stays protected.
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      notify(
+                        `${selectedProgram.name} opened in Program studio.`,
+                        "review",
+                      );
+                      onNavigate("programs");
+                    }}
+                    className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-[var(--accent)] px-4 text-xs font-extrabold text-[var(--ink)]"
+                  >
+                    Configure {selectedProgram.type.toLowerCase()}{" "}
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </>
             )}
           </aside>
         </div>
@@ -868,8 +937,14 @@ export function BusinessDashboard({
           },
           {
             icon: Users,
-            title: `${staff.length} staff accounts`,
-            detail: `Owner, manager, cashier, analyst, and campaign roles across ${locations.reduce((sum, location) => sum + location.staff, 0)} branch seats.`,
+            title: `${staff.length} staff account${staff.length === 1 ? "" : "s"}`,
+            detail: (() => {
+              const seats = locations.reduce(
+                (sum, location) => sum + location.staff,
+                0,
+              );
+              return `Owner, manager, cashier, analyst, and campaign roles across ${seats} branch seat${seats === 1 ? "" : "s"}.`;
+            })(),
           },
           {
             icon: ShieldCheck,
@@ -932,8 +1007,8 @@ export function BusinessDashboard({
               <WifiOff size={13} /> Offline queue ready
             </div>
             <p className="mx-auto mt-3 max-w-[34ch] text-center text-sm leading-relaxed text-[var(--muted-strong)]">
-              Hold the customer&apos;s KYP QR inside the frame. Nothing is
-              saved until you confirm.
+              Hold the customer&apos;s KYP QR inside the frame. Nothing is saved
+              until you confirm.
             </p>
             <Button
               className="mt-6 w-full"
@@ -982,7 +1057,11 @@ export function BusinessDashboard({
  * does not say whether "returning" means next week or next quarter.
  */
 const RETURN_BANDS = [
-  { floor: 0, label: "Starting", detail: "Not enough return visits to read yet." },
+  {
+    floor: 0,
+    label: "Starting",
+    detail: "Not enough return visits to read yet.",
+  },
   { floor: 25, label: "Emerging", detail: "A few are starting to come back." },
   { floor: 45, label: "Growing", detail: "Repeat visits are building." },
   { floor: 65, label: "Strong", detail: "Members return consistently." },
@@ -992,7 +1071,10 @@ const RETURN_BANDS = [
 function bandFor(rate: number) {
   // Last band whose floor the rate clears. Written this way rather than as a
   // chain of ifs so the thresholds stay in one readable table.
-  return [...RETURN_BANDS].reverse().find((band) => rate >= band.floor) ?? RETURN_BANDS[0];
+  return (
+    [...RETURN_BANDS].reverse().find((band) => rate >= band.floor) ??
+    RETURN_BANDS[0]
+  );
 }
 
 function ReturnScore() {
@@ -1014,8 +1096,21 @@ function ReturnScore() {
   return (
     <section className="mt-3 grid gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
       <div className="mx-auto sm:mx-0">
-        <svg width="132" height="132" viewBox="0 0 132 132" role="img" aria-label={`${rate}% of members return. ${band.label}.`}>
-          <circle cx="66" cy="66" r={radius} fill="none" stroke="var(--surface-2)" strokeWidth="12" />
+        <svg
+          width="132"
+          height="132"
+          viewBox="0 0 132 132"
+          role="img"
+          aria-label={`${rate}% of members return. ${band.label}.`}
+        >
+          <circle
+            cx="66"
+            cy="66"
+            r={radius}
+            fill="none"
+            stroke="var(--surface-2)"
+            strokeWidth="12"
+          />
           <circle
             cx="66"
             cy="66"
@@ -1056,7 +1151,8 @@ function ReturnScore() {
           {secondVisit && secondVisit.members > 0
             ? `, and a median of ${secondVisit.medianDays} day${secondVisit.medianDays === 1 ? "" : "s"} to that second visit across ${secondVisit.members} member${secondVisit.members === 1 ? "" : "s"}`
             : ""}
-          . Counted from your own ledger, not compared against anybody else&apos;s.
+          . Counted from your own ledger, not compared against anybody
+          else&apos;s.
         </p>
         <ol className="mt-4 flex flex-wrap gap-1.5">
           {RETURN_BANDS.map((step) => (
