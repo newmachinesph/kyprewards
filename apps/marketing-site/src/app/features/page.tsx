@@ -152,7 +152,8 @@ const outcomes = [
   {
     key: "back",
     eyebrow: "03 · Bring them back",
-    title: "Reach the right customer, at the right moment, for the least money.",
+    title:
+      "Reach the right customer, at the right moment, for the least money.",
     lead: "Every message shows its cost, its reach and its break-even before it sends. Consent is checked first, always.",
     levers: [
       {
@@ -180,7 +181,7 @@ const outcomes = [
         icon: Smartphone,
         title: "Five channels, priced in the open",
         detail:
-          "In-app and push free on every plan. Email with the paid tiers. Viber and WhatsApp from ₱0.42, connecting now. SMS as credits at ₱0.95, cost shown first.",
+          "In-app and push free on every plan. Email with the paid tiers. Viber and WhatsApp from ₱0.42, being connected and not live yet. SMS as credits at ₱0.95, cost shown first.",
         tier: "Free",
       },
       {
@@ -376,7 +377,10 @@ export default function FeaturesPage() {
         facts={[
           { label: "Program formats", value: "8, one engine" },
           { label: "Levers on the free plan", value: "The whole stamp card" },
-          { label: "Channels", value: "In-app, push, email, SMS — Viber and WhatsApp connecting" },
+          {
+            label: "Channels",
+            value: "In-app, push, email, SMS — Viber and WhatsApp connecting",
+          },
           { label: "Built for", value: "The Philippines" },
         ]}
       />
@@ -463,7 +467,10 @@ export default function FeaturesPage() {
                   key={program.name}
                   className={`flex items-center gap-3 p-5 ${index === 0 ? "bg-[var(--accent)] text-[var(--ink)]" : "bg-[var(--ink)]"}`}
                 >
-                  <Icon size={18} className={index === 0 ? "" : "text-[var(--accent)]"} />
+                  <Icon
+                    size={18}
+                    className={index === 0 ? "" : "text-[var(--accent)]"}
+                  />
                   <span className="text-sm font-extrabold">{program.name}</span>
                 </div>
               );
@@ -547,7 +554,8 @@ export default function FeaturesPage() {
           <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="flex items-center gap-2 text-sm font-extrabold">
               <Check size={16} className="text-[var(--accent-strong)]" />
-              What is live and what is next, from the same data as the pricing table.
+              What is live and what is next, from the same data as the pricing
+              table.
             </p>
             <Link
               href="/roadmap"
@@ -564,8 +572,8 @@ export default function FeaturesPage() {
           <div className="flex items-center gap-3">
             <ScanLine size={20} className="text-[var(--accent-strong)]" />
             <p className="text-sm font-extrabold">
-              API · webhooks · POS adapters · spreadsheet (CSV) import/export · Apple Wallet ·
-              Google Wallet
+              API · webhooks · POS adapters · spreadsheet (CSV) import/export ·
+              Apple Wallet · Google Wallet
             </p>
           </div>
           <p className="text-xs text-[var(--muted)]">

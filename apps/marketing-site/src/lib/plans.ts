@@ -76,7 +76,8 @@ export const plans = [
     name: "Launch",
     monthly: 0,
     yearly: 0,
-    description: "Everything you need to run one stamp card, at no cost and with no limit on how many customers join it.",
+    description:
+      "Everything you need to run one stamp card, at no cost and with no limit on how many customers join it.",
     cta: "Apply to join",
     featured: false,
     available: true,
@@ -93,7 +94,8 @@ export const plans = [
     name: "Core",
     monthly: 499,
     yearly: 399,
-    description: "For the shop whose stamp card is working and wants more from it.",
+    description:
+      "For the shop whose stamp card is working and wants more from it.",
     cta: "Choose Core",
     featured: false,
     available: false,
@@ -204,7 +206,12 @@ export const featureMatrix: FeatureGroup[] = [
       {
         label: "Stamp expiry",
         hint: "Off unless you set one. RA 10962 lets stamps and points earned free under a loyalty program expire; a gift check a customer paid for cannot. Whatever term you set is shown on the card before the first stamp.",
-        cells: ["Optional, you set it", "Optional, you set it", "Optional, you set it", "Optional, you set it"],
+        cells: [
+          "Optional, you set it",
+          "Optional, you set it",
+          "Optional, you set it",
+          "Optional, you set it",
+        ],
       },
       {
         label: "Rewards held until redeemed",
@@ -224,7 +231,12 @@ export const featureMatrix: FeatureGroup[] = [
       {
         label: "Run window",
         hint: "Optional. A card can run from a start date to an end date, or forever. Nothing is earned outside the window and the card closes by itself at the end. The dates are on the card before the first stamp.",
-        cells: ["Optional, you set it", "Optional, you set it", "Optional, you set it", "Optional, you set it"],
+        cells: [
+          "Optional, you set it",
+          "Optional, you set it",
+          "Optional, you set it",
+          "Optional, you set it",
+        ],
       },
       {
         label: "What happens when a card closes",
@@ -244,7 +256,10 @@ export const featureMatrix: FeatureGroup[] = [
     rows: [
       { label: "Stamp cards", cells: [true, true, true, true] },
       { label: "Points and cashback", cells: [false, true, true, true] },
-      { label: "Discounts and tiered pricing", cells: [false, true, true, true] },
+      {
+        label: "Discounts and tiered pricing",
+        cells: [false, true, true, true],
+      },
       { label: "Coupons", cells: [false, true, true, true] },
       {
         label: "Memberships with renewal tracking",
@@ -427,7 +442,7 @@ export const featureMatrix: FeatureGroup[] = [
       },
       {
         label: "Viber and WhatsApp campaigns",
-        hint: "Chosen automatically per customer, from ₱0.42 a message — cheaper than SMS and read sooner. Being connected next; the campaign composer will try them before falling back to SMS.",
+        hint: "Chosen automatically per customer, from ₱0.42 a message — cheaper than SMS and read sooner. Being connected and not live yet; when it opens the campaign composer will try them before falling back to SMS.",
         cells: [false, "Coming", "Coming", "Coming"],
       },
       {
@@ -516,12 +531,7 @@ export const featureMatrix: FeatureGroup[] = [
       },
       {
         label: "Support",
-        cells: [
-          "Email",
-          "Email",
-          "Priority email",
-          "Priority + onboarding",
-        ],
+        cells: ["Email", "Email", "Priority email", "Priority + onboarding"],
       },
     ],
   },
@@ -610,10 +620,10 @@ export const channelRates = [
   },
   {
     channel: "Messaging apps",
-    included: "Connecting next — pay as you send",
+    included: "Not live yet — pay as you send when it opens",
     overage: "From ₱0.42 per message",
     detail:
-      "Viber and WhatsApp, chosen automatically per customer. Cheaper than SMS and better looking, and most people read them sooner. Being connected now; the composer will try them before SMS.",
+      "Viber and WhatsApp, chosen automatically per customer. Cheaper than SMS and better looking, and most people read them sooner. Being connected and not live yet; when it opens the composer will try them before SMS.",
   },
   {
     channel: "SMS",

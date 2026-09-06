@@ -193,8 +193,11 @@ export default function PricingPage() {
               The subscription never charges you for growing — more customers,
               more branches, more stamps cost nothing extra. These are the
               things a shop that is doing well chooses to buy: visibility, a
-              person&apos;s time, and message volume. All open with the paid
-              tiers; setup is free for every founding merchant now.
+              person&apos;s time, and message volume.{" "}
+              {/* Said "all open with the paid tiers", directly above a table
+                  listing three of the five as available on Launch. */}
+              Each row says which plans it is on; setup is free for every
+              founding merchant now.
             </p>
           </div>
           <div className="mt-12">

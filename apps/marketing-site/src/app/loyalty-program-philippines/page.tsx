@@ -66,7 +66,14 @@ export const metadata: Metadata = {
 export default function LoyaltyPhilippinesPage() {
   return (
     <main>
-      <StructuredData data={breadcrumb([{ name: "Loyalty programs in the Philippines", path: "/loyalty-program-philippines" }])} />
+      <StructuredData
+        data={breadcrumb([
+          {
+            name: "Loyalty programs in the Philippines",
+            path: "/loyalty-program-philippines",
+          },
+        ])}
+      />
       <StructuredData
         data={[
           {
@@ -133,8 +140,9 @@ export default function LoyaltyPhilippinesPage() {
               the return visits it brings in. KYP Stamping starts at ₱0 with no
               limit on customers. It rises to ₱499 a month for an established
               shop, within a hundred pesos of the cheapest paid tool with
-              published peso pricing in this market. SMS is metered separately, because it
-              is the one channel that costs real money every time it is used.
+              published peso pricing in this market. SMS is metered separately,
+              because it is the one channel that costs real money every time it
+              is used.
             </p>
           </div>
         </div>
@@ -234,7 +242,7 @@ export default function LoyaltyPhilippinesPage() {
                   icon: MessageCircle,
                   title: "Messaging apps",
                   detail:
-                    "Viber and WhatsApp, chosen per customer. From ₱0.42 a message. Being connected next.",
+                    "Viber and WhatsApp, chosen per customer. From ₱0.42 a message. Being connected and not live yet.",
                 },
               ].map((item) => {
                 const Icon = item.icon;
@@ -380,10 +388,22 @@ export default function LoyaltyPhilippinesPage() {
           <SiteEyebrow inverse>Why a phone-first card works here</SiteEyebrow>
           <div className="mt-10 grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-white/12 bg-white/12 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              ["1.24M", "registered MSMEs in the Philippines, 90.7% of them micro"],
-              ["98.6%", "of Filipino internet users own a smartphone — the card is already in their pocket"],
-              ["8h 52m", "average daily time online, among the highest of any country"],
-              ["~94M", "GCash accounts — Filipinos already trust a phone with money"],
+              [
+                "1.24M",
+                "registered MSMEs in the Philippines, 90.7% of them micro",
+              ],
+              [
+                "98.6%",
+                "of Filipino internet users own a smartphone — the card is already in their pocket",
+              ],
+              [
+                "8h 52m",
+                "average daily time online, among the highest of any country",
+              ],
+              [
+                "~94M",
+                "GCash accounts — Filipinos already trust a phone with money",
+              ],
             ].map(([stat, label]) => (
               <div key={label} className="bg-[var(--ink)] p-6">
                 <p className="font-display text-4xl font-extrabold tracking-[-0.03em] text-[var(--accent)]">
@@ -396,8 +416,9 @@ export default function LoyaltyPhilippinesPage() {
             ))}
           </div>
           <p className="mt-6 text-[11px] leading-relaxed text-white/55">
-            Sources: DTI MSME statistics; DataReportal, Digital Philippines. A paper punch
-            card asks a customer to carry something extra. A phone does not.
+            Sources: DTI MSME statistics; DataReportal, Digital Philippines. A
+            paper punch card asks a customer to carry something extra. A phone
+            does not.
           </p>
         </div>
       </section>
