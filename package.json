@@ -12,13 +12,14 @@
     "dev:customer": "npm run dev --workspace @kypstamping/customer-pwa",
     "dev:marketing": "npm run dev --workspace @kypstamping/marketing-site",
     "dev:marketplace": "npm run dev --workspace @kypstamping/marketplace",
+    "dev:mobile": "npm run start --workspace @kypstamping/mobile",
     "build": "npm run build --workspaces --if-present",
     "audit:controls": "node scripts/audit-controls.mjs",
     "test:format": "node scripts/test-format.mjs",
     "qa:customer-auth": "node scripts/qa-customer-auth.mjs",
     "qa:private-apps": "node scripts/qa-private-apps.mjs",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "lint": "eslint apps packages",
+    "lint": "eslint apps packages && npm run lint:mobile",
     "test": "npm run test --workspaces --if-present",
     "sweep": "node tools/sweep.mjs",
     "qa:merchant": "node scripts/qa-merchant.mjs",
@@ -31,7 +32,8 @@
     "qa:free-tier": "node scripts/qa-free-tier.mjs",
     "qa:journey": "node scripts/qa-journey.mjs",
     "qa:fuzz": "node scripts/qa-fuzz.mjs",
-    "qa:all": "node scripts/qa-all.mjs"
+    "qa:all": "node scripts/qa-all.mjs",
+    "lint:mobile": "npm run lint --workspace @kypstamping/mobile"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",
@@ -46,5 +48,12 @@
   },
   "engines": {
     "node": ">=20.9.0"
+  },
+  "overrides": {
+    "react-native-svg": "15.15.4",
+    "lightningcss": "1.30.1",
+    "@tailwindcss/node": {
+      "lightningcss": "1.32.0"
+    }
   }
 }

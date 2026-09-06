@@ -104,6 +104,8 @@ export type LoginResult = {
   mfaRequired: boolean;
   needsWorkspace: boolean;
   merchantId: string | null;
+  /** Only for the mobile app, which asked with `X-KYP-Client: mobile`. */
+  sessionToken?: string | null;
 };
 
 export const login = (email: string, password: string): Promise<LoginResult> =>
@@ -1416,6 +1418,21 @@ export const getAddOns = (): Promise<AddOnSubscription[]> => http("/admin/add-on
 /* Web push */
 
 export const getPushState = (): Promise<PushState> => http("/customer/push");
+
+/** The mobile app's Expo push token, kept beside the browsers' subscriptions. */
+export const registerExpoPush = (token: string): Promise<PushState> =>
+  http("/customer/push/expo", { method: "POST", body: { token } });
+
+/**
+ * A single-use, sixty-second code the mobile app opens a kyp.ph page with,
+ * so the page is signed in without the app's own token ever entering the
+ * webview.
+ */
+export const createHandoff = (): Promise<{ code: string; expiresInSeconds: number }> =>
+  http("/auth/handoff", { method: "POST" });
+
+export const exchangeHandoff = (code: string): Promise<LoginResult> =>
+  http("/auth/handoff/exchange", { method: "POST", body: { code } });
 
 export const subscribePush = (subscription: PushSubscriptionJSON): Promise<PushState> =>
   http("/customer/push/subscribe", { method: "POST", body: { subscription } });

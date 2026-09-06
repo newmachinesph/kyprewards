@@ -1,0 +1,43 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+@import "nativewind/theme";
+
+@source "./app";
+@source "./src";
+
+/*
+ * The same palette as packages/ui/src/tokens.css, by the same names, so a
+ * class written for the wallet reads the same here. Fonts are the Expo
+ * Google Fonts loaded in app/_layout.tsx; each weight is its own family on
+ * native, so each weight is its own utility.
+ */
+@theme {
+  --color-paper: #faf8f3;
+  --color-ink: #18120c;
+  --color-ink-soft: #2c231b;
+  --color-accent: #e8a33d;
+  --color-accent-strong: #8f5510;
+  --color-surface: #fffefb;
+  --color-surface-2: #eee9e0;
+  --color-muted: #6f6359;
+  --color-muted-strong: #675b51;
+  --color-line: #e5ded3;
+  --color-line-strong: #d6ccbf;
+  --color-success: #0f7655;
+  --color-danger: #b23b2b;
+
+  --font-sans-semibold: "Inter_600SemiBold";
+  --font-sans-bold: "Inter_700Bold";
+  --font-sans-extrabold: "Inter_800ExtraBold";
+  --font-display: "Sora_700Bold";
+}
+
+/*
+ * nativewind/theme sets --font-sans and --font-mono to the system fonts in an
+ * unlayered :root rule, which outranks @theme. Set them the same way, later.
+ */
+:root {
+  --font-sans: "Inter_400Regular";
+  --font-mono: "Inter_600SemiBold";
+}

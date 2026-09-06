@@ -171,6 +171,7 @@ build renders typed sample data under a "Preview, not connected" badge
 | customer-pwa | complete: brand KYP, every card state, approvals, gifts, promo codes, push, phone shell on desktop | `apps/customer-pwa/AGENTS.md` |
 | admin-web | complete: applications with founding status, businesses, add-ons, the two billing flags, honest transport health | `apps/admin-web/AGENTS.md` |
 | marketplace | complete: directory, filters, shop pages, how it works, the two doors, sitemap; preview shops until the public Discover routes ship | `apps/marketplace/AGENTS.md` |
+| mobile | built 2026-09-06, bundles for both platforms, not yet run on a device: the wallet as native tabs, the member code offline, scan-to-join, Discover nearest-first, approvals, gifts, notifications, the privacy centre, Expo push, one webview slot signed in by handoff | `docs/MOBILE.md` |
 
 The backend caught up on 2026-09-04: the stamp-card rules including the D8
 conditions, customer-approved redemption, the pending welcome stamp, the

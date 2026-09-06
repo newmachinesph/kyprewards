@@ -120,6 +120,20 @@ type UiStore = {
   clearAnnouncement: () => void;
 };
 
+const memoryStorage: Storage = (() => {
+  const held = new Map<string, string>();
+  return {
+    get length() {
+      return held.size;
+    },
+    clear: () => held.clear(),
+    getItem: (key) => held.get(key) ?? null,
+    key: (index) => [...held.keys()][index] ?? null,
+    removeItem: (key) => void held.delete(key),
+    setItem: (key, value) => void held.set(key, value),
+  };
+})();
+
 export const useUiStore = create<UiStore>()(
   persist(
     (set) => ({
@@ -132,7 +146,12 @@ export const useUiStore = create<UiStore>()(
     }),
     {
       name: "kypstamping.ui",
-      storage: createJSONStorage(() => localStorage),
+      // Nothing to persist to outside a browser: the mobile app imports this
+      // module and has no localStorage, and a bare reference threw at load.
+      // The sidebar preference this keeps is a merchant-app concern anyway.
+      storage: createJSONStorage(() =>
+        typeof localStorage === "undefined" ? memoryStorage : localStorage,
+      ),
       // An announcement is for the screen reader in this moment, not for
       // tomorrow. Only the layout preference is worth persisting.
       partialize: (state) => ({ sidebarCollapsed: state.sidebarCollapsed }),

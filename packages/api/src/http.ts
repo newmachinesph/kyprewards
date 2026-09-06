@@ -61,7 +61,44 @@ export function apiBase(): string {
   // Read per call, not once at module load: Next inlines this expression
   // wherever it appears, so a function is just as bundler-friendly, and it
   // lets a test point the client at a stack without import-order games.
-  return process.env.NEXT_PUBLIC_API_BASE ?? "";
+  //
+  // The mobile app has no rewrite to be same-origin through and no `NEXT_`
+  // variables at all; it sets the base explicitly on boot.
+  return configured.base ?? process.env.NEXT_PUBLIC_API_BASE ?? "";
+}
+
+/**
+ * What a native app tells this transport that a browser never has to.
+ *
+ * The browser wallet's session is an httpOnly cookie, sent by the browser
+ * and invisible to this code. The mobile app keeps the same token in the
+ * device keychain and sends it as a bearer; the API accepts either. Nothing
+ * here changes for the web apps, which never call these.
+ */
+const configured: { base: string | null; token: string | null; client: string | null } = {
+  base: null,
+  token: null,
+  client: null,
+};
+
+export function setApiBase(base: string | null): void {
+  configured.base = base;
+}
+
+export function setAuthToken(token: string | null): void {
+  configured.token = token;
+}
+
+/** `"mobile"` makes the OTP verify answer with the session token in the body. */
+export function setClientKind(client: string | null): void {
+  configured.client = client;
+}
+
+function nativeHeaders(): Record<string, string> {
+  return {
+    ...(configured.token ? { Authorization: `Bearer ${configured.token}` } : {}),
+    ...(configured.client ? { "X-KYP-Client": configured.client } : {}),
+  };
 }
 
 export type HttpOptions = Omit<RequestInit, "body" | "method"> & {
@@ -108,6 +145,7 @@ export async function http<T>(path: string, options: HttpOptions = {}): Promise<
     headers: {
       ...(body === undefined ? {} : { "Content-Type": "application/json" }),
       ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
+      ...nativeHeaders(),
       ...headers,
     },
     body: raw ?? (body === undefined ? undefined : JSON.stringify(body)),
@@ -164,7 +202,7 @@ export async function httpPage<T>(path: string, options: HttpOptions = {}): Prom
   const response = await fetch(`${apiBase()}${withQuery(path, query)}`, {
     method,
     credentials: "include",
-    headers: { ...headers },
+    headers: { ...nativeHeaders(), ...headers },
     signal,
     cache,
     mode,

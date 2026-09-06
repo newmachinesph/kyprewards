@@ -26,7 +26,7 @@ do not make an app pretend the backend has caught up. Never edit site copy to
 match an app. If the site itself is wrong, say so and stop; changing the spec
 is the user's call.
 
-## Five apps, two domains
+## Six apps, two domains
 
 | App | Audience | Brand | Local | Production | API host |
 |---|---|---|---|---|---|
@@ -35,6 +35,7 @@ is the user's call.
 | `apps/admin-web` | platform operators | KYP Stamping | :3001 | admin.kypstamping.ph | api.kypstamping.ph |
 | `apps/customer-pwa` | shoppers | KYP | :3002 | app.kyp.ph | api.kyp.ph |
 | `apps/marketplace` | shoppers, public | KYP | :3004 | kyp.ph | api.kyp.ph, public endpoints only |
+| `apps/mobile` | shoppers | KYP | Expo Go or a dev build | Play Store and App Store, as KYP | api.kyp.ph, with a bearer session |
 
 kypstamping.ph speaks to merchants. kyp.ph and the wallet under it speak to
 shoppers. The split keeps the session cookie first-party on both sides with
@@ -47,6 +48,9 @@ shoppers. The split keeps the session cookie first-party on both sides with
 - The join poster lands on the customer domain: `app.kyp.ph/join/<slug>`.
 - Anything the business or admin app shows a shopper as a link must use
   `NEXT_PUBLIC_CUSTOMER_APP_URL`, never a literal host.
+- The app claims `app.kyp.ph/join/*`, `app.kyp.ph/login` and `kyp.ph/shops/*`
+  as universal links, so a scanned poster opens the app when it is installed
+  and the wallet when it is not. The poster itself never changes.
 
 ## What is true today
 
@@ -70,7 +74,9 @@ shoppers. The split keeps the session cookie first-party on both sides with
 
 npm workspaces. Next 16.3, React 19.2, TypeScript 6, Tailwind 4. Read
 `node_modules/next/dist/docs/` before writing Next code; the version differs
-from training data.
+from training data. The mobile app is Expo SDK 57 on React Native 0.86 and
+shares the workspace's one React and one Tailwind (`docs/MOBILE.md` records
+the three `overrides` in the root `package.json` that keep it that way).
 
 - `packages/api` is the whole data layer. `endpoints.ts` is one function per
   call, `queries.ts` and `mutations.ts` are the hooks, `keys.ts` is what
@@ -82,6 +88,10 @@ from training data.
   time and distance. Never make a per-app copy of any of it.
 - `packages/demo-data` is one narrated scenario the marketing site uses. It
   is a story, not a record, and the API has no route for it.
+- `apps/mobile` is the Android and iOS app: Expo Router screens over
+  `packages/api`, with no data code of its own. The root ESLint config and
+  `.vercelignore` leave it out; `npm run dev:mobile` starts it,
+  `npm run lint:mobile` lints it, `npm run typecheck` includes it.
 - Types in `packages/api/src/types.ts` are hand-written. They have lied
   before. The authority is `http://localhost:8000/openapi.json` and the
   live response, never the type.

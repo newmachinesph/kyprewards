@@ -1,0 +1,103 @@
+{
+  "expo": {
+    "name": "KYP",
+    "slug": "kyp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "kyp",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#faf8f3",
+    "ios": {
+      "bundleIdentifier": "ph.kyp.wallet",
+      "supportsTablet": false,
+      "associatedDomains": ["applinks:app.kyp.ph", "applinks:kyp.ph"],
+      "infoPlist": {
+        "NSCameraUsageDescription": "KYP uses the camera to scan a shop's counter poster and join its card.",
+        "NSLocationWhenInUseUsageDescription": "KYP uses your location only while the app is open, to list the shops nearest you first. It is never shared with a shop.",
+        "NSFaceIDUsageDescription": "KYP can lock your wallet behind Face ID if you turn that on.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "ph.kyp.wallet",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#18120c"
+      },
+      "permissions": [
+        "CAMERA",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "USE_BIOMETRIC"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "app.kyp.ph",
+              "pathPrefix": "/join"
+            },
+            {
+              "scheme": "https",
+              "host": "app.kyp.ph",
+              "pathPrefix": "/login"
+            },
+            {
+              "scheme": "https",
+              "host": "kyp.ph",
+              "pathPrefix": "/shops"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      "expo-web-browser",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "KYP uses the camera to scan a shop's counter poster and join its card."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "KYP uses your location only while the app is open, to list the shops nearest you first."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#e8a33d",
+          "defaultChannel": "rewards"
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#faf8f3"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": ""
+      }
+    }
+  }
+}

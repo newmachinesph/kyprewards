@@ -12,6 +12,7 @@ record is `../backend/INTEGRATION.md`; the two must agree.
 | biz.kypstamping.ph | api.kypstamping.ph | httpOnly cookie, `SameSite=Lax` |
 | admin.kypstamping.ph | api.kypstamping.ph | httpOnly cookie, `SameSite=Lax` |
 | app.kyp.ph | api.kyp.ph | httpOnly cookie, `SameSite=Lax` |
+| the KYP app (Android, iOS) | api.kyp.ph | bearer token in `Authorization`, issued by OTP verify when the request carries `X-KYP-Client: mobile`; kept in the device's secure store, never a cookie |
 | kyp.ph | api.kyp.ph | none; public endpoints only |
 | localhost:3000 to 3004 | localhost:8000 | cookie; CORS allows 3000 to 3003 today, 3004 must be added |
 
@@ -37,6 +38,8 @@ Every app ships a `.env.local`; the documented shape is `.env.example`.
 | `NEXT_PUBLIC_SITE_URL` | kypstamping.ph |
 | `NEXT_PUBLIC_MARKETPLACE_URL` | kyp.ph; read by the marketplace, not yet in `.env.example` |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | marketing site only, consent-gated |
+| `EXPO_PUBLIC_API_BASE` | the mobile app's API root; `http://10.0.2.2:8000/api/v1` reaches a local API from the Android emulator |
+| `EXPO_PUBLIC_MARKETPLACE_URL`, `EXPO_PUBLIC_SITE_URL` | kyp.ph and kypstamping.ph for the mobile app, set per profile in `apps/mobile/eas.json` |
 
 Defaults for local and production live in each app's `src/lib/site.ts`
 (marketing site, marketplace). Nowhere else may a hostname be a literal.
@@ -65,6 +68,7 @@ Defaults for local and production live in each app's `src/lib/site.ts`
 | business-web | `POST /auth/login`, then the workspace picker (skipped for one workspace), then the session. Sign-up is `POST /auth/register/business`; onboarding is `POST /auth/workspaces`. |
 | admin-web | `POST /auth/login`, then `POST /auth/mfa/verify` with a TOTP, then the session. `GET /auth/session` is readable while `mfaPending`. |
 | customer-pwa | `POST /auth/otp/request`, then `POST /auth/otp/verify`, then the session. Sign-up is `POST /auth/register/customer`; birthday is optional, stored as day and month. |
+| mobile | the customer-pwa flow with `X-KYP-Client: mobile` on every request, so `POST /auth/otp/verify` also answers `sessionToken`; every later call carries `Authorization: Bearer`. The webview slot opens a kyp.ph page with a code from `POST /auth/handoff` (single use, sixty seconds) that the page spends at `POST /auth/handoff/exchange` for a cookie of its own. Push tokens go to `POST /customer/push/expo`. |
 
 Every app calls `GET /auth/session` on boot through `SessionGate`, which
 fails closed. A customer session does not open the merchant workspace and

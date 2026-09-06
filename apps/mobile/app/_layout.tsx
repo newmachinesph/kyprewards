@@ -1,0 +1,138 @@
+import "../global.css";
+
+import { useEffect } from "react";
+import { Stack, useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import * as SplashScreen from "expo-splash-screen";
+import { useFonts } from "expo-font";
+import {
+  Inter_400Regular,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+} from "@expo-google-fonts/inter";
+import { Sora_700Bold } from "@expo-google-fonts/sora";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import {
+  ApiError,
+  ApiProvider,
+  claimFirstStamp,
+  keys,
+  useQueryClient,
+} from "@kypstamping/api";
+import { useAuth } from "@/lib/auth";
+import { forgetClaim, readClaim } from "@/lib/claim";
+import { onNotificationOpened, registerForPush } from "@/lib/push";
+import { colors } from "@/lib/theme";
+import { ToastHost } from "@/components/Toast";
+
+void SplashScreen.preventAutoHideAsync();
+
+export default function RootLayout() {
+  const [fontsReady] = useFonts({
+    Inter_400Regular,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
+    Sora_700Bold,
+  });
+  const status = useAuth((state) => state.status);
+  const bootstrap = useAuth((state) => state.bootstrap);
+
+  useEffect(() => {
+    void bootstrap();
+  }, [bootstrap]);
+
+  useEffect(() => {
+    if (fontsReady && status !== "booting") void SplashScreen.hideAsync();
+  }, [fontsReady, status]);
+
+  if (!fontsReady || status === "booting") return null;
+
+  return (
+    <SafeAreaProvider>
+      <ApiProvider>
+        <SignedInEffects />
+        <StatusBar style="dark" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.paper },
+            animation: "slide_from_right",
+          }}
+        >
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="scan"
+            options={{
+              presentation: "fullScreenModal",
+              animation: "slide_from_bottom",
+            }}
+          />
+          <Stack.Screen
+            name="my-code"
+            options={{
+              presentation: "fullScreenModal",
+              animation: "slide_from_bottom",
+            }}
+          />
+          <Stack.Screen name="approvals" options={{ presentation: "modal" }} />
+          <Stack.Screen
+            name="notifications"
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen name="activity" options={{ presentation: "modal" }} />
+          <Stack.Screen name="gifts" options={{ presentation: "modal" }} />
+        </Stack>
+        <ToastHost />
+      </ApiProvider>
+    </SafeAreaProvider>
+  );
+}
+
+/**
+ * What happens once somebody is signed in and nowhere else:
+ * push registration, a pending poster claim, and notification taps.
+ *
+ * Inside the provider because the claim invalidates the wallet's cache.
+ */
+function SignedInEffects() {
+  const status = useAuth((state) => state.status);
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (status !== "signed-in") return;
+    void registerForPush().catch(() => undefined);
+  }, [status]);
+
+  // A stamp claimed from a poster before sign-up, settled on the first render
+  // that has a session. A server that answered is an answer - already a
+  // member, an expired token - and the claim is forgotten; a server that did
+  // not is asked again next launch. Same rule as the web wallet.
+  useEffect(() => {
+    if (status !== "signed-in") return;
+    let live = true;
+    readClaim().then((claim) => {
+      if (!claim || !live) return;
+      claimFirstStamp(claim.token)
+        .then(() => true)
+        .catch((failure) => failure instanceof ApiError)
+        .then((answered) => {
+          if (answered) void forgetClaim();
+          void queryClient.invalidateQueries({ queryKey: keys.customer.all });
+        });
+    });
+    return () => {
+      live = false;
+    };
+  }, [status, queryClient]);
+
+  useEffect(
+    () => onNotificationOpened((route) => router.push(route as never)),
+    [router],
+  );
+
+  return null;
+}

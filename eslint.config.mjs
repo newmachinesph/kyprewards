@@ -18,5 +18,7 @@ export default defineConfig([
       },
     },
   },
-  globalIgnores(["**/.next/**", "**/node_modules/**", "**/next-env.d.ts"]),
+    // The mobile app is React Native, not Next; it lints with `expo lint` from
+  // its own directory. Next's rules would flag every screen in it.
+  globalIgnores(["**/.next/**", "**/node_modules/**", "**/next-env.d.ts", "apps/mobile/**"]),
 ]);
