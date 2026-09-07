@@ -62,8 +62,8 @@ location"; the position never enters the URL.
   the API's `featured` flag, never a client-side sort by plan.
 - The two doors and nothing else: "Open my wallet" to `app.kyp.ph/login`,
   "I run a shop" to `kypstamping.ph/partners`. Legal links go to the merchant
-  site. The footer says "KYP is operated by KYPStamping." and nothing more
-  specific.
+  site. The footer says "© 2026 KYP." and nothing more specific: there is no
+  registered entity yet, so no page names an operator, an address or a DPO.
 - No analytics until kyp.ph has its own cookies page and consent gate.
 - Tokens from `packages/ui/src/tokens.css`; Sora display, Inter body; one
   amber emphasis per view; voice per `docs/BRAND.md`.

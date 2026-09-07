@@ -19,7 +19,7 @@ const sections: LegalSection[] = [
   {
     title: "What this covers",
     paragraphs: [
-      "These terms are between you and KYP Solutions, who operate KYP, and they cover the wallet at app.kyp.ph and this directory at kyp.ph. They do not govern what any shop sells you — that is between you and the shop.",
+      "These terms are between you and KYP, and they cover the wallet at app.kyp.ph and this directory at kyp.ph. They do not govern what any shop sells you — that is between you and the shop.",
       "Using a KYP wallet is free. There is nothing to buy here and no subscription.",
     ],
   },

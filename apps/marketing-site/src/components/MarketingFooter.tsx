@@ -122,7 +122,7 @@ export function MarketingFooter() {
       </div>
       <div className="border-t border-[var(--line)] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-2 py-5 text-[11px] font-semibold text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 KYP Stamping. Operated by KYP Solutions.</span>
+          <span>© 2026 KYP Stamping.</span>
           <span>Built in Manila, for Philippine businesses.</span>
         </div>
       </div>

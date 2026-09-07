@@ -96,7 +96,7 @@ const sections: LegalSection[] = [
   {
     title: "Who operates KYP",
     paragraphs: [
-      "KYP is operated by KYP Solutions, which is the party responsible for the personal information described here. Questions, requests and complaints go to privacy@kyp.ph and are answered on weekdays, Manila time.",
+      "KYP is the party responsible for the personal information described here. Questions, requests and complaints go to privacy@kyp.ph and are answered on weekdays, Manila time.",
       "If you are not satisfied with the answer, you may raise it with the National Privacy Commission.",
     ],
   },
