@@ -200,6 +200,8 @@ export type BusinessProfile = {
   organizationId: string;
   merchantId: string;
   adminTenantId: string;
+  /** The merchant's own paragraph on their kyp.ph page; "" until they write one. */
+  about: string;
   founding?: boolean;
 };
 

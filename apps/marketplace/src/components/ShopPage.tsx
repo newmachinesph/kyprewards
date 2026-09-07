@@ -45,7 +45,7 @@ function ShopBody({ shop }: { shop: PublicShop }) {
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
           name: shop.name,
-          description: shop.about,
+          ...(shop.about ? { description: shop.about } : {}),
           url: `${siteUrl}${shopPath(shop.slug)}`,
           ...(shop.image ? { image: shop.image } : {}),
           address: {
@@ -96,10 +96,18 @@ function ShopBody({ shop }: { shop: PublicShop }) {
           </Link>
         </p>
 
-        <section className="mt-8">
-          <h2 className="text-lg font-bold tracking-[-0.01em]">About</h2>
-          <p className="mt-2 max-w-[62ch] text-base leading-relaxed text-[var(--ink-soft)]">{shop.about}</p>
-        </section>
+        {/* A merchant who has not written their paragraph yet gets no heading
+            at all. Every live shop's `about` is empty until they fill it in
+            from Discover in the business app, and an "About" with nothing
+            under it reads as a broken page rather than an empty field. */}
+        {shop.about && (
+          <section className="mt-8">
+            <h2 className="text-lg font-bold tracking-[-0.01em]">About</h2>
+            <p className="mt-2 max-w-[62ch] text-base leading-relaxed text-[var(--ink-soft)]">
+              {shop.about}
+            </p>
+          </section>
+        )}
 
         <section className="mt-8">
           <h2 className="flex items-center gap-2 text-lg font-bold tracking-[-0.01em]">

@@ -65,7 +65,17 @@ export function ShopCard({ shop }: { shop: PublicShop }) {
             {shop.name}
           </Link>
         </h3>
-        <p className="mt-2 text-sm text-[var(--ink-soft)]">{shop.reward}</p>
+        {/* The reward is the reason to tap, so it is never truncated away -
+            but a long one used to stretch its card and leave the row ragged,
+            because grid rows take the height of the tallest item. Two lines
+            each: enough for "8 visits → Free 12-inch pizza", capped so no
+            shop's wording sets the height of the row. */}
+        <p className="mt-2 line-clamp-2 text-sm text-[var(--ink-soft)]">{shop.reward}</p>
+        {shop.about && (
+          <p className="mt-1.5 line-clamp-2 text-sm leading-snug text-[var(--muted-strong)]">
+            {shop.about}
+          </p>
+        )}
         <p className="mt-auto flex items-center gap-2 pt-4 text-xs font-semibold text-[var(--muted-strong)]">
           <OpenDot open={shop.open} />
           <span aria-hidden="true">·</span>

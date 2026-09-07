@@ -20,8 +20,12 @@ import { PlanTag } from "@kypstamping/ui/shell";
 import { Clock3, MapPin, Sparkles } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate } from "@/lib/plan";
 import { addOns } from "@/lib/plans";
+import { useUpdateProfile } from "@/components/mutations";
 import { PaymentSheet } from "@/components/views/PaymentSheet";
-import { BlockedNote, type Notify } from "@/components/views/shared";
+import { BlockedNote, inputClass, type Notify } from "@/components/views/shared";
+
+/** What the API accepts on `about`; the field stops there rather than 422ing. */
+const ABOUT_LIMIT = 2000;
 
 /**
  * The shop as Discover shows it, and the featured placement above the
@@ -64,12 +68,25 @@ export function DiscoverPanel({ notify }: { notify: Notify }) {
           Every shop with a live program is findable in the customer app, by category and neighborhood, on every plan.
         </p>
         <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--line)]">
-          <div className="grid h-28 place-items-center" style={{ background: color.background, color: color.foreground }}>
+          <div
+            className="relative grid h-28 place-items-center overflow-hidden"
+            style={{ background: color.background, color: color.foreground }}
+          >
             {branding?.imageUrl ? (
               // A presigned storage URL on a host the image optimiser is not
               // configured for, and it changes every time it is signed.
+              //
+              // Positioned out of flow, like the directory card it previews.
+              // `place-items-center` sizes a grid item to its content instead
+              // of stretching it, so `size-full` resolved against nothing and
+              // the photo rendered at its natural height - spilling over the
+              // shop name, the reward and the stamps underneath it.
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={branding.imageUrl} alt="" width={600} height={300} className="size-full object-cover" />
+              <img
+                src={branding.imageUrl}
+                alt=""
+                className="absolute inset-0 size-full object-cover"
+              />
             ) : (
               <span className="text-xs font-bold opacity-70">{profile?.shortName ?? ""}</span>
             )}
@@ -92,6 +109,13 @@ export function DiscoverPanel({ notify }: { notify: Notify }) {
               <div className="mt-2 overflow-x-auto">
                 <StampDots filled={0} total={live.target} />
               </div>
+            )}
+            {/* Two lines here because two lines is what the directory card
+                shows; the rest is on the shop's own page. */}
+            {profile?.about && (
+              <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-[var(--muted-strong)]">
+                {profile.about}
+              </p>
             )}
             {/* One icon per line, and no line without content. A branch is
                 provisioned with an empty address, so the pin used to sit
@@ -173,7 +197,77 @@ export function DiscoverPanel({ notify }: { notify: Notify }) {
           <BlockedNote reason={blocked} />
         </div>
       </article>
+      <AboutCard notify={notify} />
       {sheet && <PaymentSheet intent={sheet} title="Featured in Discover" onClose={() => setSheet(null)} />}
     </section>
+  );
+}
+
+/**
+ * The paragraph on the shop's kyp.ph page, in the merchant's own words.
+ *
+ * The column and the public endpoint have carried `about` since the
+ * marketplace shipped, but nothing ever wrote it: no screen offered the
+ * field and the API client dropped it from the patch body. Every listing
+ * therefore rendered an About heading with nothing under it. Here rather
+ * than in Settings because this is the listing screen - the preview beside
+ * it is the thing being edited.
+ */
+function AboutCard({ notify }: { notify: Notify }) {
+  const { data: profile } = useBusinessProfile();
+  const save = useUpdateProfile();
+  const [draft, setDraft] = useState<string | null>(null);
+  const saved = profile?.about ?? "";
+  const about = draft ?? saved;
+  const changed = about.trim() !== saved;
+
+  return (
+    <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 lg:col-span-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Eyebrow>What your page says</Eyebrow>
+        <PlanTag plan="Launch" included />
+      </div>
+      <p className="mt-1 text-xs text-[var(--muted-strong)]">
+        One paragraph on your kyp.ph page, in your own words. The first two lines are what shoppers
+        read on your card in the directory, so lead with what you are known for.
+      </p>
+      {/* No visible caption - the eyebrow above is the heading - so the label
+          carries no type styles of its own; inheriting them set the merchant's
+          paragraph in bold, which is not how it reads on the page. */}
+      <label className="mt-4 grid gap-1.5">
+        <span className="sr-only">About this shop</span>
+        <textarea
+          value={about}
+          onChange={(event) => setDraft(event.target.value.slice(0, ABOUT_LIMIT))}
+          rows={4}
+          placeholder="Pandesal out of the oven from four in the morning, and the ensaymada people queue for on Sundays."
+          className={`${inputClass} py-2 leading-relaxed`}
+        />
+      </label>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <Button
+          disabled={!changed || save.isPending}
+          onClick={() =>
+            save.mutate(
+              { about: about.trim() },
+              {
+                onSuccess: () => {
+                  setDraft(null);
+                  notify("Saved. Your kyp.ph page is updated.");
+                },
+                onError: (failure) => notify(refusal(failure), "error"),
+              },
+            )
+          }
+        >
+          {save.isPending ? "Saving…" : "Save"}
+        </Button>
+        <p className="text-[11px] text-[var(--muted)]">
+          {saved
+            ? `${about.length} of ${ABOUT_LIMIT} characters`
+            : "Nothing here yet, so your page shows no About section at all."}
+        </p>
+      </div>
+    </article>
   );
 }
