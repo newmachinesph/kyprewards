@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "806259750490",
+    "project_id": "kyp-ph",
+    "storage_bucket": "kyp-ph.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:806259750490:android:f78fd9f182dbec63fd8a63",
+        "android_client_info": {
+          "package_name": "ph.kyp.wallet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcPK43bS-hEXZ7671aIWgUwFGN4V-dh9A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
