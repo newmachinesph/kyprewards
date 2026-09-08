@@ -463,6 +463,8 @@ export type DiscoverPlace = {
   hours: OpeningHours[];
   joined: boolean;
   open: boolean;
+  /** The merchant's own paragraph; "" until they write one. */
+  about: string;
 };
 
 export type CustomerNotification = {

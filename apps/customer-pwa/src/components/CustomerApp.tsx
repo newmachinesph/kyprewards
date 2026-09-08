@@ -1924,12 +1924,30 @@ function BusinessSheet({
 }) {
   const { data: discover = [] } = useDiscover();
   const { joinedIds } = useCustomerState();
-  const business =
-    discover.find((item) => item.id === id) ??
-    discover[0];
+  // Above the guard below: every hook runs on every render, or the order
+  // shifts the first time a shop goes missing.
+  const [consentOpen, setConsentOpen] = useState(false);
+  // Falling back to `discover[0]` showed a different shop under the asked-for
+  // one's heading - and its Join button joined that other business. A shop
+  // that paused its program between the list and the tap is simply gone, and
+  // an empty Discover made the fallback itself a crash.
+  const business = discover.find((item) => item.id === id);
+  if (!business) {
+    return (
+      <div
+        className="absolute inset-0 z-[55] overflow-y-auto bg-[var(--paper)]"
+        role="dialog"
+        aria-modal="true"
+      >
+        <SheetHeader title="Program details" close={close} />
+        <p className="px-5 py-10 text-sm text-[var(--muted-strong)]">
+          That shop is not listed right now. It may have paused its program.
+        </p>
+      </div>
+    );
+  }
   const joined = joinedIds.includes(business.id);
   const Icon = categoryIcons[business.category] ?? Store;
-  const [consentOpen, setConsentOpen] = useState(false);
   return (
     <div
       className="absolute inset-0 z-[55] overflow-y-auto bg-[var(--paper)]"
@@ -1960,6 +1978,13 @@ function BusinessSheet({
               ? ""
               : ` · ${formatDistance(business.distanceMetres)}`}
           </p>
+          {/* The shop in its own words, the same paragraph kyp.ph carries.
+              Nothing at all until they write one, rather than an empty gap. */}
+          {business.about && (
+            <p className="mt-4 text-[13px] leading-relaxed text-white/70">
+              {business.about}
+            </p>
+          )}
           {/* No photo, no frame. An empty bordered band reads as an image
               that failed to load rather than a shop that has not added one. */}
           {business.image && (

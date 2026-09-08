@@ -83,6 +83,13 @@ export default function Place() {
             ? ""
             : ` · ${formatDistance(place.distanceMetres)}`}
         </Text>
+        {/* The shop in its own words, the same paragraph kyp.ph carries.
+            Nothing at all until they write one, rather than an empty gap. */}
+        {place.about ? (
+          <Text className="mt-4 font-sans text-[13px] leading-[20px] text-white/70">
+            {place.about}
+          </Text>
+        ) : null}
         {place.image ? (
           <View className="mt-6 h-40 overflow-hidden rounded-2xl border border-white/10">
             <Image
