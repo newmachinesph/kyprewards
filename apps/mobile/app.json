@@ -2,6 +2,7 @@
   "expo": {
     "name": "KYP",
     "slug": "kyp",
+    "owner": "sumnora",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -64,7 +65,8 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "KYP uses the camera to scan a shop's counter poster and join its card."
+          "cameraPermission": "KYP uses the camera to scan a shop's counter poster and join its card.",
+          "recordAudioAndroid": false
         }
       ],
       [
@@ -96,7 +98,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": ""
+        "projectId": "1f94fd76-eed8-447c-9ed6-7bdb132b4d5a"
       }
     }
   }
