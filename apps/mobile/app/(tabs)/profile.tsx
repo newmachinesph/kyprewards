@@ -4,6 +4,7 @@ import {
   Bell,
   Building2,
   Download,
+  Fingerprint,
   Gift,
   History,
   LockKeyhole,
@@ -15,8 +16,10 @@ import {
 import { useCustomerProfile, useWallet } from "@kypstamping/api";
 import { longDate } from "@kypstamping/ui/format";
 import { Screen } from "@/components/Screen";
-import { Eyebrow, Row, Title } from "@/components/ui";
+import { Eyebrow, Row, Switch, Title } from "@/components/ui";
+import { notify } from "@/components/Toast";
 import { useAuth } from "@/lib/auth";
+import { useLock } from "@/lib/lock";
 import { MARKETPLACE_URL, SITE_URL } from "@/lib/config";
 import { colors } from "@/lib/theme";
 
@@ -25,6 +28,9 @@ export default function Profile() {
   const { data: profile } = useCustomerProfile();
   const { data: wallet = [] } = useWallet();
   const signOut = useAuth((state) => state.signOut);
+  const lockAvailable = useLock((state) => state.available);
+  const lockOn = useLock((state) => state.enabled);
+  const enableLock = useLock((state) => state.enable);
   // Memberships, not cards: a shop running stamps beside points is one shop.
   const shops = new Set(wallet.map((card) => card.id)).size;
 
@@ -75,6 +81,32 @@ export default function Profile() {
           detail="Pasalubong sent and received"
           onPress={() => router.push("/gifts")}
         />
+        {/* Only where the device has a face or fingerprint enrolled. Offering
+            a lock that nothing can open is worse than not offering one. */}
+        {lockAvailable ? (
+          <Row
+            icon={<Fingerprint size={17} color={colors.ink} />}
+            label="Lock my wallet"
+            detail={
+              lockOn
+                ? "Asked for every time you open KYP"
+                : "Use your face or fingerprint to open KYP"
+            }
+            trailing={
+              <Switch
+                on={lockOn}
+                label="Lock my wallet"
+                onToggle={() => {
+                  void enableLock(!lockOn).then((now) => {
+                    if (!lockOn && !now) {
+                      notify("The lock was not turned on.", "error");
+                    }
+                  });
+                }}
+              />
+            }
+          />
+        ) : null}
       </View>
 
       <View className="mt-4 flex-row items-start gap-3 rounded-2xl border border-line bg-surface p-5">

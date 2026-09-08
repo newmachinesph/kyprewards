@@ -1,6 +1,7 @@
 import "../global.css";
 
 import { useEffect } from "react";
+import { AppState, View } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
@@ -22,8 +23,10 @@ import {
 } from "@kypstamping/api";
 import { useAuth } from "@/lib/auth";
 import { forgetClaim, readClaim } from "@/lib/claim";
+import { useLock } from "@/lib/lock";
 import { onNotificationOpened, registerForPush } from "@/lib/push";
 import { colors } from "@/lib/theme";
+import { LockScreen } from "@/components/LockScreen";
 import { ToastHost } from "@/components/Toast";
 
 void SplashScreen.preventAutoHideAsync();
@@ -38,10 +41,24 @@ export default function RootLayout() {
   });
   const status = useAuth((state) => state.status);
   const bootstrap = useAuth((state) => state.bootstrap);
+  const lockReady = useLock((state) => state.ready);
+  const engage = useLock((state) => state.engage);
+  const locked = useLock((state) => state.locked);
 
   useEffect(() => {
     void bootstrap();
-  }, [bootstrap]);
+    void lockReady();
+  }, [bootstrap, lockReady]);
+
+  // Only "background". iOS reports "inactive" for the app switcher and for
+  // every system prompt the app itself raises - including the biometric one -
+  // so locking on that would fight the unlock it just asked for.
+  useEffect(() => {
+    const watch = AppState.addEventListener("change", (next) => {
+      if (next === "background") engage();
+    });
+    return () => watch.remove();
+  }, [engage]);
 
   useEffect(() => {
     if (fontsReady && status !== "booting") void SplashScreen.hideAsync();
@@ -85,6 +102,14 @@ export default function RootLayout() {
           <Stack.Screen name="activity" options={{ presentation: "modal" }} />
           <Stack.Screen name="gifts" options={{ presentation: "modal" }} />
         </Stack>
+        {/* Laid over the navigator rather than replacing it: unmounting the
+            Stack would throw away where the customer was, so a lock and an
+            unlock would also be a trip back to Home. */}
+        {status === "signed-in" && locked ? (
+          <View className="absolute inset-0 z-50">
+            <LockScreen />
+          </View>
+        ) : null}
         <ToastHost />
       </ApiProvider>
     </SafeAreaProvider>

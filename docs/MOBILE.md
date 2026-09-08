@@ -83,7 +83,13 @@ same data the PWA's Discover tab already renders.
   code.
 - **Real push** for "your reward is waiting for approval" - the one moment a
   notification matters. The backend had web push only.
-- Optional biometric lock on the wallet.
+- **Optional biometric lock on the wallet** (built 2026-09-08). Off until the
+  customer turns it on in Profile, and the row is not offered at all unless
+  the device has biometrics enrolled - a lock nothing can open is worse than
+  no lock. It engages on `background` only, never on `inactive`, or the iOS
+  prompt the app itself raises would re-lock the screen asking for it. Every
+  failure path fails open, and the lock screen always offers a way out: the
+  session is untouched, so this hides the UI rather than signing anyone out.
 - Later, only if asked: Apple/Google Wallet passes, a home-screen widget.
 
 ## Stack (as pinned on 2026-09-06)
@@ -124,9 +130,30 @@ same data the PWA's Discover tab already renders.
 
 Deployment: **EAS Build** (cloud - iOS builds happen there; this machine is
 Windows), **EAS Submit**, **EAS Update** on `preview` and `production`
-channels so JS-only fixes ship without a store review. `eas.json` carries the
-three profiles; `expo-updates` and the `updates` config arrive with
-`eas update:configure`, not before.
+channels so JS-only fixes ship without a store review. `expo-updates` and the
+`updates` config arrive with `eas update:configure`, not before.
+
+The EAS project is **@sumnora/kyp**, created with `eas init` on 2026-09-07;
+its id lives in `app.json` under `extra.eas.projectId`, and the empty string
+that used to be there is why push registration answered `unavailable`.
+
+`eas.json` carries the three build profiles, and each one names the EAS
+environment it takes its `EXPO_PUBLIC_*` values from rather than listing them
+inline. That is not a style preference: an `env` block in a build profile
+**overrides** the environment stored on EAS, so keeping both would leave the
+server-side values silently dead. One source of truth, and it changes without
+a commit. `development` points at the emulator host, `preview` and
+`production` at the live hosts. Nothing there is secret - `EXPO_PUBLIC_*` is
+inlined into the bundle by definition - so all six are stored plaintext.
+Read them back with `eas env:list --environment production`.
+
+Two traps when setting this up. `owner` in `app.json` is not decoration: the
+token reaches two accounts (`sumnora`, `barnesnest-llc`) and without an owner
+`eas init` chooses for you. And `eas init --force` rewrites
+`android.permissions`, adding `RECORD_AUDIO` by way of expo-camera's
+`recordAudioAndroid` default - a QR scanner has no use for a microphone, so
+the plugin now sets it `false`. Check with
+`npx expo config --type prebuild --json` before any store build.
 
 ## Backend seams - three small changes, one contract
 
