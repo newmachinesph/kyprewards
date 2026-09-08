@@ -14,3 +14,10 @@ android/
 # Local env: EXPO_PUBLIC_* for a device on the LAN. See src/lib/config.ts.
 .env
 .env.local
+
+# The FCM V1 service account key: a private key with admin rights over
+# push for the whole Firebase project. It is uploaded to EAS with
+# `eas credentials`, never committed. `google-services.json` is not secret -
+# it ships inside the APK - and EAS Build needs it in the tree, so it stays.
+*service-account*.json
+firebase-adminsdk*.json
