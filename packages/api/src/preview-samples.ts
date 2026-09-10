@@ -378,6 +378,11 @@ const HOURS = [
   { days: "Sun", time: "8:00 AM – 6:00 PM" },
 ];
 
+/** A real, working Google Maps link built from the sample address, so the
+ *  preview's "Get directions" goes somewhere rather than nowhere. */
+const mapsSearch = (address: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+
 const shop = (
   slug: string,
   name: string,
@@ -394,6 +399,7 @@ const shop = (
   neighborhood,
   city,
   address: `${neighborhood}, ${city}`,
+  mapsLink: mapsSearch(`${neighborhood}, ${city}`),
   hours: HOURS,
   open: true,
   image: null,
@@ -410,6 +416,7 @@ const shop = (
       neighborhood,
       city,
       address: `${neighborhood}, ${city}`,
+      mapsLink: mapsSearch(`${neighborhood}, ${city}`),
       hours: HOURS,
       open: true,
       latitude: null,
@@ -428,9 +435,9 @@ export const samplePublicShops = (): PublicShop[] => [
     distanceMetres: 1_200,
     about: "A neighborhood bakery in Kapitolyo since 2019. Ube pandesal before eight, cheese ensaymada all day, and a stamp card that pays out in pastries.",
     branches: [
-      { slug: "sweet-crumbs-kapitolyo", name: "Kapitolyo", neighborhood: "Kapitolyo", city: "Pasig", address: "12 East Capitol Drive, Kapitolyo, Pasig", hours: HOURS, open: true, latitude: 14.5716, longitude: 121.0602 },
-      { slug: "sweet-crumbs-bgc", name: "BGC", neighborhood: "Bonifacio Global City", city: "Taguig", address: "5th Avenue, BGC, Taguig", hours: HOURS, open: true, latitude: 14.5495, longitude: 121.0509 },
-      { slug: "sweet-crumbs-makati", name: "Makati", neighborhood: "Poblacion", city: "Makati", address: "Kalayaan Avenue, Poblacion, Makati", hours: HOURS, open: false, latitude: 14.5654, longitude: 121.0293 },
+      { slug: "sweet-crumbs-kapitolyo", name: "Kapitolyo", neighborhood: "Kapitolyo", city: "Pasig", address: "12 East Capitol Drive, Kapitolyo, Pasig", mapsLink: mapsSearch("12 East Capitol Drive, Kapitolyo, Pasig"), hours: HOURS, open: true, latitude: 14.5716, longitude: 121.0602 },
+      { slug: "sweet-crumbs-bgc", name: "BGC", neighborhood: "Bonifacio Global City", city: "Taguig", address: "5th Avenue, BGC, Taguig", mapsLink: mapsSearch("5th Avenue, BGC, Taguig"), hours: HOURS, open: true, latitude: 14.5495, longitude: 121.0509 },
+      { slug: "sweet-crumbs-makati", name: "Makati", neighborhood: "Poblacion", city: "Makati", address: "Kalayaan Avenue, Poblacion, Makati", mapsLink: mapsSearch("Kalayaan Avenue, Poblacion, Makati"), hours: HOURS, open: false, latitude: 14.5654, longitude: 121.0293 },
     ],
   }),
   shop("tita-nenes", "Tita Nene's Milk Tea", "Milk tea", "Kapitolyo", "Pasig", "6 cups → a free large", 6, { distanceMetres: 640, memberCount: 342 }),

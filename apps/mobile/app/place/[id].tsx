@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Image, Modal, Pressable, Text, View } from "react-native";
+import { Image, Linking, Modal, Pressable, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   CakeSlice,
@@ -7,6 +7,7 @@ import {
   Clock,
   Mail,
   MapPin,
+  Navigation,
   Phone,
   QrCode,
   ShieldCheck,
@@ -125,6 +126,20 @@ export default function Place() {
               <Text className="mt-1 font-sans-extrabold text-[14px] leading-[20px] text-ink">
                 {place.address || "Address not listed yet"}
               </Text>
+              {/* Only when the merchant pasted one. An address describes
+                  where a shop is; this walks somebody to the door. */}
+              {place.mapsLink ? (
+                <Pressable
+                  accessibilityRole="link"
+                  onPress={() => Linking.openURL(place.mapsLink)}
+                  className="mt-3 flex-row items-center gap-2 self-start rounded-xl border border-line px-3 py-2"
+                >
+                  <Navigation size={14} color={colors.accent} />
+                  <Text className="font-sans-extrabold text-[12px] text-ink">
+                    Get directions
+                  </Text>
+                </Pressable>
+              ) : null}
             </View>
           </View>
           <View className="mt-4 flex-row items-start gap-3 border-t border-line pt-4">

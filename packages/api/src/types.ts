@@ -184,6 +184,8 @@ export type BusinessLocation = {
   members: number;
   status: LocationStatus;
   hours: OpeningHours[];
+  /** What Google's share sheet produced; "" until the merchant pastes one. */
+  mapsLink: string;
 };
 
 export type BusinessProfile = {
@@ -460,6 +462,8 @@ export type DiscoverPlace = {
   distanceMetres: number | null;
   reward: string;
   address: string;
+  /** Directions to the branch; "" when the merchant has not pasted one. */
+  mapsLink: string;
   hours: OpeningHours[];
   joined: boolean;
   open: boolean;
@@ -1211,6 +1215,7 @@ export type PublicBranch = {
   neighborhood: string;
   city: string;
   address: string;
+  mapsLink: string;
   hours: OpeningHours[];
   open: boolean;
   latitude: number | null;
@@ -1224,6 +1229,7 @@ export type PublicShop = {
   neighborhood: string;
   city: string;
   address: string;
+  mapsLink: string;
   hours: OpeningHours[];
   open: boolean;
   image: string | null;

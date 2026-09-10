@@ -60,16 +60,21 @@ type Notify = (message: string, intent?: "info" | "review" | "error") => void;
 function Field({
   label,
   error,
+  hint,
   children,
 }: {
   label: string;
   error?: string;
+  hint?: string;
   children: React.ReactNode;
 }) {
   return (
     <label className="grid gap-2">
       <FieldLabel>{label}</FieldLabel>
       {children}
+      {hint ? (
+        <span className="text-[10px] font-semibold text-[var(--muted)]">{hint}</span>
+      ) : null}
       {error ? (
         <span role="alert" className="text-[11px] font-bold text-[var(--danger)]">
           {error}
@@ -314,7 +319,7 @@ export function NewLocationDialog({
   const [hours, setHours] = useState<HourRow[]>([]);
   const form = useForm<LocationInput>({
     resolver: zodResolver(locationSchema),
-    defaultValues: { name: "", address: "", city: "" },
+    defaultValues: { name: "", address: "", city: "", mapsLink: "" },
   });
 
   return (
@@ -352,6 +357,18 @@ export function NewLocationDialog({
         </Field>
         <Field label="City" error={form.formState.errors.city?.message}>
           <input {...form.register("city")} placeholder="Pasig" className={inputClass} />
+        </Field>
+        <Field
+          label="Google Maps link"
+          hint="Optional. Share → Copy link in Google Maps. Customers tap it for directions."
+          error={form.formState.errors.mapsLink?.message}
+        >
+          <input
+            {...form.register("mapsLink")}
+            placeholder="https://maps.app.goo.gl/…"
+            inputMode="url"
+            className={inputClass}
+          />
         </Field>
         <HoursEditor rows={hours} onChange={setHours} />
         <div className="grid gap-2 sm:grid-cols-2">
@@ -583,6 +600,7 @@ export function EditLocationDialog({
       name: location.name,
       address: location.address,
       city: location.city,
+      mapsLink: location.mapsLink,
     },
   });
 
@@ -620,6 +638,18 @@ export function EditLocationDialog({
         </Field>
         <Field label="City" error={form.formState.errors.city?.message}>
           <input {...form.register("city")} className={inputClass} />
+        </Field>
+        <Field
+          label="Google Maps link"
+          hint="Optional. Share → Copy link in Google Maps. Customers tap it for directions."
+          error={form.formState.errors.mapsLink?.message}
+        >
+          <input
+            {...form.register("mapsLink")}
+            placeholder="https://maps.app.goo.gl/…"
+            inputMode="url"
+            className={inputClass}
+          />
         </Field>
         <HoursEditor rows={hours} onChange={setHours} />
         <Field label="Status">

@@ -159,6 +159,12 @@ export const requestPasswordReset = (email: string): Promise<{ sent: boolean }> 
 export const resetPassword = (token: string, password: string): Promise<void> =>
   http("/auth/password/reset", { method: "POST", body: { token, password } });
 
+/**
+ * Change your own password while signed in.
+ *
+ * Ends every *other* session, not this one. A 422 names `currentPassword`
+ * when it is wrong, so the message lands under the right field.
+ */
 /** Readable with the token alone: whoever holds it is who it is for. */
 export const getInvite = (token: string): Promise<InvitePreview> =>
   http(`/auth/invites/${encodeURIComponent(token)}`);
@@ -251,6 +257,7 @@ export const updateLocation = (
     hours: OpeningHours[];
     latitude: number;
     longitude: number;
+    mapsLink: string;
   }>,
 ): Promise<BusinessLocation> =>
   http(`/business/locations/${branchId}`, { method: "PATCH", body });
@@ -609,6 +616,7 @@ export const createLocation = (body: {
   hours?: OpeningHours[];
   latitude?: number;
   longitude?: number;
+  mapsLink?: string;
 }): Promise<BusinessLocation> => http("/business/locations", { method: "POST", body });
 
 /* ── Counter ──────────────────────────────────────────────────────────

@@ -154,13 +154,6 @@ export const isCompleteMobile = (national: string) =>
 export const isEmail = (value: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
 
-/**
- * Google hands out four different share formats. All of them are fine.
- *
- * The short `maps.app.goo.gl` one is what the mobile share sheet produces,
- * which is what a merchant standing in their own shop will paste.
- */
-export const isMapsLink = (value: string) =>
-  /^https?:\/\/((www\.)?google\.[a-z.]+\/maps|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(
-    value.trim(),
-  );
+// The intake and the dashboard's location editor accept the same four
+// formats; the rule lives with the schemas so it can only be one rule.
+export { isMapsLink } from "@kypstamping/api/forms";

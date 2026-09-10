@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { isPreview, usePublicShop, type PublicBranch, type PublicShop } from "@kypstamping/api";
 import { Pill, PreviewBadge, QueryBoundary, StampDots } from "@kypstamping/ui";
-import { ArrowUpRight, Clock, MapPin } from "lucide-react";
+import { ArrowUpRight, Clock, MapPin, Navigation } from "lucide-react";
 import { customerAppUrl, siteUrl } from "@/lib/site";
 import { categoryPath, neighborhoodPath, shopPath } from "@/lib/routes";
 import { OpenDot, whereLine } from "./ShopCard";
@@ -140,6 +140,18 @@ function ShopBody({ shop }: { shop: PublicShop }) {
                   <p className="mt-1.5 flex items-center gap-2 text-xs font-semibold text-[var(--muted-strong)]">
                     <OpenDot open={branch.open} />
                   </p>
+                  {/* Only when the merchant pasted one. An address describes
+                      where a shop is; this walks somebody to the door. */}
+                  {branch.mapsLink && (
+                    <a
+                      href={branch.mapsLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="focus-ring mt-2 inline-flex items-center gap-1.5 text-xs font-extrabold underline underline-offset-4"
+                    >
+                      <Navigation size={13} aria-hidden="true" /> Get directions
+                    </a>
+                  )}
                 </div>
                 <a
                   href={joinUrl(branch)}

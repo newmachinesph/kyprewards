@@ -88,6 +88,7 @@ import {
   LogOut,
   Mail,
   MapPin,
+  Navigation,
   Megaphone,
   Nfc,
   Phone,
@@ -2021,6 +2022,19 @@ function BusinessSheet({
                 <p className="mt-1 text-sm font-extrabold leading-snug">
                   {business.address}
                 </p>
+                {/* Only when the merchant pasted one. An address describes
+                    where a shop is; this walks somebody to the door. */}
+                {business.mapsLink ? (
+                  <a
+                    href={business.mapsLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="focus-ring mt-3 inline-flex items-center gap-2 rounded-xl border border-[var(--line)] px-3 py-2 text-xs font-extrabold"
+                  >
+                    <Navigation size={14} className="text-[var(--accent)]" /> Get
+                    directions
+                  </a>
+                ) : null}
               </div>
             </div>
             <div className="mt-4 flex items-start gap-3 border-t border-[var(--line)] pt-4">

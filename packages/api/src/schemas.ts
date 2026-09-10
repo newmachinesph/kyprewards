@@ -129,6 +129,17 @@ export const profileSchema = z.object({
 });
 export type ProfileInput = z.infer<typeof profileSchema>;
 
+/**
+ * Google hands out four different share formats. All of them are fine.
+ *
+ * The short `maps.app.goo.gl` one is what the mobile share sheet produces,
+ * which is what a merchant standing in their own shop will paste.
+ */
+export const isMapsLink = (value: string) =>
+  /^https?:\/\/((www\.)?google\.[a-z.]+\/maps|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(
+    value.trim(),
+  );
+
 export const locationSchema = z.object({
   name: z.string().trim().min(2, "Name this branch"),
   address: z.string().trim().min(4, "Enter the street address"),
@@ -137,6 +148,15 @@ export const locationSchema = z.object({
   // has none. One without the other geofences the wrong place.
   lat: z.number().min(-90).max(90).optional(),
   lng: z.number().min(-180).max(180).optional(),
+  // Blank is a real answer: not every shop is on Google Maps. An address
+  // describes where a shop is, this is what walks somebody to the door.
+  mapsLink: z
+    .string()
+    .trim()
+    .refine(
+      (value) => value === "" || isMapsLink(value),
+      "That does not look like a Google Maps link.",
+    ),
 });
 export type LocationInput = z.infer<typeof locationSchema>;
 
