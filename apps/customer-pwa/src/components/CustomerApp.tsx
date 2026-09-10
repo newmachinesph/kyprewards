@@ -848,8 +848,10 @@ function HomeView({
           </p>
         ) : (
           <div className="grid grid-cols-[1.2fr_0.8fr] gap-3">
-            {suggestions.map((place, index) => {
-              const featured = index === 1;
+            {suggestions.map((place) => {
+              // The API's flag, never a position in the list. The second
+              // card used to be painted as featured whatever it was.
+              const featured = place.featured;
               return (
                 <button
                   key={place.id}
@@ -2655,13 +2657,21 @@ function ProfileSheet({
               {wallet
                 .filter((card, index, all) => all.findIndex((other) => other.id === card.id) === index)
                 .map((card) => {
-                  // The card carries no per-shop consent flags yet, so what is
-                  // shown is the account-wide preference, and it says so.
-                  const promos = [
-                    channels.promoPush ? "push" : "",
-                    channels.promoEmail ? "email" : "",
-                    channels.promoSms ? "SMS" : "",
-                  ].filter(Boolean);
+                  // What this shop holds on file, per channel. Seeded from the
+                  // account preference on join and kept in step by the API;
+                  // the account setting is the fallback for a card the API
+                  // did not annotate.
+                  const promos = card.consent
+                    ? [
+                        card.consent.push ? "push" : "",
+                        card.consent.email ? "email" : "",
+                        card.consent.sms ? "SMS" : "",
+                      ].filter(Boolean)
+                    : [
+                        channels.promoPush ? "push" : "",
+                        channels.promoEmail ? "email" : "",
+                        channels.promoSms ? "SMS" : "",
+                      ].filter(Boolean);
                   return (
                     <div key={card.id} className="flex items-center gap-3 py-4">
                       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[var(--surface-2)]">
@@ -2672,8 +2682,8 @@ function ProfileSheet({
                         <p className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">
                           Member code and name shared for service messages.{" "}
                           {promos.length > 0
-                            ? `Promotions by ${promos.join(", ")}, from your account setting; no consent is on file for this shop specifically.`
-                            : "No promotional channel is on for your account, so this shop cannot send promotions."}
+                            ? `This shop may send promotions by ${promos.join(", ")}. Turn a channel off under Notifications and every shop follows.`
+                            : "No promotional channel is on for this shop, so it can only send service messages."}
                         </p>
                       </div>
                       {isPreview(card) ? (

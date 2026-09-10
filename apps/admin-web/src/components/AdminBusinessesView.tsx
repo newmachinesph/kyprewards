@@ -5,7 +5,10 @@ import {
   EMPTY_PLATFORM_METRICS,
   isMissingEndpoint,
   isPreview,
+  keys,
+  moveTenantPlan,
   useAddOns,
+  useApiMutation,
   useOnboarding,
   usePlatformMetrics,
   useTenants,
@@ -264,6 +267,12 @@ function TenantDrawer({
   addOns: AddOnSubscription[];
   addOnsUnavailable: string | null;
 }) {
+  const [target, setTarget] = useState<PlanName>(tenant.plan);
+  const [outcome, setOutcome] = useState<{ tone: "ok" | "refused"; text: string } | null>(null);
+  const move = useApiMutation(
+    (plan: PlanName) => moveTenantPlan(tenant.businessId ?? "", plan),
+    { invalidates: [keys.admin.tenants(), keys.admin.audit()] },
+  );
   return (
     <aside
       className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]"
@@ -311,9 +320,52 @@ function TenantDrawer({
           </li>
         </ol>
         <p className="mt-2 text-[11px] leading-relaxed text-white/55">
-          The API keeps only the current plan; a plan change ledger does not exist yet. Paid tiers
-          are not purchasable yet.
+          Every move is written to the audit ledger; the API keeps only the current plan here.
         </p>
+      </div>
+
+      <div className="mt-5">
+        <Eyebrow>Move plan</Eyebrow>
+        <p className="mt-2 text-[11px] leading-relaxed text-white/55">
+          The same rules as the billing screen merchants see: while the paid tiers are closed
+          only Launch is open, a downgrade that would strand a live program is refused by name,
+          and a founding merchant gets the three free months of Core the first time they move
+          up.
+        </p>
+        <div className="mt-3 flex gap-2">
+          <select
+            aria-label="Plan to move this tenant to"
+            value={target}
+            onChange={(event) => setTarget(event.target.value as PlanName)}
+            className="min-h-10 flex-1 rounded-xl border border-white/20 bg-transparent px-3 text-sm font-bold text-[var(--paper)]"
+          >
+            {PLANS.map((plan) => (
+              <option key={plan} value={plan} className="text-[var(--ink)]">
+                {plan}
+              </option>
+            ))}
+          </select>
+          <Button
+            tone="accent"
+            disabled={!tenant.businessId || target === tenant.plan || move.isPending}
+            onClick={() =>
+              move.mutate(target, {
+                onSuccess: (saved) => setOutcome({ tone: "ok", text: `Moved to ${saved.plan}.` }),
+                onError: (failure) => setOutcome({ tone: "refused", text: failure.message }),
+              })
+            }
+          >
+            {move.isPending ? "Moving…" : "Move"}
+          </Button>
+        </div>
+        {outcome && (
+          <p
+            role="status"
+            className={`mt-2 text-[11px] font-semibold ${outcome.tone === "ok" ? "text-[var(--accent)]" : "text-white/80"}`}
+          >
+            {outcome.text}
+          </p>
+        )}
       </div>
 
       <div className="mt-5">

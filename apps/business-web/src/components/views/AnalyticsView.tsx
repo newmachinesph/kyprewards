@@ -230,10 +230,14 @@ function StaffPerformanceTable({ gate }: { gate: Gate }) {
 
 /** One row per branch, up to the plan's allowance; the API keeps the busiest. */
 function BranchPerformanceTable({ gate }: { gate: Gate }) {
-  const { data: branches = [], isPending, error, refetch } = useBranchPerformance();
+  const { data: page, isPending, error, refetch } = useBranchPerformance();
   const { data: locations = [] } = useLocations();
   const allowance = branchAllowance(gate.plan);
-  const hidden = Math.max(0, locations.length - branches.length);
+  const branches = page?.items ?? [];
+  // The API says how many branches it counted and how many it reported;
+  // the difference is what the plan withheld, not a guess from the
+  // location list (which also counts branches with no visits at all).
+  const hidden = page ? Math.max(0, page.total - branches.length) : 0;
   return (
     <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
       <div className="flex items-center justify-between gap-2">

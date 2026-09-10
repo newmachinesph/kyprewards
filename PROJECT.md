@@ -192,8 +192,26 @@ window, close behaviour with a reward grace, and the completion cap ship
 with Launch. Billing is built in Phase 1 behind two admin flags, off
 through the beta, QR Ph only.
 
+## The paid tiers, ready and switched off (2026-09-10)
+
+Only Launch is available, and stays so until an administrator turns
+`billing.paid_tiers` on. Everything a flip would open is built and tested
+against the seeded stack: all eight program types open at Core and three
+run at once there, the staff caps are 2 / 5 / 15 / 50 as published, the
+billing screen sends the cycle and yearly bills twelve months at the yearly
+per-month price, a founding merchant's three free months of Core are applied
+automatically on the first move up, the admin console can move a tenant
+under the same rules, and featured placement is the API's order in every
+Discover list. The merchant's own tiers stay unreachable until the flag: the
+API answers 409 from both doors and the screens show it.
+
+Extra branch reporting (2026-09-10): the ₱150-a-branch add-on the pricing
+page lists is built the way featured placement is - bought per named branch
+by QR Ph, activated by the webhook, riding on the monthly invoice from then
+on - and never applied automatically, because branches themselves are never
+charged for. Off with the same flag as every other purchase.
+
 ## Open decisions the apps should not pre-empt
 
-- The per-branch reporting overage rate, and what the API does past the
-  allowance.
-- Annual billing: the toggle shows yearly prices but the API bills monthly.
+None as of 2026-09-10. The campaign email provider and the PayMongo webhook
+registration are operations, not app decisions.

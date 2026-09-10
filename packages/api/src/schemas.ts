@@ -189,10 +189,12 @@ export const PROGRAM_TYPE_MIN_PLAN: Record<(typeof PROGRAM_TYPES)[number], strin
   Points: "Core",
   Discount: "Core",
   Coupon: "Core",
-  Membership: "Grow",
-  Rewards: "Grow",
-  Multipass: "Grow",
-  "Gift card": "Grow",
+  // All eight from Core: "Every format is included from the Core plan" on
+  // the pricing page. Four of them sat at Grow here, against the page.
+  Membership: "Core",
+  Rewards: "Core",
+  Multipass: "Core",
+  "Gift card": "Core",
 };
 
 export const PLAN_RANK = ["Launch", "Core", "Grow", "Scale"];

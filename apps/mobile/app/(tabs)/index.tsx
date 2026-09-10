@@ -264,8 +264,9 @@ export default function Home() {
           </Panel>
         ) : (
           <View className="flex-row gap-3">
-            {suggestions.map((place, index) => {
-              const featured = index === 1;
+            {suggestions.map((place) => {
+              // The API's flag, never a position in the list.
+              const featured = place.featured;
               return (
                 <Pressable
                   key={place.id}

@@ -74,16 +74,23 @@ below is what is left.
 
 ## Known gaps, in order
 
-1. **Integrations view** still carries hardcoded figures ("Events · 24
-   hours", "Duplicate-safe 99.98%", "Delivery p95") and a "Demo control
-   data" badge. Replace them with API data or remove them.
-2. **Backend routes to ship** before the preview badges disappear:
-   `GET /admin/add-ons`, `PATCH /admin/partner-applications/{id}/notes`,
-   `founding` on the decide body, the two billing flags in `/admin/flags`.
+1. **Integrations view** (closed 2026-09-10): the invented figures and the
+   "Demo control data" badge are gone; the four headline tiles are counts
+   from the adapter registry and tenant connections.
+2. **Backend routes to ship** (closed 2026-09-04): `GET /admin/add-ons`,
+   `PATCH /admin/partner-applications/{id}/notes`, `founding` on the decide
+   body and the two billing flags all answer.
 3. **The auth pages' visible copy** lives in `packages/ui/auth`; only their
    titles were changed here.
-4. **People** reports "Not reported by the API yet" for the privacy
-   counters; the backend has no aggregate privacy-operations read.
+4. **People** (closed 2026-09-10): consent withdrawals, data exports and
+   deletion requests come from `GET /admin/privacy`, counts only.
+5. **Moving a tenant** (added 2026-09-10): the tenant drawer moves a shop
+   between tiers through `PATCH /admin/tenants/{businessId}/plan`, under the
+   same rules as the merchant's billing screen. While `billing.paid_tiers`
+   is off only Launch is open and the API's 409 is shown in place; a
+   downgrade that strands a live program is refused by name; a founding
+   merchant's three free months of Core are applied on the first move up.
+   Every move lands in the audit ledger.
 
 ## Rules specific to this app
 

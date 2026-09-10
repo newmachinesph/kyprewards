@@ -62,6 +62,7 @@ import type {
   OpeningHours,
   PlanEconomics,
   PlatformMetrics,
+  PrivacyMetrics,
   Program,
   ProgramTier,
   NearbyNudge,
@@ -380,8 +381,11 @@ export const getSegments = (): Promise<SegmentShare[]> =>
 export const getStaffPerformance = (): Promise<StaffPerformance[]> =>
   http("/business/analytics/staff");
 
-export const getBranchPerformance = (): Promise<BranchPerformance[]> =>
-  http("/business/analytics/branches");
+/** A page, because the API caps the rows at the plan's allowance and says
+ *  how many there really are in `X-Total-Count`. The view used to guess the
+ *  withheld count from the location list. */
+export const getBranchPerformance = (): Promise<Page<BranchPerformance>> =>
+  httpPage("/business/analytics/branches");
 
 export const getCampaignAttribution = (): Promise<CampaignAttribution[]> =>
   http("/business/analytics/campaigns");
@@ -503,6 +507,20 @@ export const requestData = (kind: "export" | "deletion"): Promise<{ id: string; 
 /* ── Platform administration ──────────────────────────────────────── */
 
 export const getTenants = (): Promise<Tenant[]> => http("/admin/tenants");
+
+/** Move a tenant between tiers. 409 while the paid tiers are closed, except
+ *  down to Launch; 409 by name when a downgrade would strand a live program. */
+export const moveTenantPlan = (
+  businessId: string,
+  plan: string,
+  cycle?: "Monthly" | "Yearly",
+): Promise<Tenant> =>
+  http(`/admin/tenants/${businessId}/plan`, {
+    method: "PATCH",
+    body: cycle ? { plan, cycle } : { plan },
+  });
+
+export const getPrivacyMetrics = (): Promise<PrivacyMetrics> => http("/admin/privacy");
 
 export const getSupportQueue = (): Promise<SupportTicket[]> => http("/admin/support");
 
@@ -1138,8 +1156,9 @@ async function download(path: string): Promise<void> {
 
 /** Upgrades only. The API refuses a downgrade rather than silently losing
  *  the allowances a merchant is already using. */
-export const changePlan = (plan: string): Promise<Billing> =>
-  http("/business/billing/plan", { method: "PATCH", body: { plan } });
+/** `cycle` is Monthly or Yearly; omitted keeps the subscription's cycle. */
+export const changePlan = (plan: string, cycle?: "Monthly" | "Yearly"): Promise<Billing> =>
+  http("/business/billing/plan", { method: "PATCH", body: cycle ? { plan, cycle } : { plan } });
 
 export const payInvoice = (invoiceId: string): Promise<{ url: string }> =>
   http(`/business/invoices/${invoiceId}/pay`, { method: "POST" });

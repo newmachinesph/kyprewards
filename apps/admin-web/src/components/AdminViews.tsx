@@ -53,6 +53,7 @@ import {
   usePlatformCampaigns,
   usePlatformInvoices,
   usePlatformMetrics,
+  usePrivacyMetrics,
   EMPTY_PLATFORM_METRICS,
   useServices,
   useTenants,
@@ -78,6 +79,9 @@ function PeopleView({ notify }: { notify: Notify }) {
     error,
     refetch,
   } = usePlatformMetrics();
+  const { data: privacy } = usePrivacyMetrics();
+  const count = (value: number | undefined) =>
+    value === undefined ? "—" : value.toLocaleString("en-PH");
   return (
     <ViewFrame
       eyebrow="Network people"
@@ -109,15 +113,20 @@ function PeopleView({ notify }: { notify: Notify }) {
               ],
               [
                 "Consent withdrawals",
-                "—",
-                "Not reported by the API yet",
+                count(privacy?.consentWithdrawals),
+                "Channels switched off, across every account",
                 ShieldCheck,
               ],
-              ["Data exports", "—", "Not reported by the API yet", Download],
+              [
+                "Data exports",
+                count(privacy?.dataExports),
+                privacy ? `${privacy.pending} export or deletion request${privacy.pending === 1 ? "" : "s"} still open` : "Requested through the wallet",
+                Download,
+              ],
               [
                 "Deletion requests",
-                "—",
-                "Not reported by the API yet",
+                count(privacy?.deletionRequests),
+                "Fulfilled by the nightly privacy job",
                 LockKeyhole,
               ],
             ] as const

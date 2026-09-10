@@ -378,6 +378,8 @@ export type Billing = {
   paymentMethods?: string[];
   founding?: boolean;
   foundingCreditMonths?: number;
+  /** True once the three free months of Core were granted. */
+  foundingCreditApplied?: boolean;
   preview?: boolean;
 };
 
@@ -445,6 +447,8 @@ export type WalletCard = {
   badge?: boolean;
   plan?: PlanName;
   tier?: CardTier | null;
+  /** What this shop holds on file for promotions to you, per channel. */
+  consent?: { email: boolean; sms: boolean; push: boolean } | null;
   bonusWindow?: CardBonusWindow | null;
   missions?: MissionProgress[];
   storeCreditCentavos?: number;
@@ -469,6 +473,9 @@ export type DiscoverPlace = {
   open: boolean;
   /** The merchant's own paragraph; "" until they write one. */
   about: string;
+  /** Priority placement, from the plan or the add-on. The API lists these
+   *  first; the app never sorts by it. */
+  featured: boolean;
 };
 
 export type CustomerNotification = {
@@ -528,6 +535,14 @@ export type Tenant = {
   joinedOn: string;
   founding?: boolean;
   featured?: boolean;
+};
+
+/** Counts only. No administrator reads a customer's record from these. */
+export type PrivacyMetrics = {
+  consentWithdrawals: number;
+  dataExports: number;
+  deletionRequests: number;
+  pending: number;
 };
 
 export type SupportTicket = {

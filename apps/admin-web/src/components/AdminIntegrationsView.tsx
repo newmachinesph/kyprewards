@@ -30,7 +30,6 @@ import {
   ShieldCheck,
   SquareTerminal,
   Store,
-  TestTube2,
   Webhook,
 } from "lucide-react";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
@@ -189,9 +188,6 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
               readiness without exposing customer payloads or plaintext secrets.
             </p>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-[rgb(143_85_16/28%)] bg-[rgb(232_163_61/13%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--accent-strong)]">
-            <TestTube2 size={13} /> Demo control data
-          </span>
         </header>
 
         <section className="mt-6 overflow-hidden rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-7">
@@ -238,14 +234,19 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
             </div>
           </div>
           <div className="mt-7 grid gap-px overflow-hidden rounded-2xl bg-white/12 sm:grid-cols-2 xl:grid-cols-4">
+            {/* Every figure here is a count from the API. The duplicate rate
+                and delivery p95 that used to sit beside them were typed in,
+                and this app promises never to borrow a green light. */}
             {[
               ["Active connections", activeConnections.toLocaleString("en-PH")],
               [
-                "Events · 24 hours",
-                (isSandbox ? 4218 : 36036).toLocaleString("en-PH"),
+                "Events on record",
+                visibleConnections
+                  .reduce((sum, row) => sum + row.events, 0)
+                  .toLocaleString("en-PH"),
               ],
-              ["Duplicate-safe", "99.98%"],
-              ["Delivery p95", "284 ms"],
+              ["Adapters", visibleAdapters.length.toLocaleString("en-PH")],
+              ["Tenants connected", visibleConnections.length.toLocaleString("en-PH")],
             ].map(([label, value]) => (
               <div key={label} className="bg-[var(--ink)] p-4">
                 <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-white/55">

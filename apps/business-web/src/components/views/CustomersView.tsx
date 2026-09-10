@@ -25,7 +25,15 @@ import { creditBalanceOf } from "@/components/views/StoreCreditView";
 import { useExport, type Notify } from "@/components/views/shared";
 
 /** Store credit, RFM and tier for the open customer. Each names its plan. */
-function CustomerStanding({ customerId, gate }: { customerId: string; gate: Gate }) {
+function CustomerStanding({
+  customerId,
+  tier,
+  gate,
+}: {
+  customerId: string;
+  tier: string | null;
+  gate: Gate;
+}) {
   const creditPlan = planFor("Store credit");
   const rfmPlan = planFor("RFM and lifecycle scoring");
   const tierPlan = planFor("Suki tiers");
@@ -51,7 +59,7 @@ function CustomerStanding({ customerId, gate }: { customerId: string; gate: Gate
       <div className="mt-2 divide-y divide-white/12 border-y border-white/12">
         {row("Store credit", pesoFromCentavos(balance), creditPlan)}
         {row("RFM score", score ? `${score.recencyScore}${score.frequencyScore}${score.monetaryScore} · ${score.segment}` : "—", rfmPlan)}
-        {row("Suki tier", "Arrives with suki tiers", tierPlan)}
+        {row("Suki tier", tier ?? "No rung yet", tierPlan)}
       </div>
       {entries.length > 0 && (
         <ul className="mt-3 space-y-1">
@@ -497,7 +505,7 @@ export function CustomersView({ notify }: { notify: Notify }) {
               ))}
             </div>
           </div>
-          <CustomerStanding customerId={selected.id} gate={gate} />
+          <CustomerStanding customerId={selected.id} tier={selected.tier ?? null} gate={gate} />
           <CustomerExtras
             customerId={selected.id}
             customerName={selected.name}

@@ -62,7 +62,7 @@ const PROGRAMS = [
     icon: CreditCard,
     detail: "Recurring perks for regulars, tracked by visits or a paid tier.",
     popular: false,
-    needsPlan: "Grow",
+    needsPlan: "Core",
   },
   {
     id: "coupon",

@@ -55,6 +55,7 @@ import type {
   MessageRecord,
   PlanEconomics,
   PlatformMetrics,
+  PrivacyMetrics,
   Program,
   ProgramTier,
   RecoveryItem,
@@ -364,8 +365,8 @@ export const useStaffPerformance = (
   });
 
 export const useBranchPerformance = (
-  options?: Options<BranchPerformance[]>,
-): Query<BranchPerformance[]> =>
+  options?: Options<Page<BranchPerformance>>,
+): Query<Page<BranchPerformance>> =>
   useQuery({
     queryKey: keys.business.analytics.branches(),
     queryFn: api.getBranchPerformance,
@@ -545,6 +546,9 @@ export const useRecoveryQueue = (options?: Options<RecoveryItem[]>): Query<Recov
 
 export const usePlatformMetrics = (options?: Options<PlatformMetrics>): Query<PlatformMetrics> =>
   useQuery({ queryKey: keys.admin.metrics(), queryFn: api.getPlatformMetrics, ...options });
+
+export const usePrivacyMetrics = (options?: Options<PrivacyMetrics>): Query<PrivacyMetrics> =>
+  useQuery({ queryKey: keys.admin.privacy(), queryFn: api.getPrivacyMetrics, ...options });
 
 export const useOnboarding = () =>
   useQuery({ queryKey: keys.admin.onboarding(), queryFn: api.getOnboarding });

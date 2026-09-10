@@ -96,16 +96,19 @@ Every write against an unbuilt route is disabled with
    locally after the real ones because `useWalletWithPreview` appends them.
    Switch the wallet back to `useWallet()` when the samples are no longer
    wanted.
-2. **`DiscoverPlace.featured`** does not exist on the wallet's discover
-   read; the app keeps the API's order. Add the flag when the backend has it.
-3. **Reward gifts** send no `rewardId` because a wallet card carries none;
-   the body names the membership. Decide with the backend.
+2. **`DiscoverPlace.featured`** (closed 2026-09-10): the API carries it and
+   lists featured shops first, then nearest; the app keeps that order and
+   paints a card as featured only from the flag. The second Home suggestion
+   used to be painted featured whatever it was.
+3. **Reward gifts** send no `rewardId`; the API takes it as optional and
+   gifts against the membership. Closed by design.
 4. **Web push** needs the service worker registered, which is production
    only; the control is preview-disabled locally.
-5. **Consent on file per shop.** Decided (D3): joining, the poster claim and
-   imports seed the shop's flags from the account preference. Until the
-   backend does that on every path, the per-shop row says it shows the
-   account-level preference and that no per-shop consent is on file.
+5. **Consent on file per shop** (closed 2026-09-10): every wallet card
+   carries `consent` - the shop's own email, SMS and push flags, seeded from
+   the account preference on join and kept in step by the API - and the
+   privacy centre shows them per shop, falling back to the account setting
+   only for a card the API did not annotate.
 
 ## Rules specific to this app
 

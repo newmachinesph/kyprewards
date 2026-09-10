@@ -52,9 +52,10 @@ export function BillingView({ notify }: { notify: Notify }) {
   const [segments, setSegments] = useState("500");
   const [sheet, setSheet] = useState<{ intent: QrPayment; title: string } | null>(null);
 
-  const choose = useApiMutation((plan: string) => retryOnce(() => changePlan(plan)), {
-    invalidates: [keys.business.billing(), keys.business.profile()],
-  });
+  const choose = useApiMutation(
+    (plan: string) => retryOnce(() => changePlan(plan, yearly ? "Yearly" : "Monthly")),
+    { invalidates: [keys.business.billing(), keys.business.profile()] },
+  );
   const buyCredits = useApiMutation(
     (body: Parameters<typeof purchaseCredits>[0]) => retryOnce(() => purchaseCredits(body)),
     { invalidates: [keys.business.billing()] },
@@ -139,7 +140,11 @@ export function BillingView({ notify }: { notify: Notify }) {
               <p className="mt-5 text-lg font-extrabold">You are a founding merchant.</p>
               <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
                 {foundingOffer.headline}
-                {billing.foundingCreditMonths ? ` Your workspace has ${billing.foundingCreditMonths} months of Core credited.` : ""}
+                {billing.foundingCreditApplied
+                  ? ` Your ${billing.foundingCreditMonths ?? 3} free months of Core have been applied; the next invoice date on this page is when they end.`
+                  : billing.foundingCreditMonths
+                    ? ` Your workspace has ${billing.foundingCreditMonths} months of Core credited, applied the moment you move to Core.`
+                    : ""}
               </p>
             </>
           ) : (
@@ -169,7 +174,7 @@ export function BillingView({ notify }: { notify: Notify }) {
               <span className={`absolute top-1 size-4 rounded-full bg-white transition ${yearly ? "left-5" : "left-1"}`} />
             </button>
             <span className="text-xs font-bold">
-              {yearly ? "Yearly price, billed monthly for now" : "Monthly price"}
+              {yearly ? "Yearly price, billed twelve months at a time" : "Monthly price"}
             </span>
           </div>
         </div>

@@ -102,7 +102,9 @@ for (const file of files) {
       const relative = path.relative(root, file);
 
       if (tag === "button" || tag === "Button") {
-        const click = attributes.get("onClick");
+        // `onPress` is React Native's `onClick`: the mobile app's buttons
+        // are held to the same rule with the prop the platform gives them.
+        const click = attributes.get("onClick") ?? attributes.get("onPress");
         const type = attributes.get("type")?.initializer?.getText(source) ?? "";
         const submitsForm = /submit|reset/.test(type);
         if (!click && !submitsForm) {

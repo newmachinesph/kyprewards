@@ -88,19 +88,33 @@ every tier's feature. What is left:
    featured placement, the billing flags, credit purchase, payments and
    QR Ph on invoices. A preview badge that still shows here means a real
    404 worth investigating, not an unbuilt route.
-2. **Suki tier per customer** is not on `BusinessCustomer`; the customer
-   drawer says "Arrives with suki tiers" until the API carries it.
-3. **Notification switches** write new keys (`notifyRedemptions`,
-   `notifyDailySummary`, `notifyLowCredits`) through `PATCH /business/settings`;
-   the API accepts any key today, so nothing reads them yet.
+2. **Suki tier per customer** (closed 2026-09-10): `BusinessCustomer.tier`
+   is on the API and the customer drawer shows it, "No rung yet" when the
+   shop runs no ladder.
+3. **Notification switches** (closed 2026-09-10): the API reads all three.
+   `notifyRedemptions` sends the owner one line when a reward is committed
+   or a reservation cancelled, `notifyDailySummary` is the
+   `engagement.daily_summary` beat task at 21:00 Manila, `notifyLowCredits`
+   fires once as the SMS balance crosses under the last day's send count.
 4. **Merchant-side deletion** has no endpoint; the control files a support
    request in the Privacy category and says so.
 5. **`NewProgramDialog`** in `WorkspaceForms.tsx` still lists locked types as
    disabled options labelled "needs <Plan>"; the Program view's own picker
-   uses `PlanTag`. Unify when that dialog is next touched.
-6. **Branch analytics past the allowance.** The API silently truncates; the
-   view says "N branches not shown" from the location count, which is a
-   guess until the API names the withheld branches.
+   uses `PlanTag`. Unify when that dialog is next touched. All eight types
+   now open at Core, matching the pricing page.
+6. **Branch analytics past the allowance** (closed 2026-09-10): the read is a
+   page, and "N branches not shown" is `X-Total-Count` minus the rows
+   returned rather than a guess from the location list. Under it, every
+   withheld branch can be bought separately at the published ₱150 a month
+   (`POST /business/branch-reporting`, QR Ph, activated by the webhook, the
+   same path as featured placement) - opt-in per named branch, never
+   automatic, Core and up, 409 "opens with billing" until credit purchases
+   open.
+7. **Billing, ready and switched off.** The plan cards send the cycle
+   (`Yearly` bills twelve months at the yearly per-month price) and the
+   founding card says when the three free months of Core were applied.
+   Nothing is reachable until `billing.paid_tiers` is on; the API answers
+   409 and the card shows it.
 
 ## Rules specific to this app
 

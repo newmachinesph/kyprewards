@@ -348,7 +348,10 @@ describe("business workspace", () => {
       "segment shares should account for the whole tenant",
     );
     for (const member of staff) assert.ok(isCentavos(member.valueCentavos), "staff value");
-    for (const branch of branches) assert.ok(isCentavos(branch.valueCentavos), "branch value");
+    // A page: the API caps the rows at the plan's allowance and counts the
+    // rest in `X-Total-Count`, so the screen can say how many it withheld.
+    for (const branch of branches.items) assert.ok(isCentavos(branch.valueCentavos), "branch value");
+    assert.ok(branches.total >= branches.items.length, "branch total under the page");
 
     for (const campaign of campaigns) {
       assert.equal(campaign.basis, "attributed");
