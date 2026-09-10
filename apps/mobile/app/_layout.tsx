@@ -159,5 +159,29 @@ function SignedInEffects() {
     [router],
   );
 
+  // A session revoked while the app is open - signed out elsewhere, a lost
+  // phone reported, the server's own sweep - answers 401 on the next request.
+  // Seen on a device: every screen said "Session expired or revoked" with a
+  // Try again that could never work. Re-checking the session clears it and
+  // the auth layout shows sign-in; a 401 that was a fluke re-verifies fine.
+  useEffect(() => {
+    if (status !== "signed-in") return;
+    const onError = (failure: unknown) => {
+      if (failure instanceof ApiError && failure.status === 401) {
+        void useAuth.getState().refresh();
+      }
+    };
+    const unsubscribeQueries = queryClient.getQueryCache().subscribe((event) => {
+      if (event.type === "updated" && event.action.type === "error") onError(event.action.error);
+    });
+    const unsubscribeMutations = queryClient.getMutationCache().subscribe((event) => {
+      if (event.type === "updated" && event.action.type === "error") onError(event.action.error);
+    });
+    return () => {
+      unsubscribeQueries();
+      unsubscribeMutations();
+    };
+  }, [status, queryClient]);
+
   return null;
 }
