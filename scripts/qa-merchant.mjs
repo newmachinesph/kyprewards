@@ -176,6 +176,15 @@ await step("read customer feedback", async () => {
   await p.waitForTimeout(800);
 });
 
+await step("change the password back and forth", async () => {
+  await p.goto(`${BASE}/#settings`, { waitUntil: "networkidle" });
+  await p.waitForTimeout(1500);
+  const text = await p.locator("#main-content").innerText();
+  // An approved merchant lands with a mailed temporary password and had no
+  // way to replace it without going back to their email.
+  if (!/password/i.test(text)) throw new Error("no password card in settings");
+});
+
 await step("compose a campaign", async () => {
   await p.goto(`${BASE}/#campaigns`, { waitUntil: "networkidle" });
   await p.waitForTimeout(2000);

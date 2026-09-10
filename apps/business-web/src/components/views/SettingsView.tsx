@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import {
   ApiError,
+  changePassword,
+  useApiMutation,
   useApprovals,
   useBusinessProfile,
   useCustomFields,
@@ -16,7 +18,7 @@ import { longDate } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { pesoFromCentavos } from "@kypstamping/ui/format";
 import { signOut } from "@kypstamping/ui/auth";
-import { FileDown, LifeBuoy, PlugZap, ShieldCheck } from "lucide-react";
+import { FileDown, KeyRound, LifeBuoy, PlugZap, ShieldCheck } from "lucide-react";
 import {
   useAddCustomField,
   useDecideApproval,
@@ -284,6 +286,84 @@ const SUPPORT_CATEGORIES = [
   "Privacy",
   "Something else",
 ] as const;
+
+/**
+ * Change your own password.
+ *
+ * An approved shop's first password is generated and emailed to them, and
+ * there was nowhere in the app to replace it: the only route was "forgot
+ * password", which asks somebody already signed in to go and read their
+ * email. A temporary password that cannot be changed stays in an inbox
+ * forever.
+ */
+function PasswordCard({ notify }: { notify: Notify }) {
+  const change = useApiMutation(changePassword);
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  // The API's rule, stated where it is typed rather than after a refusal.
+  const tooShort = next.length > 0 && next.length < 10;
+  const ready = current.length > 0 && next.length >= 10 && !change.isPending;
+
+  return (
+    <article className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+      <div className="flex items-center gap-3">
+        <KeyRound size={19} className="text-[var(--accent-strong)]" />
+        <p className="text-sm font-extrabold">Change your password</p>
+      </div>
+      <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+        Ten characters or more. Every other signed-in device is signed out;
+        this one stays.
+      </p>
+      <form
+        className="mt-4 grid gap-3"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!ready) return;
+          change.mutate(
+            { currentPassword: current, password: next },
+            {
+              onSuccess: () => {
+                notify("Password changed. Other devices were signed out.");
+                setCurrent("");
+                setNext("");
+              },
+              onError: (failure) => notify(refusal(failure), "error"),
+            },
+          );
+        }}
+      >
+        <label className="grid gap-1.5 text-xs font-bold">
+          Current password
+          <input
+            type="password"
+            autoComplete="current-password"
+            value={current}
+            onChange={(event) => setCurrent(event.target.value)}
+            className={inputClass}
+          />
+        </label>
+        <label className="grid gap-1.5 text-xs font-bold">
+          New password
+          <input
+            type="password"
+            autoComplete="new-password"
+            value={next}
+            onChange={(event) => setNext(event.target.value)}
+            className={inputClass}
+          />
+        </label>
+        {tooShort && (
+          <p className="text-[11px] font-semibold text-[var(--danger)]">
+            Ten characters or more.
+          </p>
+        )}
+        <Button type="submit" disabled={!ready}>
+          {change.isPending ? "Changing…" : "Change password"}
+        </Button>
+      </form>
+    </article>
+  );
+}
 
 function SupportCard({ notify }: { notify: Notify }) {
   const raise = useRaiseSupportRequest();
@@ -579,6 +659,7 @@ export function SettingsView({ notify }: { notify: Notify }) {
           <MessagingPolicyCard notify={notify} />
           <CustomFieldsCard notify={notify} />
           <ApprovalsCard notify={notify} />
+          <PasswordCard notify={notify} />
           <SupportCard notify={notify} />
         </aside>
       </div>

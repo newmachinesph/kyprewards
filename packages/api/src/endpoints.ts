@@ -165,6 +165,11 @@ export const resetPassword = (token: string, password: string): Promise<void> =>
  * Ends every *other* session, not this one. A 422 names `currentPassword`
  * when it is wrong, so the message lands under the right field.
  */
+export const changePassword = (body: {
+  currentPassword: string;
+  password: string;
+}): Promise<void> => http("/auth/password/change", { method: "POST", body });
+
 /** Readable with the token alone: whoever holds it is who it is for. */
 export const getInvite = (token: string): Promise<InvitePreview> =>
   http(`/auth/invites/${encodeURIComponent(token)}`);
