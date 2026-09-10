@@ -609,7 +609,7 @@ export const updateBusinessProfile = (body: {
   category?: string;
   owner?: string;
   timezone?: string;
-  /** The merchant's own paragraph on their kyp.ph page. 2000 chars at the API. */
+  /** The merchant's own paragraph on their kyp.ph page. 160 chars at the API. */
   about?: string;
 }): Promise<BusinessProfile> => http("/business/profile", { method: "PATCH", body });
 

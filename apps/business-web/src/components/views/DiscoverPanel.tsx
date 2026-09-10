@@ -25,7 +25,7 @@ import { PaymentSheet } from "@/components/views/PaymentSheet";
 import { BlockedNote, inputClass, type Notify } from "@/components/views/shared";
 
 /** What the API accepts on `about`; the field stops there rather than 422ing. */
-const ABOUT_LIMIT = 2000;
+const ABOUT_LIMIT = 160;
 
 /**
  * The shop as Discover shows it, and the featured placement above the
