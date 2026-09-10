@@ -240,7 +240,9 @@ export default function Discover() {
                   params: { id: place.id },
                 })
               }
-              className={`flex-row items-center gap-4 rounded-2xl p-3.5 active:opacity-90 ${index === 0 ? "bg-accent" : "border border-line bg-surface"}`}
+              // Painted from the API's flag, never from a position in the list:
+              // the top row is only "featured" when a shop paid for it.
+              className={`flex-row items-center gap-4 rounded-2xl p-3.5 active:opacity-90 ${place.featured ? "bg-accent" : "border border-line bg-surface"}`}
             >
               <View
                 className="size-13 items-center justify-center overflow-hidden rounded-xl bg-surface"
@@ -271,7 +273,7 @@ export default function Discover() {
                   ) : null}
                 </View>
                 <Text
-                  className={`mt-1 font-sans text-[11px] ${index === 0 ? "text-ink/80" : "text-muted"}`}
+                  className={`mt-1 font-sans text-[11px] ${place.featured ? "text-ink/80" : "text-muted"}`}
                 >
                   {place.category}
                   {place.distanceMetres === null

@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import {
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -35,10 +34,12 @@ export function AuthShell({
 }) {
   const insets = useSafeAreaInsets();
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      className="flex-1 bg-accent"
-    >
+    // `padding` on both platforms. Android used to resize the window under a
+    // keyboard on its own, which is what leaving `behavior` unset relied on;
+    // with edge-to-edge (Android 15 and up, the SDK 57 default) it no longer
+    // does, and the field being typed into - and the button under it - sat
+    // behind the keyboard.
+    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-accent">
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top + 12 }}

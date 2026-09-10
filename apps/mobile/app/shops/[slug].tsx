@@ -1,6 +1,6 @@
-import { Image, Text, View } from "react-native";
+import { Image, Linking, Pressable, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Clock, MapPin, Store } from "lucide-react-native";
+import { Clock, MapPin, Navigation, Store } from "lucide-react-native";
 import { usePublicShop } from "@kypstamping/api";
 import { Screen } from "@/components/Screen";
 import { Button, EmptyState, Panel, QueryState } from "@/components/ui";
@@ -71,6 +71,21 @@ export default function Shop() {
                         {branch.address ||
                           `${branch.neighborhood}, ${branch.city}`}
                       </Text>
+                      {/* Only when the merchant pasted one. An address
+                          describes where a shop is; this walks somebody to
+                          the door. */}
+                      {branch.mapsLink ? (
+                        <Pressable
+                          accessibilityRole="link"
+                          onPress={() => Linking.openURL(branch.mapsLink)}
+                          className="mt-2 flex-row items-center gap-2 self-start rounded-xl border border-line px-3 py-2"
+                        >
+                          <Navigation size={14} color={colors.accent} />
+                          <Text className="font-sans-extrabold text-[12px] text-ink">
+                            Get directions
+                          </Text>
+                        </Pressable>
+                      ) : null}
                     </View>
                     <Text
                       className={`font-sans-bold text-[11px] ${branch.open ? "text-success" : "text-muted"}`}

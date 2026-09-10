@@ -264,6 +264,49 @@ debug keystore: fine for a phone over USB, not for a store; that is EAS
 Build's job. Built and installed on the Realme against production on
 2026-09-06.
 
+## Walked again on 2026-09-10 (emulator, local and production API)
+
+On the `Pixel_10a` AVD (Android 17, edge-to-edge) in Expo Go, against the
+local API through `adb reverse` and then against `api.kyp.ph` with no
+`.env`: sign-in, Home, Wallet, a card with its terms and the promo-code
+entry, the member code (tab and modal), Discover and a place, Profile and
+every screen under it, the inbox, activity, gifts, approvals, the scan
+permission path, the shop and join deep links (`exp://…/--/shops/<slug>`,
+`/--/join/<slug>`), the webview slot signed in by handoff. Against
+production the app booted, dropped the stale local session to the sign-in
+screen, and reached the verify screen after a code request; nothing past
+that is reachable without a real production account, and a shop that does
+not exist renders its empty state.
+
+Fixed from that walk:
+
+- **The keyboard covered the field being typed into and the button under
+  it.** `AuthShell` and `Screen` relied on Android resizing the window,
+  which edge-to-edge (Android 15 and up, the SDK 57 default) no longer
+  does. Both wrap their `ScrollView` in `KeyboardAvoidingView` with
+  `behavior="padding"` on every platform now.
+- **Parity with the wallet:** every wallet card carries the shop's own
+  `consent` flags and Joined businesses shows them per shop; the in-app
+  shop page (`shops/[slug]`) offers "Get directions" per branch like
+  kyp.ph does; Discover and Home paint a row as featured only from the
+  API's `featured` flag, never from its position in the list.
+- `expo` and `expo-router` at the SDK's expected patches; `expo-doctor`
+  21/21.
+
+Universal links need two files the web apps now serve from route handlers,
+each answering 404 until its environment variable is set on Vercel:
+`/.well-known/assetlinks.json` (`ANDROID_CERT_SHA256`, the release
+keystore's fingerprint, which EAS creates on the first Android build - read
+it back with `eas credentials -p android`) and
+`/.well-known/apple-app-site-association` (`APPLE_TEAM_ID`, once an Apple
+Developer account exists). A statement naming the wrong certificate is
+worse than none, so neither guesses.
+
+What a build needs, and where it stands: EAS project linked, the FCM V1
+service account key on EAS (`kyp-ph`), `google-services.json` in the tree
+and referenced by `app.json`, no Android keystore yet (the first
+`eas build -p android` creates it), no Apple credentials yet.
+
 ## Phases, revisited
 
 1. Backend seams - built, tests owed.

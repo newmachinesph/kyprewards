@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import {
+  KeyboardAvoidingView,
   Pressable,
   ScrollView,
   Text,
@@ -60,18 +61,23 @@ export function Screen({
           <View className="size-10" />
         </View>
       ) : null}
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{
-          paddingHorizontal: padded ? 20 : 0,
-          paddingTop: padded ? 20 : 0,
-          paddingBottom: bottom + insets.bottom,
-        }}
-        keyboardShouldPersistTaps="handled"
-        refreshControl={refreshControl}
-      >
-        {children}
-      </ScrollView>
+      {/* Same reason as AuthShell: with edge-to-edge Android no longer
+          resizes the window under the keyboard, so a search box or a promo
+          code field near the bottom was typed into blind. */}
+      <KeyboardAvoidingView behavior="padding" className="flex-1">
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            paddingHorizontal: padded ? 20 : 0,
+            paddingTop: padded ? 20 : 0,
+            paddingBottom: bottom + insets.bottom,
+          }}
+          keyboardShouldPersistTaps="handled"
+          refreshControl={refreshControl}
+        >
+          {children}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }

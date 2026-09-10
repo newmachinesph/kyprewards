@@ -13,11 +13,21 @@ export default function JoinedBusinesses() {
     (card, index, all) =>
       all.findIndex((other) => other.id === card.id) === index,
   );
-  const promos = [
+  // The account setting is the fallback for a card the API did not annotate;
+  // every card now carries the shop's own flags.
+  const accountPromos = [
     channels?.promoPush ? "push" : "",
     channels?.promoEmail ? "email" : "",
     channels?.promoSms ? "SMS" : "",
   ].filter(Boolean);
+  const promosFor = (card: (typeof shops)[number]) =>
+    card.consent
+      ? [
+          card.consent.push ? "push" : "",
+          card.consent.email ? "email" : "",
+          card.consent.sms ? "SMS" : "",
+        ].filter(Boolean)
+      : accountPromos;
 
   return (
     <Screen title="Joined businesses" back bottom={48}>
@@ -34,7 +44,9 @@ export default function JoinedBusinesses() {
         </Text>
       </Panel>
       <View className="mt-4 border-y border-line">
-        {shops.map((card, index) => (
+        {shops.map((card, index) => {
+          const promos = promosFor(card);
+          return (
           <View
             key={card.id}
             className={`flex-row items-center gap-3 py-4 ${index > 0 ? "border-t border-line" : ""}`}
@@ -49,15 +61,16 @@ export default function JoinedBusinesses() {
               <Text className="mt-0.5 font-sans text-[10px] leading-[15px] text-muted">
                 Your member code and name are shared for service messages.{" "}
                 {promos.length > 0
-                  ? `Promotions can reach you by ${promos.join(", ")}, from your account setting.`
-                  : "No promotional channel is on, so this shop cannot send promotions."}
+                  ? `This shop may send promotions by ${promos.join(", ")}. Turn a channel off under Notifications and every shop follows.`
+                  : "No promotional channel is on for this shop, so it can only send service messages."}
               </Text>
             </View>
             <Text className="rounded-full bg-success/10 px-2 py-0.5 font-sans-extrabold text-[9px] uppercase tracking-[0.8px] text-success">
               Active
             </Text>
           </View>
-        ))}
+          );
+        })}
         {shops.length === 0 ? (
           <Text className="py-4 font-sans text-[12px] text-muted">
             You have not joined a shop yet.
