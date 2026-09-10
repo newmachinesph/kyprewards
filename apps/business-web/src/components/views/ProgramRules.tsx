@@ -131,7 +131,15 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
     invalidates: [keys.business.programs()],
   });
   const edit = (patch: Partial<StampRules>) => setDraft({ ...rules, ...patch });
-  const customCooldown = !COOLDOWNS.some((option) => option.minutes === rules.cooldownMinutes);
+  // "Custom" was unclickable, and derived state was why. It read as "the
+  // current value is not one of the presets", so pressing it wrote
+  // `customMinutes` - which starts at the current value, a preset - and the
+  // value stayed a preset. The button never lit, the input never appeared,
+  // and the only way into custom was to already be in it. Pressing it is now
+  // a choice the component remembers.
+  const [customPicked, setCustomPicked] = useState(false);
+  const customCooldown =
+    customPicked || !COOLDOWNS.some((option) => option.minutes === rules.cooldownMinutes);
   const [customMinutes, setCustomMinutes] = useState(String(rules.cooldownMinutes));
   const [customCompletions, setCustomCompletions] = useState(String(rules.maxCompletions || 2));
 
@@ -179,7 +187,17 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
                     key={option.label}
                     type="button"
                     aria-pressed={on}
-                    onClick={() => edit({ cooldownMinutes: option.minutes === 0 ? Number(customMinutes) || 60 : option.minutes })}
+                    onClick={() => {
+                      if (option.minutes === 0) {
+                        setCustomPicked(true);
+                        // Whatever is in the box, or an hour to start from -
+                        // never 0, which would mean no cooldown at all.
+                        edit({ cooldownMinutes: Number(customMinutes) || 60 });
+                        return;
+                      }
+                      setCustomPicked(false);
+                      edit({ cooldownMinutes: option.minutes });
+                    }}
                     className={`min-h-10 rounded-full px-4 text-xs font-bold ${on ? "bg-[var(--ink)] text-[var(--paper)]" : "border border-[var(--line-strong)]"}`}
                   >
                     {option.label}
