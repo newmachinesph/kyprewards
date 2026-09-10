@@ -688,6 +688,50 @@
         "change": -4
       }
     ],
+    "feedback": [
+      {
+        "id": "fbk_501",
+        "customer": "Bea Villanueva",
+        "rating": 5,
+        "comment": "The ube pandesal was still warm at seven. Worth the walk.",
+        "daysAgo": 2
+      },
+      {
+        "id": "fbk_502",
+        "customer": "Paolo Reyes",
+        "rating": 4,
+        "comment": "Quick queue and friendly staff. Wish the ensaymada lasted past noon.",
+        "daysAgo": 3
+      },
+      {
+        "id": "fbk_503",
+        "customer": "Anton Garcia",
+        "rating": 2,
+        "comment": "Waited twenty minutes and the order was wrong. Nobody checked.",
+        "daysAgo": 5
+      },
+      {
+        "id": "fbk_504",
+        "customer": "Mika Tan",
+        "rating": 5,
+        "comment": "",
+        "daysAgo": 6
+      },
+      {
+        "id": "fbk_505",
+        "customer": "Camille Lim",
+        "rating": 3,
+        "comment": "Good bread, but the card was not stamped until I asked.",
+        "daysAgo": 8
+      },
+      {
+        "id": "fbk_506",
+        "customer": "Nina Flores",
+        "rating": null,
+        "comment": "",
+        "daysAgo": 1
+      }
+    ],
     "integrations": [
       {
         "id": "int_semaphore",

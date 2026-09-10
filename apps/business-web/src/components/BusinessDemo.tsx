@@ -27,6 +27,7 @@ const VIEWS: readonly BusinessView[] = [
   "redemptions",
   "campaigns",
   "message-log",
+  "feedback",
   "analytics",
   "integrations",
   "staff",

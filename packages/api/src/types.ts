@@ -810,6 +810,10 @@ export type Feedback = {
   status: "requested" | "answered";
   rating: number | null;
   comment: string;
+  /** Who said it. Filled in on the merchant's own list only - the answer
+   *  endpoint is unauthenticated and never names the customer. */
+  customerId: string;
+  customer: string;
   /** True only above the threshold: an unhappy customer is never routed to a
    *  public review form. */
   reviewInvited: boolean;

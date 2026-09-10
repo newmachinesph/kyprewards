@@ -21,6 +21,7 @@ import {
   LogOut,
   Menu,
   Megaphone,
+  MessageSquareQuote,
   MessageSquareText,
   PlugZap,
   QrCode,
@@ -55,6 +56,7 @@ export type BusinessView =
   | "redemptions"
   | "campaigns"
   | "message-log"
+  | "feedback"
   | "analytics"
   | "integrations"
   | "staff"
@@ -70,6 +72,7 @@ const navPlan = {
   "suki-tiers": planFor("Suki tiers"),
   missions: planFor("Missions"),
   gifts: planFor("Send a reward as a gift"),
+  feedback: planFor("Private feedback and review requests"),
 } as const;
 
 const navigation = [
@@ -164,6 +167,12 @@ const navigation = [
         view: "message-log" as BusinessView,
       },
       {
+        label: "Feedback",
+        icon: MessageSquareQuote,
+        view: "feedback" as BusinessView,
+        plan: navPlan.feedback,
+      },
+      {
         label: "Analytics",
         icon: BarChart3,
         view: "analytics" as BusinessView,
@@ -190,6 +199,7 @@ const accountItems = [
 const OWNER_ONLY: ReadonlySet<BusinessView> = new Set<BusinessView>([
   "analytics",
   "campaigns",
+  "feedback",
   "integrations",
   "settings",
   "billing",

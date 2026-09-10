@@ -928,7 +928,9 @@ export const claimReferral = (body: { code: string; customerId: string }): Promi
 export const qualifyReferral = (referralId: string): Promise<Referral> =>
   http(`/referrals/${referralId}/qualify`, { method: "POST" });
 
-export const getFeedback = (): Promise<Feedback[]> => http("/feedback");
+// ponytail: 200 is the API's cap, and the tab reads them all in one page.
+// A merchant past 200 answers needs the cursor; nobody is yet.
+export const getFeedback = (): Promise<Feedback[]> => http("/feedback?limit=200");
 
 export const requestFeedback = (body: {
   customerId: string;

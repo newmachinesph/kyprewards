@@ -109,7 +109,12 @@ await step("undo that stamp", async () => {
 });
 
 await step("add a walk-in", async () => {
+  // Reloaded for the same reason the card step is: the stamp before this one
+  // left a customer on the scan screen, the search field is replaced while
+  // one is loaded, and a hash change does not clear it. The screen has a
+  // Cancel for a cashier; the harness starts clean instead.
   await p.goto(`${BASE}/#scan`, { waitUntil: "networkidle" });
+  await p.reload({ waitUntil: "networkidle" });
   await p.getByPlaceholder("0917 555 0182").fill(`0917555${String(Date.now()).slice(-4)}`);
   await p.getByRole("button", { name: "Find customer" }).click();
   await p.waitForTimeout(2000);
@@ -158,6 +163,17 @@ await step("refund a settled sale", async () => {
 await step("read analytics", async () => {
   await p.goto(`${BASE}/#analytics`, { waitUntil: "networkidle" });
   await p.waitForTimeout(3000);
+});
+
+await step("read customer feedback", async () => {
+  await p.goto(`${BASE}/#feedback`, { waitUntil: "networkidle" });
+  await p.waitForTimeout(2000);
+  const text = await p.locator("#main-content").innerText();
+  // The seeded shop has answers; a screen that renders the empty state here
+  // means the list never arrived.
+  if (!/answered/i.test(text)) throw new Error("no feedback list");
+  await p.getByRole("button", { name: "Unhappy" }).click();
+  await p.waitForTimeout(800);
 });
 
 await step("compose a campaign", async () => {

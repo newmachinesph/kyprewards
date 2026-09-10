@@ -139,6 +139,7 @@ import {
 import { creditBalanceOf } from "@/components/views/StoreCreditView";
 import { DiscoverPanel } from "@/components/views/DiscoverPanel";
 import { AnalyticsView } from "@/components/views/AnalyticsView";
+import { FeedbackView } from "@/components/views/FeedbackView";
 import { BillingView } from "@/components/views/BillingView";
 import { BonusWindowsView } from "@/components/views/BonusWindowsView";
 import { CustomersView } from "@/components/views/CustomersView";
@@ -3238,6 +3239,7 @@ export function BusinessViewContent({
     redemptions: <RedemptionsView notify={notify} />,
     campaigns: <CampaignsView notify={notify} />,
     "message-log": <MessageLogView notify={notify} />,
+    feedback: <FeedbackView />,
     analytics: <AnalyticsView />,
     integrations: <IntegrationsView notify={notify} onNavigate={onNavigate} />,
     staff: <StaffView notify={notify} />,
