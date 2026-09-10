@@ -1,8 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import {
   EMPTY_BUSINESS_METRICS,
+  keys,
+  purchaseBranchReporting,
+  useApiMutation,
+  useBilling,
   useBranchPerformance,
+  useBranchReporting,
   useBusinessCustomers,
   useBusinessMetrics,
   useCampaignAttribution,
@@ -14,11 +20,13 @@ import {
   useSegments,
   useStaffPerformance,
   useTimeToSecondVisit,
+  type QrPayment,
 } from "@kypstamping/api";
-import { Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { pesoCompactFromCentavos, pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
+import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { longDate, pesoCompactFromCentavos, pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
-import { branchAllowance, planFor, usePlanGate, type Gate } from "@/lib/plan";
+import { branchAllowance, planFor, refusal, retryOnce, usePlanGate, type Gate } from "@/lib/plan";
+import { PaymentSheet } from "@/components/views/PaymentSheet";
 
 function Tag({ label, gate }: { label: string; gate: Gate }) {
   const needed = planFor(label);
@@ -232,12 +240,26 @@ function StaffPerformanceTable({ gate }: { gate: Gate }) {
 function BranchPerformanceTable({ gate }: { gate: Gate }) {
   const { data: page, isPending, error, refetch } = useBranchPerformance();
   const { data: locations = [] } = useLocations();
+  const { data: reporting } = useBranchReporting();
+  const { data: billing } = useBilling();
+  const [sheet, setSheet] = useState<{ intent: QrPayment; branch: string } | null>(null);
+  const [failure, setFailure] = useState("");
+  const buy = useApiMutation((branchId: string) => retryOnce(() => purchaseBranchReporting(branchId)), {
+    invalidates: [keys.business.analytics.branchReporting(), keys.business.analytics.branches(), keys.business.billing()],
+  });
   const allowance = branchAllowance(gate.plan);
   const branches = page?.items ?? [];
   // The API says how many branches it counted and how many it reported;
   // the difference is what the plan withheld, not a guess from the
   // location list (which also counts branches with no visits at all).
   const hidden = page ? Math.max(0, page.total - branches.length) : 0;
+  // The branches the plan is not reporting: every location the API did not
+  // return a row for. Each can be bought separately at the published rate;
+  // the plan's own allowance is never charged for.
+  const reported = new Set(branches.map((branch) => branch.branchId));
+  const withheld = allowance ? locations.filter((location) => !reported.has(location.id)) : [];
+  const extraFor = (branchId: string) => reporting?.extras.find((extra) => extra.branchId === branchId);
+  const buyBlocked = billing?.creditPurchasesOpen === true ? null : "Opens with billing";
   return (
     <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
       <div className="flex items-center justify-between gap-2">
@@ -274,10 +296,70 @@ function BranchPerformanceTable({ gate }: { gate: Gate }) {
         )}
         {hidden > 0 && branches.length > 0 && (
           <p className="mt-3 text-xs font-semibold text-[var(--muted-strong)]">
-            {hidden} branch{hidden === 1 ? "" : "es"} not shown: past the allowance, the API reports the busiest. Extra branch reporting is an add-on.
+            {hidden} branch{hidden === 1 ? "" : "es"} not shown: past the allowance, the API reports the busiest.
           </p>
         )}
+        {withheld.length > 0 && reporting && (
+          <div className="mt-4 rounded-xl border border-[var(--line)] p-4">
+            <p className="text-xs font-extrabold">
+              Extra branch reporting · {pesoFromCentavos(reporting.priceCentavos)} a branch a month
+            </p>
+            <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
+              Separate visits, members and revenue for a branch beyond your plan&apos;s allowance. Branches themselves are never charged for; only the ones you pick here are.
+            </p>
+            <ul className="mt-3 divide-y divide-[var(--line)]">
+              {withheld.map((location) => {
+                const extra = extraFor(location.id);
+                return (
+                  <li key={location.id} className="flex items-center justify-between gap-3 py-2.5">
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-extrabold">{location.name}</span>
+                      <span className="text-[11px] text-[var(--muted-strong)]">
+                        {extra?.status === "active"
+                          ? `Reported · renews ${extra.renewsOn ? longDate(extra.renewsOn) : "monthly"}`
+                          : extra?.status === "pending"
+                            ? "Awaiting payment"
+                            : "Not reported separately"}
+                      </span>
+                    </span>
+                    {extra?.status === "active" ? (
+                      <Pill tone="success">Reported</Pill>
+                    ) : (
+                      <Button
+                        tone="quiet"
+                        disabled={Boolean(buyBlocked) || buy.isPending}
+                        title={buyBlocked ?? undefined}
+                        onClick={() => {
+                          setFailure("");
+                          buy.mutate(location.id, {
+                            onSuccess: (intent) => setSheet({ intent, branch: location.name }),
+                            onError: (error) => setFailure(refusal(error)),
+                          });
+                        }}
+                      >
+                        {extra?.status === "pending" ? "Show QR again" : "Add reporting"}
+                      </Button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            {buyBlocked && (
+              <p className="mt-2 text-[11px] font-semibold text-[var(--muted-strong)]">{buyBlocked}.</p>
+            )}
+            {failure && (
+              <p role="alert" className="mt-2 text-[11px] font-semibold text-[var(--danger)]">{failure}</p>
+            )}
+          </div>
+        )}
       </QueryBoundary>
+      {sheet && (
+        <PaymentSheet
+          intent={sheet.intent}
+          title={`Extra branch reporting · ${sheet.branch}`}
+          onClose={() => setSheet(null)}
+        />
+      )}
     </section>
   );
 }

@@ -1300,6 +1300,7 @@ import type {
   CloseBehaviour,
   CreditBundle,
   DiscoverFacet,
+  BranchReporting,
   FeaturedPlacement,
   GiftTransfer,
   Mission,
@@ -1422,6 +1423,15 @@ export const getFeaturedPlacement = (): Promise<FeaturedPlacement> => http("/bus
 /** Buys the ₱299 add-on on Launch or Core; answers with the QR to pay. */
 export const purchaseFeaturedPlacement = (): Promise<QrPayment> =>
   http("/business/featured", { method: "POST" });
+
+export const getBranchReporting = (): Promise<BranchReporting> =>
+  http("/business/branch-reporting");
+
+/** Buy separate reporting for one branch beyond the plan's allowance. Paid
+ *  by QR Ph and activated by the webhook; 409 while credit purchases are
+ *  closed, 402 on Launch, 404 for a branch that is not the shop's. */
+export const purchaseBranchReporting = (branchId: string): Promise<QrPayment> =>
+  http("/business/branch-reporting", { method: "POST", body: { branchId } });
 
 /* The public marketplace */
 

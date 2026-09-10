@@ -364,6 +364,15 @@ export const useStaffPerformance = (
     ...options,
   });
 
+export const useBranchReporting = (
+  options?: Options<BranchReporting>,
+): Query<BranchReporting> =>
+  useQuery({
+    queryKey: keys.business.analytics.branchReporting(),
+    queryFn: api.getBranchReporting,
+    ...options,
+  });
+
 export const useBranchPerformance = (
   options?: Options<Page<BranchPerformance>>,
 ): Query<Page<BranchPerformance>> =>
@@ -600,6 +609,7 @@ import type {
   CategoryRate,
   CloseBehaviour,
   DiscoverFacet,
+  BranchReporting,
   FeaturedPlacement,
   GiftTransfer,
   Mission,

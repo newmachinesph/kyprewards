@@ -1306,7 +1306,26 @@ export type AddOnSubscription = {
   status: "active" | "cancelled" | "pending";
   priceCentavos: number;
   renewsOn: string | null;
+  /** Which branch an "Extra branch reporting" add-on reports on. */
+  branchId?: string | null;
   preview?: boolean;
+};
+
+/** One branch bought beyond the plan's reporting allowance. */
+export type BranchReportingExtra = {
+  id: string;
+  branchId: string;
+  branch: string;
+  status: "active" | "cancelled" | "pending";
+  renewsOn: string | null;
+};
+
+/** Extra branch reporting, ₱150 a branch a month on Core and up. */
+export type BranchReporting = {
+  priceCentavos: number;
+  /** How many branches the plan reports separately; 0 on Launch. */
+  allowance: number;
+  extras: BranchReportingExtra[];
 };
 
 export type PushState = {

@@ -70,6 +70,7 @@ export const keys = {
       segments: () => [...keys.business.analytics.all(), "segments"] as const,
       staff: () => [...keys.business.analytics.all(), "staff"] as const,
       branches: () => [...keys.business.analytics.all(), "branches"] as const,
+      branchReporting: () => [...keys.business.analytics.all(), "branch-reporting"] as const,
       campaigns: () => [...keys.business.analytics.all(), "campaigns"] as const,
       timeToSecondVisit: () =>
         [...keys.business.analytics.all(), "time-to-second-visit"] as const,
