@@ -81,6 +81,43 @@ function reseed() {
     ],
     { stdio: "ignore" },
   );
+  // Throttles are real now: failed sign-ins and second-factor guesses are
+  // saved, and sign-in writes are counted per address. Suites that try wrong
+  // codes on purpose would otherwise lock the admin out of the next suite.
+  // Local only - this deletes throttle state, never product data.
+  execFileSync(
+    "docker",
+    [
+      "compose",
+      "-f",
+      join(root, "..", "backend", "compose.backend.yaml"),
+      "exec",
+      "-T",
+      "api",
+      "python",
+      "-c",
+      [
+        "import asyncio",
+        "from sqlalchemy import delete",
+        "from redis.asyncio import Redis",
+        "from app.config import settings",
+        "from app.db import SessionFactory",
+        "from app.models import LoginAttempt, OtpCode",
+        "async def main():",
+        "    async with SessionFactory() as db:",
+        "        await db.execute(delete(LoginAttempt))",
+        "        await db.execute(delete(OtpCode))",
+        "        await db.commit()",
+        "    redis = Redis.from_url(settings.cache_url)",
+        "    keys = [key async for key in redis.scan_iter('rl:*')]",
+        "    if keys:",
+        "        await redis.delete(*keys)",
+        "    await redis.aclose()",
+        "asyncio.run(main())",
+      ].join(String.fromCharCode(10)),
+    ],
+    { stdio: "ignore" },
+  );
 }
 
 const asked = process.argv.slice(2);
