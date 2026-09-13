@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { useBusinessProfile, useWorkspaces } from "@kypstamping/api";
+import { endSupportAccess, useApiMutation, useBusinessProfile, useWorkspaces } from "@kypstamping/api";
 import { BrandMark } from "@kypstamping/ui";
 import { signOut } from "@kypstamping/ui/auth";
+import { timeOfDay } from "@kypstamping/ui/format";
 import { useDemoState } from "@/components/DemoState";
+import { useSessionInfo } from "@/components/views/shared";
 import { planFor, usePlanGate } from "@/lib/plan";
 import {
   BarChart3,
@@ -196,6 +198,44 @@ const accountItems = [
  * front-line role invites somebody to go looking, and the pages that do
  * render leak the shape of the business: plan, renewal date, the roster.
  */
+/** Where a platform user goes back to once they end their support access. */
+const ADMIN_APP_URL = process.env.NEXT_PUBLIC_ADMIN_APP_URL ?? "https://admin.kypstamping.ph";
+
+/**
+ * The strip a platform user sees the whole time they are inside a shop on
+ * support access: whose workspace, why, until when, and the way out. The
+ * owner was emailed the same three facts when it opened.
+ */
+function SupportBanner() {
+  const { data: session } = useSessionInfo();
+  const end = useApiMutation((grantId: string) => endSupportAccess(grantId), {
+    onSuccess: () => window.location.replace(`${ADMIN_APP_URL}/#businesses`),
+  });
+  const live = session?.support;
+  if (!live) return null;
+  return (
+    <div
+      role="status"
+      className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-[var(--accent)] bg-[rgb(232_163_61/16%)] px-4 py-2 text-xs"
+    >
+      <span className="font-extrabold">Support access · {live.merchantName}</span>
+      <span className="min-w-0 flex-1 truncate text-[var(--muted-strong)]" title={live.reason}>
+        {live.reason}
+      </span>
+      <span className="font-bold">Until {timeOfDay(live.expiresAt)}</span>
+      <button
+        type="button"
+        disabled={end.isPending}
+        onClick={() => end.mutate(live.id)}
+        className="min-h-8 rounded-lg border border-[var(--line-strong)] bg-[var(--paper)] px-3 font-extrabold disabled:opacity-45"
+      >
+        {end.isPending ? "Ending…" : "End access"}
+      </button>
+      {end.error && <span className="text-[var(--danger)]">{end.error.message}</span>}
+    </div>
+  );
+}
+
 const OWNER_ONLY: ReadonlySet<BusinessView> = new Set<BusinessView>([
   "analytics",
   "campaigns",
@@ -397,6 +437,7 @@ export function BusinessShell({
       </aside>
 
       <div className="min-w-0">
+        <SupportBanner />
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/92%)] px-4 backdrop-blur-xl md:hidden">
           <button
             type="button"

@@ -36,6 +36,7 @@ import {
   resetPassword,
   selectWorkspace,
   getWorkspaces,
+  useSession,
   verifyMfa,
   verifyOtp,
   type InvitePreview,
@@ -352,34 +353,28 @@ export function SessionGate({
   role: DemoAuthRole;
   children: ReactNode;
 }) {
-  const [ready, setReady] = useState(false);
+  // Through the query cache rather than a bare fetch: the answer is the same
+  // row every child reads through `useSession()`, so who is signed in - and
+  // which platform role they hold - is known on their first render, and
+  // nothing below asks the API for a view it is not allowed.
+  const { data: session, error } = useSession();
+  // A platform user on live support access is the one visitor the business
+  // workspace admits under another kind: the API named the grant, and it is
+  // what every call inside will be checked against.
+  const onSupport =
+    role === "business" && session?.kind === "admin" && !!session.support;
+  const ready = !!session && !session.mfaPending && (session.kind === role || onSupport);
 
   useEffect(() => {
-    let cancelled = false;
-
-    getSession()
-      .then((session) => {
-        if (cancelled) return;
-        if (session.kind !== role) {
-          // A customer holding a session must not land in the merchant
-          // workspace, even though the API would refuse every call anyway.
-          window.location.replace("/login");
-          return;
-        }
-        if (session.mfaPending) {
-          window.location.replace("/verify");
-          return;
-        }
-        setReady(true);
-      })
-      .catch(() => {
-        if (!cancelled) window.location.replace("/login");
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [role]);
+    if (error) {
+      window.location.replace("/login");
+      return;
+    }
+    if (!session || ready) return;
+    // A customer holding a session must not land in the merchant workspace,
+    // even though the API would refuse every call anyway.
+    window.location.replace(session.mfaPending ? "/verify" : "/login");
+  }, [session, error, ready]);
 
   if (!ready) {
     return (

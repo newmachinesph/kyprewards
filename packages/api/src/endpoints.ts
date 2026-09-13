@@ -62,6 +62,7 @@ import type {
   OpeningHours,
   PlanEconomics,
   PlatformMetrics,
+  PlatformRole,
   PrivacyMetrics,
   Program,
   ProgramTier,
@@ -519,6 +520,31 @@ export const moveTenantPlan = (
     method: "PATCH",
     body: cycle ? { plan, cycle } : { plan },
   });
+
+/** Open scoped support access on a business and step this session into it:
+ *  the business portal shares the cookie and opens straight into the shop.
+ *  404 for an account manager on a business not assigned to them. */
+export const openSupportAccess = (
+  businessId: string,
+  body: { reason: string; minutes: 30 | 60 | 120 },
+): Promise<Tenant> =>
+  http(`/admin/tenants/${businessId}/support-access`, { method: "POST", body });
+
+export const endSupportAccess = (grantId: string): Promise<Tenant> =>
+  http(`/admin/support-access/${grantId}/end`, { method: "POST" });
+
+/** Replaces the set of account managers who may open support access here. */
+export const setTenantManagers = (businessId: string, userIds: string[]): Promise<Tenant> =>
+  http(`/admin/tenants/${businessId}/managers`, { method: "PUT", body: { userIds } });
+
+/** The temporary password is emailed; the TOTP secret comes back once, here,
+ *  for the administrator to hand over. */
+export const createAdministrator = (body: {
+  email: string;
+  name: string;
+  role: PlatformRole;
+}): Promise<Administrator & { totpSecret: string; otpauthUri: string }> =>
+  http("/admin/administrators", { method: "POST", body });
 
 export const getPrivacyMetrics = (): Promise<PrivacyMetrics> => http("/admin/privacy");
 

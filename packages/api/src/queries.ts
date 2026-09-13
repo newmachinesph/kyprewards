@@ -82,7 +82,8 @@ import type {
   VisitTrend,
   WebhookEndpoint,
 } from "./endpoints";
-import type { Workspace } from "./types";
+import type { SessionInfo, Workspace } from "./types";
+import type { ToggleResult } from "./endpoints";
 
 /**
  * What a caller may override per hook: everything except the two things that
@@ -110,6 +111,15 @@ export const useBusinessProfile = (options?: Options<BusinessProfile>): Query<Bu
 /** The workspaces this session can open, each with the role it holds there. */
 export const useWorkspaces = (options?: Options<Workspace[]>): Query<Workspace[]> =>
   useQuery({ queryKey: keys.session.workspaces(), queryFn: api.getWorkspaces, ...options });
+
+/** Who is signed in, cached for a minute: the gate already asked on boot. */
+export const useSession = (options?: Options<SessionInfo>): Query<SessionInfo> =>
+  useQuery({
+    queryKey: keys.session.current(),
+    queryFn: api.getSession,
+    staleTime: 60_000,
+    ...options,
+  });
 
 export const useBranding = (options?: Options<Branding>): Query<Branding> =>
   useQuery({ queryKey: keys.business.branding(), queryFn: api.getBranding, ...options });
@@ -566,8 +576,8 @@ export const useProviderPolicy = () =>
   useQuery({ queryKey: keys.admin.providerPolicy(), queryFn: api.getProviderPolicy });
 
 /** The network-wide switches, as the database has them. */
-export const usePlatformFlags = () =>
-  useQuery({ queryKey: keys.admin.flags(), queryFn: api.getPlatformFlags });
+export const usePlatformFlags = (options?: Options<ToggleResult[]>): Query<ToggleResult[]> =>
+  useQuery({ queryKey: keys.admin.flags(), queryFn: api.getPlatformFlags, ...options });
 
 export const useAdministrators = () =>
   useQuery({ queryKey: keys.admin.administrators(), queryFn: api.getAdministrators });

@@ -86,6 +86,18 @@ export type CredentialStatus = "Active" | "Revoked";
 
 export type AccountKind = "business" | "customer" | "admin";
 
+/** What an admin-kind user is: runs the platform, or manages assigned shops. */
+export type PlatformRole = "admin" | "account_manager";
+
+/** A live support grant: scoped, time-limited, reason-bound, audited. */
+export type SupportAccess = {
+  id: string;
+  merchantId: string;
+  merchantName: string;
+  reason: string;
+  expiresAt: string;
+};
+
 export type SessionInfo = {
   kind: AccountKind;
   /** Staff and admin users have one; a customer account has accountId. */
@@ -100,6 +112,11 @@ export type SessionInfo = {
   merchantId: string | null;
   /** The user belongs to more than one merchant and has picked none. */
   needsWorkspace: boolean;
+  /** Admin kinds only; null for everyone else. */
+  platformRole: PlatformRole | null;
+  /** Set while an admin kind is inside a business on a live grant. The
+   *  business portal's gate admits them on it and its banner shows it. */
+  support: SupportAccess | null;
 };
 
 export type Workspace = {
@@ -535,6 +552,10 @@ export type Tenant = {
   joinedOn: string;
   founding?: boolean;
   featured?: boolean;
+  /** Account managers assigned to this business, by user id. */
+  managerIds?: string[];
+  /** The caller's own live support grant here, if any. */
+  support?: SupportAccess | null;
 };
 
 /** Counts only. No administrator reads a customer's record from these. */
@@ -962,6 +983,8 @@ export type Administrator = {
   id: string;
   name: string;
   email: string;
+  /** Null for a row provisioned before roles existed; it can do nothing. */
+  role: PlatformRole | null;
   isActive: boolean;
   mfaEnabled: boolean;
   activeSessions: number;

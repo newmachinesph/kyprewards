@@ -6,6 +6,7 @@ import { signOut } from "@kypstamping/ui/auth";
 import { relativeTime } from "@kypstamping/ui/format";
 import {
   useAuditLedger,
+  useSession,
   useSupportQueue,
   useTenants,
 } from "@kypstamping/api";
@@ -94,6 +95,13 @@ const nav: NavItem[] = navGroups.flatMap((group) => group.items);
  */
 export const ADMIN_VIEWS: readonly AdminView[] = nav.map((item) => item.view);
 
+/**
+ * The one view an account manager has. Everything else on the console is
+ * network-wide and the API answers it 403; a nav that listed those would be
+ * a row of dead doors.
+ */
+export const MANAGER_VIEWS: readonly AdminView[] = ["businesses"];
+
 export function AdminShell({
   children,
   activeView,
@@ -103,9 +111,11 @@ export function AdminShell({
   activeView: AdminView;
   onNavigate: (view: AdminView) => void;
 }) {
+  const { data: session } = useSession();
+  const manager = session?.platformRole === "account_manager";
   const { data: tenants = [] } = useTenants();
-  const { data: support = [] } = useSupportQueue();
-  const { data: audit = [] } = useAuditLedger();
+  const { data: support = [] } = useSupportQueue({ enabled: !manager });
+  const { data: audit = [] } = useAuditLedger({ enabled: !manager });
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [accountOpen, setAccountOpen] = useState(false);
@@ -206,7 +216,23 @@ export function AdminShell({
       ].slice(0, 8)
     : [];
 
-  const navContent = navGroups.map((group) => (
+  const visibleGroups = manager
+    ? navGroups
+        .map((group) => ({
+          ...group,
+          items: group.items.filter((item) => MANAGER_VIEWS.includes(item.view)),
+        }))
+        .filter((group) => group.items.length > 0)
+    : navGroups;
+  const roleLabel = manager ? "Account Manager" : "Platform Administrator";
+  const initials = (session?.name ?? "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? "")
+    .join("") || "AD";
+
+  const navContent = visibleGroups.map((group) => (
     <div key={group.group} className="space-y-1">
       <p className="px-3 pb-1 pt-3 text-[10px] font-extrabold uppercase tracking-[0.14em] text-white/55 first:pt-0">
         {group.group}
@@ -261,7 +287,7 @@ export function AdminShell({
           <div className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/50">
             <ShieldCheck size={14} /> Secure session
           </div>
-          <p className="mt-3 text-sm font-bold">Platform Administrator</p>
+          <p className="mt-3 text-sm font-bold">{roleLabel}</p>
           <p className="mt-1 text-xs leading-relaxed text-white/50">
             Privileged actions will be recorded in the audit ledger.
           </p>
@@ -354,15 +380,17 @@ export function AdminShell({
           </div>
           <div className="ml-auto flex items-center gap-2">
 
-            <button
-              type="button"
-              aria-label="Notifications"
-              onClick={() => navigate("support")}
-              className="relative grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] transition hover:bg-[var(--surface-2)]"
-            >
-              <Bell size={17} />
-              <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--accent)]" />
-            </button>
+            {!manager && (
+              <button
+                type="button"
+                aria-label="Notifications"
+                onClick={() => navigate("support")}
+                className="relative grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] transition hover:bg-[var(--surface-2)]"
+              >
+                <Bell size={17} />
+                <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--accent)]" />
+              </button>
+            )}
             <div className="relative" ref={accountRef}>
               <button
                 type="button"
@@ -374,18 +402,22 @@ export function AdminShell({
                 className="flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] p-1 pr-3"
               >
                 <span className="grid size-8 place-items-center rounded-full bg-[var(--ink)] text-[10px] font-extrabold text-[var(--paper)]">
-                  AD
+                  {initials}
                 </span>
                 <ChevronDown size={14} className={`transition ${accountOpen ? "rotate-180" : ""}`} />
               </button>
               {accountOpen && (
                 <div id="admin-account-menu" className="absolute right-0 top-[calc(100%+8px)] z-50 w-64 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-2xl">
                   <div className="border-b border-[var(--line)] px-3 pb-3 pt-2">
-                    <p className="text-xs font-extrabold">Platform Administrator</p>
-                    <p className="mt-1 text-[10px] text-[var(--muted)]">admin@kypstamping.ph</p>
+                    <p className="text-xs font-extrabold">{session?.name || roleLabel}</p>
+                    <p className="mt-1 text-[10px] text-[var(--muted)]">{session?.email ?? roleLabel}</p>
                   </div>
-                  <button type="button" onClick={() => navigate("settings")} className="mt-1 flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><Settings2 size={15} /> Administrator settings</button>
-                  <button type="button" onClick={() => navigate("audit")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><FileClock size={15} /> My audit activity</button>
+                  {!manager && (
+                    <>
+                      <button type="button" onClick={() => navigate("settings")} className="mt-1 flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><Settings2 size={15} /> Administrator settings</button>
+                      <button type="button" onClick={() => navigate("audit")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]"><FileClock size={15} /> My audit activity</button>
+                    </>
+                  )}
                   <button type="button" onClick={() => signOut()} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold text-[var(--danger)] hover:bg-[rgb(178_59_43/8%)]"><LogOut size={15} /> Sign out securely</button>
                 </div>
               )}

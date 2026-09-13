@@ -17,6 +17,7 @@ import {
   usePlatformFlags,
   useQueryClient,
   useRecoveryQueue,
+  useSession,
   useSupportQueue,
 } from "@kypstamping/api";
 import type {
@@ -81,9 +82,13 @@ type AdminState = {
 const AdminStateContext = createContext<AdminState | null>(null);
 
 export function AdminStateProvider({ children }: { children: ReactNode }) {
+  // An account manager's console is the businesses assigned to them; the
+  // network-wide reads below answer them 403, so they are not asked for.
+  const { data: session } = useSession();
+  const network = { enabled: session?.platformRole !== "account_manager" };
   // The queue is the API's; triage edits are layered over it rather than
   // seeding a copy that stops agreeing with the server on the first refetch.
-  const { data: queue = [] } = useSupportQueue();
+  const { data: queue = [] } = useSupportQueue(network);
   const [triage, setTriage] = useState<Record<string, Partial<TriagedTicket>>>({});
   const tickets = useMemo<TriagedTicket[]>(
     () => queue.map((ticket) => ({ ...ticket, ...triage[ticket.id] })),
@@ -93,12 +98,12 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
   // The switches are the database's, not four hardcoded `true`s: a flag
   // disabled network-wide used to render as on, and a reload put an admin's
   // own change back the way it was.
-  const { data: platformFlags = [] } = usePlatformFlags();
+  const { data: platformFlags = [] } = usePlatformFlags(network);
   const flags = useMemo(
     () => Object.fromEntries(platformFlags.map((flag) => [flag.id, flag.enabled])),
     [platformFlags],
   );
-  const { data: pendingRecovery = [] } = useRecoveryQueue();
+  const { data: pendingRecovery = [] } = useRecoveryQueue(network);
   const [replayed, setReplayed] = useState<string[]>([]);
   const recoveryQueue = useMemo<RecoveryItem[]>(
     () => pendingRecovery.filter((item) => !replayed.includes(item.id)),

@@ -42,6 +42,7 @@ import {
   useChannelEconomics,
   usePlanEconomics,
   ApiError,
+  createAdministrator,
   keys,
   downloadPlatformExport,
   PREVIEW_WRITE_REASON,
@@ -57,6 +58,7 @@ import {
   EMPTY_PLATFORM_METRICS,
   useServices,
   useTenants,
+  type PlatformRole,
   type ProviderPolicy,
   type ServiceHealth,
 } from "@kypstamping/api";
@@ -1450,6 +1452,103 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
   );
 }
 
+/**
+ * Add an administrator or an account manager. The temporary password goes
+ * to them by email; the authenticator secret is shown here once, for the
+ * person adding them to hand over - the same split `create_admin.py` makes.
+ */
+function AddAdministratorForm() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<PlatformRole>("account_manager");
+  const [issued, setIssued] = useState<{ email: string; secret: string; uri: string } | null>(null);
+  const [refused, setRefused] = useState<string | null>(null);
+  const create = useApiMutation(
+    () => createAdministrator({ name: name.trim(), email: email.trim(), role }),
+    {
+      invalidates: [keys.admin.administrators(), keys.admin.audit()],
+      onSuccess: (saved) => {
+        setIssued({ email: saved.email, secret: saved.totpSecret, uri: saved.otpauthUri });
+        setRefused(null);
+        setName("");
+        setEmail("");
+      },
+      onError: (failure) => setRefused(failure.message),
+    },
+  );
+  const field =
+    "min-h-10 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]";
+  return (
+    <form
+      className="mt-5 grid gap-2 border-t border-[var(--line)] pt-5"
+      onSubmit={(event) => {
+        event.preventDefault();
+        create.mutate();
+      }}
+    >
+      <p className="text-xs font-extrabold">Add someone</p>
+      <input
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        required
+        maxLength={200}
+        aria-label="Name"
+        placeholder="Name"
+        className={field}
+      />
+      <input
+        type="email"
+        value={email}
+        onChange={(event) => setEmail(event.target.value)}
+        required
+        aria-label="Work email"
+        placeholder="Work email"
+        className={field}
+      />
+      <div className="flex gap-2">
+        <select
+          aria-label="Role"
+          value={role}
+          onChange={(event) => setRole(event.target.value as PlatformRole)}
+          className={`${field} flex-1 font-bold`}
+        >
+          <option value="account_manager">Account manager</option>
+          <option value="admin">Administrator</option>
+        </select>
+        <Button tone="accent" type="submit" disabled={create.isPending || !name.trim() || !email.trim()}>
+          {create.isPending ? "Adding…" : "Add"}
+        </Button>
+      </div>
+      <p className="text-[10px] leading-relaxed text-[var(--muted)]">
+        An account manager sees only the businesses assigned to them and opens support access
+        there; an administrator runs the whole console.
+      </p>
+      {refused && (
+        <p role="status" className="text-[11px] font-semibold text-[var(--danger)]">
+          {refused}
+        </p>
+      )}
+      {issued && (
+        <div role="status" className="rounded-xl border border-[var(--line-strong)] bg-[var(--surface-2)] p-3 text-[11px] leading-relaxed">
+          <p className="font-extrabold">
+            {issued.email} was emailed a temporary password.
+          </p>
+          <p className="mt-1">
+            Hand them this authenticator secret yourself; it is shown once and never again:
+          </p>
+          <code className="mt-1 block break-all font-mono text-xs">{issued.secret}</code>
+          <a
+            href={issued.uri}
+            className="mt-1 block truncate text-[10px] text-[var(--muted-strong)] underline"
+          >
+            Open in an authenticator app
+          </a>
+        </div>
+      )}
+    </form>
+  );
+}
+
 function SettingsView({ notify }: { notify: Notify }) {
   const {
     data: administrators = [],
@@ -1611,6 +1710,13 @@ function SettingsView({ notify }: { notify: Notify }) {
                           <Pill tone={person.isActive ? "success" : "neutral"}>
                             {person.isActive ? "Active" : "Disabled"}
                           </Pill>
+                          <Pill tone={person.role === "admin" ? "warning" : "neutral"}>
+                            {person.role === "admin"
+                              ? "Administrator"
+                              : person.role === "account_manager"
+                                ? "Account manager"
+                                : "No role"}
+                          </Pill>
                           {!person.mfaEnabled && (
                             <Pill tone="danger">No MFA</Pill>
                           )}
@@ -1619,6 +1725,7 @@ function SettingsView({ notify }: { notify: Notify }) {
                     ))}
                   </ul>
                 </QueryBoundary>
+                <AddAdministratorForm />
               </div>
             )}
           </article>

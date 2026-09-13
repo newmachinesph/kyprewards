@@ -91,6 +91,20 @@ below is what is left.
    downgrade that strands a live program is refused by name; a founding
    merchant's three free months of Core are applied on the first move up.
    Every move lands in the audit ledger.
+6. **Support access and account managers** (added 2026-09-13): the FAQ's
+   "scoped support access" is real. The tenant drawer opens a business with
+   a reason and 30, 60 or 120 minutes (`POST
+   /admin/tenants/{businessId}/support-access`); the API steps this session
+   into the shop, emails the owner, writes the ledger, and biz.kypstamping.ph
+   opens in a new tab on the same cookie, with a banner and an End button.
+   Inside, the role is `Support`: profile, image, branches, programs, staff,
+   analytics and billing reads; never the counter, a customer record, an
+   export or a billing write. `users.platform_role` splits admin kinds into
+   `admin` (everything) and `account_manager` (only the businesses assigned
+   in the drawer, `PUT /admin/tenants/{businessId}/managers`, and only that
+   view of the console). Platform settings adds either
+   (`POST /admin/administrators`): the temporary password is emailed, the
+   authenticator secret is shown once.
 
 ## Rules specific to this app
 

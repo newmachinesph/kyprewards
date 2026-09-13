@@ -1,16 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "@kypstamping/api";
 import { DemoActionDialog } from "@kypstamping/ui";
 import { Toast, useHashView, useToast } from "@kypstamping/ui/shell";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import { AdminDashboard } from "@/components/AdminDashboard";
-import { AdminShell, ADMIN_VIEWS } from "@/components/AdminShell";
+import { AdminShell, ADMIN_VIEWS, MANAGER_VIEWS } from "@/components/AdminShell";
 import { AdminStateProvider } from "@/components/AdminState";
 import { AdminViewContent } from "@/components/AdminViews";
 
 export function AdminDemo() {
-  const { view, navigate } = useHashView(ADMIN_VIEWS, "overview");
+  const { view: requested, navigate } = useHashView(ADMIN_VIEWS, "overview");
+  const { data: session } = useSession();
+  // An account manager's console is the businesses assigned to them; any
+  // other hash lands there rather than on a view the API refuses.
+  const view =
+    session?.platformRole === "account_manager" && !MANAGER_VIEWS.includes(requested)
+      ? "businesses"
+      : requested;
   const [action, setAction] = useState<string | null>(null);
   const [toastTone, setToastTone] = useState<"success" | "error">("success");
   const { toast, setToast, dismiss } = useToast(toastTone === "error" ? 0 : 2800);
