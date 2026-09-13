@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import {
+  ApiError,
   changePlan,
+  startPlanCheckout,
   isPreview,
   keys,
   purchaseCredits,
@@ -55,6 +57,11 @@ export function BillingView({ notify }: { notify: Notify }) {
   const choose = useApiMutation(
     (plan: string) => retryOnce(() => changePlan(plan, yearly ? "Yearly" : "Monthly")),
     { invalidates: [keys.business.billing(), keys.business.profile()] },
+  );
+  // A move up costs its first period. The API says so with a 402, and the
+  // code to pay comes from here; the plan changes when the payment settles.
+  const checkout = useApiMutation((plan: string) =>
+    retryOnce(() => startPlanCheckout(plan, yearly ? "Yearly" : "Monthly")),
   );
   const buyCredits = useApiMutation(
     (body: Parameters<typeof purchaseCredits>[0]) => retryOnce(() => purchaseCredits(body)),
@@ -211,12 +218,22 @@ export function BillingView({ notify }: { notify: Notify }) {
                   <Button
                     tone={current ? "quiet" : plan.featured ? "accent" : "dark"}
                     className="w-full"
-                    disabled={current || !openable || choose.isPending}
+                    disabled={current || !openable || choose.isPending || checkout.isPending}
                     title={!openable ? NOT_OPEN : undefined}
                     onClick={() =>
                       choose.mutate(plan.key, {
                         onSuccess: (saved) => notify(`Moved to ${saved.plan}.`),
-                        onError: (failure) => notify(refusal(failure), "error"),
+                        onError: (failure) => {
+                          if (failure instanceof ApiError && failure.status === 402) {
+                            checkout.mutate(plan.key, {
+                              onSuccess: (intent) =>
+                                setSheet({ intent, title: `${plan.key} · first ${yearly ? "year" : "month"}` }),
+                              onError: (again) => notify(refusal(again), "error"),
+                            });
+                            return;
+                          }
+                          notify(refusal(failure), "error");
+                        },
                       })
                     }
                   >

@@ -41,6 +41,7 @@ export function PaymentSheet({
     if (!settled) return;
     for (const queryKey of [
       keys.business.billing(),
+      keys.business.profile(),
       keys.levers.featured(),
       keys.business.analytics.branchReporting(),
     ]) {

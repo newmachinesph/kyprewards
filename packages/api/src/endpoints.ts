@@ -1200,6 +1200,16 @@ async function download(path: string): Promise<void> {
 export const changePlan = (plan: string, cycle?: "Monthly" | "Yearly"): Promise<Billing> =>
   http("/business/billing/plan", { method: "PATCH", body: cycle ? { plan, cycle } : { plan } });
 
+/** The QR Ph code for the first period of a paid plan; the plan moves when it is paid. */
+export const startPlanCheckout = (
+  plan: string,
+  cycle?: "Monthly" | "Yearly",
+): Promise<QrPayment> =>
+  http("/business/billing/plan/checkout", {
+    method: "POST",
+    body: cycle ? { plan, cycle } : { plan },
+  });
+
 export const payInvoice = (invoiceId: string): Promise<{ url: string }> =>
   http(`/business/invoices/${invoiceId}/pay`, { method: "POST" });
 
