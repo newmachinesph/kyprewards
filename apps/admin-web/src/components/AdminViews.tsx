@@ -55,6 +55,8 @@ import {
   usePlatformInvoices,
   usePlatformMetrics,
   usePrivacyMetrics,
+  useDeletionRequests,
+  eraseCustomer,
   EMPTY_PLATFORM_METRICS,
   useServices,
   useTenants,
@@ -72,6 +74,87 @@ function ViewFrame(
   props: Omit<Parameters<typeof SharedViewFrame>[0], "wide" | "className">,
 ) {
   return <SharedViewFrame wide className="admin-grid" {...props} />;
+}
+
+/**
+ * Customer erasure requests waiting for review. Masked identifiers only; the
+ * wallet request was made from a signed-in session, so identity is proven and
+ * the review is for holds - a reward mid-handover - before an erasure that
+ * cannot be undone.
+ */
+function DeletionQueue({ notify }: { notify: Notify }) {
+  const { data: rows = [], isPending, error, refetch } = useDeletionRequests();
+  const [confirming, setConfirming] = useState<string | null>(null);
+  const erase = useApiMutation(eraseCustomer, {
+    invalidates: [keys.admin.deletionRequests(), keys.admin.privacy(), keys.admin.audit()],
+  });
+
+  return (
+    <section className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
+      <Eyebrow>Deletion requests</Eyebrow>
+      <h2 className="mt-1 text-lg font-extrabold">Erase on request</h2>
+      <p className="mt-1 max-w-[70ch] text-xs leading-relaxed text-[var(--muted-strong)]">
+        Erasing removes the name, email, number, birthday, devices, messages and exports, and
+        tells the customer. Shops keep anonymous visit history for their own books. It cannot be
+        undone.
+      </p>
+      <QueryBoundary isPending={isPending} error={error} onRetry={refetch} label="deletion requests" rows={2}>
+        {rows.length === 0 ? (
+          <p className="mt-4 text-sm text-[var(--muted-strong)]">No deletion requests are waiting.</p>
+        ) : (
+          <div className="mt-4 divide-y divide-[var(--line)]">
+            {rows.map((row) => (
+              <div key={row.id} className="flex flex-wrap items-center gap-3 py-3 text-sm">
+                <div className="min-w-0 flex-1">
+                  <p className="font-extrabold">{row.email || row.mobile || "No contact on file"}</p>
+                  <p className="mt-0.5 text-xs text-[var(--muted-strong)]">
+                    {row.daysOpen} {row.daysOpen === 1 ? "day" : "days"} open · {row.memberships}{" "}
+                    {row.memberships === 1 ? "shop" : "shops"}
+                    {row.openRedemptions > 0
+                      ? ` · ${row.openRedemptions} reward mid-handover, wait for it to finish`
+                      : ""}
+                  </p>
+                </div>
+                {confirming === row.id ? (
+                  <span className="flex items-center gap-2">
+                    <Button
+                      tone="quiet"
+                      onClick={() => setConfirming(null)}
+                      disabled={erase.isPending}
+                    >
+                      Keep
+                    </Button>
+                    <Button
+                      disabled={erase.isPending || row.openRedemptions > 0}
+                      onClick={() =>
+                        erase.mutate(row.id, {
+                          onSuccess: () => {
+                            setConfirming(null);
+                            notify("Erased. The customer has been told.");
+                          },
+                          onError: (failure) => notify(failure.message, "error"),
+                        })
+                      }
+                    >
+                      {erase.isPending ? "Erasing…" : "Erase for good"}
+                    </Button>
+                  </span>
+                ) : (
+                  <Button
+                    tone="quiet"
+                    disabled={row.openRedemptions > 0}
+                    onClick={() => setConfirming(row.id)}
+                  >
+                    Erase
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </QueryBoundary>
+    </section>
+  );
 }
 
 function PeopleView({ notify }: { notify: Notify }) {
@@ -128,7 +211,7 @@ function PeopleView({ notify }: { notify: Notify }) {
               [
                 "Deletion requests",
                 count(privacy?.deletionRequests),
-                "Fulfilled by the nightly privacy job",
+                "Reviewed and carried out below",
                 LockKeyhole,
               ],
             ] as const
@@ -156,6 +239,7 @@ function PeopleView({ notify }: { notify: Notify }) {
           })}
         </div>
       </QueryBoundary>
+      <DeletionQueue notify={notify} />
       <div className="mt-3 grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6">
           <Eyebrow>Scoped access</Eyebrow>
@@ -191,10 +275,9 @@ function PeopleView({ notify }: { notify: Notify }) {
             ))}
           </dl>
           <p className="mt-4 rounded-xl border border-dashed border-[var(--line-strong)] p-3 text-[11px] leading-relaxed text-[var(--muted-strong)]">
-            There is no endpoint to request a grant yet, so this console cannot
-            open one. Consent, export and deletion are handled in the merchant
-            and customer apps; this page will show their counts once the API
-            reports them.
+            Support access is opened per business from Businesses. Customers file
+            export and deletion requests from the wallet; exports build on their
+            own, and deletions wait for review below.
           </p>
         </section>
         <section className="rounded-2xl bg-[var(--accent)] p-6">

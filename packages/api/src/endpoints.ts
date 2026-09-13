@@ -87,6 +87,7 @@ import type {
   WalletCard,
   Workspace,
   VisitOutcome,
+  DeletionRequest,
 } from "./types.ts";
 
 /* ── Session ──────────────────────────────────────────────────────────
@@ -552,6 +553,13 @@ export const createAdministrator = (body: {
 export const getPrivacyMetrics = (): Promise<PrivacyMetrics> => http("/admin/privacy");
 
 export const getSupportQueue = (): Promise<SupportTicket[]> => http("/admin/support");
+
+export const getDeletionRequests = (): Promise<DeletionRequest[]> =>
+  http("/admin/deletion-requests");
+
+/** Irreversible: anonymises the account behind a customer's deletion request. */
+export const eraseCustomer = (requestId: string): Promise<ToggleResult> =>
+  http(`/admin/deletion-requests/${encodeURIComponent(requestId)}/erase`, { method: "POST" });
 
 export const getAuditLedger = (): Promise<AuditEvent[]> => http("/admin/audit");
 

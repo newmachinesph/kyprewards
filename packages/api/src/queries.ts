@@ -569,6 +569,9 @@ export const usePlatformMetrics = (options?: Options<PlatformMetrics>): Query<Pl
 export const usePrivacyMetrics = (options?: Options<PrivacyMetrics>): Query<PrivacyMetrics> =>
   useQuery({ queryKey: keys.admin.privacy(), queryFn: api.getPrivacyMetrics, ...options });
 
+export const useDeletionRequests = (options?: Options<DeletionRequest[]>): Query<DeletionRequest[]> =>
+  useQuery({ queryKey: keys.admin.deletionRequests(), queryFn: api.getDeletionRequests, ...options });
+
 export const useOnboarding = () =>
   useQuery({ queryKey: keys.admin.onboarding(), queryFn: api.getOnboarding });
 
@@ -632,6 +635,7 @@ import type {
   QrPayment,
   StoreCreditEntry,
   SukiTierProgram,
+  DeletionRequest,
 } from "./types";
 import type { Page } from "./http";
 

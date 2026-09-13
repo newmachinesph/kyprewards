@@ -576,6 +576,19 @@ export type PrivacyMetrics = {
   pending: number;
 };
 
+/** One open erasure request, masked: the console never shows the person in full. */
+export type DeletionRequest = {
+  id: string;
+  status: string;
+  requestedAt: string;
+  daysOpen: number;
+  email: string;
+  mobile: string;
+  memberships: number;
+  /** Rewards reserved at a counter now; erase after the handover. */
+  openRedemptions: number;
+};
+
 export type SupportTicket = {
   id: string;
   title: string;
