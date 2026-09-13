@@ -41,6 +41,9 @@ import type {
 // The alias stays because the app names it in a dozen places.
 export type TriagedTicket = SupportTicket;
 
+/** What a write's caller hears once the API has answered. */
+type Outcome<T> = { onDone?: (value: T) => void; onFailed?: (message: string) => void };
+
 type AdminState = {
   /** Support queue with local triage applied. */
   tickets: TriagedTicket[];
@@ -63,11 +66,13 @@ type AdminState = {
 
   /** Network-wide safety defaults. */
   flags: Record<string, boolean>;
-  toggleFlag: (key: string) => boolean;
+  /** Flips the switch at once; the outcome callbacks fire when the API has
+   *  answered, so nothing claims "written to the audit ledger" before it is. */
+  toggleFlag: (key: string, outcome?: Outcome<boolean>) => void;
 
   /** Deliveries awaiting replay. Counted in two places that used to disagree. */
   recoveryQueue: RecoveryItem[];
-  replayRecovery: () => number;
+  replayRecovery: (outcome?: Outcome<number>) => void;
 
   /** Which dataset the integration control room is looking at. */
   environment: Environment;
@@ -194,19 +199,25 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
     ({ key, value }: { key: string; value: boolean }) => setPlatformFlag(key, value),
   );
   const toggleFlag = useCallback(
-    (key: string) => {
+    (key: string, outcome?: Outcome<boolean>) => {
       const next = !flags[key];
       patchFlag(key, next);
       flagWrite.mutate(
         { key, value: next },
         {
-          onSuccess: (result) => patchFlag(result.id, result.enabled),
-          onError: () => patchFlag(key, !next),
+          onSuccess: (result) => {
+            patchFlag(result.id, result.enabled);
+            void queryClient.invalidateQueries({ queryKey: keys.admin.audit() });
+            outcome?.onDone?.(result.enabled);
+          },
+          onError: (failure) => {
+            patchFlag(key, !next);
+            outcome?.onFailed?.(failure.message);
+          },
         },
       );
-      return next;
     },
-    [flags, flagWrite, patchFlag],
+    [flags, flagWrite, patchFlag, queryClient],
   );
 
   /** Moving deliveries into replay empties the queue, so the count that drove
@@ -218,15 +229,20 @@ export function AdminStateProvider({ children }: { children: ReactNode }) {
   const replay = useApiMutation(replayRecoveryQueue, {
     invalidates: [keys.admin.recoveryQueue()],
   });
-  const replayRecovery = useCallback(() => {
-    const moved = recoveryQueue.map((item) => item.id);
-    setReplayed((current) => [...current, ...moved]);
-    replay.mutate(undefined, {
-      onError: () =>
-        setReplayed((current) => current.filter((id) => !moved.includes(id))),
-    });
-    return moved.length;
-  }, [recoveryQueue, replay]);
+  const replayRecovery = useCallback(
+    (outcome?: Outcome<number>) => {
+      const moved = recoveryQueue.map((item) => item.id);
+      setReplayed((current) => [...current, ...moved]);
+      replay.mutate(undefined, {
+        onSuccess: () => outcome?.onDone?.(moved.length),
+        onError: (failure) => {
+          setReplayed((current) => current.filter((id) => !moved.includes(id)));
+          outcome?.onFailed?.(failure.message);
+        },
+      });
+    },
+    [recoveryQueue, replay],
+  );
 
   const openTicketCount = tickets.filter(
     (ticket) => ticket.status === "Open",

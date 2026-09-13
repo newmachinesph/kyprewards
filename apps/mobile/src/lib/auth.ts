@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import {
   ApiError,
+  getQueryClient,
   getSession,
   logout as logoutCall,
   setApiBase,
@@ -68,6 +69,11 @@ export const useAuth = create<AuthState>()((set, get) => ({
       forget(KEYS.memberCode),
       forget(KEYS.memberName),
     ]);
+    // The cache is per app, not per person. On a shared phone the next person
+    // to sign in was shown the last one's wallet and member code - and the
+    // QR screen then saved that code to their keychain, so their stamps went
+    // to someone else.
+    getQueryClient().clear();
     set({ status: "signed-out", session: null });
   },
 
@@ -84,7 +90,12 @@ export const useAuth = create<AuthState>()((set, get) => ({
       if (failure instanceof ApiError && failure.status === 401) {
         // Expired or revoked. Clear it rather than retrying it forever.
         setAuthToken(null);
-        await forget(KEYS.session);
+        await Promise.all([
+          forget(KEYS.session),
+          forget(KEYS.memberCode),
+          forget(KEYS.memberName),
+        ]);
+        getQueryClient().clear();
         set({ status: "signed-out", session: null });
         return;
       }

@@ -86,6 +86,7 @@ import type {
   TenantConnection,
   WalletCard,
   Workspace,
+  VisitOutcome,
 } from "./types.ts";
 
 /* ── Session ──────────────────────────────────────────────────────────
@@ -710,7 +711,10 @@ export type VisitResult = {
   rewardEarned: { id: string; name: string; valueCentavos: number } | null;
   occurredAt: string;
   status: string;
-};
+  // What the rules decided: the route has always answered these, and the
+  // offline queue needs `earned` to tell a recorded stamp from a recorded
+  // sale that earned nothing.
+} & VisitOutcome;
 
 export const recordVisit = (
   body: {
@@ -823,8 +827,8 @@ export const createCustomer = (body: {
   isMember: boolean;
 }> => http("/customers", { method: "POST", body });
 
-/** The onboarding wizard's "prove it works" step. */
-export const recordTestStamp = (): Promise<VisitResult> =>
+/** Ticks the setup checklist's "prove it works" step. Records no stamp. */
+export const recordTestStamp = (): Promise<ToggleResult> =>
   http("/business/onboarding/test-stamp", { method: "POST" });
 
 /** Whether the merchant's setup checklist has had its test stamp run. Named

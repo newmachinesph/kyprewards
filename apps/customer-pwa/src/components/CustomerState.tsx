@@ -95,13 +95,17 @@ function initials(name: string) {
     .join("");
 }
 
+/** What a write's caller hears once the API has answered - so no screen says
+ *  "turned off" or "you left" before the server agreed. */
+type Outcome<T = undefined> = { onDone?: (value: T) => void; onFailed?: (message: string) => void };
+
 type CustomerState = {
   /** The profile as edited, not the fixture. Every screen reads this one. */
   profile: CustomerProfile;
   updateProfile: (patch: Partial<CustomerProfile>) => void;
 
   channels: Record<ChannelKey, boolean>;
-  toggleChannel: (key: ChannelKey) => boolean;
+  toggleChannel: (key: ChannelKey, outcome?: Outcome<boolean>) => void;
 
   /** Cards still in the wallet — a business the customer left is gone.
    *  Real cards first; locally, preview samples follow them under a badge. */
@@ -110,18 +114,22 @@ type CustomerState = {
   /** Whether the last profile edit reached the API. */
   profileSave: { isPending: boolean; error: Error | null; isSuccess: boolean };
   leftBusinessIds: string[];
-  leaveBusiness: (walletId: string) => void;
+  leaveBusiness: (walletId: string, outcome?: Outcome) => void;
 
   joinedIds: string[];
-  joinBusiness: (discoverId: string) => void;
+  joinBusiness: (
+    discoverId: string,
+    businessId: string,
+    outcome?: { onJoined?: () => void; onFailed?: (message: string) => void },
+  ) => void;
 
   notificationsRead: boolean;
   markNotificationsRead: () => void;
 
   deletionRequested: boolean;
-  requestDeletion: () => void;
+  requestDeletion: (outcome?: Outcome) => void;
   exportRequested: boolean;
-  requestExport: () => void;
+  requestExport: (outcome?: Outcome) => void;
 
   /**
    * A first stamp from the counter poster is still being settled.
@@ -230,10 +238,11 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
   const [leftBusinessIds, setLeftBusinessIds] = useState<string[]>([]);
   // Which businesses the customer has joined is the API's answer, seeded
   // once the discover list arrives rather than at mount from a fixture.
-  // Asked for once the customer opens the wallet: every distance the discover
-  // list reports is computed from it, and without one the "Nearby only"
-  // filter has nothing to compare against.
-  const where = useCoordinates(true);
+  // Only with "Nearby reminders" on. Asked on every wallet open, the position
+  // went to the API while the privacy centre told the customer location was
+  // never shared. The Discover tab asks for itself, where the browser prompt
+  // is the customer's own choice on a screen about distance.
+  const where = useCoordinates(channels.nearby);
   const claimSettling = usePendingFirstStamp();
   const { data: discover = [] } = useDiscover(where);
   const [joinedLocally, setJoinedLocally] = useState<string[]>([]);
@@ -250,9 +259,10 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
   const { data: apiProfile } = useCustomerProfile();
 
   const profile = useMemo<CustomerProfile>(() => {
-    // A name captured at sign-up is a real answer the customer gave; the
-    // API's own record is what it falls back to.
-    const name = edits.name ?? signupName ?? apiProfile?.name ?? "";
+    // The API's record first; the name typed at sign-up only fills the moment
+    // before the profile arrives. Preferred the other way, a second person
+    // signing in on the same tab was greeted by the first one's name.
+    const name = edits.name ?? apiProfile?.name ?? signupName ?? "";
     return {
       ...EMPTY_PROFILE,
       ...apiProfile,
@@ -293,50 +303,68 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
     { invalidates: [keys.customer.consentHistory()] },
   );
   const toggleChannel = useCallback(
-    (key: ChannelKey) => {
+    (key: ChannelKey, outcome?: Outcome<boolean>) => {
       const next = !channels[key];
       setOverrides((current) => ({ ...current, [key]: next }));
       channelWrite.mutate(
         { key, value: next },
         {
-          onError: () =>
-            setOverrides((current) => ({ ...current, [key]: !next })),
+          onSuccess: () => outcome?.onDone?.(next),
+          onError: (failure) => {
+            setOverrides((current) => ({ ...current, [key]: !next }));
+            outcome?.onFailed?.(failure.message);
+          },
         },
       );
-      return next;
     },
     [channelWrite, channels],
   );
 
   const leave = useApiMutation(leaveBusinessCall, {
-    invalidates: [keys.customer.wallet(), keys.customer.discover()],
+    invalidates: [keys.customer.wallet(), keys.customer.discoverAll()],
   });
   const leaveBusiness = useCallback(
-    (walletId: string) => {
+    (walletId: string, outcome?: Outcome) => {
       // Hidden immediately: a card the customer just left should not sit
       // there while the request is in flight.
       setLeftBusinessIds((current) =>
         current.includes(walletId) ? current : [...current, walletId],
       );
       leave.mutate(walletId, {
-        onError: () =>
-          setLeftBusinessIds((current) => current.filter((id) => id !== walletId)),
+        onSuccess: () => outcome?.onDone?.(undefined),
+        onError: (failure) => {
+          setLeftBusinessIds((current) => current.filter((id) => id !== walletId));
+          outcome?.onFailed?.(failure.message);
+        },
       });
     },
     [leave],
   );
 
   const join = useApiMutation(joinBusinessCall, {
-    invalidates: [keys.customer.wallet(), keys.customer.discover()],
+    invalidates: [keys.customer.wallet(), keys.customer.discoverAll()],
   });
   const joinBusiness = useCallback(
-    (merchantId: string) => {
+    (
+      discoverId: string,
+      businessId: string,
+      outcome?: { onJoined?: () => void; onFailed?: (message: string) => void },
+    ) => {
+      // Marked joined by the list row it was tapped on; joined on the server
+      // by the shop's own id.
       setJoinedLocally((current) =>
-        current.includes(merchantId) ? current : [...current, merchantId],
+        current.includes(discoverId) ? current : [...current, discoverId],
       );
-      join.mutate(merchantId, {
-        onError: () =>
-          setJoinedLocally((current) => current.filter((id) => id !== merchantId)),
+      join.mutate(businessId, {
+        onSuccess: () => outcome?.onJoined?.(),
+        onError: (failure) => {
+          setJoinedLocally((current) => current.filter((id) => id !== discoverId));
+          outcome?.onFailed?.(
+            failure instanceof Error && failure.message
+              ? failure.message
+              : "Could not add that shop. Try again.",
+          );
+        },
       });
     },
     [join],
@@ -362,14 +390,30 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
   // forgets on reload - and the screen used to say "you will be notified"
   // while holding exactly such a boolean.
   const { data: dataRequests = [] } = useDataRequests();
-  const outstanding = (kind: "export" | "delete") =>
+  // "deletion" is the kind the API stores; "delete" never matched, so the
+  // button never locked and every tap filed another request.
+  const outstanding = (kind: "export" | "deletion") =>
     dataRequests.some(
       (request) => request.kind === kind && request.status !== "completed",
     );
-  const deletionRequested = outstanding("delete");
+  const deletionRequested = outstanding("deletion");
   const exportRequested = outstanding("export");
-  const requestDeletion = useCallback(() => dataRequest.mutate("deletion"), [dataRequest]);
-  const requestExport = useCallback(() => dataRequest.mutate("export"), [dataRequest]);
+  const requestDeletion = useCallback(
+    (outcome?: Outcome) =>
+      dataRequest.mutate("deletion", {
+        onSuccess: () => outcome?.onDone?.(undefined),
+        onError: (failure) => outcome?.onFailed?.(failure.message),
+      }),
+    [dataRequest],
+  );
+  const requestExport = useCallback(
+    (outcome?: Outcome) =>
+      dataRequest.mutate("export", {
+        onSuccess: () => outcome?.onDone?.(undefined),
+        onError: (failure) => outcome?.onFailed?.(failure.message),
+      }),
+    [dataRequest],
+  );
 
   const walletRead = useWalletWithPreview();
   const cards = useMemo(() => walletRead.data ?? [], [walletRead.data]);

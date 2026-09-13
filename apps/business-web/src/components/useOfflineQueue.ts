@@ -16,6 +16,15 @@ export type HeldVisit = {
   customerName: string;
   amountCentavos: number;
   occurredAt: string;
+  /** The till's branch, so a replayed sale lands where it was rung up. */
+  branchId?: string;
+};
+
+/** What a drain did: sales recorded, and held visits the API turned away. */
+export type SyncOutcome = {
+  settled: number;
+  /** One line per visit that will never record, named for the cashier. */
+  refused: string[];
 };
 
 /**
@@ -100,7 +109,7 @@ const onlineOnServer = () => true;
  * replayed as the ordinary transaction it always was, and replaying it twice
  * settles once.
  */
-export function useOfflineQueue(onSynced: (settled: number) => void) {
+export function useOfflineQueue(onSynced: (outcome: SyncOutcome) => void) {
   const queue = useSyncExternalStore(subscribe, readQueue, emptyOnServer);
   const online = useSyncExternalStore(subscribeToConnection, isOnline, onlineOnServer);
 
@@ -112,27 +121,41 @@ export function useOfflineQueue(onSynced: (settled: number) => void) {
     const pending = readQueue();
     if (pending.length === 0) return;
 
-    const settled: string[] = [];
+    // Out of the queue: every visit the API answered for good, recorded or
+    // refused. Only a missing network, a server fault or a rate limit is worth
+    // another try. A 409 used to count as "already settled" - but a replay of
+    // a settled key answers 201 with the stored result, and a 409 is a refusal
+    // (the cooldown, no live program), so real refusals vanished as "synced".
+    const done: string[] = [];
+    const refused: string[] = [];
+    let settled = 0;
     for (const visit of pending) {
       try {
-        await recordVisit(
-          { customerId: visit.customerId, amountCentavos: visit.amountCentavos },
+        const result = await recordVisit(
+          {
+            customerId: visit.customerId,
+            amountCentavos: visit.amountCentavos,
+            branchId: visit.branchId,
+          },
           visit.idempotencyKey,
         );
-        settled.push(visit.idempotencyKey);
-      } catch (failure) {
-        // A 409 means this key already settled - the sale is recorded, which
-        // is exactly what the queue wanted. Anything else is worth another
-        // try, so it stays.
-        if (failure instanceof ApiError && failure.status === 409) {
-          settled.push(visit.idempotencyKey);
+        done.push(visit.idempotencyKey);
+        settled += 1;
+        if (result.earned === false) {
+          refused.push(`${visit.customerName}: recorded, no stamp - ${result.reason ?? "not eligible"}`);
         }
+      } catch (failure) {
+        const retryable =
+          !(failure instanceof ApiError) || failure.status >= 500 || failure.status === 429;
+        if (retryable) continue;
+        done.push(visit.idempotencyKey);
+        refused.push(`${visit.customerName}: not recorded - ${failure.message}`);
       }
     }
 
-    if (settled.length === 0) return;
-    writeQueue(pending.filter((visit) => !settled.includes(visit.idempotencyKey)));
-    onSynced(settled.length);
+    if (done.length === 0) return;
+    writeQueue(pending.filter((visit) => !done.includes(visit.idempotencyKey)));
+    onSynced({ settled, refused });
   }, [onSynced]);
 
   // Drain on reconnect: the counter should not need anybody to press anything.

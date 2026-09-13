@@ -150,6 +150,8 @@ export function PartnerIntake() {
   }
 
   async function submit() {
+    // A double tap sent two applications that could both pass "already waiting".
+    if (sending) return;
     setFailed("");
     setSending(true);
     try {
@@ -179,6 +181,11 @@ export function PartnerIntake() {
       const refused: Errors = {};
       for (const { field, message } of fieldErrors(failure)) {
         if (field in STEP_OF) refused[field as keyof PartnerDraft] = message;
+      }
+      // "Already runs a workspace" and "already waiting" are about the email,
+      // so they sit under the email field rather than in a banner on review.
+      if (failure instanceof ApiError && failure.status === 409 && !refused.email) {
+        refused.email = failure.message;
       }
       const [first] = Object.keys(refused) as (keyof PartnerDraft)[];
       if (first) {
@@ -266,7 +273,8 @@ export function PartnerIntake() {
 
           <button
             type="submit"
-            className="focus-ring inline-flex min-h-12 items-center gap-2 rounded-full border border-[var(--ink)] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(24_18_12/18%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)]"
+            disabled={sending}
+            className="focus-ring inline-flex min-h-12 items-center gap-2 rounded-full border border-[var(--ink)] bg-[var(--ink)] disabled:opacity-60 px-6 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(24_18_12/18%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)]"
           >
             {step === STEPS.length - 1 ? (
               <>

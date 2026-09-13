@@ -335,6 +335,18 @@ export async function signOut() {
     // The cookie may already be gone or the API unreachable. Either way the
     // user asked to leave, so leaving is the only correct outcome.
   }
+  // What this person left in the browser goes with them: the name typed at
+  // sign-up and the member QR images the wallet keeps for offline use. A
+  // shared phone is the ordinary case. The counter's held sales are not
+  // touched - those belong to the shop, not to whoever signed out.
+  try {
+    window.sessionStorage.clear();
+    for (const key of Object.keys(window.localStorage)) {
+      if (key.startsWith("kyp-qr-")) window.localStorage.removeItem(key);
+    }
+  } catch {
+    // Storage the browser refuses has nothing in it to clear.
+  }
   window.location.replace("/login?loggedOut=1");
 }
 
@@ -356,24 +368,59 @@ export function SessionGate({
   // row every child reads through `useSession()`, so who is signed in - and
   // which platform role they hold - is known on their first render, and
   // nothing below asks the API for a view it is not allowed.
-  const { data: session, error } = useSession();
+  const { data: session, error, refetch, isFetching } = useSession();
   // A platform user on live support access is the one visitor the business
   // workspace admits under another kind: the API named the grant, and it is
   // what every call inside will be checked against.
   const onSupport =
     role === "business" && session?.kind === "admin" && !!session.support;
-  const ready = !!session && !session.mfaPending && (session.kind === role || onSupport);
+  // Signed in to several workspaces and none chosen yet: every business call
+  // would answer "No workspace selected", so the picker comes first.
+  const choosing = role === "business" && session?.kind === "business" && session.needsWorkspace;
+  const ready =
+    !!session && !session.mfaPending && !choosing && (session.kind === role || onSupport);
+  // Only the API saying "not signed in" is a reason to go to sign-in. A till
+  // or a wallet with no signal used to be bounced to /login - which, offline,
+  // is a form that cannot send a code, or a service-worker reload loop.
+  const signedOut = error instanceof ApiError && (error.status === 401 || error.status === 403);
+  const unreachable = !!error && !signedOut;
 
   useEffect(() => {
-    if (error) {
+    if (signedOut) {
       window.location.replace("/login");
+      return;
+    }
+    if (unreachable) return;
+    if (choosing) {
+      window.location.replace("/workspaces");
       return;
     }
     if (!session || ready) return;
     // A customer holding a session must not land in the merchant workspace,
     // even though the API would refuse every call anyway.
     window.location.replace(session.mfaPending ? "/verify" : "/login");
-  }, [session, error, ready]);
+  }, [session, signedOut, unreachable, choosing, ready]);
+
+  if (unreachable) {
+    return (
+      <main className="grid min-h-[100dvh] place-items-center bg-[var(--paper)] px-5">
+        <div className="w-full max-w-sm text-center" role="alert">
+          <p className="text-lg font-extrabold">Can&apos;t reach KYP right now.</p>
+          <p className="mt-2 text-sm text-[var(--muted-strong)]">
+            Check the connection, then try again.
+          </p>
+          <button
+            type="button"
+            onClick={() => void refetch()}
+            disabled={isFetching}
+            className="mt-6 min-h-11 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] disabled:opacity-60"
+          >
+            {isFetching ? "Trying…" : "Try again"}
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   if (!ready) {
     return (

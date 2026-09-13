@@ -174,19 +174,29 @@ function ShopBody({ shop }: { shop: PublicShop }) {
             {shop.program ?? "Stamp card"}
           </p>
           <p className="mt-2 text-2xl font-bold leading-tight tracking-[-0.02em]">{shop.reward}</p>
-          <div className="mt-5 overflow-x-auto pb-1">
-            <StampDots
-              filled={0}
-              total={shop.target}
-              icon={shop.stampIcon}
-              imageUrl={shop.stampImageUrl}
-            />
-          </div>
-          <p className="mt-3 text-sm text-[var(--muted-strong)]">
-            {shop.target} {shop.target === 1 ? "visit" : "visits"} fills the card. Join from the
-            poster at the counter and a welcome stamp lands marked pending; it becomes real on your
-            first visit, when the card reads two.
-          </p>
+          {/* A stamp card has a target; a points shop has none, and read
+              "0 visits fills the card" over an empty row of dots. */}
+          {shop.target > 0 ? (
+            <>
+              <div className="mt-5 overflow-x-auto pb-1">
+                <StampDots
+                  filled={0}
+                  total={shop.target}
+                  icon={shop.stampIcon}
+                  imageUrl={shop.stampImageUrl}
+                />
+              </div>
+              <p className="mt-3 text-sm text-[var(--muted-strong)]">
+                {shop.target} {shop.target === 1 ? "visit" : "visits"} fills the card. Join from the
+                poster at the counter and a welcome stamp lands marked pending; it becomes real on
+                your first visit, when the card reads two.
+              </p>
+            </>
+          ) : (
+            <p className="mt-3 text-sm text-[var(--muted-strong)]">
+              Every visit earns toward the reward above. Join from the poster at the counter.
+            </p>
+          )}
           <div className="mt-6 grid gap-2">
             <a
               href={joinHref}

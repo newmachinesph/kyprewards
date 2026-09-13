@@ -46,7 +46,6 @@ import {
   X,
 } from "lucide-react";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
-import { useDemoState } from "@/components/DemoState";
 import { planFor, usePlanGate } from "@/lib/plan";
 import type { Automation } from "@kypstamping/api";
 import {
@@ -91,6 +90,14 @@ const SETUP_STEPS = [
   "Invite staff",
   "Run a test stamp",
 ] as const;
+
+/** Where each unfinished setup step is done. */
+const SETUP_VIEW: Record<Exclude<(typeof SETUP_STEPS)[number], "Run a test stamp">, BusinessView> = {
+  "Business profile": "business",
+  "Loyalty reward": "programs",
+  "Join QR": "join-code",
+  "Invite staff": "staff",
+};
 
 /**
  * Icon and headline rule per program type.
@@ -187,7 +194,6 @@ export function BusinessDashboard({
 }) {
   const [period, setPeriod] = useState<(typeof periods)[number]["id"]>("week");
   const [scanOpen, setScanOpen] = useState(false);
-  const { completeTestStamp, startScanHandoff } = useDemoState();
 
   // Server state, from the API. Defaulted to empty rather than guarded one by
   // one: the dashboard is a wall of counters, and blanking the whole page
@@ -244,7 +250,6 @@ export function BusinessDashboard({
   );
   const toggle = useToggleAutomation();
   const testStamp = useRecordTestStamp();
-  const setupDone = SETUP_STEPS.length - (testStampDone ? 0 : 1);
   // Null until the programs arrive, where it used to be programs[0] from a
   // fixture that was always populated.
   const [selectedProgramId, setSelectedProgramId] = useState<string | null>(
@@ -258,6 +263,17 @@ export function BusinessDashboard({
   const workspaceName = profile?.shortName ?? "";
   const locationCount = locations.length;
   const livePrograms = programs.filter((program) => program.status === "Live");
+  // Each step read from the shop itself. The first four were ticked for every
+  // shop, so a workspace with no program and nobody invited read 4 of 5 done.
+  const stepDone: Record<(typeof SETUP_STEPS)[number], boolean> = {
+    "Business profile":
+      !!profile?.about?.trim() && locations.some((location) => location.address.trim() !== ""),
+    "Loyalty reward": livePrograms.length > 0,
+    "Join QR": livePrograms.length > 0 && locations.length > 0,
+    "Invite staff": staff.length > 1,
+    "Run a test stamp": testStampDone,
+  };
+  const setupDone = SETUP_STEPS.filter((step) => stepDone[step]).length;
   /*
    * The card names a live program, so its dots have to be that program's.
    * They were the demo scenario's stamp count, which meant a shop running an
@@ -291,7 +307,6 @@ export function BusinessDashboard({
             type="button"
             aria-label="Notifications"
             onClick={() => {
-              notify("Message activity opened.", "review");
               onNavigate("message-log");
             }}
             className="hidden size-11 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] transition hover:bg-[var(--surface-2)] sm:grid"
@@ -559,19 +574,32 @@ export function BusinessDashboard({
             />
           </div>
           <div className="mt-5 divide-y divide-[var(--line)]">
-            {SETUP_STEPS.slice(0, -1).map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-3 py-3 text-sm font-semibold text-[var(--muted-strong)]"
-              >
-                <span className="grid size-5 place-items-center rounded-full bg-[var(--success)] text-white">
-                  <Check size={12} strokeWidth={3} />
-                </span>
-                <span className="line-through decoration-[var(--line-strong)]">
+            {(Object.keys(SETUP_VIEW) as (keyof typeof SETUP_VIEW)[]).map((item) =>
+              stepDone[item] ? (
+                <div
+                  key={item}
+                  className="flex items-center gap-3 py-3 text-sm font-semibold text-[var(--muted-strong)]"
+                >
+                  <span className="grid size-5 place-items-center rounded-full bg-[var(--success)] text-white">
+                    <Check size={12} strokeWidth={3} />
+                  </span>
+                  <span className="line-through decoration-[var(--line-strong)]">
+                    {item}
+                  </span>
+                </div>
+              ) : (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => onNavigate(SETUP_VIEW[item])}
+                  className="flex w-full items-center gap-3 py-3 text-left text-sm font-bold"
+                >
+                  <span className="grid size-5 place-items-center rounded-full border border-[var(--accent)] bg-[rgb(232_163_61/10%)]" />
                   {item}
-                </span>
-              </div>
-            ))}
+                  <ChevronRight className="ml-auto" size={16} />
+                </button>
+              ),
+            )}
             {testStampDone ? (
               <div className="flex items-center gap-3 py-3 text-sm font-semibold text-[var(--muted-strong)]">
                 <span className="grid size-5 place-items-center rounded-full bg-[var(--success)] text-white">
@@ -614,7 +642,9 @@ export function BusinessDashboard({
               more than one visit, so one visit away is exactly the members
               sitting on their first. */}
           <p className="mt-3 max-w-[58ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-            {metrics.almostRegulars > 0
+            {metricsError
+              ? `Visit counts unavailable: ${metricsError.message}`
+              : metrics.almostRegulars > 0
               ? `${metrics.almostRegulars} ${metrics.almostRegulars === 1 ? "customer has" : "customers have"} been in once and not come back. A quiet note could nudge them into a second visit.`
               : "Nobody is sitting on a single visit right now. When someone comes in once and stops, they will show up here."}
           </p>
@@ -746,13 +776,7 @@ export function BusinessDashboard({
                   </div>
                   <button
                     type="button"
-                    onClick={() => {
-                      notify(
-                        `${selectedProgram.name} opened in Program studio.`,
-                        "review",
-                      );
-                      onNavigate("programs");
-                    }}
+                    onClick={() => onNavigate("programs")}
                     className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-[var(--accent)] px-4 text-xs font-extrabold text-[var(--ink)]"
                   >
                     Configure {selectedProgram.type.toLowerCase()}{" "}
@@ -1014,25 +1038,20 @@ export function BusinessDashboard({
               <WifiOff size={13} /> Offline queue ready
             </div>
             <p className="mx-auto mt-3 max-w-[34ch] text-center text-sm leading-relaxed text-[var(--muted-strong)]">
-              Hold the customer&apos;s KYP QR inside the frame. Nothing is saved
-              until you confirm.
+              Scanning happens on the counter screen. Open it and scan a
+              customer&apos;s KYP code - nothing is saved until you confirm.
             </p>
             <Button
               className="mt-6 w-full"
               disabled={testStamp.isPending}
               onClick={() =>
-                // A real stamp against the merchant's own first program, so
-                // "prove it works" proves the counter works rather than that
-                // the button does. The API picks the customer and program.
+                // Ticks the checklist's last step and opens the real counter.
+                // It recorded no stamp and answered {id, enabled}, which the
+                // toast read as a visit ("undefined is at undefined of
+                // undefined"), and it then loaded a real shopper into the till.
                 testStamp.mutate(undefined, {
-                  onSuccess: (visit) => {
-                    completeTestStamp();
-                    notify(
-                      `Test stamp recorded. ${visit.customerName} is at ${visit.stampsAfter} of ${visit.target}.`,
-                    );
-                    // Hands the counter view a customer, so the merchant is
-                    // not asked to pick one a second time.
-                    startScanHandoff();
+                  onSuccess: () => {
+                    notify("Counter checked. Scan a customer's code to give a stamp.");
                     setScanOpen(false);
                     onNavigate("scan");
                   },
@@ -1041,7 +1060,7 @@ export function BusinessDashboard({
               }
               icon={<CircleDollarSign size={17} />}
             >
-              Use demo customer
+              Open the counter
             </Button>
           </div>
         </div>
@@ -1085,7 +1104,7 @@ function bandFor(rate: number) {
 }
 
 function ReturnScore() {
-  const { data: metrics = EMPTY_BUSINESS_METRICS } = useBusinessMetrics();
+  const { data: metrics = EMPTY_BUSINESS_METRICS, error } = useBusinessMetrics();
   // The median is a sentence this ring adds when the plan carries cohorts;
   // asking for it on a plan that does not is a 402 nobody reads.
   const gate = usePlanGate();
@@ -1094,6 +1113,16 @@ function ReturnScore() {
   });
   const rate = Math.max(0, Math.min(100, metrics.repeatRate));
   const band = bandFor(rate);
+  // A failed read is not a 0% return rate. "0% · Starting" over a busy shop,
+  // shown to a cashier whose role cannot read metrics, is a claim about the
+  // business that nothing measured.
+  if (error) {
+    return (
+      <section className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 text-sm text-[var(--muted-strong)]">
+        Return rate unavailable: {error.message}
+      </section>
+    );
+  }
 
   // A ring rather than a bar: the number is the point and the arc is the
   // context, so the figure sits inside it instead of beside it.

@@ -9,9 +9,12 @@ type Params = Promise<{ slug: string }>;
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const lookup = await loadShop(slug);
-  if (lookup.status !== "found") {
+  // Only a shop the API does not know is noindex. A timeout or a 5xx while a
+  // crawler happened by used to deindex a real, listed shop.
+  if (lookup.status === "missing") {
     return { title: "Shop", robots: { index: false, follow: false } };
   }
+  if (lookup.status !== "found") return { title: "Shop" };
   const { shop } = lookup;
   const description = `${shop.reward} at ${shop.name}, ${shop.neighborhood}. ${shop.about}`.slice(0, 200);
   return {

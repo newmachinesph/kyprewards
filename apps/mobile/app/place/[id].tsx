@@ -43,7 +43,7 @@ export default function Place() {
   const place = discover.find((item) => item.id === id);
   const [consentOpen, setConsentOpen] = useState(false);
   const join = useApiMutation(joinBusiness, {
-    invalidates: [keys.customer.wallet(), keys.customer.discover()],
+    invalidates: [keys.customer.wallet(), keys.customer.discoverAll()],
     onSuccess: () => {
       notify(
         `You joined ${place?.name ?? "the shop"}. The card is in your wallet.`,

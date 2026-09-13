@@ -66,6 +66,10 @@ export function PushSection() {
   const busy = subscribe.isPending || unsubscribe.isPending;
   const failure = subscribe.error ?? unsubscribe.error;
 
+  // No key on this deployment means nothing can ever be sent: offering the
+  // switch only led to "This wallet has no push key yet."
+  if (state && !state.vapidPublicKey && !preview) return null;
+
   return (
     <section className="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
       <div className="flex items-start gap-3">

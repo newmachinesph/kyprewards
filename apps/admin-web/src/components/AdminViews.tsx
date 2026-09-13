@@ -1295,7 +1295,7 @@ function ProviderPolicyCard({ notify }: { notify: Notify }) {
               setDraft(null);
               notify("Provider policy saved network-wide.");
             },
-            onError: (failure) => notify(failure.message, "review"),
+            onError: (failure) => notify(failure.message, "error"),
           })
         }
       >
@@ -1330,7 +1330,7 @@ function PlatformExportButton({
             failure instanceof ApiError
               ? failure.message
               : "That export could not be prepared.",
-            "review",
+            "error",
           );
         } finally {
           setBusy(false);
@@ -1424,12 +1424,15 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
                   aria-checked={enabled}
                   disabled={!present}
                   title={present ? undefined : PREVIEW_WRITE_REASON}
-                  onClick={() => {
-                    const next = toggleFlag(flag.key);
-                    notify(
-                      `${flag.title} ${next ? "on" : "off"}. The API wrote it to the audit ledger.`,
-                    );
-                  }}
+                  onClick={() =>
+                    toggleFlag(flag.key, {
+                      onDone: (next) =>
+                        notify(
+                          `${flag.title} ${next ? "on" : "off"}. The API wrote it to the audit ledger.`,
+                        ),
+                      onFailed: (message) => notify(message, "error"),
+                    })
+                  }
                   className={`relative h-6 w-10 shrink-0 rounded-full disabled:opacity-45 ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                 >
                   <span
@@ -1624,12 +1627,13 @@ function SettingsView({ notify }: { notify: Notify }) {
                     role="switch"
                     aria-label={`Toggle ${title}`}
                     aria-checked={enabled}
-                    onClick={() => {
-                      const next = toggleFlag(key);
-                      notify(
-                        `${title} ${next ? "enabled" : "disabled"} network-wide.`,
-                      );
-                    }}
+                    onClick={() =>
+                      toggleFlag(key, {
+                        onDone: (next) =>
+                          notify(`${title} ${next ? "enabled" : "disabled"} network-wide.`),
+                        onFailed: (message) => notify(message, "error"),
+                      })
+                    }
                     className={`relative h-6 w-10 shrink-0 rounded-full ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                   >
                     <span

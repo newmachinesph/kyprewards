@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { DemoActionDialog } from "@kypstamping/ui";
 import { Toast, useHashView, useToast } from "@kypstamping/ui/shell";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
-import { DemoStateProvider } from "@/components/DemoState";
 import { BusinessShell, type BusinessView } from "@/components/BusinessShell";
 import { BusinessDashboard } from "@/components/BusinessDashboard";
 import { BusinessViewContent } from "@/components/BusinessViews";
@@ -37,26 +35,22 @@ const VIEWS: readonly BusinessView[] = [
 
 export function BusinessDemo() {
   const { view, navigate } = useHashView(VIEWS, "dashboard");
-  const [action, setAction] = useState<string | null>(null);
   // Errors stay until dismissed; a plan refusal that fades in under three
   // seconds reads as a button that does nothing.
   const [toastTone, setToastTone] = useState<"success" | "error">("success");
   const { toast, setToast, dismiss } = useToast(toastTone === "error" ? 0 : 2800);
 
   // Behaviour is chosen by the caller, not by matching words in the copy.
-  // "review" opens the confirm dialog; everything else is a passive toast.
+  // Every intent is a toast here: the confirm dialog promised "no backend
+  // request will occur" and "demo action confirmed", and real API errors -
+  // a refused stamp undo among them - were being routed into it.
   function notify(message: string, intent: NotifyIntent = "info") {
-    if (intent === "review") {
-      setAction(message);
-      return;
-    }
     setToastTone(intent === "error" ? "error" : "success");
     setToast(message);
   }
 
   return (
-    <DemoStateProvider>
-      <BusinessShell activeView={view} onNavigate={navigate}>
+    <BusinessShell activeView={view} onNavigate={navigate}>
         {view === "dashboard" ? (
           <BusinessDashboard onNavigate={navigate} notify={notify} />
         ) : (
@@ -69,17 +63,6 @@ export function BusinessDemo() {
         {toast && (
           <Toast message={toast} onDismiss={dismiss} tone={toastTone} />
         )}
-        {action && (
-          <DemoActionDialog
-            title={action}
-            onClose={() => setAction(null)}
-            onConfirm={() => {
-              setAction(null);
-              setToast("Demo action confirmed for this browser session.");
-            }}
-          />
-        )}
       </BusinessShell>
-    </DemoStateProvider>
   );
 }

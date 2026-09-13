@@ -3,6 +3,10 @@ import { siteUrl } from "@/lib/site";
 import { loadDirectory } from "@/lib/public-data";
 import { categoryPath, neighborhoodPath, shopPath } from "@/lib/routes";
 
+// Rebuilt hourly. Cached forever by default, the sitemap kept shops the
+// directory had since hidden and never listed new ones until a deploy.
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { shops, categories, neighborhoods } = await loadDirectory();
   const at = (path: string, priority: number): MetadataRoute.Sitemap[number] => ({

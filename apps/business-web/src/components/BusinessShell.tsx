@@ -249,6 +249,25 @@ const OWNER_ONLY: ReadonlySet<BusinessView> = new Set<BusinessView>([
   "gifts",
 ]);
 
+/**
+ * Doors a support session holds no key to. Support sets a shop up - profile,
+ * branches, programs, staff - and never serves or reads a customer, so these
+ * were views whose every request answered 403.
+ */
+const SUPPORT_HIDDEN: ReadonlySet<BusinessView> = new Set<BusinessView>([
+  "scan",
+  "customers",
+  "redemptions",
+  "campaigns",
+  "message-log",
+  "feedback",
+  "gifts",
+  "favorite-orders",
+  "birthday",
+  "store-credit",
+  "integrations",
+]);
+
 export function BusinessShell({
   children,
   activeView,
@@ -265,6 +284,7 @@ export function BusinessShell({
   const gate = usePlanGate();
   const role = workspaces.find((entry) => entry.merchantId === profile?.merchantId)?.role ?? "";
   const frontLine = role === "Cashier";
+  const onSupport = role === "Support";
   const workspaceName = profile?.shortName ?? "";
   const workspaceInitials = workspaceName
     .split(/\s+/)
@@ -297,7 +317,7 @@ export function BusinessShell({
           </p>
           <div className="space-y-1">
             {group.items.map((item) => {
-              if (frontLine && OWNER_ONLY.has(item.view)) return null;
+              if ((frontLine && OWNER_ONLY.has(item.view)) || (onSupport && SUPPORT_HIDDEN.has(item.view))) return null;
               const Icon = item.icon;
               const active = activeView === item.view;
               return (
@@ -362,7 +382,7 @@ export function BusinessShell({
 
         <div className="mt-auto space-y-2 border-t border-[var(--line)] pt-4">
           {accountItems.map((item) => {
-            if (frontLine && OWNER_ONLY.has(item.view)) return null;
+            if ((frontLine && OWNER_ONLY.has(item.view)) || (onSupport && SUPPORT_HIDDEN.has(item.view))) return null;
             const Icon = item.icon;
             return (
               <button
@@ -468,7 +488,7 @@ export function BusinessShell({
             </nav>
             <div className="mt-6 grid gap-2 border-t border-[var(--line)] pt-4 sm:grid-cols-2">
               {accountItems.map((item) => {
-                if (frontLine && OWNER_ONLY.has(item.view)) return null;
+                if ((frontLine && OWNER_ONLY.has(item.view)) || (onSupport && SUPPORT_HIDDEN.has(item.view))) return null;
                 const Icon = item.icon;
                 return (
                   <button

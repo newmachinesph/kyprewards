@@ -43,7 +43,7 @@ export function DiscoverPanel({ notify }: { notify: Notify }) {
   const { data: featured } = useFeaturedPlacement();
   // Refetched on every visit: the photo, branches and programs are edited on
   // other screens and none of those saves invalidates this.
-  const { data: listing } = useDiscoverListing({ refetchOnMount: "always" });
+  const { data: listing, error: listingError } = useDiscoverListing({ refetchOnMount: "always" });
   const [sheet, setSheet] = useState<QrPayment | null>(null);
   const buy = useApiMutation(() => retryOnce(() => purchaseFeaturedPlacement()), {
     invalidates: [keys.levers.featured(), keys.business.billing()],
@@ -83,6 +83,10 @@ export function DiscoverPanel({ notify }: { notify: Notify }) {
               ))}
             </ul>
           </div>
+        ) : listingError ? (
+          <p role="alert" className="mt-1 text-xs font-bold text-[var(--danger)]">
+            Could not check your listing: {listingError.message}
+          </p>
         ) : null}
         <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--line)]">
           <div

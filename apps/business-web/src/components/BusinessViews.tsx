@@ -51,7 +51,7 @@ import {
   EditLocationDialog,
   NewLocationDialog,
 } from "@/components/WorkspaceForms";
-import { useOfflineQueue } from "@/components/useOfflineQueue";
+import { useOfflineQueue, type SyncOutcome } from "@/components/useOfflineQueue";
 import {
   useCreateCampaign,
   useRecordVisit,
@@ -125,7 +125,6 @@ import {
   WifiOff,
 } from "lucide-react";
 import type { BusinessView } from "@/components/BusinessShell";
-import { useDemoState } from "@/components/DemoState";
 import { IntegrationsView } from "@/components/IntegrationsView";
 import { overageRates, channelRates } from "@/lib/plans";
 import { planFor, refusal, usePlanGate, writeBlock } from "@/lib/plan";
@@ -675,19 +674,21 @@ function ScanView({
   notify: Notify;
   onNavigate: (view: BusinessView) => void;
 }) {
-  const { data: customers = [] } = useBusinessCustomers();
   const { data: branding } = useBranding();
   const [held, setHeld] = useState<RedemptionResult | null>(null);
   // Polled while the customer is approving on their phone, so the counter
-  // learns the moment it may hand over.
+  // learns the moment it may hand over - and only until the ledger row says
+  // they have. Keyed on `held` alone it polled for ever, because this tab's
+  // copy of the reservation never leaves "awaiting_customer".
   const { data: redemptions = [] } = useRedemptions({
-    refetchInterval: held?.status === "awaiting_customer" ? 4000 : false,
+    refetchInterval: (query) => {
+      if (!held) return false;
+      const row = query.state.data?.find((entry) => entry.id === held.id);
+      return !row || row.status === "Awaiting customer" ? 4000 : false;
+    },
   });
   // The header named the demo fixture's branch, which is not this shop's.
   const { data: locations = [] } = useLocations();
-  // The dashboard scanner already picked a customer; arriving here and being
-  // asked to pick again broke the flow.
-  const { scanHandoff, consumeScanHandoff } = useDemoState();
   const { scanned, amount, idempotencyReference, scan, setAmount, reset } =
     useCounterStore();
   const record = useRecordVisit();
@@ -752,8 +753,15 @@ function ScanView({
   const queryClient = useQueryClient();
   const { queue, online, enqueue } = useOfflineQueue(
     useCallback(
-      (settled: number) => {
-        notify(`${settled} held ${settled === 1 ? "stamp" : "stamps"} synced.`);
+      ({ settled, refused }: SyncOutcome) => {
+        if (refused.length > 0) {
+          notify(
+            `${settled} held ${settled === 1 ? "sale" : "sales"} synced. Needs a look: ${refused.join("; ")}`,
+            "error",
+          );
+        } else {
+          notify(`${settled} held ${settled === 1 ? "stamp" : "stamps"} synced.`);
+        }
         void queryClient.invalidateQueries({ queryKey: keys.business.all });
       },
       [notify, queryClient],
@@ -782,29 +790,14 @@ function ScanView({
     (balance?.heldRedemptionId
       ? { id: balance.heldRedemptionId, rewardName: balance.heldRewardName }
       : null);
-  // The customer approves on their phone before staff may hand over. Either
-  // this tab's hold says so, or the ledger row does.
-  const awaiting =
-    held?.status === "awaiting_customer" ||
-    redemptions.find((row) => row.id === activeHold?.id)?.status ===
-      "Awaiting customer";
-
-  useEffect(() => {
-    if (!scanHandoff) return;
-    consumeScanHandoff();
-    const first = customers[0];
-    if (first && !scanned) {
-      // The API's code, not one rebuilt from the id. The member code is its
-      // own column now precisely so a lost card can be reissued without the
-      // id moving, and rebuilding it here would undo that.
-      scan({
-        id: first.id,
-        name: first.name,
-        memberCode: first.memberCode,
-        isMember: true,
-      });
-    }
-  }, [scanHandoff, consumeScanHandoff, customers, scanned, scan]);
+  // The customer approves on their phone before staff may hand over. The
+  // ledger row is the truth once it is loaded; this tab's own copy of the
+  // reservation only until then. Read the other way round, the counter kept
+  // waiting after the customer had approved and "Handed over" never appeared.
+  const heldRow = redemptions.find((row) => row.id === activeHold?.id);
+  const awaiting = heldRow
+    ? heldRow.status === "Awaiting customer"
+    : held?.status === "awaiting_customer";
 
   const step: "ready" | "found" | "complete" = done
     ? "complete"
@@ -876,6 +869,7 @@ function ScanView({
         customerName: scanned.name,
         amountCentavos,
         occurredAt: new Date().toISOString(),
+        branchId: tillBranch || undefined,
       });
       notify(`Held for ${scanned.name}. It will sync when the signal is back.`);
       startOver();
@@ -1019,22 +1013,6 @@ function ScanView({
                   }}
                   notify={notify}
                 />
-              )}
-              {customers[0] && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    scan({
-                      id: customers[0].id,
-                      name: customers[0].name,
-                      memberCode: customers[0].memberCode,
-                      isMember: true,
-                    })
-                  }
-                  className="mt-4 min-h-11 w-full text-xs font-extrabold text-white/60 hover:text-white"
-                >
-                  Use {customers[0].name}
-                </button>
               )}
             </div>
           )}
@@ -1391,7 +1369,7 @@ function ScanView({
                           notify(`Stamp reversed for ${done.customerName}.`);
                           startOver();
                         },
-                        onError: (failure) => notify(failure.message, "review"),
+                        onError: (failure) => notify(failure.message, "error"),
                       },
                     )
                   }

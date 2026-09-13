@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import type { DiscoverPlace, WalletCard } from "@kypstamping/api";
+import type { CustomerProfile, DiscoverPlace, WalletCard } from "@kypstamping/api";
 import {
   ApiError,
   PREVIEW_WRITE_REASON,
@@ -663,9 +663,9 @@ function HomeView({
   onActivity: () => void;
   onApprove: () => void;
 }) {
-  const { profile, claimSettling, wallet: cards, walletQuery } = useCustomerState();
+  const { profile, claimSettling, wallet: cards, walletQuery, channels } = useCustomerState();
   const walletPending = walletQuery.isPending;
-  const where = useCoordinates(true);
+  const where = useCoordinates(channels.nearby);
   const { data: discover = [] } = useDiscover(where);
   const { data: approvals = [] } = usePendingApprovals();
   const { data: nudges = [] } = useNearby(where);
@@ -1929,7 +1929,7 @@ function BusinessSheet({
 }: {
   id: string;
   close: () => void;
-  onJoin: () => void;
+  onJoin: (businessId: string) => void;
 }) {
   const { data: discover = [] } = useDiscover();
   const { joinedIds } = useCustomerState();
@@ -2111,7 +2111,10 @@ function BusinessSheet({
           onCancel={() => setConsentOpen(false)}
           onConfirm={() => {
             setConsentOpen(false);
-            onJoin();
+            // The shop's `businessId`, not the list row's `id`: the row id is
+            // "discover_<merchant>", which the join route has never known, so
+            // every join from this sheet answered 404 behind a success toast.
+            onJoin(business.businessId);
           }}
         />
       )}
@@ -2374,55 +2377,11 @@ function ProfileSheet({
           {title}
         </h2>
         {isPersonal ? (
-          <div className="mt-6 space-y-4">
-            {(
-              [
-                ["Name", "name", UserRound, "text"],
-                ["Birthday", "birthday", CakeSlice, "text"],
-                ["Email", "email", Mail, "email"],
-                ["Mobile", "mobile", Phone, "tel"],
-              ] as const
-            ).map(([label, field, icon, type]) => {
-              // Writes to the shared profile, so the header, the join-consent
-              // dialog, and the privacy centre all show the change.
-              const Icon = icon;
-              return (
-                <label
-                  key={String(label)}
-                  className="grid gap-2 text-xs font-bold"
-                >
-                  {label}
-                  <span className="flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 text-sm font-normal focus-within:border-[var(--ink)]">
-                    <Icon size={16} className="text-[var(--muted)]" />
-                    <input
-                      type={type}
-                      // Birthday is null until they give one, and null flips
-                      // a controlled input to uncontrolled mid-edit.
-                      value={profile[field] ?? ""}
-                      onChange={(event) =>
-                        updateProfile({ [field]: event.target.value })
-                      }
-                      className="min-w-0 flex-1 bg-transparent outline-none"
-                    />
-                  </span>
-                </label>
-              );
-            })}
-            {/* Every edit is sent as it is typed; this line is the API's answer. */}
-            <p
-              role="status"
-              aria-live="polite"
-              className={`text-xs font-bold ${profileSave.error ? "text-[var(--danger)]" : "text-[var(--muted-strong)]"}`}
-            >
-              {profileSave.isPending
-                ? "Saving…"
-                : profileSave.error
-                  ? profileSave.error.message
-                  : profileSave.isSuccess
-                    ? "Saved. Your details are updated across the wallet."
-                    : "Changes save as you type."}
-            </p>
-          </div>
+          <PersonalDetails
+            profile={profile}
+            updateProfile={updateProfile}
+            profileSave={profileSave}
+          />
         ) : isNotifications ? (
           <div className="mt-6">
             <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
@@ -2462,8 +2421,11 @@ function ProfileSheet({
                   aria-checked={channels[channel.key]}
                   aria-label={`Toggle ${channel.label}`}
                   onClick={() => {
-                    const next = toggleChannel(channel.key);
-                    notify(`${channel.label} ${next ? "turned on" : "turned off"}.`);
+                    toggleChannel(channel.key, {
+                      onDone: (next) =>
+                        notify(`${channel.label} ${next ? "turned on" : "turned off"}.`),
+                      onFailed: (message) => notify(message, "error"),
+                    });
                   }}
                   className={`relative h-6 w-10 shrink-0 rounded-full ${channels[channel.key] ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
                 >
@@ -2511,8 +2473,11 @@ function ProfileSheet({
                     onClick={() => {
                       // Removes the card from the wallet, the joined-businesses
                       // list, and the count on the profile — not just this row.
-                      leaveBusiness(card.id);
-                      notify(`You left ${card.business}. The card is out of your wallet.`);
+                      leaveBusiness(card.id, {
+                        onDone: () =>
+                          notify(`You left ${card.business}. The card is out of your wallet.`),
+                        onFailed: (message) => notify(message, "error"),
+                      });
                     }}
                     className="flex min-h-12 w-full items-center justify-between gap-2 border-b border-[var(--line)] px-4 text-left text-xs font-bold last:border-0 disabled:opacity-60"
                   >
@@ -2541,8 +2506,10 @@ function ProfileSheet({
                 ) {
                   return;
                 }
-                requestDeletion();
-                notify("Account deletion request queued for identity review.");
+                requestDeletion({
+                  onDone: () => notify("Account deletion request queued for identity review."),
+                  onFailed: (message) => notify(message, "error"),
+                });
               }}
               className="mt-2 min-h-12 w-full rounded-xl bg-[var(--danger)] text-sm font-extrabold text-white disabled:opacity-65"
             >
@@ -2622,7 +2589,7 @@ function ProfileSheet({
                   "Location",
                   channels.nearby
                     ? "Used for nearby reminders while that is on"
-                    : "Never shared. Discovery matches by city only",
+                    : "Only when you allow it on the Discover tab, to show distances",
                   channels.nearby,
                 ],
               ].map(([field, note, shared]) => (
@@ -2711,8 +2678,10 @@ function ProfileSheet({
                 type="button"
                 disabled={exportRequested}
                 onClick={() => {
-                  requestExport();
-                  notify("Portable data export is being prepared.");
+                  requestExport({
+                    onDone: () => notify("Portable data export is being prepared."),
+                    onFailed: (message) => notify(message, "error"),
+                  });
                 }}
                 className="mt-5 min-h-12 w-full rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-65"
               >
@@ -2940,10 +2909,12 @@ function CustomerWallet() {
         <BusinessSheet
           id={sheet.id}
           close={() => setSheet(null)}
-          onJoin={() => {
-            joinBusiness(sheet.id);
-            setToast("Business added to your wallet.");
-          }}
+          onJoin={(businessId) =>
+            joinBusiness(sheet.id, businessId, {
+              onJoined: () => setToast("Business added to your wallet."),
+              onFailed: (message) => setToast(message),
+            })
+          }
         />
       )}
       {sheet?.kind === "profile" && (
@@ -2959,5 +2930,91 @@ function CustomerWallet() {
       )}
       </main>
     </>
+  );
+}
+
+/**
+ * Name, email and mobile, saved with a button.
+ *
+ * Every keystroke used to be a PATCH: each one fired a `customer.updated`
+ * webhook to every shop the customer had joined, saved half-typed addresses
+ * (and mailed a "sign-in details changed" notice to each), and let responses
+ * land out of order - so the sign-in identifier could end up truncated. Only
+ * the fields that changed are sent.
+ *
+ * Birthday is shown, not edited here: the API takes a day and a month, and a
+ * free-text box was accepted, answered "Saved", and silently dropped.
+ */
+function PersonalDetails({
+  profile,
+  updateProfile,
+  profileSave,
+}: {
+  profile: CustomerProfile;
+  updateProfile: (patch: Partial<CustomerProfile>) => void;
+  profileSave: { isPending: boolean; error: Error | null; isSuccess: boolean };
+}) {
+  const [draft, setDraft] = useState({
+    name: profile.name ?? "",
+    email: profile.email ?? "",
+    mobile: profile.mobile ?? "",
+  });
+  const changed = (Object.keys(draft) as (keyof typeof draft)[]).filter(
+    (field) => draft[field].trim() !== (profile[field] ?? ""),
+  );
+  const fields = [
+    ["Name", "name", UserRound, "text"],
+    ["Email", "email", Mail, "email"],
+    ["Mobile", "mobile", Phone, "tel"],
+  ] as const;
+  return (
+    <form
+      className="mt-6 space-y-4"
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (changed.length === 0 || profileSave.isPending) return;
+        updateProfile(Object.fromEntries(changed.map((field) => [field, draft[field].trim()])));
+      }}
+    >
+      {fields.map(([label, field, Icon, type]) => (
+        <label key={field} className="grid gap-2 text-xs font-bold">
+          {label}
+          <span className="flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 text-sm font-normal focus-within:border-[var(--ink)]">
+            <Icon size={16} className="text-[var(--muted)]" />
+            <input
+              type={type}
+              value={draft[field]}
+              onChange={(event) => setDraft((current) => ({ ...current, [field]: event.target.value }))}
+              className="min-w-0 flex-1 bg-transparent outline-none"
+            />
+          </span>
+        </label>
+      ))}
+      <div className="grid gap-2 text-xs font-bold">
+        Birthday
+        <span className="flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] px-4 text-sm font-normal text-[var(--muted-strong)]">
+          <CakeSlice size={16} className="text-[var(--muted)]" />
+          {profile.birthday ?? "Not given"}
+        </span>
+      </div>
+      <button
+        type="submit"
+        disabled={changed.length === 0 || profileSave.isPending}
+        className="min-h-12 w-full rounded-2xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-50"
+      >
+        {profileSave.isPending ? "Saving…" : "Save changes"}
+      </button>
+      <p
+        role="status"
+        aria-live="polite"
+        className={`text-xs font-bold ${profileSave.error ? "text-[var(--danger)]" : "text-[var(--muted-strong)]"}`}
+      >
+        {profileSave.error
+          ? profileSave.error.message
+          : profileSave.isSuccess && changed.length === 0
+            ? "Saved. Your details are updated across the wallet."
+            : ""}
+      </p>
+    </form>
   );
 }

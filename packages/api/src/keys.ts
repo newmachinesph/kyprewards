@@ -90,6 +90,10 @@ export const keys = {
     consentHistory: () => [...keys.customer.all, "consent-history"] as const,
     /** Coordinates change the answer, so they are part of the key. */
     discover: (near?: Coordinates) => [...keys.customer.all, "discover", near ?? null] as const,
+    /** Every Discover answer, whatever position it was asked from - what a
+     *  join or leave has to invalidate, since the list on screen is keyed by
+     *  coordinates and `discover()` alone only matches the position-less one. */
+    discoverAll: () => [...keys.customer.all, "discover"] as const,
     nearby: (near?: Coordinates) => [...keys.customer.all, "nearby", near ?? null] as const,
   },
 

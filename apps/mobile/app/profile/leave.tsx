@@ -26,7 +26,7 @@ export default function Leave() {
   );
   const [open, setOpen] = useState(false);
   const leave = useApiMutation(leaveBusiness, {
-    invalidates: [keys.customer.wallet(), keys.customer.discover()],
+    invalidates: [keys.customer.wallet(), keys.customer.discoverAll()],
     onError: (failure) => notify(failure.message, "error"),
   });
   const { data: requests = [] } = useDataRequests();

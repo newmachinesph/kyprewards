@@ -1,1 +1,4 @@
 apps/mobile
+# Local env points at localhost and turns preview data on; never upload it.
+.env*.local
+**/.env*.local

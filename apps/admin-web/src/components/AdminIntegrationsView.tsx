@@ -167,11 +167,18 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
   function replayFailed() {
     if (recoveryQueue.length === 0) return;
     setReplaying(true);
-    const queued = replayRecovery();
-    notify(
-      `${queued} webhook deliver${queued === 1 ? "y" : "ies"} moved into the replay queue.`,
-    );
-    window.setTimeout(() => setReplaying(false), 800);
+    replayRecovery({
+      onDone: (queued) => {
+        setReplaying(false);
+        notify(
+          `${queued} webhook deliver${queued === 1 ? "y" : "ies"} moved into the replay queue.`,
+        );
+      },
+      onFailed: (message) => {
+        setReplaying(false);
+        notify(message, "error");
+      },
+    });
   }
 
   return (

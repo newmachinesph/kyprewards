@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { isPreview, usePayment, type QrPayment } from "@kypstamping/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { isPreview, keys, usePayment, type QrPayment } from "@kypstamping/api";
 import { Button, Dialog, PreviewBadge } from "@kypstamping/ui";
 import { pesoFromCentavos } from "@kypstamping/ui/format";
 import { Check, TriangleAlert } from "lucide-react";
@@ -33,6 +34,19 @@ export function PaymentSheet({
   }, []);
   const expired = payment.status === "expired" || new Date(payment.expiresAt).getTime() <= now;
   const settled = payment.status === "paid";
+  // What the payment bought has to show as bought: billing, featured
+  // placement and branch reporting all read state the settlement changed.
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (!settled) return;
+    for (const queryKey of [
+      keys.business.billing(),
+      keys.levers.featured(),
+      keys.business.analytics.branchReporting(),
+    ]) {
+      void queryClient.invalidateQueries({ queryKey });
+    }
+  }, [settled, queryClient]);
 
   return (
     <Dialog title={title} eyebrow="Pay by QR Ph" onClose={onClose}>
