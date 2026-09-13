@@ -14,6 +14,7 @@ import {
   type CategoryRate,
   type Program,
   type StampRules,
+  useBranding,
 } from "@kypstamping/api";
 import { Button, Eyebrow, PreviewBadge, StampDots } from "@kypstamping/ui";
 import { longDate, pesoFromCentavos, timeOfDay } from "@kypstamping/ui/format";
@@ -113,6 +114,7 @@ function staffMessages(program: Program, rules: StampRules) {
 
 export function ProgramRulesEditor({ program, notify }: { program: Program; notify: Notify }) {
   const { data: programs = [] } = usePrograms();
+  const { data: branding } = useBranding();
   const [draft, setDraft] = useState<StampRules | null>(null);
   const [draftFor, setDraftFor] = useState(program.id);
   if (draftFor !== program.id) {
@@ -356,7 +358,13 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
           </div>
           <h3 className="mt-5 text-2xl font-extrabold tracking-[-0.02em]">{program.name}</h3>
           <div className="mt-5 overflow-x-auto pb-1">
-            <StampDots filled={rules.welcomeStamp ? 1 : 0} total={Math.max(1, Math.min(30, program.target))} dark />
+            <StampDots
+              filled={rules.welcomeStamp ? 1 : 0}
+              total={Math.max(1, Math.min(30, program.target))}
+              icon={branding?.stampIcon}
+              imageUrl={branding?.stampImageUrl}
+              dark
+            />
           </div>
           {rules.welcomeStamp && (
             <p className="mt-2 text-[11px] text-[var(--accent)]">1 pending welcome stamp, confirmed on your first visit</p>

@@ -452,7 +452,13 @@ function LoyaltyCard({
         <div className={compact ? "mt-5" : "mt-7"}>
           {card.target > 0 && (
             <div className="overflow-x-auto pb-1">
-              <StampDots filled={earnedStamps(card)} total={card.target} dark />
+              <StampDots
+                filled={earnedStamps(card)}
+                total={card.target}
+                icon={card.stampIcon}
+                imageUrl={card.stampImageUrl}
+                dark
+              />
             </div>
           )}
           <div className="mt-3 flex items-center justify-between text-[11px] font-semibold">

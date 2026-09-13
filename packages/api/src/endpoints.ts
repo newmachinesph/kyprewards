@@ -280,6 +280,17 @@ export const uploadBrandingImage = (file: File): Promise<Branding> => {
   return http("/business/branding/image", { method: "POST", raw: form });
 };
 
+/** One of `Branding.stampIcons`; free on every plan. Clears an uploaded mark. */
+export const setStampIcon = (stampIcon: string): Promise<Branding> =>
+  http("/business/branding", { method: "PUT", body: { stampIcon } });
+
+/** The shop's own mark inside a stamp. 402 below Core. */
+export const uploadStampImage = (file: File): Promise<Branding> => {
+  const form = new FormData();
+  form.append("file", file);
+  return http("/business/branding/stamp", { method: "POST", raw: form });
+};
+
 export const getLocations = (): Promise<BusinessLocation[]> => http("/business/locations");
 
 export const getBusinessCustomers = (): Promise<BusinessCustomer[]> => http("/business/customers");

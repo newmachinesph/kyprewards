@@ -146,7 +146,12 @@ export default function Join() {
               At {offer.business} · {offer.branch}
             </Text>
             <View className="mt-7 w-full rounded-2xl bg-paper p-5">
-              <StampDots filled={offer.stamps} total={offer.target} />
+              <StampDots
+                filled={offer.stamps}
+                total={offer.target}
+                icon={offer.stampIcon}
+                imageUrl={offer.stampImageUrl}
+              />
               <Text className="mt-4 font-sans-extrabold text-[14px] text-ink">
                 {offer.stamps} of {offer.target} toward {offer.reward}
               </Text>

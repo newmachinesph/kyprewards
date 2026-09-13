@@ -45,13 +45,15 @@ import {
 } from "@kypstamping/api";
 import { ImageIcon } from "lucide-react";
 import { splitRange, toDisplayTime } from "@kypstamping/ui/format";
-import { BRAND_COLORS, Button, Dialog, FieldLabel } from "@kypstamping/ui";
+import { BRAND_COLORS, Button, Dialog, FieldLabel, STAMP_ICONS, StampMark } from "@kypstamping/ui";
 import {
   useCreateProgram,
   useSetBrandingColor,
+  useSetStampIcon,
   useUpdateLocation,
   useUpdateProfile,
   useUploadBrandingImage,
+  useUploadStampImage,
 } from "@/components/mutations";
 
 type Notify = (message: string, intent?: "info" | "review" | "error") => void;
@@ -397,6 +399,8 @@ export function EditProfileDialog({
   const uploadImage = useUploadBrandingImage();
   const { data: branding } = useBranding();
   const setColor = useSetBrandingColor();
+  const setStamp = useSetStampIcon();
+  const uploadStamp = useUploadStampImage();
   // Branding is a Core feature and the API enforces it, but this dialog
   // offered the swatches anyway. Picking one 402'd into the banner, and then
   // Save profile cleared that banner, saved the unrelated profile fields,
@@ -515,6 +519,77 @@ export function EditProfileDialog({
               </p>
             </div>
           </div>
+        </fieldset>
+        {/* What a collected stamp shows. The presets are ours and free on
+            every plan; a mark of the shop's own is Core's, under the same
+            "your own branding on the card" as the colour below. */}
+        <fieldset className="grid gap-2">
+          <legend className="mb-2">
+            <FieldLabel>Stamp mark</FieldLabel>
+          </legend>
+          <div className="flex flex-wrap items-center gap-2">
+            {(branding?.stampIcons ?? Object.keys(STAMP_ICONS)).map((icon) => {
+              const active = !branding?.stampImageUrl && (branding?.stampIcon ?? "check") === icon;
+              return (
+                <button
+                  key={icon}
+                  type="button"
+                  aria-pressed={active}
+                  aria-label={`Stamp with a ${icon}`}
+                  disabled={setStamp.isPending}
+                  className={`grid size-11 place-items-center rounded-full bg-[var(--accent)] text-[var(--ink)] transition disabled:opacity-45 ${
+                    active ? "ring-2 ring-[var(--ink)] ring-offset-2" : "opacity-70 hover:opacity-100"
+                  }`}
+                  onClick={() => {
+                    setBanner("");
+                    setStamp.mutate(icon, {
+                      onSuccess: () => notify(`Stamps now show a ${icon}.`),
+                      onError: (failure) => setBanner(failure.message),
+                    });
+                  }}
+                >
+                  <StampMark icon={icon} size={18} />
+                </button>
+              );
+            })}
+            <label
+              className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-xs font-extrabold transition hover:border-[var(--ink)] focus-within:ring-2 focus-within:ring-[var(--accent)] ${
+                uploadStamp.isPending || brandingLocked ? "cursor-not-allowed opacity-60" : ""
+              }`}
+            >
+              {branding?.stampImageUrl && (
+                <span className="grid size-7 place-items-center overflow-hidden rounded-full bg-[var(--accent)] ring-2 ring-[var(--ink)] ring-offset-2">
+                  <StampMark imageUrl={branding.stampImageUrl} />
+                </span>
+              )}
+              {uploadStamp.isPending
+                ? "Uploading…"
+                : branding?.stampImageUrl
+                  ? "Replace your own"
+                  : "Upload your own"}
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="sr-only"
+                disabled={uploadStamp.isPending || brandingLocked}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
+                  setBanner("");
+                  uploadStamp.mutate(file, {
+                    onSuccess: () => notify("Stamps now show your own mark."),
+                    onError: (failure) => setBanner(failure.message),
+                  });
+                  event.target.value = "";
+                }}
+              />
+            </label>
+          </div>
+          <p className="text-[11px] leading-relaxed text-[var(--muted-strong)]">
+            {brandingLocked
+              ? "Pick any of ours on Launch. Your own mark, clipped to the circle, opens with Core."
+              : "A square PNG with a plain shape reads best: it is drawn at 28 px, clipped to the circle."}
+          </p>
         </fieldset>
         {/* The other half of "custom branding". The photo was the only part
             with a control, so the colour token the API stores and the wallet

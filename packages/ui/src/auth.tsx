@@ -1512,7 +1512,9 @@ export function DemoAuthFlow({
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-extrabold">{option.name}</span>
                   <span className="mt-1 block text-xs text-[var(--muted-strong)]">
-                    {option.role} · {option.location}
+                    {/* The city first: two workspaces can share a name, and
+                        "Owner · All locations" twice told the tester nothing. */}
+                    {[option.city, option.role, option.location].filter(Boolean).join(" · ")}
                   </span>
                 </span>
                 {selected && <Check size={17} className="text-[var(--success)]" />}

@@ -175,7 +175,12 @@ function ShopBody({ shop }: { shop: PublicShop }) {
           </p>
           <p className="mt-2 text-2xl font-bold leading-tight tracking-[-0.02em]">{shop.reward}</p>
           <div className="mt-5 overflow-x-auto pb-1">
-            <StampDots filled={0} total={shop.target} />
+            <StampDots
+              filled={0}
+              total={shop.target}
+              icon={shop.stampIcon}
+              imageUrl={shop.stampImageUrl}
+            />
           </div>
           <p className="mt-3 text-sm text-[var(--muted-strong)]">
             {shop.target} {shop.target === 1 ? "visit" : "visits"} fills the card. Join from the

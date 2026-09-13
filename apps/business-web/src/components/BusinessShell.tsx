@@ -389,9 +389,10 @@ export function BusinessShell({
                 role="menu"
                 className="absolute bottom-[calc(100%+8px)] left-0 right-0 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-2xl"
               >
-                <button type="button" role="menuitem" onClick={() => window.location.replace("/workspaces")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]">
-                  <Store size={15} /> Switch workspace
-                </button>
+                {/* No "Switch workspace" here on purpose: a person with two
+                    shops signs out and back in and picks the other one. The
+                    in-place switch confused a tester with two workspaces
+                    under one name. */}
                 <button type="button" role="menuitem" onClick={() => navigate("settings")} className="flex min-h-10 w-full items-center gap-2 rounded-xl px-3 text-left text-xs font-bold hover:bg-[var(--surface-2)]">
                   <Settings2 size={15} /> Account settings
                 </button>
@@ -458,13 +459,12 @@ export function BusinessShell({
             >
               <Bell size={18} />
             </button>
-            <a
-              href="/workspaces"
-              aria-label="Switch workspace"
+            <span
+              aria-hidden="true"
               className="grid size-10 place-items-center rounded-full bg-[var(--accent)] text-xs font-extrabold"
             >
               {workspaceInitials}
-            </a>
+            </span>
           </div>
         </header>
         {mobileOpen && (

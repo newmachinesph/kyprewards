@@ -265,7 +265,12 @@ export function FirstStamp({ slug }: { slug: string }) {
 
               <div className="mt-7 rounded-2xl bg-[var(--paper)] p-5">
                 <div className="overflow-x-auto">
-                  <StampDots filled={offer.stamps} total={offer.target} />
+                  <StampDots
+                    filled={offer.stamps}
+                    total={offer.target}
+                    icon={offer.stampIcon}
+                    imageUrl={offer.stampImageUrl}
+                  />
                 </div>
                 <p className="mt-4 text-sm font-extrabold">
                   {offer.stamps} of {offer.target} toward {offer.reward}

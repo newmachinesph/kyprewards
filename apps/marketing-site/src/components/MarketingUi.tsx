@@ -204,10 +204,10 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
                this receipt needs fluid columns. Keep the two in sync. */
             className={`font-display grid aspect-square place-items-center rounded-full text-[10px] font-bold tracking-tight ${index < 5 ? "bg-[var(--accent)] text-[var(--ink)]" : "border border-dashed border-[var(--line-strong)]"}`}
           >
-            {/* The shop's initials, not ours. This used to stamp "K" into
-                every dot on a card belonging to Sweet Crumbs — our letter in
-                the one place on the card that is most obviously theirs. */}
-            {index < 5 ? "SC" : ""}
+            {/* A tick, which is what a collected stamp shows unless the shop
+                picks one of the presets or, from Core, uploads a mark of
+                their own. It used to read "SC", and before that "K". */}
+            {index < 5 ? <Check size={13} strokeWidth={2.6} aria-hidden="true" /> : ""}
           </span>
         ))}
       </div>

@@ -58,6 +58,8 @@ import {
   updateLocation,
   voidVisit,
   uploadBrandingImage,
+  setStampIcon,
+  uploadStampImage,
   updateProgram,
   type CampaignDraft,
   type ProgramDraft,
@@ -329,6 +331,12 @@ export const useSetBrandingColor = () =>
 
 export const useUploadBrandingImage = () =>
   useApiMutation(uploadBrandingImage, { invalidates: [keys.business.branding()] });
+
+export const useSetStampIcon = () =>
+  useApiMutation(setStampIcon, { invalidates: [keys.business.branding()] });
+
+export const useUploadStampImage = () =>
+  useApiMutation(uploadStampImage, { invalidates: [keys.business.branding()] });
 
 /**
  * A stamp moves nearly everything a merchant looks at: the customer's balance

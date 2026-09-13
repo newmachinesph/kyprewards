@@ -106,6 +106,8 @@ export function LoyaltyCard({
             filled={earnedStamps(card)}
             total={card.target}
             ink={brand.foreground}
+            icon={card.stampIcon}
+            imageUrl={card.stampImageUrl}
           />
         ) : null}
         <View className="mt-3 flex-row items-center justify-between">

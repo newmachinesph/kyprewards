@@ -7,6 +7,13 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   Check,
+  Coffee,
+  Dumbbell,
+  Heart,
+  Scissors,
+  Sparkles,
+  Star,
+  Utensils,
   Minus,
   ShieldCheck,
   X,
@@ -268,19 +275,61 @@ export function Eyebrow({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * The presets a shop may stamp with, by the name the API stores. Lucide
+ * names, so the native app draws the same set from lucide-react-native.
+ */
+export const STAMP_ICONS = {
+  check: Check,
+  star: Star,
+  heart: Heart,
+  coffee: Coffee,
+  utensils: Utensils,
+  scissors: Scissors,
+  dumbbell: Dumbbell,
+  sparkles: Sparkles,
+} as const;
+
+/** What sits inside a collected stamp: the shop's own picture clipped to
+ *  the circle when they have one, else the preset, else a tick. */
+export function StampMark({
+  icon,
+  imageUrl,
+  size = 13,
+}: {
+  icon?: string | null;
+  imageUrl?: string | null;
+  size?: number;
+}) {
+  if (imageUrl) {
+    // A presigned storage URL on a host the image optimiser is not
+    // configured for, drawn at 28 px.
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={imageUrl} alt="" className="size-full rounded-full object-cover" />;
+  }
+  const Icon = STAMP_ICONS[(icon ?? "check") as keyof typeof STAMP_ICONS] ?? Check;
+  return <Icon size={size} strokeWidth={2.6} aria-hidden="true" />;
+}
+
 export function StampDots({
   filled = 0,
   total = 8,
   dark = false,
+  icon,
+  imageUrl,
   mark,
 }: {
   filled?: number;
   total?: number;
   dark?: boolean;
-  /** The merchant's own stamp mark, e.g. their initials. Optional — a
-   *  collected stamp reads as a solid dot without one. */
+  /** The shop's preset, from the API. A tick when absent. */
+  icon?: string | null;
+  /** The shop's own mark, when the plan covers it. */
+  imageUrl?: string | null;
+  /** Something else entirely inside a collected stamp; overrides the two above. */
   mark?: React.ReactNode;
 }) {
+  const inside = mark ?? <StampMark icon={icon} imageUrl={imageUrl} />;
   return (
     <div
       className="flex items-center gap-2"
@@ -290,7 +339,7 @@ export function StampDots({
       {Array.from({ length: total }, (_, index) => (
         <span
           key={index}
-          className={`font-display grid size-7 place-items-center rounded-full text-[10px] font-bold ${
+          className={`font-display grid size-7 shrink-0 place-items-center overflow-hidden rounded-full text-[10px] font-bold ${
             index < filled
               ? "bg-[var(--accent)] text-[var(--ink)]"
               : dark
@@ -298,7 +347,7 @@ export function StampDots({
                 : "border border-dashed border-[var(--line-strong)] text-[var(--muted)]"
           }`}
         >
-          {index < filled ? mark : null}
+          {index < filled ? inside : null}
         </span>
       ))}
     </div>

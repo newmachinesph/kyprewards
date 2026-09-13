@@ -125,6 +125,8 @@ export type Workspace = {
   shortName: string;
   role: StaffRole | string;
   location: string;
+  /** The first branch's city; "" for a shop with no branch yet. */
+  city?: string;
 };
 
 /* ── The integration contract ─────────────────────────────────────── */
@@ -447,6 +449,10 @@ export type WalletCard = {
    * rather than to a placeholder that looks like a broken image.
    */
   imageUrl: string | null;
+  /** The mark inside each collected stamp: a preset name, or the shop's own
+   *  picture clipped to the circle when `stampImageUrl` is set. */
+  stampIcon?: string;
+  stampImageUrl?: string | null;
   /** Metres from the position the caller sent, or null when none was. */
   distanceMetres: number | null;
 
@@ -686,6 +692,13 @@ export type Branding = {
   color: string;
   /** Presigned and short-lived when uploaded; a plain path when seeded. */
   imageUrl: string | null;
+  /** The mark inside a collected stamp: one of `stampIcons`, a tick by default. */
+  stampIcon: string;
+  /** The shop's own mark, presigned; null until uploaded or while the plan
+   *  does not cover branding. Wins over `stampIcon` when set. */
+  stampImageUrl: string | null;
+  /** The presets the API accepts, so the picker never hardcodes them. */
+  stampIcons: string[];
 };
 
 export type InvitePreview = {
@@ -1279,6 +1292,8 @@ export type PublicShop = {
   reward: string;
   program: string | null;
   target: number;
+  stampIcon?: string;
+  stampImageUrl?: string | null;
   featured: boolean;
   distanceMetres: number | null;
   about: string;
@@ -1370,4 +1385,6 @@ export type FirstStampOffer = {
   reward: string;
   stamps: number;
   target: number;
+  stampIcon?: string;
+  stampImageUrl?: string | null;
 };

@@ -64,6 +64,7 @@ import {
   useStaff,
   useTimeToSecondVisit,
   useVisitTrend,
+  useBranding,
   EMPTY_BUSINESS_METRICS,
 } from "@kypstamping/api";
 import {
@@ -193,6 +194,7 @@ export function BusinessDashboard({
   // because one of six requests is still in flight reads worse than a zero
   // that fills in.
   const { data: profile } = useBusinessProfile();
+  const { data: branding } = useBranding();
   const { data: locations = [] } = useLocations();
   const { data: metrics = EMPTY_BUSINESS_METRICS, error: metricsError } =
     useBusinessMetrics();
@@ -489,7 +491,13 @@ export function BusinessDashboard({
                 : "Publish a program and it will show here."}
             </p>
             <div className="mt-8 overflow-x-auto pb-1">
-              <StampDots filled={liveFilled} total={liveTarget} dark />
+              <StampDots
+                filled={liveFilled}
+                total={liveTarget}
+                icon={branding?.stampIcon}
+                imageUrl={branding?.stampImageUrl}
+                dark
+              />
             </div>
             {livePrograms[0]?.type === "Stamps" && (
               <ul className="mt-5 space-y-1 text-[11px] leading-relaxed text-white/60">

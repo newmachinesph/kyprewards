@@ -676,6 +676,7 @@ function ScanView({
   onNavigate: (view: BusinessView) => void;
 }) {
   const { data: customers = [] } = useBusinessCustomers();
+  const { data: branding } = useBranding();
   const [held, setHeld] = useState<RedemptionResult | null>(null);
   // Polled while the customer is approving on their phone, so the counter
   // learns the moment it may hand over.
@@ -1067,6 +1068,8 @@ function ScanView({
                         <StampDots
                           filled={balance.balance}
                           total={balance.target}
+                          icon={branding?.stampIcon}
+                          imageUrl={branding?.stampImageUrl}
                         />
                       </div>
                       {balance.rewardsAvailable > 0 && !activeHold && (

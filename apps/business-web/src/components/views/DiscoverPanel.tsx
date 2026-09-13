@@ -107,7 +107,12 @@ export function DiscoverPanel({ notify }: { notify: Notify }) {
             </p>
             {live && live.type === "Stamps" && (
               <div className="mt-2 overflow-x-auto">
-                <StampDots filled={0} total={live.target} />
+                <StampDots
+                  filled={0}
+                  total={live.target}
+                  icon={branding?.stampIcon}
+                  imageUrl={branding?.stampImageUrl}
+                />
               </div>
             )}
             {/* Two lines here because two lines is what the directory card
