@@ -2,11 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { CustomerProfile, DiscoverPlace, WalletCard } from "@kypstamping/api";
 import {
   ApiError,
   PREVIEW_WRITE_REASON,
   getDataExportLink,
+  confirmMobileChange,
+  keys,
+  requestMobileChange,
   resendEmailConfirmation,
   useApiMutation,
   isPreview,
@@ -2388,8 +2392,8 @@ function ProfileSheet({
           <div className="mt-6">
             <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
               Service messages keep your balances and visits clear and are always
-              on. Promotions are off until you turn each channel on, and each
-              one can be turned off again without leaving a program.
+              on. Push and email promotions start on and SMS starts off; each
+              one can be turned off here without leaving a program.
             </p>
             {CHANNELS.filter((channel) => channel.locked).map((channel) => (
               <div key={channel.key} className="mt-4 flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
@@ -3004,18 +3008,7 @@ function PersonalDetails({
           </button>
         </p>
       )}
-      {/* Read-only: the number is the wallet's key, and an unproven change put
-          a stranger's number on somebody else's wallet. */}
-      <div className="grid gap-2 text-xs font-bold">
-        Mobile
-        <span className="flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] px-4 text-sm font-normal text-[var(--muted-strong)]">
-          <Phone size={16} className="text-[var(--muted)]" />
-          {profile.mobile || "Not given"}
-        </span>
-        <span className="font-normal text-[var(--muted)]">
-          To move your wallet to a new number, contact support.
-        </span>
-      </div>
+      <MobileNumber current={profile.mobile} />
       <div className="grid gap-2 text-xs font-bold">
         Birthday
         <span className="flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] px-4 text-sm font-normal text-[var(--muted-strong)]">
@@ -3042,5 +3035,129 @@ function PersonalDetails({
             : ""}
       </p>
     </form>
+  );
+}
+
+/**
+ * The wallet's number, and moving it: a code goes to the new number and the
+ * wallet moves only when it comes back. Kept outside the Save form, because
+ * it is not saved - it is proven.
+ */
+function MobileNumber({ current }: { current: string }) {
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [mobile, setMobile] = useState("");
+  const [code, setCode] = useState("");
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [notice, setNotice] = useState("");
+  const send = useApiMutation(requestMobileChange);
+  const confirm = useApiMutation(confirmMobileChange);
+
+  function reset() {
+    setOpen(false);
+    setMobile("");
+    setCode("");
+    setSentTo(null);
+  }
+
+  return (
+    <div className="grid gap-2 text-xs font-bold">
+      Mobile
+      <span className="flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] px-4 text-sm font-normal text-[var(--muted-strong)]">
+        <Phone size={16} className="text-[var(--muted)]" />
+        <span className="min-w-0 flex-1">{current || "Not given"}</span>
+        {!open && (
+          <button
+            type="button"
+            onClick={() => {
+              setNotice("");
+              setOpen(true);
+            }}
+            className="text-xs font-extrabold text-[var(--accent-strong)] underline"
+          >
+            Change
+          </button>
+        )}
+      </span>
+      {open && (
+        <div className="grid gap-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 font-normal">
+          {sentTo === null ? (
+            <>
+              <label className="grid gap-1">
+                <span>New mobile number</span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  value={mobile}
+                  onChange={(event) => setMobile(event.target.value)}
+                  className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
+                />
+              </label>
+              <button
+                type="button"
+                disabled={!mobile.trim() || send.isPending}
+                onClick={() => {
+                  setNotice("");
+                  send.mutate(mobile.trim(), {
+                    onSuccess: () => setSentTo(mobile.trim()),
+                    onError: (failure) => setNotice(failure.message),
+                  });
+                }}
+                className="min-h-11 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-50"
+              >
+                {send.isPending ? "Sending…" : "Text me a code"}
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-[var(--muted-strong)]">
+                We texted a code to {sentTo}. Your wallet moves when you enter it.
+              </p>
+              <label className="grid gap-1">
+                <span>Code</span>
+                <input
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={code}
+                  onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
+                  className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm tracking-[0.3em]"
+                />
+              </label>
+              <button
+                type="button"
+                disabled={code.length !== 6 || confirm.isPending}
+                onClick={() => {
+                  setNotice("");
+                  confirm.mutate(
+                    { mobile: sentTo, code },
+                    {
+                      onSuccess: () => {
+                        void queryClient.invalidateQueries({ queryKey: keys.customer.profile() });
+                        reset();
+                        setNotice("Your wallet is on the new number now.");
+                      },
+                      onError: (failure) => setNotice(failure.message),
+                    },
+                  );
+                }}
+                className="min-h-11 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-50"
+              >
+                {confirm.isPending ? "Checking…" : "Move my wallet"}
+              </button>
+            </>
+          )}
+          <button type="button" onClick={reset} className="min-h-10 text-[var(--muted-strong)]">
+            Cancel
+          </button>
+        </div>
+      )}
+      {notice && (
+        <p role="status" aria-live="polite" className="font-bold text-[var(--muted-strong)]">
+          {notice}
+        </p>
+      )}
+    </div>
   );
 }

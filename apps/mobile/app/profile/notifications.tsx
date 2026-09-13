@@ -85,8 +85,8 @@ export default function NotificationSettings() {
       <Title>Notifications</Title>
       <Text className="mt-4 font-sans text-[12px] leading-[18px] text-muted-strong">
         Service messages keep your balances and visits clear and are always on.
-        Promotions are off until you turn each channel on, and each one can be
-        turned off again without leaving a program.
+        Push and email promotions start on and SMS starts off; each one can be
+        turned off here without leaving a program.
       </Text>
 
       <Panel className="mt-4 flex-row items-start gap-3">

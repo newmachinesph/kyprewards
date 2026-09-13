@@ -448,6 +448,17 @@ export const updateCustomerProfile = (body: {
   birthdayMonth?: number;
 }): Promise<CustomerProfile> => http("/customer/profile", { method: "PATCH", body });
 
+/** Texts a code to a new number. The wallet does not move until it is confirmed. */
+export const requestMobileChange = (mobile: string): Promise<{ expiresInSeconds: number }> =>
+  http("/customer/profile/mobile/change", { method: "POST", body: { mobile } });
+
+/** The code from the new number; answers with the profile on the new number. */
+export const confirmMobileChange = (body: {
+  mobile: string;
+  code: string;
+}): Promise<CustomerProfile> =>
+  http("/customer/profile/mobile/confirm", { method: "POST", body });
+
 /** Sends the confirmation link again for an email that is not confirmed yet. */
 export const resendEmailConfirmation = (): Promise<{ sent: boolean }> =>
   http("/customer/profile/email/confirm", { method: "POST" });

@@ -1371,7 +1371,13 @@ export function DemoAuthFlow({
               .
             </span>
           </label>
-          {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
+          {/* Said before the wallet exists, not only on a settings screen:
+              push and email promotions start on. */}
+          <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
+            Offers from shops you join arrive by push and email; SMS stays off. Turn any of
+            them off in Notifications at any time.
+          </p>
+          {notice &&<p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
           <PrimaryButton disabled={busy}>
             {busy ? "Setting up\u2026" : "Create wallet"}
           </PrimaryButton>

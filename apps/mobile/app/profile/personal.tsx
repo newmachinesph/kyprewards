@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Text, View } from "react-native";
 import {
+  confirmMobileChange,
   keys,
+  requestMobileChange,
   updateCustomerProfile,
   useApiMutation,
   useCustomerProfile,
@@ -67,12 +69,7 @@ function PersonalForm({ profile }: { profile: CustomerProfile }) {
           Not confirmed yet. Open the link we emailed to sign in with this address.
         </Text>
       ) : null}
-      {/* Read-only: the number is the wallet's key, and an unproven change put
-          a stranger's number on somebody else's wallet. */}
-      <Text className="font-sans text-[12px] leading-[18px] text-muted-strong">
-        Mobile: {profile.mobile ?? "not given"}. To move your wallet to a new number,
-        contact support.
-      </Text>
+      <MobileNumber current={profile.mobile ?? ""} />
       <Text className="font-sans text-[12px] leading-[18px] text-muted-strong">
         Birthday: {profile.birthday ?? "not given"}. Shops you join can send you
         something on your birthday; we hold the day and month only.
@@ -89,6 +86,74 @@ function PersonalForm({ profile }: { profile: CustomerProfile }) {
       >
         Save changes
       </Button>
+    </View>
+  );
+}
+
+/**
+ * Moving the wallet to a new number: a code to the new SIM, then the move.
+ * Not part of Save, because a number is proven rather than typed.
+ */
+function MobileNumber({ current }: { current: string }) {
+  const [mobile, setMobile] = useState("");
+  const [code, setCode] = useState("");
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const send = useApiMutation(requestMobileChange, {
+    onSuccess: () => setSentTo(mobile.trim()),
+    onError: (failure) => notify(failure.message, "error"),
+  });
+  const confirm = useApiMutation(confirmMobileChange, {
+    invalidates: [keys.customer.profile()],
+    onSuccess: () => {
+      setSentTo(null);
+      setMobile("");
+      setCode("");
+      notify("Your wallet is on the new number now.");
+    },
+    onError: (failure) => notify(failure.message, "error"),
+  });
+
+  return (
+    <View className="gap-3">
+      <Text className="font-sans text-[12px] leading-[18px] text-muted-strong">
+        Mobile: {current || "not given"}
+      </Text>
+      {sentTo === null ? (
+        <>
+          <Field
+            label="Move to a new number"
+            value={mobile}
+            onChange={setMobile}
+            keyboardType="phone-pad"
+            autoComplete="tel"
+            hint="We text a code to the new number. Your wallet moves when you enter it."
+          />
+          <Button
+            busy={send.isPending}
+            disabled={!mobile.trim()}
+            onPress={() => send.mutate(mobile.trim())}
+          >
+            Text me a code
+          </Button>
+        </>
+      ) : (
+        <>
+          <Field
+            label={`Code sent to ${sentTo}`}
+            value={code}
+            onChange={(value) => setCode(value.replace(/\D/g, "").slice(0, 6))}
+            keyboardType="number-pad"
+            autoComplete="one-time-code"
+          />
+          <Button
+            busy={confirm.isPending}
+            disabled={code.length !== 6}
+            onPress={() => confirm.mutate({ mobile: sentTo, code })}
+          >
+            Move my wallet
+          </Button>
+        </>
+      )}
     </View>
   );
 }
