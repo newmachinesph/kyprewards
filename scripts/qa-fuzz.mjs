@@ -19,6 +19,8 @@
  *   SHOPS=12 node scripts/qa-fuzz.mjs   # more scenarios
  */
 
+import { openApprovedShop, signInAdmin } from "./open-shop.mjs";
+
 const API = process.env.KYP_TEST_API ?? "http://localhost:8000/api/v1";
 const SHOPS = Number(process.env.SHOPS ?? 6);
 const SEED = Number(process.env.SEED ?? Math.floor(Math.random() * 1e9));
@@ -124,40 +126,14 @@ function inventRules() {
 async function openShop(index, rules) {
   const merchant = actor();
   const email = `fuzz-${run}-${index}@example.com`;
-  // Registration is rate limited, correctly - a suite that opens shops in a
-  // tight loop is exactly the shape of abuse the limit exists for. Waiting is
-  // the honest response; turning the limit off to make testing convenient
-  // would be testing a service nobody runs.
-  let created = null;
-  for (let attempt = 0; attempt < 6; attempt += 1) {
-    created = await merchant.call("/auth/register/business", {
-      method: "POST",
-      body: {
-        name: `Fuzz Owner ${index}`,
-        email,
-        password: "DemoPass123!",
-        businessName: `Fuzz Shop ${run}-${index}`,
-        acceptedTerms: true,
-      },
-    });
-    if (created.status !== 429) break;
-    await new Promise((resolve) => setTimeout(resolve, 4000 * (attempt + 1)));
-  }
-  if (created.status !== 201) throw new Error(`register: ${created.status} ${created.text.slice(0, 90)}`);
-
-  const workspace = await merchant.call("/auth/workspaces", {
-    method: "POST",
-    body: {
-      businessName: `Fuzz Shop ${run}-${index}`,
-      category: "Cafe",
-      city: "Pasig",
-      branchName: "Main",
-      programType: "stamps",
-      stampTarget: rules.target,
-      rewardName: "Free coffee",
-    },
+  // There is no sign-up: every shop is an approved application.
+  await openApprovedShop({
+    admin: operator,
+    merchant,
+    name: `Fuzz Shop ${run}-${index}`,
+    email,
+    ownerName: `Fuzz Owner ${index}`,
   });
-  if (workspace.status !== 201) throw new Error(`workspace: ${workspace.status}`);
 
   const programs = await merchant.call("/business/programs");
   const program = programs.body.find((p) => p.status === "Live" && p.type === "Stamps");
@@ -459,6 +435,10 @@ async function checkExpiry(scenarios, reservedFor) {
 console.log(`\nseed ${SEED}   shops ${SHOPS}   (SEED=${SEED} replays this exactly)\n`);
 
 const scenarios = [];
+// The platform admin who approves every shop the scenarios open.
+const operator = actor();
+await signInAdmin(operator);
+
 for (let index = 0; index < SHOPS; index += 1) {
   try {
     const outcome = await exercise(index);

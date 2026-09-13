@@ -25,6 +25,7 @@
  */
 import { chromium } from "playwright";
 import { createHmac } from "node:crypto";
+import { completeListing } from "./open-shop.mjs";
 
 const API = process.env.KYP_TEST_API ?? "http://localhost:8000/api/v1";
 const APPS = {
@@ -551,6 +552,18 @@ await step("the rules she saved are what the Program screen shows", async () => 
   return `${shows.filter(Boolean).length}/3 rule groups visible`;
 });
 
+await step("her Discover checklist asks for a photo and a description, and she adds both", async () => {
+  // Approval provisions neither, and Discover lists complete shops only.
+  const { before, after } = await completeListing({
+    api: API,
+    merchant,
+    cookie: merchant.cookies.map(({ name, value }) => `${name}=${value}`).join("; "),
+  });
+  if (before?.listed !== false) throw new Error("a shop with no photo or description was already listed");
+  if (after?.listed !== true) throw new Error(`still not listed: ${after?.missing?.join(", ")}`);
+  return `was missing: ${before.missing.join(", ")}`;
+});
+
 await step("her join poster resolves to her shop, branch and card", async () => {
   const nav = biz.getByRole("button", { name: /join code/i }).first();
   if (await nav.count()) {
@@ -593,7 +606,7 @@ await step("she invites one staff member for the counter", async () => {
   return `${rows.length} on the roster, Ben is a ${ben.role ?? "member"}`;
 });
 
-await step("a live card puts her on the marketplace, with no extra step", async () => {
+await step("a live card and a complete profile put her on the marketplace", async () => {
   const found = await fetch(`${API}/public/discover?search=${encodeURIComponent(shop.name)}`).then((r) =>
     r.json(),
   );

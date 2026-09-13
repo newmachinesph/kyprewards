@@ -21,8 +21,8 @@ spec; the gap list below is the work.
   Vercel project `kyp-business`, API at api.kypstamping.ph. Brand: KYP
   Stamping. `noindex`.
 - Sign-in: password, then the workspace picker (skipped when there is one),
-  then hash views on `/`. Sign-up on `/create-account`, the onboarding wizard
-  on `/onboarding`, invitations on `/accept-invite`, recovery on
+  then hash views on `/`. No sign-up: a workspace exists only from an approved
+  partner application, one per owner email. Invitations on `/accept-invite`, recovery on
   `/forgot-password` and `/reset-password`, second step on `/verify`.
 - Seeded owner: `mara@sweetcrumbs.ph` / `DemoPass123!`. Six seeded merchants
   on three plans exist for tenant tests.

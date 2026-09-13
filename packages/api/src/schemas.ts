@@ -108,16 +108,6 @@ export const resetPasswordSchema = z
   });
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
-export const registerBusinessSchema = z.object({
-  businessName: z.string().trim().min(2, "Enter your business name"),
-  ownerName: z.string().trim().min(2, "Enter your name"),
-  email,
-  password,
-  category: z.string().min(1, "Pick a category"),
-  city: z.string().trim().min(1, "Enter your city"),
-});
-export type RegisterBusinessInput = z.infer<typeof registerBusinessSchema>;
-
 /* ── Business workspace ───────────────────────────────────────────── */
 
 export const profileSchema = z.object({

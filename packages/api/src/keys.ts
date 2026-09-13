@@ -21,6 +21,8 @@ export const keys = {
   business: {
     all: ["business"] as const,
     profile: () => [...keys.business.all, "profile"] as const,
+    /** Under the profile, so saving the description refreshes it. */
+    listing: () => [...keys.business.profile(), "listing"] as const,
     branding: () => [...keys.business.all, "branding"] as const,
     settings: () => [...keys.business.all, "settings"] as const,
     messagingPolicy: () => [...keys.business.all, "messaging-policy"] as const,

@@ -489,7 +489,7 @@ export const featureMatrix: FeatureGroup[] = [
     rows: [
       {
         label: "Listed in Discover",
-        hint: "Every shop running a live program is findable in the customer app, on every plan including the free one. A marketplace that only lists paying shops is empty on the day it launches, which helps nobody.",
+        hint: "Every shop running a live program with a complete profile (photo, description, address and hours) is findable in the customer app, on every plan including the free one. A marketplace that only lists paying shops is empty on the day it launches, which helps nobody.",
         cells: [true, true, true, true],
       },
       {

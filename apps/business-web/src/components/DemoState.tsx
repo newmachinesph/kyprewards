@@ -6,7 +6,6 @@ import {
   useContext,
   useMemo,
   useState,
-  useSyncExternalStore,
   type ReactNode,
 } from "react";
 /**
@@ -28,47 +27,6 @@ import {
  * how a revoked key goes on looking active.
  */
 
-/** What the onboarding wizard wrote to session storage before handing over. */
-export type WorkspaceProfile = {
-  businessName: string;
-  category: string;
-  city: string;
-  locations: number;
-  program: string;
-  method: string;
-};
-
-/**
- * The onboarding wizard writes the merchant's answers to session storage
- * before handing over. Reading them is what makes that wizard mean something.
- *
- * Session storage is an external store, so it is read through
- * `useSyncExternalStore` rather than an effect: the server snapshot is `null`,
- * the client snapshot is cached so the value stays referentially stable, and
- * there is no hydration mismatch to paper over.
- */
-const WORKSPACE_KEY = "kypstamping-business-profile";
-let workspaceCache: WorkspaceProfile | null | undefined;
-
-function subscribeToWorkspace() {
-  // Written once, before this app mounts. Nothing to unsubscribe from.
-  return () => {};
-}
-
-function readWorkspace(): WorkspaceProfile | null {
-  if (workspaceCache !== undefined) return workspaceCache;
-  try {
-    const saved = window.sessionStorage.getItem(WORKSPACE_KEY);
-    workspaceCache = saved ? (JSON.parse(saved) as WorkspaceProfile) : null;
-  } catch {
-    // A malformed or blocked store just means the fixture workspace.
-    workspaceCache = null;
-  }
-  return workspaceCache;
-}
-
-const noWorkspaceOnServer = () => null;
-
 type DemoState = {
 
   /** Dashboard setup ledger — owned here so it survives navigation. */
@@ -80,10 +38,6 @@ type DemoState = {
   scanHandoff: boolean;
   startScanHandoff: () => void;
   consumeScanHandoff: () => void;
-
-  /** Whatever the onboarding wizard configured, or null when the merchant
-   *  entered through the login screen instead. */
-  workspace: WorkspaceProfile | null;
 };
 
 const DemoStateContext = createContext<DemoState | null>(null);
@@ -91,11 +45,6 @@ const DemoStateContext = createContext<DemoState | null>(null);
 export function DemoStateProvider({ children }: { children: ReactNode }) {
   const [testStampDone, setTestStampDone] = useState(false);
   const [scanHandoff, setScanHandoff] = useState(false);
-  const workspace = useSyncExternalStore(
-    subscribeToWorkspace,
-    readWorkspace,
-    noWorkspaceOnServer,
-  );
 
   const completeTestStamp = useCallback(() => setTestStampDone(true), []);
   const startScanHandoff = useCallback(() => setScanHandoff(true), []);
@@ -108,7 +57,6 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
       scanHandoff,
       startScanHandoff,
       consumeScanHandoff,
-      workspace,
     }),
     [
       testStampDone,
@@ -116,7 +64,6 @@ export function DemoStateProvider({ children }: { children: ReactNode }) {
       scanHandoff,
       startScanHandoff,
       consumeScanHandoff,
-      workspace,
     ],
   );
 

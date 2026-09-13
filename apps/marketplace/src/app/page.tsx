@@ -140,8 +140,8 @@ export default function Home() {
             <Eyebrow>Shops</Eyebrow>
             <h2 className="mt-3 text-2xl font-bold tracking-[-0.02em] sm:text-3xl">I run a shop</h2>
             <p className="mt-3 max-w-[40ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-              Every shop with a live program is listed here, on the free plan too. Set one up on the
-              merchant site.
+              Every shop with a live program and a complete profile is listed here, on the free plan
+              too. Set one up on the merchant site.
             </p>
             <div className="mt-6">
               <ActionLink href={`${merchantSiteUrl}/partners`} tone="outline">

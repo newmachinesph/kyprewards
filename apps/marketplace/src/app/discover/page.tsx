@@ -32,7 +32,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Sea
       <PageIntro
         eyebrow="Discover"
         title="Shops with a card waiting for you"
-        description="Every shop running a live program is listed, on every plan. Featured shops come first, then the nearest once you share where you are."
+        description="Every shop running a live program with a complete profile is listed, on every plan. Featured shops come first, then the nearest once you share where you are."
       />
       <Section className="py-10 lg:py-14">
         <DiscoverFilters filters={filters} />

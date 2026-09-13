@@ -28,7 +28,6 @@ import {
   login,
   logout,
   acceptInvite,
-  registerBusiness,
   registerCustomer,
   requestOtp,
   getInvite,
@@ -719,7 +718,6 @@ export function DemoAuthFlow({
   // field on business sign-up, so it put an email address in a phone box.
   // The one prefill worth keeping is the login identifier, which roleConfig
   // still supplies.
-  const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
   // Unticked. A box that arrives already ticked records an agreement nobody
   // made: the account gets a terms_accepted_at and a terms_version proving
@@ -872,7 +870,7 @@ export function DemoAuthFlow({
       if (result.mfaRequired) {
         go("/verify");
       } else if (result.needsWorkspace) {
-        go("/onboarding");
+        go("/workspaces");
       } else {
         completeSession("/");
       }
@@ -1132,9 +1130,7 @@ export function DemoAuthFlow({
     function verifyDestination() {
       if (role === "customer") return "/#home";
       if (role === "admin") return "/#overview";
-      return window.sessionStorage.getItem("kypstamping-business-signup")
-        ? "/onboarding"
-        : "/workspaces";
+      return "/workspaces";
     }
     // A cold open contradicted itself: "Enter the six-digit code we just sent
     // you" over "We have lost track of where that code was sent." Nothing was
@@ -1227,114 +1223,6 @@ export function DemoAuthFlow({
               only thing on the screen that does anything, so it says what it
               is for instead of offering a choice of account nobody is making. */}
           <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> {role === "customer" && sentTo === "" ? "Back to sign-in for a fresh code" : "Use another account"}</a>
-        </form>
-      </AuthShell>
-    );
-  }
-
-  if (mode === "create" && role === "business") {
-    return (
-      <AuthShell role="business" mode="create" title="Start your loyalty program." description="Create the workspace for your business. You can add locations, staff, and your first program right after.">
-        <form
-          onSubmit={async (event) => {
-            event.preventDefault();
-            if (!businessName.trim()) { setNotice("Enter your business name."); return; }
-            if (!name.trim()) { setNotice("Enter your full name."); return; }
-            if (!identifier.trim()) { setNotice("Enter your work email."); return; }
-            // Checked here so the rule is stated in the words the caption
-            // uses. Left to the API, the sign-up page answered "password:
-            // String should have at least 10 characters" - a Pydantic
-            // validator's own sentence, shown to somebody creating their
-            // first account. The reset-password screen already did this.
-            if (password.length < 10) { setNotice("Use at least 10 characters."); return; }
-            if (!accepted) { setNotice("Accept the terms to continue."); return; }
-
-            setBusy(true);
-            setNotice("");
-            try {
-              // Creates the account and signs it in. The workspace itself
-              // comes next, in the wizard - which is why the API answers
-              // needsWorkspace here.
-              await registerBusiness({
-                name: name.trim(),
-                email: identifier.trim(),
-                password,
-                acceptedTerms: accepted,
-              });
-              // Carried so the wizard can open with the name already typed.
-              window.sessionStorage.setItem("kypstamping-business-signup", businessName);
-              go("/onboarding");
-            } catch (failure) {
-              setNotice(
-                failure instanceof ApiError
-                  ? failure.message
-                  : "Could not create that account.",
-              );
-              setBusy(false);
-            }
-          }}
-          className="space-y-5"
-        >
-          <Field label="Business name" value={businessName} onChange={setBusinessName} autoComplete="organization" />
-          <Field label="Your full name" value={name} onChange={setName} autoComplete="name" />
-          <Field label="Work email" type="email" value={identifier} onChange={setIdentifier} autoComplete="email" />
-          <MobileField label="Mobile number" value={email} onChange={setEmail} />
-          <label className="grid gap-2 text-xs font-extrabold">
-            Password
-            <span className="relative flex items-center">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                autoComplete="new-password"
-                className="min-h-12 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 pr-12 text-sm font-semibold outline-none focus:border-[var(--accent-strong)]"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((value) => !value)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute right-2 grid size-9 place-items-center rounded-lg text-[var(--muted-strong)] hover:bg-[var(--surface-2)]"
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </span>
-            <span className="text-[10px] font-semibold text-[var(--muted)]">
-              {/* What is actually enforced. This promised twelve characters
-                  with an uppercase letter and a number; the form checked ten
-                  and the API checked ten, so every part of that sentence
-                  except "characters" was untrue. */}
-              At least 10 characters.
-            </span>
-          </label>
-          <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">
-            <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-0.5 size-4 accent-[var(--ink)]" />
-            <span>
-              I agree to the{" "}
-              <a
-                href={`${marketingSiteUrl}/terms`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-bold underline underline-offset-2"
-              >
-                terms
-              </a>{" "}
-              and the{" "}
-              <a
-                href={`${marketingSiteUrl}/privacy`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-bold underline underline-offset-2"
-              >
-                privacy notice
-              </a>
-              .
-            </span>
-          </label>
-          {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
-          <PrimaryButton disabled={busy}>
-            {busy ? "Creating\u2026" : "Create workspace"}
-          </PrimaryButton>
-          <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> I already have an account</a>
         </form>
       </AuthShell>
     );

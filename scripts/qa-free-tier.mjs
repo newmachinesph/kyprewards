@@ -7,8 +7,8 @@
  * pays nothing, and follows the onboarding gets a working loyalty program -
  * which is the only journey the product currently sells.
  *
- * So this one registers a real business through the real endpoints, keeps it
- * on Launch, and then asks three questions:
+ * So this one opens a real business the only way one opens - an application
+ * the admin approves - keeps it on Launch, and then asks three questions:
  *
  *   1. Can it do everything the free plan promises?
  *   2. Is it refused everything the free plan excludes, with 402 rather than
@@ -20,6 +20,7 @@
  * because "the customer can join" is the claim the whole free tier rests on.
  */
 import { chromium } from "playwright";
+import { completeListing, openApprovedShop, signInAdmin } from "./open-shop.mjs";
 
 const API = process.env.KYP_TEST_API ?? "http://localhost:8000/api/v1";
 const APPS = {
@@ -92,6 +93,7 @@ function actor() {
   };
 }
 
+const admin = actor();
 const merchant = actor();
 const customer = actor();
 const shop = {
@@ -113,37 +115,17 @@ const ok = (r, ...allowed) => {
 
 /* ── 1. A shop that did not exist a minute ago ───────────────────────── */
 
-await step("register a business and open a workspace", async () => {
-  ok(
-    await merchant.call("/auth/register/business", {
-      method: "POST",
-      body: {
-        name: "Free Owner",
-        email: shop.email,
-        password: shop.password,
-        businessName: shop.name,
-        acceptedTerms: true,
-      },
-    }),
-    201,
-  );
-
-  const workspace = ok(
-    await merchant.call("/auth/workspaces", {
-      method: "POST",
-      body: {
-        businessName: shop.name,
-        category: "Cafe",
-        city: "Pasig",
-        branchName: "Main",
-        programType: "stamps",
-        stampTarget: 6,
-        rewardName: "Free coffee",
-      },
-    }),
-    201,
-  );
-  merchantId = workspace.body.merchantId;
+await step("apply, get approved, and sign in with the mailed password", async () => {
+  // There is no sign-up: a shop exists because its application was approved.
+  await signInAdmin(admin);
+  // The browser half signs in later with the password approval mailed.
+  ({ merchantId, password: shop.password } = await openApprovedShop({
+    admin,
+    merchant,
+    name: shop.name,
+    email: shop.email,
+    ownerName: "Free Owner",
+  }));
   if (!merchantId) throw new Error("no merchant id came back");
   return merchantId;
 });
@@ -435,6 +417,16 @@ await step("a customer signs in with a real one-time code", async () => {
     200,
   );
   return walletMobile;
+});
+
+await step("Discover waits for a photo and a description, then lists the shop", async () => {
+  const { before, after } = await completeListing({ api: API, merchant, cookie: merchant.cookie });
+  if (before?.listed !== false) throw new Error("a shop with no photo or description was already listed");
+  if (!before.missing.includes("A cover photo")) {
+    throw new Error(`the checklist did not ask for a photo: ${before.missing.join(", ")}`);
+  }
+  if (after?.listed !== true) throw new Error(`still not listed: ${after?.missing?.join(", ")}`);
+  return `was missing ${before.missing.length}, now listed`;
 });
 
 await step("the free shop is findable in Discover and joinable", async () => {

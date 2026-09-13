@@ -65,7 +65,7 @@ Defaults for local and production live in each app's `src/lib/site.ts`
 
 | App | Flow |
 |---|---|
-| business-web | `POST /auth/login`, then the workspace picker (skipped for one workspace), then the session. Sign-up is `POST /auth/register/business`; onboarding is `POST /auth/workspaces`. |
+| business-web | `POST /auth/login`, then the workspace picker (skipped for one workspace), then the session. There is no business sign-up; a workspace comes from an approved partner application. |
 | admin-web | `POST /auth/login`, then `POST /auth/mfa/verify` with a TOTP, then the session. `GET /auth/session` is readable while `mfaPending`. |
 | customer-pwa | `POST /auth/otp/request`, then `POST /auth/otp/verify`, then the session. Sign-up is `POST /auth/register/customer`; birthday is optional, stored as day and month. |
 | mobile | the customer-pwa flow with `X-KYP-Client: mobile` on every request, so `POST /auth/otp/verify` also answers `sessionToken`; every later call carries `Authorization: Bearer`. The webview slot opens a kyp.ph page with a code from `POST /auth/handoff` (single use, sixty seconds) that the page spends at `POST /auth/handoff/exchange` for a cookie of its own. Push tokens go to `POST /customer/push/expo`. |

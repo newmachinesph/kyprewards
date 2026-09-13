@@ -101,7 +101,7 @@ const outcomes = [
         icon: Store,
         title: "Listed in Discover",
         detail:
-          "Every shop with a live program is findable in the customer app by category and neighborhood, on every plan. Featured placement above the distance ordering on Grow, or as an add-on.",
+          "Every shop with a live program and a complete profile (photo, description, address and hours) is findable in the customer app by category and neighborhood, on every plan. Featured placement above the distance ordering on Grow, or as an add-on.",
         tier: "Free",
       },
     ],

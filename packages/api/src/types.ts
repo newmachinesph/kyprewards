@@ -1253,6 +1253,12 @@ export type CategoryRate = {
   preview?: boolean;
 };
 
+/** Whether Discover shows the shop, and what the rule says is missing if not. */
+export type DiscoverListing = {
+  listed: boolean;
+  missing: string[];
+};
+
 export type FeaturedPlacement = {
   active: boolean;
   source: "plan" | "addon" | null;

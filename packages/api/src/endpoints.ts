@@ -134,21 +134,6 @@ export const selectWorkspace = (merchantId: string): Promise<LoginResult> =>
 
 export const logout = (): Promise<void> => http("/auth/logout", { method: "POST" });
 
-/**
- * What the onboarding wizard submits.
- *
- * Provisions the merchant, its branches and a first live program in one call,
- * so the next screen has something to stamp against.
- */
-export const createWorkspace = (body: {
-  businessName: string;
-  category: string;
-  city: string;
-  locations?: number;
-  program?: string;
-  method?: string;
-}): Promise<LoginResult> => http("/auth/workspaces", { method: "POST", body });
-
 export const requestPasswordReset = (email: string): Promise<{ sent: boolean }> =>
   http("/auth/password/forgot", { method: "POST", body: { email } });
 
@@ -181,15 +166,6 @@ export const acceptInvite = (
   body: { name: string; password: string },
 ): Promise<LoginResult> =>
   http(`/auth/invites/${encodeURIComponent(token)}/accept`, { method: "POST", body });
-
-export const registerBusiness = (body: {
-  name: string;
-  email: string;
-  password: string;
-  /** The sign-up form's terms checkbox. Sent so the acceptance is recorded
-   *  against the account, with the version they accepted. */
-  acceptedTerms: boolean;
-}): Promise<LoginResult> => http("/auth/register/business", { method: "POST", body });
 
 export const registerCustomer = (body: {
   name: string;
@@ -1338,6 +1314,7 @@ import type {
   CreditBundle,
   DiscoverFacet,
   BranchReporting,
+  DiscoverListing,
   FeaturedPlacement,
   GiftTransfer,
   Mission,
@@ -1456,6 +1433,9 @@ export const setCategoryRates = (
   http(`/business/programs/${programId}/category-rates`, { method: "PUT", body });
 
 export const getFeaturedPlacement = (): Promise<FeaturedPlacement> => http("/business/featured");
+
+/** The server's listing rule applied to this shop: listed, or what is missing. */
+export const getDiscoverListing = (): Promise<DiscoverListing> => http("/business/listing");
 
 /** Buys the ₱299 add-on on Launch or Core; answers with the QR to pay. */
 export const purchaseFeaturedPlacement = (): Promise<QrPayment> =>

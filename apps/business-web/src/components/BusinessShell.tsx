@@ -5,7 +5,6 @@ import { endSupportAccess, useApiMutation, useBusinessProfile, useWorkspaces } f
 import { BrandMark } from "@kypstamping/ui";
 import { signOut } from "@kypstamping/ui/auth";
 import { timeOfDay } from "@kypstamping/ui/format";
-import { useDemoState } from "@/components/DemoState";
 import { useSessionInfo } from "@/components/views/shared";
 import { planFor, usePlanGate } from "@/lib/plan";
 import {
@@ -261,17 +260,12 @@ export function BusinessShell({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
-  // Whatever onboarding configured, falling back to the fixture workspace when
-  // the merchant signed in instead of signing up.
-  const { workspace } = useDemoState();
-  // The wizard's answer wins while it is still in session storage; after that
-  // the workspace is whatever the API says it is.
   const { data: profile } = useBusinessProfile();
   const { data: workspaces = [] } = useWorkspaces();
   const gate = usePlanGate();
   const role = workspaces.find((entry) => entry.merchantId === profile?.merchantId)?.role ?? "";
   const frontLine = role === "Cashier";
-  const workspaceName = workspace?.businessName ?? profile?.shortName ?? "";
+  const workspaceName = profile?.shortName ?? "";
   const workspaceInitials = workspaceName
     .split(/\s+/)
     .filter(Boolean)

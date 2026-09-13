@@ -640,13 +640,7 @@ export function SettingsView({ notify }: { notify: Notify }) {
                 </div>
               ))}
             </div>
-            <div className="mt-5 grid grid-cols-2 gap-2">
-              <a
-                href="/workspaces"
-                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 text-xs font-extrabold"
-              >
-                Switch workspace
-              </a>
+            <div className="mt-5 grid gap-2">
               <Button
                 tone="quiet"
                 className="border-white/20 bg-white/5 text-white hover:bg-white/10"

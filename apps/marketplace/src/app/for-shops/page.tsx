@@ -80,7 +80,8 @@ export default function ForShops() {
         title="Your shop, in Discover"
         description={
           <>
-            Every shop running a live program is listed here, on every plan including the free one.
+            Every shop running a live program with a photo, a description, an address and hours is
+            listed here, on every plan including the free one.
             Each listing carries your category, neighborhood, hours and the reward in plain words,
             and leads straight to your join code. Setting up the card, the counter and the poster
             happens on KYP Stamping, the merchant side of KYP.

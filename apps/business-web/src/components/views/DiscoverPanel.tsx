@@ -9,6 +9,7 @@ import {
   useBilling,
   useBranding,
   useBusinessProfile,
+  useDiscoverListing,
   useFeaturedPlacement,
   useLocations,
   usePrograms,
@@ -40,6 +41,9 @@ export function DiscoverPanel({ notify }: { notify: Notify }) {
   const { data: programs = [] } = usePrograms();
   const { data: billing } = useBilling();
   const { data: featured } = useFeaturedPlacement();
+  // Refetched on every visit: the photo, branches and programs are edited on
+  // other screens and none of those saves invalidates this.
+  const { data: listing } = useDiscoverListing({ refetchOnMount: "always" });
   const [sheet, setSheet] = useState<QrPayment | null>(null);
   const buy = useApiMutation(() => retryOnce(() => purchaseFeaturedPlacement()), {
     invalidates: [keys.levers.featured(), keys.business.billing()],
@@ -64,9 +68,22 @@ export function DiscoverPanel({ notify }: { notify: Notify }) {
           <Eyebrow>Your shop in Discover</Eyebrow>
           <PlanTag plan="Launch" included />
         </div>
-        <p className="mt-1 text-xs text-[var(--muted-strong)]">
-          Every shop with a live program is findable in the customer app, by category and neighborhood, on every plan.
-        </p>
+        {/* The server's rule, not a copy of it: what this says is missing is
+            exactly what keeps the shop off kyp.ph and the app's Discover. */}
+        {listing?.listed ? (
+          <p className="mt-1 text-xs text-[var(--muted-strong)]">
+            Listed. Shoppers find you in Discover by category and neighborhood, on every plan.
+          </p>
+        ) : listing ? (
+          <div role="status" className="mt-2 rounded-xl bg-[var(--paper)] p-3 text-xs">
+            <p className="font-extrabold">Not in Discover yet. Add:</p>
+            <ul className="mt-1 list-disc pl-4 text-[var(--muted-strong)]">
+              {listing.missing.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <div className="mt-4 overflow-hidden rounded-2xl border border-[var(--line)]">
           <div
             className="relative grid h-28 place-items-center overflow-hidden"
@@ -103,7 +120,7 @@ export function DiscoverPanel({ notify }: { notify: Notify }) {
               {featured?.active && <Pill tone="warning">Featured</Pill>}
             </div>
             <p className="mt-3 text-xs font-bold">
-              {live ? `${live.target} ${live.target === 1 ? "visit" : "visits"} → ${live.rewardName}` : "No live program: not listed yet"}
+              {live ? `${live.target} ${live.target === 1 ? "visit" : "visits"} → ${live.rewardName}` : "No live program yet"}
             </p>
             {live && live.type === "Stamps" && (
               <div className="mt-2 overflow-x-auto">

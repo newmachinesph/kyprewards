@@ -620,6 +620,7 @@ import type {
   CloseBehaviour,
   DiscoverFacet,
   BranchReporting,
+  DiscoverListing,
   FeaturedPlacement,
   GiftTransfer,
   Mission,
@@ -731,6 +732,9 @@ export const useCategoryRates = (
     enabled: Boolean(programId),
     ...options,
   });
+
+export const useDiscoverListing = (options?: Options<DiscoverListing>): Query<DiscoverListing> =>
+  useQuery({ queryKey: keys.business.listing(), queryFn: api.getDiscoverListing, ...options });
 
 export const useFeaturedPlacement = (
   options?: Options<FeaturedPlacement>,

@@ -85,7 +85,7 @@ ${featureMatrix.map(matrixLine).join("\n\n")}
 - **Customer**: installable web app (PWA) with one private code that can also be saved or printed for offline use, a multi-business wallet, discovery, notifications, full history, per-channel message preferences, data export, leaving a program, and deletion requests.
 - **Business and staff**: web app for scanning, joining, customer records, eight program formats, favorite orders, birthday journeys, redemptions, campaigns, delivery logs, analytics, staff roles, integrations, billing, and privacy controls.
 - **Platform administration**: web app for tenant health, privacy operations, service queues, support, an audit ledger, unit economics, and network-wide policy.
-- **Discovery**: every shop running a live program is listed in the customer app, on every plan including the free one.
+- **Discovery**: every shop running a live program with a complete profile (photo, description, address and hours) is listed in the customer app, on every plan including the free one.
 
 ## How the stamp card works
 

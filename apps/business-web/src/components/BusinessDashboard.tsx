@@ -187,7 +187,7 @@ export function BusinessDashboard({
 }) {
   const [period, setPeriod] = useState<(typeof periods)[number]["id"]>("week");
   const [scanOpen, setScanOpen] = useState(false);
-  const { completeTestStamp, startScanHandoff, workspace } = useDemoState();
+  const { completeTestStamp, startScanHandoff } = useDemoState();
 
   // Server state, from the API. Defaulted to empty rather than guarded one by
   // one: the dashboard is a wall of counters, and blanking the whole page
@@ -255,9 +255,8 @@ export function BusinessDashboard({
   const presentation = selectedProgram
     ? (programPresentation[selectedProgram.type] ?? programPresentation.Stamps)
     : programPresentation.Stamps;
-  /** The onboarding wizard's answers if the merchant came through it. */
-  const workspaceName = workspace?.businessName ?? profile?.shortName ?? "";
-  const locationCount = workspace?.locations ?? locations.length;
+  const workspaceName = profile?.shortName ?? "";
+  const locationCount = locations.length;
   const livePrograms = programs.filter((program) => program.status === "Live");
   /*
    * The card names a live program, so its dots have to be that program's.
