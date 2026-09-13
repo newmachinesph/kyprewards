@@ -19,10 +19,8 @@ import type { Notify } from "@/components/views/shared";
 const POSTER_ORIGIN = process.env.NEXT_PUBLIC_CUSTOMER_APP_URL ?? "https://app.kyp.ph";
 
 /**
- * The slug form the poster and /public/join/{slug} both use.
- *
- * Must stay identical to `_slugify` in the API's public router, or a printed
- * code resolves to nothing.
+ * The slug form the API used before it stored one per branch. Only a branch
+ * the API has no stored slug for falls back to it.
  */
 const slugify = (value: string) =>
   value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -175,9 +173,15 @@ export function JoinCodeView({ notify }: { notify: Notify }) {
   const [branch, setBranch] = useState<string | null>(null);
 
   const selected = branch ?? locations[0]?.name ?? "";
-  const slug = `${slugify(profile?.shortName ?? "")}-${slugify(selected)}`;
+  // The API's stored slug: unique across shops and kept through renames, so
+  // a poster printed today still works after the shop changes its name.
+  const selectedLocation = locations.find((location) => location.name === selected);
+  const slug =
+    selectedLocation?.posterSlug ?? `${slugify(profile?.shortName ?? "")}-${slugify(selected)}`;
   const joinUrl = `${POSTER_ORIGIN}/join/${slug}`;
-  const ready = Boolean(slugify(profile?.shortName ?? "") && slugify(selected));
+  const ready = Boolean(
+    selectedLocation?.posterSlug || (slugify(profile?.shortName ?? "") && slugify(selected)),
+  );
   const stampCard = programs.find((program) => program.type === "Stamps" && program.status === "Live");
   // The rule as the program carries it; the product default is on.
   const welcome = stampCard?.rules?.welcomeStamp ?? true;

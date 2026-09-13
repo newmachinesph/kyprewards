@@ -7,6 +7,8 @@ import {
   ApiError,
   PREVIEW_WRITE_REASON,
   getDataExportLink,
+  resendEmailConfirmation,
+  useApiMutation,
   isPreview,
   useActivity,
   useConsentHistory,
@@ -2957,15 +2959,14 @@ function PersonalDetails({
   const [draft, setDraft] = useState({
     name: profile.name ?? "",
     email: profile.email ?? "",
-    mobile: profile.mobile ?? "",
   });
+  const resend = useApiMutation(resendEmailConfirmation);
   const changed = (Object.keys(draft) as (keyof typeof draft)[]).filter(
     (field) => draft[field].trim() !== (profile[field] ?? ""),
   );
   const fields = [
     ["Name", "name", UserRound, "text"],
     ["Email", "email", Mail, "email"],
-    ["Mobile", "mobile", Phone, "tel"],
   ] as const;
   return (
     <form
@@ -2990,6 +2991,31 @@ function PersonalDetails({
           </span>
         </label>
       ))}
+      {profile.email && profile.emailVerified === false && (
+        <p className="text-xs text-[var(--muted-strong)]">
+          Not confirmed yet - open the link we emailed to sign in with this address.{" "}
+          <button
+            type="button"
+            disabled={resend.isPending || resend.isSuccess}
+            onClick={() => resend.mutate(undefined)}
+            className="font-extrabold text-[var(--accent-strong)] underline disabled:opacity-60"
+          >
+            {resend.isSuccess ? "Sent" : "Send it again"}
+          </button>
+        </p>
+      )}
+      {/* Read-only: the number is the wallet's key, and an unproven change put
+          a stranger's number on somebody else's wallet. */}
+      <div className="grid gap-2 text-xs font-bold">
+        Mobile
+        <span className="flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] px-4 text-sm font-normal text-[var(--muted-strong)]">
+          <Phone size={16} className="text-[var(--muted)]" />
+          {profile.mobile || "Not given"}
+        </span>
+        <span className="font-normal text-[var(--muted)]">
+          To move your wallet to a new number, contact support.
+        </span>
+      </div>
       <div className="grid gap-2 text-xs font-bold">
         Birthday
         <span className="flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] px-4 text-sm font-normal text-[var(--muted-strong)]">

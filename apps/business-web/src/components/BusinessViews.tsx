@@ -2663,10 +2663,12 @@ function CampaignsView({ notify }: { notify: Notify }) {
                 onChange={(event) => setAudienceSegment(event.target.value)}
                 className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
               >
+                {/* The audiences the API can resolve to people. "Custom segment"
+                    had nothing behind it, and every campaign went to everyone. */}
+                <option>All members</option>
                 <option>Almost regulars</option>
                 <option>At-risk regulars</option>
                 <option>One action from reward</option>
-                <option>Custom segment</option>
               </select>
             </label>
           </div>

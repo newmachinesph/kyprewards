@@ -53,7 +53,7 @@ export type RedemptionStatus =
   | "Approved"
   | "Cancelled"
   | "Reversed";
-export type CampaignStatus = "Completed" | "Running" | "Scheduled";
+export type CampaignStatus = "Completed" | "Running" | "Scheduled" | "Needs audience";
 export type ChannelName =
   | "In-app"
   | "Push"
@@ -205,6 +205,8 @@ export type BusinessLocation = {
   hours: OpeningHours[];
   /** What Google's share sheet produced; "" until the merchant pastes one. */
   mapsLink: string;
+  /** The slug this branch's counter poster prints, chosen once by the API. */
+  posterSlug?: string | null;
 };
 
 export type BusinessProfile = {
@@ -418,6 +420,8 @@ export type CustomerProfile = {
   /** Null for the many customers who never gave one. */
   birthday: string | null;
   email: string;
+  /** False until the inbox confirms it; only a confirmed email signs in. */
+  emailVerified?: boolean;
   mobile: string;
 };
 

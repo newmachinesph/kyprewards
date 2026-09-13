@@ -41,7 +41,6 @@ export default function Personal() {
 function PersonalForm({ profile }: { profile: CustomerProfile }) {
   const [name, setName] = useState(profile.name);
   const [email, setEmail] = useState(profile.email ?? "");
-  const [mobile, setMobile] = useState(profile.mobile ?? "");
   const save = useApiMutation(updateCustomerProfile, {
     invalidates: [keys.customer.profile()],
     onSuccess: () =>
@@ -50,8 +49,7 @@ function PersonalForm({ profile }: { profile: CustomerProfile }) {
   });
   const nameChanged = name !== profile.name;
   const emailChanged = email !== (profile.email ?? "");
-  const mobileChanged = mobile !== (profile.mobile ?? "");
-  const changed = nameChanged || emailChanged || mobileChanged;
+  const changed = nameChanged || emailChanged;
 
   return (
     <View className="mt-6 gap-4">
@@ -64,14 +62,17 @@ function PersonalForm({ profile }: { profile: CustomerProfile }) {
         autoCapitalize="none"
         autoComplete="email"
       />
-      <Field
-        label="Mobile"
-        value={mobile}
-        onChange={setMobile}
-        keyboardType="phone-pad"
-        autoComplete="tel"
-        hint="Changing this changes how you sign in. The old address is told."
-      />
+      {profile.email && profile.emailVerified === false ? (
+        <Text className="font-sans text-[12px] leading-[18px] text-muted-strong">
+          Not confirmed yet. Open the link we emailed to sign in with this address.
+        </Text>
+      ) : null}
+      {/* Read-only: the number is the wallet's key, and an unproven change put
+          a stranger's number on somebody else's wallet. */}
+      <Text className="font-sans text-[12px] leading-[18px] text-muted-strong">
+        Mobile: {profile.mobile ?? "not given"}. To move your wallet to a new number,
+        contact support.
+      </Text>
       <Text className="font-sans text-[12px] leading-[18px] text-muted-strong">
         Birthday: {profile.birthday ?? "not given"}. Shops you join can send you
         something on your birthday; we hold the day and month only.
@@ -83,7 +84,6 @@ function PersonalForm({ profile }: { profile: CustomerProfile }) {
           save.mutate({
             ...(nameChanged ? { name } : {}),
             ...(emailChanged ? { email } : {}),
-            ...(mobileChanged ? { mobile } : {}),
           })
         }
       >

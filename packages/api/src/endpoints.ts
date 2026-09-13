@@ -448,6 +448,10 @@ export const updateCustomerProfile = (body: {
   birthdayMonth?: number;
 }): Promise<CustomerProfile> => http("/customer/profile", { method: "PATCH", body });
 
+/** Sends the confirmation link again for an email that is not confirmed yet. */
+export const resendEmailConfirmation = (): Promise<{ sent: boolean }> =>
+  http("/customer/profile/email/confirm", { method: "POST" });
+
 /**
  * One consent switch at a time.
  *
