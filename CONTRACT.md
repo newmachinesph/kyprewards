@@ -46,6 +46,14 @@ Defaults for local and production live in each app's `src/lib/site.ts`
 
 ## Wire conventions
 
+Redemption approval and handover each have fifteen minutes: the customer
+approves within fifteen minutes of `reservedAt`, then staff commit within
+fifteen minutes of `customerApprovedAt`. Retries do not extend either
+deadline. A reward's own expiry (including the run's grace period) takes
+precedence. Expired commits return 409; the sweep releases abandoned
+reservations while preserving the reward's expiry. `expiresAt` on the
+approval response describes the current step's deadline.
+
 | | |
 |---|---|
 | Prefix | `/api/v1` |
