@@ -1,0 +1,16 @@
+{
+  "_note": "Store listing copy for both stores. Every claim is something the app and kypstamping.ph already do; change it here, then run appstore.py (App Store) or paste into Play Console.",
+  "name": "KYP",
+  "subtitle": "One card for every shop",
+  "promotionalText": "Scan the poster at the counter and a welcome stamp is waiting. Collect stamps at local shops and approve your reward on your phone.",
+  "playShortDescription": "One card for every shop. Collect stamps and approve rewards on your phone.",
+  "description": "KYP keeps the loyalty cards from your neighbourhood shops in one wallet, with one private member code that works at every counter.\n\nSCAN THE POSTER AT THE COUNTER\nEvery KYP shop has a poster by the register. Scan it with the app and a welcome stamp lands on your card. It becomes real on your first visit, when staff scan your code, and your card reads two.\n\nONE CODE FOR EVERY SHOP\nStaff scan your member code to add a stamp. The same code works at every shop you join, and it stays on your phone, so it works without data.\n\nREWARDS YOU APPROVE\nWhen a card is full, the reward is held for you. At the counter, staff reserve it and you approve the release on your phone. You can hold more than one reward at a time.\n\nFIND GOOD PLACES NEARBY\nDiscover lists every shop with a live card, by category and neighbourhood, nearest first.\n\nYOUR DATA STAYS YOURS\nKYP does not sell customer data. Shops see only the details you choose to share, never your activity at another shop. Turn promotions off per channel, download your data, leave a shop, or delete your account, all from the app.\n\nSign in with a one-time code to your mobile number or email, or with Apple or Google.",
+  "keywords": "loyalty,stamp card,rewards,suki,punch card,coffee,bakery,local shops,Philippines,points,perks",
+  "supportUrl": "https://kyp.ph/terms",
+  "marketingUrl": "https://kyp.ph",
+  "privacyPolicyUrl": "https://kyp.ph/privacy",
+  "primaryCategory": "SHOPPING",
+  "secondaryCategory": "LIFESTYLE",
+  "copyright": "2026 KYP",
+  "reviewNotes": "KYP is a loyalty wallet for independent shops in the Philippines. To sign in without a phone number, use Sign in with Apple: it creates a wallet on first use. After sign-in you can browse Discover, open a shop, see your member code (the QR that shop staff scan), and use Profile, including account deletion under Profile > Privacy center > Leave or delete. Stamps are added by shop staff scanning the member code at the counter, so a new wallet starts with no stamps. The camera is used only to scan a shop's counter poster; location only to sort nearby shops."
+}

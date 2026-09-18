@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Linking, Platform, Pressable, Text, View } from "react-native";
+import { Linking, Platform, Text, View } from "react-native";
 import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { ApiError, socialSignIn } from "@kypstamping/api";
@@ -167,21 +167,21 @@ export function SocialSignIn({ onNotice }: { onNotice: (text: string) => void })
         />
       ) : null}
       {googleReady ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Continue with Google"
-          accessibilityState={{ disabled: busy, busy }}
-          disabled={busy}
-          onPress={() => void withGoogle()}
-          className={`min-h-[48px] flex-row items-center justify-center gap-3 rounded-2xl border border-line-strong bg-surface px-5 active:opacity-80 ${busy ? "opacity-50" : ""}`}
-        >
-          <Text className="font-sans-extrabold text-[17px]" style={{ color: "#4285F4" }}>
-            G
-          </Text>
-          <Text className="font-sans-extrabold text-[14px] text-ink">
-            Continue with Google
-          </Text>
-        </Pressable>
+        // The library's own button, Google's branding as Google specifies
+        // it; the module is known to be loaded when googleReady is true.
+        (() => {
+          const { GoogleSigninButton } = googleModule() as GoogleModule;
+          return (
+            <GoogleSigninButton
+              accessibilityLabel="Continue with Google"
+              size={GoogleSigninButton.Size.Wide}
+              color={GoogleSigninButton.Color.Light}
+              disabled={busy}
+              onPress={() => void withGoogle()}
+              style={{ width: "100%", height: 52 }}
+            />
+          );
+        })()
       ) : null}
       <Text className="text-center font-sans text-[11px] leading-[16px] text-muted-strong">
         New here? Continuing creates your wallet and means you accept the{" "}
