@@ -75,8 +75,8 @@ approval response describes the current step's deadline.
 |---|---|
 | business-web | `POST /auth/login`, then the workspace picker (skipped for one workspace), then the session. There is no business sign-up; a workspace comes from an approved partner application. |
 | admin-web | `POST /auth/login`, then `POST /auth/mfa/verify` with a TOTP, then the session. `GET /auth/session` is readable while `mfaPending`. |
-| customer-pwa | `POST /auth/otp/request`, then `POST /auth/otp/verify`, then the session. Sign-up is `POST /auth/register/customer`; birthday is optional, stored as day and month. |
-| mobile | the customer-pwa flow with `X-KYP-Client: mobile` on every request, so `POST /auth/otp/verify` also answers `sessionToken`; every later call carries `Authorization: Bearer`. The webview slot opens a kyp.ph page with a code from `POST /auth/handoff` (single use, sixty seconds) that the page spends at `POST /auth/handoff/exchange` for a cookie of its own. Push tokens go to `POST /customer/push/expo`. |
+| customer-pwa | `POST /auth/otp/request`, then `POST /auth/otp/verify`, then the session; or Google's button (only when `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set) to `POST /auth/social`. Sign-up is `POST /auth/register/customer`; birthday is optional, stored as day and month. |
+| mobile | the customer-pwa flow with `X-KYP-Client: mobile` on every request, so `POST /auth/otp/verify` also answers `sessionToken`; every later call carries `Authorization: Bearer`. The webview slot opens a kyp.ph page with a code from `POST /auth/handoff` (single use, sixty seconds) that the page spends at `POST /auth/handoff/exchange` for a cookie of its own. Push tokens go to `POST /customer/push/expo`. "Continue with Apple" (iOS only) and "Continue with Google" post the provider ID token to `POST /auth/social`; each button hides until its client ID is configured. |
 
 Every app calls `GET /auth/session` on boot through `SessionGate`, which
 fails closed. A customer session does not open the merchant workspace and

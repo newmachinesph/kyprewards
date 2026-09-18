@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
+  useRef,
   useState,
   useSyncExternalStore,
   type FormEvent,
@@ -34,6 +36,7 @@ import {
   requestPasswordReset,
   resetPassword,
   selectWorkspace,
+  socialSignIn,
   getWorkspaces,
   useSession,
   verifyMfa,
@@ -719,6 +722,103 @@ function PrimaryButton({ children, disabled = false }: { children: ReactNode; di
   );
 }
 
+const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
+let googleInitialised = false;
+let googleHandler: ((credential: string) => void) | null = null;
+
+type GoogleIdentity = {
+  accounts: {
+    id: {
+      initialize(options: {
+        client_id: string;
+        callback: (answer: { credential?: string }) => void;
+        ux_mode?: "popup";
+      }): void;
+      renderButton(element: HTMLElement, options: Record<string, unknown>): void;
+    };
+  };
+};
+
+/**
+ * "Continue with Google" for the wallet, and only the wallet: the API's
+ * `/auth/social` signs in customers and nobody else.
+ *
+ * Google's own script and button, loaded on this screen alone and only when
+ * a client ID is configured - the wallet otherwise carries no third-party
+ * script, and nothing half-configured is offered. The ID token goes to the
+ * API, which checks it and sets the usual session cookie.
+ */
+function GoogleSignIn({ onDone, onNotice }: { onDone: () => void; onNotice: (text: string) => void }) {
+  const slot = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!googleClientId || !slot.current) return;
+    const element = slot.current;
+    const render = () => {
+      const google = (window as unknown as { google?: GoogleIdentity }).google;
+      if (!google) return;
+      // Google warns, and keeps only the last callback, when initialize runs
+      // twice - which React's development double effects always did. Once
+      // per page; the callback reads whichever handler is current.
+      googleHandler = (credential) => {
+        onNotice("");
+        socialSignIn({ provider: "google", idToken: credential, acceptedTerms: true })
+          .then(onDone)
+          .catch((failure) =>
+            onNotice(failure instanceof ApiError ? failure.message : "Google sign-in did not finish."),
+          );
+      };
+      if (!googleInitialised) {
+        googleInitialised = true;
+        google.accounts.id.initialize({
+          client_id: googleClientId,
+          ux_mode: "popup",
+          callback: ({ credential }) => {
+            if (credential) googleHandler?.(credential);
+          },
+        });
+      }
+      google.accounts.id.renderButton(element, {
+        theme: "outline",
+        size: "large",
+        shape: "pill",
+        text: "continue_with",
+        width: Math.min(element.clientWidth || 360, 400),
+      });
+    };
+    const src = "https://accounts.google.com/gsi/client";
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${src}"]`);
+    if (existing) {
+      if ((window as unknown as { google?: GoogleIdentity }).google) render();
+      else existing.addEventListener("load", render, { once: true });
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.addEventListener("load", render, { once: true });
+    script.addEventListener("error", () => onNotice("Google sign-in could not load. Use a code instead."), { once: true });
+    document.head.appendChild(script);
+  }, [onDone, onNotice]);
+
+  if (!googleClientId) return null;
+  return (
+    <div className="mt-6 grid gap-3">
+      <div className="flex items-center gap-3 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted)]">
+        <span className="h-px flex-1 bg-[var(--line)]" />
+        or
+        <span className="h-px flex-1 bg-[var(--line)]" />
+      </div>
+      <div ref={slot} className="flex min-h-11 justify-center" />
+      <p className="text-center text-[11px] leading-relaxed text-[var(--muted-strong)]">
+        New here? Continuing creates your wallet and means you accept the{" "}
+        <a href={`${shopperSiteUrl}/terms`} className="font-extrabold text-[var(--accent-strong)] underline">terms</a>{" "}
+        and{" "}
+        <a href={`${shopperSiteUrl}/privacy`} className="font-extrabold text-[var(--accent-strong)] underline">privacy notice</a>.
+      </p>
+    </div>
+  );
+}
+
 export function DemoAuthFlow({
   role,
   mode,
@@ -881,6 +981,8 @@ export function DemoAuthFlow({
   function completeSession(path = "/") {
     window.location.replace(path);
   }
+  // Stable, so Google's button is not re-rendered on every keystroke.
+  const onSocialDone = useCallback(() => window.location.replace("/"), []);
 
   /**
    * The API decides where the user lands.
@@ -1050,6 +1152,7 @@ export function DemoAuthFlow({
           </PrimaryButton>
         </form>
 
+        {role === "customer" && <GoogleSignIn onDone={onSocialDone} onNotice={setNotice} />}
         {role === "customer" && (
           <p className="mt-6 text-center text-xs text-[var(--muted-strong)]">
             New to KYP?{" "}
@@ -1383,6 +1486,7 @@ export function DemoAuthFlow({
           </PrimaryButton>
           <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> I already have a wallet</a>
         </form>
+        <GoogleSignIn onDone={onSocialDone} onNotice={setNotice} />
       </AuthShell>
     );
   }

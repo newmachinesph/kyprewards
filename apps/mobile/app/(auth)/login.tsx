@@ -5,6 +5,7 @@ import { Mail, Smartphone } from "lucide-react-native";
 import { ApiError, requestOtp } from "@kypstamping/api";
 import { isCompleteMobile, normalizeMobile } from "@kypstamping/ui/format";
 import { AuthShell, Field, MobileField } from "@/components/AuthShell";
+import { SocialSignIn } from "@/components/SocialSignIn";
 import { Button } from "@/components/ui";
 import { KEYS, remember } from "@/lib/storage";
 import { colors } from "@/lib/theme";
@@ -119,6 +120,8 @@ export default function Login() {
       <Button onPress={send} busy={busy}>
         {channel === "mobile" ? "Text me a code" : "Email me a code"}
       </Button>
+
+      <SocialSignIn onNotice={setNotice} />
 
       <Text className="text-center font-sans text-[12px] text-muted-strong">
         New to KYP?{" "}

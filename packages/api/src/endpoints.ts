@@ -131,6 +131,19 @@ export const requestOtp = (identifier: string): Promise<{ sent: boolean; expires
 export const verifyOtp = (identifier: string, code: string): Promise<LoginResult> =>
   http("/auth/otp/verify", { method: "POST", body: { identifier, code } });
 
+/**
+ * Google or Apple sign-in, customers only. `idToken` is the provider's signed
+ * ID token; `name` is Apple's one-time full name. `acceptedTerms` is read only
+ * when this sign-in creates the wallet (422 on `acceptedTerms` otherwise).
+ * 409: the email sits unconfirmed on a wallet; sign in by mobile first.
+ */
+export const socialSignIn = (body: {
+  provider: "google" | "apple";
+  idToken: string;
+  name?: string;
+  acceptedTerms?: boolean;
+}): Promise<LoginResult> => http("/auth/social", { method: "POST", body });
+
 export const selectWorkspace = (merchantId: string): Promise<LoginResult> =>
   http(`/auth/workspaces/${merchantId}/select`, { method: "POST" });
 
