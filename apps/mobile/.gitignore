@@ -30,3 +30,6 @@ credentials/*
 
 # `google-services.json` is deliberately NOT ignored: it is not a secret, it
 # ships inside the APK, and EAS Build needs it in the tree.
+
+# Local iOS signing for EAS (password inside); never commit.
+credentials.json

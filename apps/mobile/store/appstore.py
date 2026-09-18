@@ -31,7 +31,10 @@ LOCALE = "en-US"
 API = "https://api.appstoreconnect.apple.com"
 # 6.9" screenshots (1320 x 2868) go in the 6.7" slot, which Apple uses for
 # the largest iPhones; 6.5" is optional when these exist.
-SHOT_SETS = {"APP_IPHONE_67": "ios/iphone-6.9-*.png"}
+SHOT_SETS = {
+    "APP_IPHONE_67": "ios/iphone-6.9-*.png",
+    "APP_IPHONE_65": "ios/iphone-6.5-*.png",
+}
 
 
 def _b64(raw: bytes) -> bytes:

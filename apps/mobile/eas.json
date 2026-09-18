@@ -18,14 +18,20 @@
     "production": {
       "autoIncrement": true,
       "channel": "production",
-      "environment": "production"
+      "environment": "production",
+      "ios": {
+        "credentialsSource": "local"
+      }
     }
   },
   "submit": {
     "production": {
       "ios": {
         "appleTeamId": "4VU48XCNM2",
-        "ascAppId": "6813543606"
+        "ascAppId": "6813543606",
+        "ascApiKeyPath": "./credentials/AuthKey_XPCK8DYVRL.p8",
+        "ascApiKeyId": "XPCK8DYVRL",
+        "ascApiKeyIssuerId": "6159c24a-4d9e-47cc-970b-4d489a9191a4"
       },
       "android": {
         "serviceAccountKeyPath": "./credentials/play-service-account.json",
