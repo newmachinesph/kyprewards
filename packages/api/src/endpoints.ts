@@ -169,6 +169,8 @@ export const socialSignIn = (body: {
   idToken: string;
   name?: string;
   acceptedTerms?: boolean;
+  /** Apple only: kept so deleting the wallet can revoke the Apple sign-in. */
+  authorizationCode?: string;
 }): Promise<LoginResult> => http("/auth/social", { method: "POST", body });
 
 export const selectWorkspace = (merchantId: string): Promise<LoginResult> =>

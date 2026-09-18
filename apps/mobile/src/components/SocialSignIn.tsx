@@ -66,12 +66,14 @@ export function SocialSignIn({ onNotice }: { onNotice: (text: string) => void })
     provider: "google" | "apple",
     idToken: string,
     name?: string,
+    authorizationCode?: string,
   ) {
     const result = await socialSignIn({
       provider,
       idToken,
       name,
       acceptedTerms: true,
+      ...(authorizationCode ? { authorizationCode } : {}),
     });
     if (!result.sessionToken) {
       throw new Error("The server did not return a session for this app.");
@@ -133,7 +135,14 @@ export function SocialSignIn({ onNotice }: { onNotice: (text: string) => void })
       ]
         .filter(Boolean)
         .join(" ");
-      await finish("apple", credential.identityToken, name || undefined);
+      // The authorization code lets the API revoke this Apple sign-in if the
+      // wallet is ever deleted, as Apple requires.
+      await finish(
+        "apple",
+        credential.identityToken,
+        name || undefined,
+        credential.authorizationCode ?? undefined,
+      );
     } catch (failure) {
       if ((failure as { code?: string }).code === "ERR_REQUEST_CANCELED") return;
       onNotice(
