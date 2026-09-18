@@ -12,20 +12,25 @@
     "ios": {
       "bundleIdentifier": "ph.kyp.wallet",
       "supportsTablet": false,
-      "associatedDomains": ["applinks:app.kyp.ph", "applinks:kyp.ph"],
+      "associatedDomains": [
+        "applinks:app.kyp.ph",
+        "applinks:kyp.ph"
+      ],
       "infoPlist": {
         "NSCameraUsageDescription": "KYP uses the camera to scan a shop's counter poster and join its card.",
         "NSLocationWhenInUseUsageDescription": "KYP uses your location only while the app is open, to list the shops nearest you first. It is never shared with a shop.",
         "NSFaceIDUsageDescription": "KYP can lock your wallet behind Face ID if you turn that on.",
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "ph.kyp.wallet",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#18120c"
+        "monochromeImage": "./assets/adaptive-icon-monochrome.png",
+        "backgroundColor": "#faf8f3"
       },
       "permissions": [
         "CAMERA",
@@ -50,12 +55,27 @@
             },
             {
               "scheme": "https",
+              "host": "app.kyp.ph",
+              "pathPrefix": "/feedback"
+            },
+            {
+              "scheme": "https",
               "host": "kyp.ph",
               "pathPrefix": "/shops"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
+      ],
+      "blockedPermissions": [
+        "android.permission.WRITE_SETTINGS",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW"
       ]
     },
     "plugins": [
@@ -63,6 +83,7 @@
       "expo-secure-store",
       "expo-font",
       "expo-web-browser",
+      "expo-apple-authentication",
       [
         "expo-camera",
         {
@@ -88,8 +109,19 @@
         "expo-splash-screen",
         {
           "image": "./assets/splash.png",
+          "imageWidth": 160,
           "resizeMode": "contain",
           "backgroundColor": "#faf8f3"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "extraProguardRules": "# Reanimated and worklets are reached from C++ by name; R8 cannot see those calls.\n-keep class com.swmansion.reanimated.** { *; }\n-keep class com.swmansion.worklets.** { *; }\n-keep class com.facebook.react.turbomodule.** { *; }\n"
+          }
         }
       ]
     ],
@@ -99,7 +131,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "1f94fd76-eed8-447c-9ed6-7bdb132b4d5a"
+        "projectId": "64622711-d686-4193-bcb2-9b8fb8abaa28"
       }
     }
   }

@@ -133,7 +133,9 @@ Windows), **EAS Submit**, **EAS Update** on `preview` and `production`
 channels so JS-only fixes ship without a store review. `expo-updates` and the
 `updates` config arrive with `eas update:configure`, not before.
 
-The EAS project is **@sumnora/kyp**, created with `eas init` on 2026-09-07;
+The EAS project is **@sumnora/kyp**, created with `eas init` on 2026-09-07
+and created again on 2026-09-18 (ID `64622711-…`) after the first one was
+found deleted, FCM key and all;
 its id lives in `app.json` under `extra.eas.projectId`, and the empty string
 that used to be there is why push registration answered `unavailable`.
 
@@ -306,6 +308,47 @@ What a build needs, and where it stands: EAS project linked, the FCM V1
 service account key on EAS (`kyp-ph`), `google-services.json` in the tree
 and referenced by `app.json`, no Android keystore yet (the first
 `eas build -p android` creates it), no Apple credentials yet.
+
+## Walked and readied for the stores on 2026-09-18
+
+Walked on the `Pixel_10a` emulator in Expo Go against the seeded local API
+(on port 8010; another project held 8000): sign-in by code, the four tabs,
+a card, a place and a shop page, every Profile screen, inbox, activity,
+approvals, gifts, the scanner, the member code modal, the web slot on
+kyp.ph, a poster join end to end (pending welcome stamp, card in the
+wallet), a feedback link, sign-out and create-account.
+
+Fixed from that walk and a parity pass against app.kyp.ph:
+
+- **Keyboard over the sign-in form.** `KeyboardAvoidingView` added no
+  room under edge-to-edge; the number field and "Text me a code" sat under
+  the keyboard. `AuthShell` and `Screen` now pad by the measured keyboard
+  (`src/lib/keyboard.ts`) and the auth sheet scrolls to its form.
+- **Discover rows blank** when a storefront photo failed to load, and Home
+  suggestions showed a coffee cup for every category. `PlaceThumb` falls
+  back to the category icon, from the same map the web wallet uses.
+- **An empty `EXPO_PUBLIC_*`** in `.env` inlined `""` and `??` kept it,
+  so the API base was blank. The config falls back on `||`.
+- **Sign-up copy** promised every channel stayed off; the API starts push
+  and email promotions on. It now says what the web wallet says.
+- **A tapped push that launched the app** was dropped; the last response is
+  read on start.
+- Parity: `app/feedback/[id]` (the post-visit question, no sign-in, also a
+  universal link) and "Send it again" for an unconfirmed email.
+
+Added: Google sign-in on both platforms and Apple sign-in on iOS only
+(`src/components/SocialSignIn.tsx`, `POST /auth/social`), each hidden until
+its client ID is set and in Expo Go; Google on app.kyp.ph for customers.
+Store readiness: icons redrawn from the seal at 1024 (adaptive, themed and
+a white notification icon), `WRITE_SETTINGS`, storage, microphone and
+overlay permissions blocked, Expo packages at the SDK's patches
+(`expo-doctor` 21/21), EAS environments and the FCM V1 key restored on the
+new project, listing graphics and screenshots in `apps/mobile/store/`,
+whose README lists the console steps left.
+
+Not verified: Google and Apple sign-in on a device (no client IDs yet, and
+Expo Go cannot load the native module), push delivery to a device (needs a
+development or store build), iOS at all.
 
 ## Phases, revisited
 
