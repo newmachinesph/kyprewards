@@ -27,7 +27,7 @@ type AuthState = {
   session: SessionInfo | null;
   /** Read the keychain and ask the API who that token belongs to. */
   bootstrap: () => Promise<void>;
-  /** After a one-time code is accepted: keep the token, load the session. */
+  /** After any sign-in (password, code, Google or Apple): keep the token, load the session. */
   signIn: (token: string) => Promise<void>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;

@@ -110,7 +110,22 @@ export type LoginResult = {
   merchantId: string | null;
   /** Only for the mobile app, which asked with `X-KYP-Client: mobile`. */
   sessionToken?: string | null;
+  /** Customer only: signed in by code with no password yet; ask for one. */
+  needsPassword?: boolean;
 };
+
+/**
+ * Wallet sign-in by mobile or confirmed email and password. 401 for a wrong
+ * password and for a wallet with none yet alike; 429 after five failures.
+ */
+export const customerLogin = (identifier: string, password: string): Promise<LoginResult> =>
+  http("/auth/customer/login", { method: "POST", body: { identifier, password } });
+
+/** Set a first password or change it; `currentPassword` when one exists. */
+export const changeCustomerPassword = (body: {
+  currentPassword?: string;
+  newPassword: string;
+}): Promise<void> => http("/customer/password", { method: "POST", body });
 
 export const login = (email: string, password: string): Promise<LoginResult> =>
   http("/auth/login", { method: "POST", body: { email, password } });
@@ -128,8 +143,20 @@ export const verifyMfa = (code: string): Promise<LoginResult> =>
 export const requestOtp = (identifier: string): Promise<{ sent: boolean; expiresInSeconds: number }> =>
   http("/auth/otp/request", { method: "POST", body: { identifier } });
 
-export const verifyOtp = (identifier: string, code: string): Promise<LoginResult> =>
-  http("/auth/otp/verify", { method: "POST", body: { identifier, code } });
+/**
+ * A correct code signs in. With `newPassword` it also sets or replaces the
+ * wallet's password (sign-up, forgot password, first password); replacing
+ * one signs out every other session.
+ */
+export const verifyOtp = (
+  identifier: string,
+  code: string,
+  newPassword?: string,
+): Promise<LoginResult> =>
+  http("/auth/otp/verify", {
+    method: "POST",
+    body: newPassword ? { identifier, code, newPassword } : { identifier, code },
+  });
 
 /**
  * Google or Apple sign-in, customers only. `idToken` is the provider's signed

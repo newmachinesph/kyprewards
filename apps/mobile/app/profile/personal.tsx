@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Text, View } from "react-native";
 import {
+  changeCustomerPassword,
   confirmMobileChange,
   keys,
   requestMobileChange,
@@ -82,6 +83,7 @@ function PersonalForm({ profile }: { profile: CustomerProfile }) {
         </Text>
       ) : null}
       <MobileNumber current={profile.mobile ?? ""} />
+      <PasswordSection hasPassword={Boolean(profile.hasPassword)} />
       <Text className="font-sans text-[12px] leading-[18px] text-muted-strong">
         Birthday: {profile.birthday ?? "not given"}. Shops you join can send you
         something on your birthday; we hold the day and month only.
@@ -166,6 +168,64 @@ function MobileNumber({ current }: { current: string }) {
           </Button>
         </>
       )}
+    </View>
+  );
+}
+
+/**
+ * Set a first password (a wallet from before passwords, or one opened with
+ * Google or Apple) or change it; the current one is asked for when there is
+ * one, so an unlocked phone cannot lock its owner out.
+ */
+function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const save = useApiMutation(changeCustomerPassword, {
+    invalidates: [keys.customer.profile()],
+    onSuccess: () => {
+      setCurrent("");
+      setNext("");
+      notify(hasPassword ? "Password changed." : "Password set. Sign in with it next time.");
+    },
+    onError: (failure) => notify(failure.message, "error"),
+  });
+  return (
+    <View className="gap-3">
+      <Text className="font-sans-extrabold text-[13px] text-ink">
+        {hasPassword ? "Change password" : "Set a password"}
+      </Text>
+      {hasPassword ? (
+        <Field
+          label="Current password"
+          value={current}
+          onChange={setCurrent}
+          secure
+          autoCapitalize="none"
+          autoComplete="current-password"
+        />
+      ) : null}
+      <Field
+        label="New password"
+        value={next}
+        onChange={setNext}
+        secure
+        autoCapitalize="none"
+        autoComplete="new-password"
+        hint="At least 8 characters."
+      />
+      <Button
+        tone="quiet"
+        busy={save.isPending}
+        disabled={next.length < 8 || (hasPassword && !current)}
+        onPress={() =>
+          save.mutate({
+            ...(hasPassword ? { currentPassword: current } : {}),
+            newPassword: next,
+          })
+        }
+      >
+        {hasPassword ? "Change password" : "Set password"}
+      </Button>
     </View>
   );
 }

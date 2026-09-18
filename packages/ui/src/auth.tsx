@@ -36,6 +36,7 @@ import {
   requestPasswordReset,
   resetPassword,
   selectWorkspace,
+  customerLogin,
   socialSignIn,
   getWorkspaces,
   useSession,
@@ -169,15 +170,15 @@ const roleConfig = {
   },
   customer: {
     label: "Customer wallet",
-    eyebrow: "Passwordless access",
+    eyebrow: "Your wallet",
     identifierLabel: "Mobile number",
     identifierType: "tel",
     identifier: "+63 917 555 0182",
     signInTitle: "Open your wallet.",
     signInDescription:
-      "Use your mobile number or email. We will send a one-time code—no password needed.",
+      "Use your mobile number or email and your password.",
     steps: [
-      ["Member", "Your number, no password"],
+      ["Member", "Your number and a password"],
       ["Wallet", "Every shop you have joined"],
       ["Privacy", "Permissions stay visible"],
     ],
@@ -855,6 +856,8 @@ export function DemoAuthFlow({
       ? "This link is missing its token. Ask for the invitation again."
       : "");
   const [showPassword, setShowPassword] = useState(false);
+  // The customer code screen: the password this code is proving the number for.
+  const [newPassword, setNewPassword] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   // Every flow that asks for a name is somebody typing their own.
@@ -990,8 +993,8 @@ export function DemoAuthFlow({
    * The API decides where the user lands.
    *
    * `mfaRequired` and `needsWorkspace` come back from the sign-in itself, so
-   * this never has to guess - and a customer, who has no password, takes the
-   * code route instead.
+   * this never has to guess. A customer signs in with a password too; a code
+   * is only sent to prove the number (sendCustomerCode).
    */
   async function submitLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -999,7 +1002,7 @@ export function DemoAuthFlow({
       setNotice(`Enter your ${config.identifierLabel.toLowerCase()}.`);
       return;
     }
-    if (role !== "customer" && !password) {
+    if (!password) {
       setNotice("Enter your password.");
       return;
     }
@@ -1008,12 +1011,10 @@ export function DemoAuthFlow({
     setNotice("");
     try {
       if (role === "customer") {
-        // Deliberately unconditional: the API answers the same whether or not
-        // the identifier is known, so this cannot be used to discover who has
-        // a wallet.
-        await requestOtp(identifier.trim());
-        window.sessionStorage.setItem(OTP_IDENTIFIER_KEY, identifier.trim());
-        go("/verify");
+        // A password, not a code: every sign-in used to send an SMS or an
+        // email. A code is only sent to prove the number (below).
+        await customerLogin(identifier.trim(), password);
+        completeSession("/#home");
         return;
       }
 
@@ -1028,6 +1029,28 @@ export function DemoAuthFlow({
     } catch (failure) {
       setNotice(failure instanceof ApiError ? failure.message : "Could not sign in.");
     } finally {
+      setBusy(false);
+    }
+  }
+
+  /**
+   * "Forgot or never set a password?": a code to the number or address, and
+   * the code screen takes a new password with it. Unconditional, as the API
+   * answers the same whether or not the identifier has a wallet.
+   */
+  async function sendCustomerCode() {
+    if (!identifier.trim()) {
+      setNotice(`Enter your ${channel === "mobile" ? "mobile number" : "email address"} first.`);
+      return;
+    }
+    setBusy(true);
+    setNotice("");
+    try {
+      await requestOtp(identifier.trim());
+      window.sessionStorage.setItem(OTP_IDENTIFIER_KEY, identifier.trim());
+      go("/verify");
+    } catch (failure) {
+      setNotice(failure instanceof ApiError ? failure.message : "Could not send a code.");
       setBusy(false);
     }
   }
@@ -1058,7 +1081,14 @@ export function DemoAuthFlow({
           setBusy(false);
           return;
         }
-        await verifyOtp(sentTo, code);
+        // Every customer code screen sets the password it is for: sign-up,
+        // forgot password, or a wallet from before passwords.
+        if (newPassword.length < 8) {
+          setNotice("Choose a password of at least 8 characters.");
+          setBusy(false);
+          return;
+        }
+        await verifyOtp(sentTo, code, newPassword);
       } else {
         await verifyMfa(code);
       }
@@ -1114,7 +1144,7 @@ export function DemoAuthFlow({
               autoComplete={role === "customer" ? "email" : "email"}
             />
           )}
-          {role !== "customer" && (
+          {(
             <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
               Password
               <span className="relative">
@@ -1143,14 +1173,23 @@ export function DemoAuthFlow({
               decision about shared till tablets, not a wording fix, so the
               control is gone rather than lying. Noted in BACKLOG.md. */}
           <div className="flex items-center justify-end gap-4 text-xs">
-            {role !== "customer" && (
+            {role === "customer" ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={sendCustomerCode}
+                className="font-extrabold text-[var(--accent-strong)] hover:underline disabled:opacity-60"
+              >
+                Forgot or never set a password? Get a code
+              </button>
+            ) : (
               <a href="/forgot-password" className="font-extrabold text-[var(--accent-strong)] hover:underline">
                 Forgot password?
               </a>
             )}
           </div>
           <PrimaryButton>
-            {role === "customer" ? (channel === "mobile" ? "Text me a code" : "Email me a code") : "Continue securely"}
+            {role === "customer" ? "Sign in" : "Continue securely"}
           </PrimaryButton>
         </form>
 
@@ -1303,7 +1342,9 @@ export function DemoAuthFlow({
             ? "Enter the six-digit code from your administrator authenticator."
             : sentTo === ""
               ? "This page was opened without a code being sent. Start again from sign-in and we will text you one."
-              : "Enter the six-digit code we just sent you."
+              : role === "customer"
+                ? "Enter the six-digit code we just sent you, and choose a password for next time."
+                : "Enter the six-digit code we just sent you."
         }
         sentTo={sentTo}
       >
@@ -1333,8 +1374,37 @@ export function DemoAuthFlow({
                     : "We have lost track of where that code was sent."}
             </span>
           </label>
+          {role === "customer" && (
+            <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
+              Choose a password
+              <span className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  autoComplete="new-password"
+                  minLength={8}
+                  aria-describedby="new-password-help"
+                  className="min-h-12 w-full rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 pr-12 text-sm font-semibold outline-none transition focus:border-[var(--accent-strong)]"
+                />
+                <button
+                  type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  className="absolute inset-y-0 right-1 grid w-11 place-items-center text-[var(--muted-strong)]"
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </span>
+              <span id="new-password-help" className="text-[10px] font-semibold text-[var(--muted)]">
+                At least 8 characters. Next time you sign in with it, no code needed.
+              </span>
+            </label>
+          )}
           {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--muted-strong)]">{notice}</p>}
-          <PrimaryButton disabled={code.length !== 6}>Verify and continue</PrimaryButton>
+          <PrimaryButton disabled={code.length !== 6 || (role === "customer" && newPassword.length < 8)}>
+            Verify and continue
+          </PrimaryButton>
           {role === "customer" && (
             <button
               type="button"

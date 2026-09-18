@@ -423,6 +423,8 @@ export type CustomerProfile = {
   /** False until the inbox confirms it; only a confirmed email signs in. */
   emailVerified?: boolean;
   mobile: string;
+  /** Whether a password is set; changing it then asks for the current one. */
+  hasPassword?: boolean;
 };
 
 export type WalletCard = {

@@ -18,6 +18,9 @@ export default function Verify() {
   const signIn = useAuth((state) => state.signIn);
   const [identifier, setIdentifier] = useState(params.identifier ?? "");
   const [code, setCode] = useState("");
+  // Every code screen sets the password the code is proving the number for:
+  // sign-up, forgot password, or a wallet from before passwords.
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [resent, setResent] = useState(false);
@@ -33,10 +36,14 @@ export default function Verify() {
       setNotice("Enter the six-digit code.");
       return;
     }
+    if (password.length < 8) {
+      setNotice("Choose a password of at least 8 characters.");
+      return;
+    }
     setBusy(true);
     setNotice("");
     try {
-      const result = await verifyOtp(identifier, digits);
+      const result = await verifyOtp(identifier, digits, password);
       if (!result.sessionToken) {
         // The API answered without a token, which means it did not recognise
         // this as the app. Nothing to keep; say so rather than sign in to
@@ -76,8 +83,8 @@ export default function Verify() {
       title="Enter the code."
       description={
         identifier
-          ? `We sent six digits to ${identifier}. It expires in a few minutes.`
-          : "We sent you six digits."
+          ? `We sent six digits to ${identifier}. Enter them and choose a password for next time.`
+          : "Enter the six digits we sent you and choose a password for next time."
       }
     >
       <Field
@@ -89,6 +96,15 @@ export default function Verify() {
         autoComplete="one-time-code"
         autoCapitalize="none"
       />
+      <Field
+        label="Choose a password"
+        value={password}
+        onChange={setPassword}
+        secure
+        autoCapitalize="none"
+        autoComplete="new-password"
+        hint="At least 8 characters. Next time you sign in with it, no code needed."
+      />
       {notice ? (
         <Text
           accessibilityRole="alert"
@@ -97,7 +113,11 @@ export default function Verify() {
           {notice}
         </Text>
       ) : null}
-      <Button onPress={submit} busy={busy} disabled={code.length !== 6}>
+      <Button
+        onPress={submit}
+        busy={busy}
+        disabled={code.length !== 6 || password.length < 8}
+      >
         Verify and open my wallet
       </Button>
       <Button tone="quiet" onPress={resend} disabled={resent}>

@@ -189,7 +189,7 @@ export default function Profile() {
         onPress={() =>
           Alert.alert(
             "Sign out of this device?",
-            "Your cards stay in your wallet. Sign back in with a one-time code.",
+            "Your cards stay in your wallet. Sign back in with your password.",
             [
               { text: "Stay signed in", style: "cancel" },
               {

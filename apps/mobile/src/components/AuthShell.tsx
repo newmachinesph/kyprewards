@@ -123,7 +123,14 @@ export function Field({
   placeholder?: string;
   keyboardType?: "default" | "email-address" | "number-pad" | "phone-pad";
   autoCapitalize?: "none" | "words" | "sentences" | "characters";
-  autoComplete?: "name" | "email" | "tel" | "one-time-code" | "off";
+  autoComplete?:
+    | "name"
+    | "email"
+    | "tel"
+    | "one-time-code"
+    | "current-password"
+    | "new-password"
+    | "off";
   secure?: boolean;
   hint?: string;
 }) {

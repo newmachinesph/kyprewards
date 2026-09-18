@@ -7,6 +7,7 @@ import type { CustomerProfile, DiscoverPlace, WalletCard } from "@kypstamping/ap
 import {
   ApiError,
   PREVIEW_WRITE_REASON,
+  changeCustomerPassword,
   getDataExportLink,
   confirmMobileChange,
   keys,
@@ -3009,6 +3010,7 @@ function PersonalDetails({
         </p>
       )}
       <MobileNumber current={profile.mobile} />
+      <PasswordSection hasPassword={Boolean(profile.hasPassword)} />
       <div className="grid gap-2 text-xs font-bold">
         Birthday
         <span className="flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] px-4 text-sm font-normal text-[var(--muted-strong)]">
@@ -3043,6 +3045,78 @@ function PersonalDetails({
  * wallet moves only when it comes back. Kept outside the Save form, because
  * it is not saved - it is proven.
  */
+/**
+ * Set a first password (a wallet from before passwords, or one opened with
+ * Google) or change it. The current one is asked for when there is one, so a
+ * browser left signed in cannot lock its owner out. Buttons, not a form: it
+ * sits inside the profile's Save form.
+ */
+function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
+  const queryClient = useQueryClient();
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [notice, setNotice] = useState("");
+  const save = useApiMutation(changeCustomerPassword);
+  const ready = next.length >= 8 && (!hasPassword || current.length > 0);
+  return (
+    <div className="grid gap-2 text-xs font-bold">
+      {hasPassword ? "Change password" : "Set a password"}
+      <div className="grid gap-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 font-normal">
+        {hasPassword && (
+          <label className="grid gap-1">
+            <span>Current password</span>
+            <input
+              type="password"
+              autoComplete="current-password"
+              value={current}
+              onChange={(event) => setCurrent(event.target.value)}
+              className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
+            />
+          </label>
+        )}
+        <label className="grid gap-1">
+          <span>New password, at least 8 characters</span>
+          <input
+            type="password"
+            autoComplete="new-password"
+            minLength={8}
+            value={next}
+            onChange={(event) => setNext(event.target.value)}
+            className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={!ready || save.isPending}
+          onClick={() => {
+            setNotice("");
+            save.mutate(
+              { ...(hasPassword ? { currentPassword: current } : {}), newPassword: next },
+              {
+                onSuccess: () => {
+                  void queryClient.invalidateQueries({ queryKey: keys.customer.profile() });
+                  setCurrent("");
+                  setNext("");
+                  setNotice(hasPassword ? "Password changed." : "Password set. Sign in with it next time.");
+                },
+                onError: (failure) => setNotice(failure.message),
+              },
+            );
+          }}
+          className="min-h-11 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-50"
+        >
+          {save.isPending ? "Saving…" : hasPassword ? "Change password" : "Set password"}
+        </button>
+        {notice && (
+          <p role="status" aria-live="polite" className="text-[var(--muted-strong)]">
+            {notice}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function MobileNumber({ current }: { current: string }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);

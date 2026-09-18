@@ -170,7 +170,7 @@ export default function Join() {
                 ? "The poster is for first-time visitors. Show your code at the counter and staff will add today's stamp."
                 : signedIn
                   ? "A new card, in the wallet you already have."
-                  : "One number, no app store account, no password. It saves this stamp and every one after it."}
+                  : "One number and a password. It saves this stamp and every one after it."}
             </Text>
             <Button
               className="mt-5"

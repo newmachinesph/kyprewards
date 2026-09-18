@@ -297,7 +297,7 @@ export function FirstStamp({ slug }: { slug: string }) {
                       // It said "the card you already have" over a card
                       // reading 1 of 8, which is the card this tap creates.
                       "A new card, in the wallet you already have."
-                    : "One number, no app, no password. It saves this stamp and every one after it."}
+                    : "One number and a password, no app. It saves this stamp and every one after it."}
               </p>
               {/* The claim is minted here, on the tap, rather than when the
                   page loaded - so opening a poster link costs nothing and
