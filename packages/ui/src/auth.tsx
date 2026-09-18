@@ -782,6 +782,8 @@ function GoogleSignIn({ onDone, onNotice }: { onDone: () => void; onNotice: (tex
         size: "large",
         shape: "pill",
         text: "continue_with",
+        // Google localises by the visitor's location; the wallet is English.
+        locale: "en",
         width: Math.min(element.clientWidth || 360, 400),
       });
     };
