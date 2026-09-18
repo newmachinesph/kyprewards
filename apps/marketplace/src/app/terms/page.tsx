@@ -26,7 +26,7 @@ const sections: LegalSection[] = [
   {
     title: "Your wallet",
     paragraphs: [
-      "One wallet belongs to one person, identified by one mobile number. Signing in is a one-time code, so keeping access to that number is what keeps the wallet yours.",
+      "One wallet belongs to one person, identified by one mobile number. You sign in with a password you keep to yourself. A one-time code to that number is what proves the wallet is yours when you join and when you set or reset the password, so keeping access to that number is what keeps the wallet yours.",
       "You must be old enough to enter a contract on your own, or have a parent or guardian agree for you.",
       "Your member code is not a secret and is not a payment instrument. It identifies you to a counter; it cannot spend anything on its own, and a reward is only handed over after you approve it on your own phone.",
     ],
@@ -93,7 +93,7 @@ export default function MarketplaceTermsPage() {
       eyebrow="Terms"
       title="Using a KYP wallet"
       summary="KYP keeps the count; the shop gives the reward. These terms say which is which, what your card can and cannot do, and how to leave."
-      updated="4 September 2026"
+      updated="19 September 2026"
       sections={sections}
     />
   );

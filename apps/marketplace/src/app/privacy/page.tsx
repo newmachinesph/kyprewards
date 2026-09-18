@@ -29,7 +29,9 @@ const sections: LegalSection[] = [
     bullets: [
       "Your mobile number, which is how you sign in and how a counter finds your card.",
       "Your name, if you gave one, so staff can greet you rather than read a number aloud.",
-      "Your email address, if you gave one, as a second way to receive a sign-in code.",
+      "Your email address, if you gave one, as a second way to sign in.",
+      "Your password, stored only as a one-way hash that cannot be turned back into the password. Nobody at KYP or at a shop can read it. A one-time code to your number or address is used only to prove it is yours: when you join, set a password or reset it.",
+      "If you sign in with Google or Apple, the email address and name they share with KYP, and nothing else from that account.",
       "The day and month of your birthday, if you gave them, so a shop can offer you something. Never the year.",
       "Your member code — the number on your card, which staff scan.",
       "Your visits and rewards at each shop you joined: when a stamp was earned, when a reward was claimed, and at which branch.",
@@ -40,7 +42,6 @@ const sections: LegalSection[] = [
     title: "What KYP does not hold",
     paragraphs: [
       "No card or bank details. Shoppers never pay KYP anything, so there is nothing to store. If a shop takes payment, that happens at the counter and KYP is not part of it.",
-      "No password. Signing in is a one-time code sent to your number or address, so there is no password to leak.",
       "No location history. The marketplace can sort shops by distance, and it asks for your position only when you tap the button. That position stays in the browser tab and is never sent to KYP or kept.",
       "No tracking of you across other websites, and no advertising profile.",
     ],
@@ -114,7 +115,7 @@ export default function MarketplacePrivacyPage() {
       eyebrow="Privacy"
       title="What we hold, and what you can do about it"
       summary="You joined a loyalty card, not a data platform. This is the whole of what KYP keeps about you, who can see it, and how to take it back."
-      updated="4 September 2026"
+      updated="19 September 2026"
       sections={sections}
     />
   );
