@@ -5,6 +5,7 @@ import { Check } from "lucide-react-native";
 import { ApiError, registerCustomer } from "@kypstamping/api";
 import { isCompleteMobile, normalizeMobile } from "@kypstamping/ui/format";
 import { AuthShell, Field, MobileField } from "@/components/AuthShell";
+import { SocialSignIn } from "@/components/SocialSignIn";
 import { Button, Chip } from "@/components/ui";
 import { readClaim } from "@/lib/claim";
 import { MARKETPLACE_URL } from "@/lib/config";
@@ -167,10 +168,17 @@ export default function CreateAccount() {
           >
             privacy notice
           </Text>
-          . Joining a shop is not consent to marketing; each channel stays off
-          until I turn it on.
+          .
         </Text>
       </Pressable>
+
+      {/* Said before the wallet exists, as the web wallet does: the API
+          starts push and email promotions on. This line used to promise
+          every channel stayed off, which was not what the account got. */}
+      <Text className="font-sans text-[12px] leading-[18px] text-muted-strong">
+        Offers from shops you join arrive by push and email; SMS stays off.
+        Turn any of them off in Notifications at any time.
+      </Text>
 
       {notice ? (
         <Text
@@ -183,6 +191,7 @@ export default function CreateAccount() {
       <Button onPress={submit} busy={busy}>
         Text me a code
       </Button>
+      <SocialSignIn onNotice={setNotice} />
       <Button tone="quiet" onPress={() => router.replace("/(auth)/login")}>
         I already have a wallet
       </Button>

@@ -16,7 +16,7 @@ export function GET() {
     {
       applinks: {
         apps: [],
-        details: [{ appID: `${team}.ph.kyp.wallet`, paths: ["/join/*", "/login"] }],
+        details: [{ appID: `${team}.ph.kyp.wallet`, paths: ["/join/*", "/login", "/feedback/*"] }],
       },
     },
     { headers: { "Content-Type": "application/json" } },

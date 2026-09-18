@@ -4,6 +4,7 @@ import {
   confirmMobileChange,
   keys,
   requestMobileChange,
+  resendEmailConfirmation,
   updateCustomerProfile,
   useApiMutation,
   useCustomerProfile,
@@ -49,6 +50,9 @@ function PersonalForm({ profile }: { profile: CustomerProfile }) {
       notify("Saved. Your details are updated across the wallet."),
     onError: (failure) => notify(failure.message, "error"),
   });
+  const resend = useApiMutation(resendEmailConfirmation, {
+    onError: (failure) => notify(failure.message, "error"),
+  });
   const nameChanged = name !== profile.name;
   const emailChanged = email !== (profile.email ?? "");
   const changed = nameChanged || emailChanged;
@@ -66,7 +70,15 @@ function PersonalForm({ profile }: { profile: CustomerProfile }) {
       />
       {profile.email && profile.emailVerified === false ? (
         <Text className="font-sans text-[12px] leading-[18px] text-muted-strong">
-          Not confirmed yet. Open the link we emailed to sign in with this address.
+          Not confirmed yet. Open the link we emailed to sign in with this address.{" "}
+          <Text
+            accessibilityRole="button"
+            disabled={resend.isPending || resend.isSuccess}
+            onPress={() => resend.mutate(undefined)}
+            className="font-sans-extrabold text-accent-strong underline"
+          >
+            {resend.isSuccess ? "Sent" : "Send it again"}
+          </Text>
         </Text>
       ) : null}
       <MobileNumber current={profile.mobile ?? ""} />

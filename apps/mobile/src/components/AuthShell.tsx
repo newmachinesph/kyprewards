@@ -1,6 +1,5 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import {
-  KeyboardAvoidingView,
   ScrollView,
   Text,
   TextInput,
@@ -12,6 +11,7 @@ import { displayMobile, normalizeMobile, toE164 } from "@kypstamping/ui/format";
 import { BrandMark } from "@/components/Brand";
 import { Eyebrow } from "@/components/ui";
 import { StampDots } from "@/components/StampDots";
+import { useKeyboardInset } from "@/lib/keyboard";
 import { colors } from "@/lib/theme";
 
 /**
@@ -33,14 +33,20 @@ export function AuthShell({
   children: ReactNode;
 }) {
   const insets = useSafeAreaInsets();
+  const scroller = useRef<ScrollView>(null);
+  const keyboard = useKeyboardInset();
+  // The form is the last thing on every auth screen, so the end of the
+  // sheet is where the keyboard should leave you.
+  useEffect(() => {
+    if (keyboard > 0) scroller.current?.scrollToEnd({ animated: true });
+  }, [keyboard]);
   return (
-    // `padding` on both platforms. Android used to resize the window under a
-    // keyboard on its own, which is what leaving `behavior` unset relied on;
-    // with edge-to-edge (Android 15 and up, the SDK 57 default) it no longer
-    // does, and the field being typed into - and the button under it - sat
-    // behind the keyboard.
-    <KeyboardAvoidingView behavior="padding" className="flex-1 bg-accent">
+    // With edge-to-edge (Android 15 and up, the SDK 57 default) the window
+    // no longer resizes under a keyboard, and KeyboardAvoidingView did not
+    // make room either; the sheet pads by the measured keyboard instead.
+    <View className="flex-1 bg-accent">
       <ScrollView
+        ref={scroller}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top + 12 }}
       >
@@ -83,7 +89,7 @@ export function AuthShell({
         </View>
         <View
           className="mt-6 flex-1 rounded-t-[28px] bg-paper px-5 pt-5"
-          style={{ paddingBottom: insets.bottom + 28 }}
+          style={{ paddingBottom: insets.bottom + 28 + keyboard }}
         >
           <View className="mb-4 h-1 w-10 self-center rounded-full bg-line-strong" />
           <Eyebrow>{eyebrow}</Eyebrow>
@@ -96,7 +102,7 @@ export function AuthShell({
           <View className="mt-6 gap-5">{children}</View>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

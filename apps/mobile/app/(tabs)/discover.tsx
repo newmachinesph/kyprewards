@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Image,
   Linking,
   Pressable,
   RefreshControl,
@@ -18,10 +17,10 @@ import {
   ScanLine,
   Search,
   SlidersHorizontal,
-  Store,
 } from "lucide-react-native";
 import { useCustomerProfile, useDiscover } from "@kypstamping/api";
 import { formatDistance } from "@kypstamping/ui/format";
+import { PlaceThumb } from "@/components/PlaceThumb";
 import { Screen } from "@/components/Screen";
 import {
   Button,
@@ -244,20 +243,7 @@ export default function Discover() {
               // the top row is only "featured" when a shop paid for it.
               className={`flex-row items-center gap-4 rounded-2xl p-3.5 active:opacity-90 ${place.featured ? "bg-accent" : "border border-line bg-surface"}`}
             >
-              <View
-                className="size-13 items-center justify-center overflow-hidden rounded-xl bg-surface"
-                style={{ width: 52, height: 52 }}
-              >
-                {place.image ? (
-                  <Image
-                    source={{ uri: place.image }}
-                    style={{ width: 52, height: 52 }}
-                    resizeMode="cover"
-                  />
-                ) : (
-                  <Store size={22} color={colors.mutedStrong} />
-                )}
-              </View>
+              <PlaceThumb image={place.image} category={place.category} />
               <View className="min-w-0 flex-1">
                 <View className="flex-row items-center gap-2">
                   <Text

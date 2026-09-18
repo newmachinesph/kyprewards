@@ -94,6 +94,12 @@ export function onNotificationOpened(
 ): () => void {
   const api = notifications();
   if (!api) return () => undefined;
+  // A tap that launched a closed app happened before this listener existed;
+  // the listener alone dropped it and the app opened on Home.
+  void api.getLastNotificationResponseAsync().then((response) => {
+    const route = response ? routeFrom(response) : null;
+    if (route) open(route);
+  });
   const subscription = api.addNotificationResponseReceivedListener(
     (response) => {
       const route = routeFrom(response);

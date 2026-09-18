@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import {
-  KeyboardAvoidingView,
   Pressable,
   ScrollView,
   Text,
@@ -10,6 +9,7 @@ import {
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useKeyboardInset } from "@/lib/keyboard";
 import { colors } from "@/lib/theme";
 
 /**
@@ -37,6 +37,7 @@ export function Screen({
 }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const keyboard = useKeyboardInset();
   return (
     <View className="flex-1 bg-paper" style={{ paddingTop: insets.top }}>
       {back || title ? (
@@ -61,23 +62,23 @@ export function Screen({
           <View className="size-10" />
         </View>
       ) : null}
-      {/* Same reason as AuthShell: with edge-to-edge Android no longer
-          resizes the window under the keyboard, so a search box or a promo
-          code field near the bottom was typed into blind. */}
-      <KeyboardAvoidingView behavior="padding" className="flex-1">
+      {/* Same reason as AuthShell: the content pads by the measured
+          keyboard, so a search box or a promo code field near the bottom
+          can be scrolled clear of it. */}
+      <View className="flex-1">
         <ScrollView
           className="flex-1"
           contentContainerStyle={{
             paddingHorizontal: padded ? 20 : 0,
             paddingTop: padded ? 20 : 0,
-            paddingBottom: bottom + insets.bottom,
+            paddingBottom: bottom + insets.bottom + keyboard,
           }}
           keyboardShouldPersistTaps="handled"
           refreshControl={refreshControl}
         >
           {children}
         </ScrollView>
-      </KeyboardAvoidingView>
+      </View>
     </View>
   );
 }

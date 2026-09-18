@@ -4,7 +4,6 @@ import {
   ArrowRight,
   BadgeCheck,
   Bell,
-  Coffee,
   Megaphone,
   ScanLine,
   Sparkles,
@@ -25,6 +24,7 @@ import {
   relativeTime,
   todayLabel,
 } from "@kypstamping/ui/format";
+import { CategoryIcon } from "@/components/PlaceThumb";
 import { Screen } from "@/components/Screen";
 import { LoyaltyCard } from "@/components/LoyaltyCard";
 import { BrandMark } from "@/components/Brand";
@@ -283,7 +283,8 @@ export default function Home() {
                     <View
                       className={`size-11 items-center justify-center rounded-2xl ${featured ? "bg-surface" : "bg-accent/15"}`}
                     >
-                      <Coffee
+                      <CategoryIcon
+                        category={place.category}
                         size={20}
                         color={featured ? colors.ink : colors.accentStrong}
                       />
