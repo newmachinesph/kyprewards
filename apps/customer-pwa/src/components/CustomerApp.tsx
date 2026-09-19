@@ -97,7 +97,6 @@ import {
   MapPin,
   Navigation,
   Megaphone,
-  Nfc,
   Phone,
   Printer,
   QrCode,
@@ -1703,9 +1702,6 @@ function QrModal({
           identifies your account only. It carries no contact details, and it
           cannot be used to spend money or change your account.
         </div>
-        <div className="mt-3 flex items-center gap-2 text-[11px] font-bold text-[var(--muted)]">
-          <Nfc size={15} aria-hidden="true" /> You can also tap at supported counters.
-        </div>
       </div>
     </div>
   );
@@ -2586,12 +2582,18 @@ function ProfileSheet({
                 ],
                 [
                   "Email",
-                  channels.promoEmail
-                    ? "Shared, and used for email promotions"
-                    : "Shared for service messages only",
-                  true,
+                  !profile.email
+                    ? "Not given"
+                    : channels.promoEmail
+                      ? "Shared, and used for email promotions"
+                      : "Shared for service messages only",
+                  Boolean(profile.email),
                 ],
-                ["Birthday", "Optional, for birthday rewards", true],
+                [
+                  "Birthday",
+                  profile.birthday ? "Optional, for birthday rewards" : "Not given",
+                  Boolean(profile.birthday),
+                ],
                 [
                   "Location",
                   channels.nearby

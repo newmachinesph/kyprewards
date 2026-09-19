@@ -27,6 +27,7 @@ import {
   claimFirstStamp,
   useDataRequests,
   useDiscover,
+  useNotifications,
   useWalletWithPreview,
 } from "@kypstamping/api";
 import type { CustomerProfile, WalletCard } from "@kypstamping/api";
@@ -253,7 +254,11 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
     ],
     [discover, joinedLocally],
   );
-  const [notificationsRead, setNotificationsRead] = useState(false);
+  // The inbox's own answer, with a local "marked read" on top until the
+  // refetch lands. A bare flag starting false lit the bell on every load.
+  const { data: notifications = [] } = useNotifications();
+  const [markedRead, setNotificationsRead] = useState(false);
+  const notificationsRead = markedRead || notifications.every((n) => n.read);
 
 
   const { data: apiProfile } = useCustomerProfile();

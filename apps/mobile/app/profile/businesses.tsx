@@ -65,9 +65,6 @@ export default function JoinedBusinesses() {
                   : "No promotional channel is on for this shop, so it can only send service messages."}
               </Text>
             </View>
-            <Text className="rounded-full bg-success/10 px-2 py-0.5 font-sans-extrabold text-[9px] uppercase tracking-[0.8px] text-success">
-              Active
-            </Text>
           </View>
           );
         })}

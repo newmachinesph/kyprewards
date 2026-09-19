@@ -139,7 +139,7 @@ const roleConfig = {
     eyebrow: "Merchant access",
     identifierLabel: "Work email",
     identifierType: "email",
-    identifier: "mara@sweetcrumbs.ph",
+    identifier: "you@yourshop.ph",
     signInTitle: "Welcome back to the counter.",
     signInDescription:
       "Sign in to manage customers, programs, campaigns, locations, and integrations.",

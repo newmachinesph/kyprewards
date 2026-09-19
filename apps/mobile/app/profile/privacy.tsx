@@ -1,12 +1,13 @@
 import { Text, View } from "react-native";
 import { Check, ShieldCheck, X } from "lucide-react-native";
-import { useChannelPreferences } from "@kypstamping/api";
+import { useChannelPreferences, useCustomerProfile } from "@kypstamping/api";
 import { Screen } from "@/components/Screen";
 import { Eyebrow, Notice, Panel, Title } from "@/components/ui";
 import { colors } from "@/lib/theme";
 
 export default function Privacy() {
   const { data: channels } = useChannelPreferences();
+  const { data: profile } = useCustomerProfile();
   const rows: [string, string, boolean][] = [
     ["Loyalty ID", "Always shared", true],
     ["Name", "Shared with joined businesses", true],
@@ -19,12 +20,18 @@ export default function Privacy() {
     ],
     [
       "Email",
-      channels?.promoEmail
-        ? "Shared, and used for email promotions"
-        : "Shared for service messages only",
-      true,
+      !profile?.email
+        ? "Not given"
+        : channels?.promoEmail
+          ? "Shared, and used for email promotions"
+          : "Shared for service messages only",
+      Boolean(profile?.email),
     ],
-    ["Birthday", "Optional, for birthday rewards", true],
+    [
+      "Birthday",
+      profile?.birthday ? "Optional, for birthday rewards" : "Not given",
+      Boolean(profile?.birthday),
+    ],
     [
       "Location",
       channels?.nearby

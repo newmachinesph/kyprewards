@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { Text, View } from "react-native";
 import { useFocusEffect } from "expo-router";
 import * as Brightness from "expo-brightness";
-import { Nfc, ShieldCheck, WifiOff } from "lucide-react-native";
+import { ShieldCheck, WifiOff } from "lucide-react-native";
 import { Screen } from "@/components/Screen";
 import { MemberQr, useMemberCode } from "@/components/MemberQr";
 import { Eyebrow, Notice, Title } from "@/components/ui";
@@ -79,12 +79,6 @@ export default function MyCode() {
             The code identifies your account only. It carries no contact
             details, and it cannot be used to spend money or change your
             account.
-          </Text>
-        </View>
-        <View className="flex-row items-center gap-2 px-1">
-          <Nfc size={15} color={colors.muted} />
-          <Text className="font-sans-bold text-[11px] text-muted">
-            You can also tap at supported counters.
           </Text>
         </View>
       </View>

@@ -188,8 +188,8 @@ function ShopBody({ shop }: { shop: PublicShop }) {
               </div>
               <p className="mt-3 text-sm text-[var(--muted-strong)]">
                 {shop.target} {shop.target === 1 ? "visit" : "visits"} fills the card. Join from the
-                poster at the counter and a welcome stamp lands marked pending; it becomes real on
-                your first visit, when the card reads two.
+                poster at the counter; if the shop offers a welcome stamp, it lands marked pending and
+                becomes real on your first visit.
               </p>
             </>
           ) : (
