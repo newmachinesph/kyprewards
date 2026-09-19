@@ -12,13 +12,15 @@ export function whereLine(shop: Pick<PublicShop, "neighborhood" | "city" | "dist
 
 export function OpenDot({ open }: { open: boolean }) {
   return (
-    <>
+    // One unbreakable unit: squeezed by a long address, the label used to
+    // wrap to two lines and the dot shrank into an oval.
+    <span className="inline-flex min-w-max shrink-0 items-center gap-2 whitespace-nowrap">
       <span
-        className={`size-2 rounded-full ${open ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
+        className={`size-2 shrink-0 rounded-full ${open ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
         aria-hidden="true"
       />
       {open ? "Open now" : "Closed now"}
-    </>
+    </span>
   );
 }
 
@@ -76,10 +78,10 @@ export function ShopCard({ shop }: { shop: PublicShop }) {
             {shop.about}
           </p>
         )}
-        <p className="mt-auto flex items-center gap-2 pt-4 text-xs font-semibold text-[var(--muted-strong)]">
+        <p className="mt-auto flex items-start gap-2 pt-4 text-xs font-semibold text-[var(--muted-strong)]">
           <OpenDot open={shop.open} />
           <span aria-hidden="true">·</span>
-          {whereLine(shop)}
+          <span className="min-w-0">{whereLine(shop)}</span>
         </p>
       </div>
     </li>
