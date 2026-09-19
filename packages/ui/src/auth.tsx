@@ -1139,7 +1139,7 @@ export function DemoAuthFlow({
               // The hint follows the toggle. A customer who switched to email
               // was still shown a mobile number as the example.
               placeholder={
-                role === "customer" ? "jacqueline.daniel@example.com" : config.identifier
+                role === "customer" ? "you@example.com" : config.identifier
               }
               autoComplete={role === "customer" ? "email" : "email"}
             />
