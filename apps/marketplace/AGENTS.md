@@ -50,10 +50,9 @@ reads for metadata, the sitemap and the 404 go through
 ## Data
 
 `usePublicDiscover`, `usePublicShop`, `usePublicCategories`,
-`usePublicNeighborhoods` from `@kypstamping/api`. All four routes are
-proposed in `../../../backend/CONTRACT.md` ("Discover, for the marketplace")
-and do not exist yet, so locally they render `preview-samples.ts` under
-`PreviewBadge`. Geolocation is asked for only when the visitor taps "Use my
+`usePublicNeighborhoods` from `@kypstamping/api`, over the API's
+`/public/discover` and `/public/shops/{slug}` routes (`../../../backend/CONTRACT.md`,
+"Discover, for the marketplace"). Geolocation is asked for only when the visitor taps "Use my
 location"; the position never enters the URL.
 
 ## Rules
@@ -70,11 +69,9 @@ location"; the position never enters the URL.
 
 ## Known constraints
 
-- `/public/*` is rate limited at 30 calls a minute per caller and the 429
-  arrives before CORS, so the browser reports it as a CORS error. React
-  Query retries a 429 twice. A shopper browsing quickly can hit it; the
-  backend should exempt or raise the limit for discover reads (recorded in
-  `../../../backend/PROJECT.md`).
+- The discover and shop reads have their own rate-limit bucket
+  (`RATE_LIMIT_DISCOVER_PER_MINUTE`), and a 429 carries CORS headers, so
+  the browser sees the real status. React Query retries a 429 twice.
 
 ## Verify
 

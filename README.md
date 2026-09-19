@@ -20,8 +20,8 @@ wallet, and the join poster lands on the customer domain.
 All apps read and write the live FastAPI service. Start the backend first
 (`cd ../backend && make up && make migrate && make seed`); with it down,
 every screen shows its error state rather than a fixture. Email is delivered
-to Mailpit (`http://localhost:8025`); SMS and push have no transport yet, so
-an SMS one-time code is mirrored to Mailpit and readable from
+to Mailpit (`http://localhost:8025`); SMS is a stub locally and push needs
+`VAPID_*` keys, so an SMS one-time code is mirrored to Mailpit and readable from
 `GET /api/v1/_dev/messages?purpose=otp`.
 
 ## Start the connected demo

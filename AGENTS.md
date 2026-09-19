@@ -59,8 +59,8 @@ shoppers. The split keeps the session cookie first-party on both sides with
   three months when it opens.
 - Everything on Launch is unlimited customers, unlimited branches, one stamp
   card, two staff, the KYP Stamping badge on the card.
-- Channels: in-app inbox and push are live, but push is in-app delivery only;
-  there is no web push. Campaign email is refused by the API until a campaign
+- Channels: in-app inbox, web push to the wallet and Expo push to the app are
+  live (push needs the `VAPID_*` keys where it runs). Campaign email is refused by the API until a campaign
   sender separate from the transactional one exists. SMS is credits, priced
   before every send. Viber and WhatsApp are "connecting", never live.
 - Apple and Google Wallet passes are blocked on signing certificates. Do not

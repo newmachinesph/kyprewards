@@ -46,9 +46,10 @@ that pattern.
   and the first program is configured with the merchant before they sign in.
   Anyone who joins during the beta is a founding merchant: Core free for
   three months when it opens.
-- Service health for every transport, with honest status: SMS and push have
-  no transport yet, email is transactional only, Viber and WhatsApp are
-  being connected.
+- Service health for every transport, with honest status: SMS sends sign-in
+  codes through Semaphore and shop SMS waits for credits, push is web push and
+  Expo push, email is transactional only, Viber and WhatsApp are being
+  connected.
 - Unit economics in pesos: plan revenue, channel cost, margin. Gross margin
   counts channel cost only and must be labelled that way.
 - Network-wide policy: quiet hours, frequency caps, consent rules, provider
