@@ -21,7 +21,7 @@ export function AdminAddOnsView() {
   return (
     <ViewFrame
       wide
-      className="admin-grid"
+      className="admin-canvas"
       eyebrow="Revenue"
       title="Add-ons"
       description="Bought on any plan and priced apart from the subscription: visibility, help and volume. Nothing here charges a merchant for growing."

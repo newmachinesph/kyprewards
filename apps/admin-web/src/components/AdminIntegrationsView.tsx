@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { sharedScenario } from "@kypstamping/demo-data";
 import type {
   Adapter,
   AdapterStatus,
@@ -182,7 +181,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
   }
 
   return (
-    <main className="admin-grid min-h-[calc(100dvh-68px)] px-4 py-6 sm:px-7 lg:px-10 lg:py-8">
+    <main className="admin-canvas min-h-[calc(100dvh-68px)] px-4 py-6 sm:px-7 lg:px-10 lg:py-8">
       <div className="mx-auto max-w-[1500px]">
         <header className="flex flex-col gap-5 border-b border-[var(--line)] pb-7 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -204,7 +203,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                 <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.12em]">
                   <Activity size={12} className="text-[var(--accent)]" /> Event fabric
                 </span>
-                <span className="text-xs font-semibold text-white/50">/api/v1 · worker online</span>
+                <span className="text-xs font-semibold text-white/50">/api/v1</span>
               </div>
               <h2 className="mt-6 max-w-2xl text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">
                 One contract. Isolated adapters. Recoverable delivery.
@@ -226,7 +225,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                   onClick={() => {
                     setEnvironment(item);
                     notify(
-                      `${item === "sandbox" ? "Sandbox" : "Production preview"} integration data selected.`,
+                      `${item === "sandbox" ? "Sandbox" : "Production"} integration data selected.`,
                     );
                   }}
                   className={`min-h-10 rounded-full px-4 text-xs font-extrabold capitalize ${
@@ -264,51 +263,6 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
             ))}
           </div>
         </section>
-
-        <Panel className="mt-3 overflow-hidden">
-          <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="grid size-10 place-items-center rounded-2xl bg-[rgb(15_118_85/10%)] text-[var(--success)]">
-                  <BadgeCheck size={18} />
-                </span>
-                <div>
-                  <Eyebrow>Observed shared event</Eyebrow>
-                  <code className="mt-1 block text-xs font-extrabold">
-                    {sharedScenario.loyaltyEvent.id}
-                  </code>
-                </div>
-              </div>
-              <p className="mt-4 max-w-[48ch] text-xs leading-relaxed text-[var(--muted-strong)]">
-                The same recorded visit shown in the customer wallet and business
-                ledger is visible here as operational metadata—without exposing a
-                message body, QR token, or plaintext credential.
-              </p>
-            </div>
-            <dl className="grid gap-px overflow-hidden rounded-2xl bg-[var(--line)] sm:grid-cols-2 xl:grid-cols-4">
-              {[
-                ["Tenant", sharedScenario.business],
-                ["Event", sharedScenario.loyaltyEvent.type],
-                ["Effect", `${sharedScenario.loyaltyEvent.effect} · ${sharedScenario.loyaltyEvent.after}`],
-                ["Delivery", sharedScenario.loyaltyEvent.status],
-              ].map(([term, description]) => (
-                <div key={term} className="bg-[var(--surface-2)] p-4">
-                  <dt className="text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted-strong)]">
-                    {term}
-                  </dt>
-                  <dd className="mt-2 break-words text-xs font-extrabold">
-                    {description}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-[var(--line)] bg-[var(--surface-2)] px-5 py-3 font-mono text-[9px] font-bold text-[var(--muted-strong)] sm:px-6">
-            <span>REQUEST {sharedScenario.delivery.requestId}</span>
-            <span>IDEMPOTENCY {sharedScenario.delivery.idempotencyKey}</span>
-            <span>{sharedScenario.loyaltyEvent.occurredAt}</span>
-          </div>
-        </Panel>
 
         <Panel className="mt-3 overflow-hidden">
           <div className="flex flex-col gap-4 border-b border-[var(--line)] p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">

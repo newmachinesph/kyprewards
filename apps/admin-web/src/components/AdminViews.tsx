@@ -26,7 +26,6 @@ import {
   RefreshCcw,
   ShieldAlert,
   ShieldCheck,
-  SlidersHorizontal,
   UserRoundCog,
   Users,
   Webhook,
@@ -73,7 +72,7 @@ type Notify = (message: string, intent?: NotifyIntent) => void;
 function ViewFrame(
   props: Omit<Parameters<typeof SharedViewFrame>[0], "wide" | "className">,
 ) {
-  return <SharedViewFrame wide className="admin-grid" {...props} />;
+  return <SharedViewFrame wide className="admin-canvas" {...props} />;
 }
 
 /**
@@ -290,18 +289,6 @@ function PeopleView({ notify }: { notify: Notify }) {
             damage claims each need evidence, deadlines, ownership, and an
             immutable completion record.
           </p>
-          <button
-            type="button"
-            onClick={() =>
-              notify(
-                "The playbook is not written yet. The workflows it describes are live in the privacy centre.",
-                "review",
-              )
-            }
-            className="mt-7 inline-flex items-center gap-2 text-xs font-extrabold"
-          >
-            Open privacy playbook <ArrowRight size={14} aria-hidden="true" />
-          </button>
         </section>
       </div>
     </ViewFrame>
@@ -349,12 +336,13 @@ const TRANSPORTS: { name: string; match: RegExp; detail?: string }[] = [
     name: "SMS",
     match: /sms/i,
     detail:
-      "Stub, no transport. Credits are priced before every send; nothing leaves the platform yet.",
+      "Semaphore. Sign-in codes send today; shop SMS campaigns wait for credits, which open with billing.",
   },
   {
     name: "Push",
     match: /push/i,
-    detail: "In-app delivery only. There is no web push.",
+    detail:
+      "Web push to the wallet and app push to the phone, only where the customer turned it on.",
   },
   {
     name: "Payments · QR Ph",
@@ -568,6 +556,7 @@ function SupportView({ notify }: { notify: Notify }) {
     assignTicket,
     setTicketNote,
   } = useAdminState();
+  const { data: administrators = [] } = useAdministrators();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selected =
     tickets.find((ticket) => ticket.id === selectedId) ?? tickets[0];
@@ -617,20 +606,6 @@ function SupportView({ notify }: { notify: Notify }) {
       eyebrow="Human support"
       title="Support queue"
       description="Triage trust, access, messaging, fraud, and privacy work with clear ownership and audited resolution steps."
-      action={
-        <Button
-          tone="quiet"
-          icon={<SlidersHorizontal size={16} />}
-          onClick={() =>
-            notify(
-              "Routing rules are not configurable yet. Tickets arrive unassigned and are picked up from this queue.",
-              "review",
-            )
-          }
-        >
-          Queue rules
-        </Button>
-      }
     >
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(380px,0.7fr)]">
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5">
@@ -723,14 +698,6 @@ function SupportView({ notify }: { notify: Notify }) {
             </div>
           )}
 
-          <div className="mt-4 rounded-2xl bg-white/6 p-4">
-            <p className="text-xs font-extrabold">Recommended next step</p>
-            <p className="mt-2 text-xs leading-relaxed text-white/65">
-              Verify the requester and event scope, request time-limited support
-              access when needed, then record the decision and customer-facing
-              explanation.
-            </p>
-          </div>
           <label className="mt-5 grid gap-2 text-xs font-bold">
             Assign to
             <select
@@ -747,9 +714,9 @@ function SupportView({ notify }: { notify: Notify }) {
                 ...new Set([
                   selected.owner,
                   "Unassigned",
-                  "Nica",
-                  "Mika",
-                  "Paolo",
+                  ...administrators
+                    .filter((person) => person.isActive)
+                    .map((person) => person.name),
                 ]),
               ].map((owner) => (
                 <option key={owner}>{owner}</option>
@@ -1456,7 +1423,9 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
         <div>
           <Eyebrow>Billing</Eyebrow>
           <h2 className="mt-1 text-lg font-extrabold">
-            Off through December 2026
+            {BILLING_FLAGS.some((flag) => flags[flag.key])
+              ? "Billing is open"
+              : "Billing is closed"}
           </h2>
           <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
             Turning a flag on opens billing; no deploy needed. Every flip is an

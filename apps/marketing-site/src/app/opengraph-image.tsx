@@ -40,10 +40,8 @@ export default function OpenGraphImage() {
           position: "absolute",
           inset: 0,
           display: "flex",
-          opacity: 0.08,
           backgroundImage:
-            "linear-gradient(#18120c 1px, transparent 1px), linear-gradient(90deg, #18120c 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
+            "radial-gradient(900px 420px at 100% 0%, rgba(232, 163, 61, 0.18), transparent 70%)",
         }}
       />
       <div

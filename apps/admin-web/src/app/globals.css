@@ -36,11 +36,15 @@ button:disabled {
   outline-offset: 3px;
 }
 
-.admin-grid {
-  background-image:
-    linear-gradient(rgb(24 18 12 / 3%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(24 18 12 / 3%) 1px, transparent 1px);
-  background-size: 24px 24px;
+/* A plain page with a faint amber wash in the top corner. It was graph
+   paper; the owner asked for the squares to go (2026-09-19). */
+.admin-canvas {
+  background-image: radial-gradient(
+    60rem 28rem at 100% 0%,
+    color-mix(in oklab, var(--accent) 12%, transparent),
+    transparent 70%
+  );
+  background-repeat: no-repeat;
 }
 .bar-grid {
   background-image: linear-gradient(

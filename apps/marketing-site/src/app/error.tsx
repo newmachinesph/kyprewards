@@ -13,7 +13,7 @@ export default function ErrorPage({
   useEffect(() => console.error(error), [error]);
 
   return (
-    <main className="site-grid grid min-h-[calc(100dvh-72px)] place-items-center px-4 py-20 text-center">
+    <main className="site-canvas grid min-h-[calc(100dvh-72px)] place-items-center px-4 py-20 text-center">
       <div>
         <span className="mx-auto grid size-14 place-items-center rounded-xl bg-[var(--ink)] text-[var(--accent)]">
           <Stamp />

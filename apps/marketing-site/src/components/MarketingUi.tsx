@@ -72,7 +72,7 @@ export function PageHero({
   children?: ReactNode;
 }) {
   return (
-    <section className="site-grid relative overflow-hidden border-b border-[var(--line)]">
+    <section className="site-canvas relative overflow-hidden border-b border-[var(--line)]">
       {image && (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}

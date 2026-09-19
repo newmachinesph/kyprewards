@@ -58,7 +58,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <main>
-      <section className="site-grid relative overflow-hidden border-b border-[var(--line)]">
+      <section className="site-canvas relative overflow-hidden border-b border-[var(--line)]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/hero-bg.webp"

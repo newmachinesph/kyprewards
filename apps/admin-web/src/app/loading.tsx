@@ -1,7 +1,7 @@
 export default function Loading() {
   return (
     <main
-      className="admin-grid min-h-[100dvh] animate-pulse p-7 lg:p-10"
+      className="admin-canvas min-h-[100dvh] animate-pulse p-7 lg:p-10"
       aria-label="Loading platform dashboard"
     >
       <div className="mx-auto max-w-[1500px]">

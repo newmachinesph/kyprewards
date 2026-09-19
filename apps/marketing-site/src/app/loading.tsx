@@ -1,7 +1,7 @@
 export default function Loading() {
   return (
     <main className="min-h-[100dvh] animate-pulse" aria-label="Loading page">
-      <div className="site-grid border-b border-[var(--line)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div className="site-canvas border-b border-[var(--line)] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="mx-auto grid min-h-[420px] max-w-[1400px] items-end gap-12 lg:grid-cols-2">
           <div>
             <div className="h-4 w-32 rounded bg-[var(--surface-2)]" />

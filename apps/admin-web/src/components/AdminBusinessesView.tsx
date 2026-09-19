@@ -121,7 +121,7 @@ export function AdminBusinessesView() {
   return (
     <ViewFrame
       wide
-      className="admin-grid"
+      className="admin-canvas"
       eyebrow="Tenant directory"
       title="Businesses"
       description={
@@ -262,7 +262,7 @@ export function AdminBusinessesView() {
                 )}
               </div>
               <p className="border-t border-[var(--line)] px-5 py-3 text-[10px] font-semibold text-[var(--muted)]">
-                Showing {filtered.length} of {tenants.length} tenants in this sample.
+                Showing {filtered.length} of {tenants.length} businesses.
               </p>
             </section>
             <TenantDrawer

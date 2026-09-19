@@ -8,10 +8,9 @@ import {
   decidePartnerApplication,
   setApplicationNotes,
   keys,
-  PREVIEW_WRITE_REASON,
   type PartnerApplication,
 } from "@kypstamping/api";
-import { Button, Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
 import { longDate, relativeTime } from "@kypstamping/ui/format";
 import { useAdminState } from "@/components/AdminState";
 import { FOUNDING, foundingWindowOpen } from "@/lib/catalog";
@@ -73,7 +72,7 @@ export function PartnerQueueView({ notify }: { notify: (message: string) => void
   return (
     <ViewFrame
       wide
-      className="admin-grid"
+      className="admin-canvas"
       eyebrow="Acquisition"
       title="Partner applications"
       description="Every shop that applied from the public site. Approving one creates a Launch workspace and emails the owner their sign-in; nothing else is purchasable yet."
@@ -373,24 +372,25 @@ function ApplicationCard({
 
 /**
  * Where the setup-with-a-person step is noted: what was configured with the
- * owner, and what is still to check on their phone. The route that stores it
- * is not built, so the field reads and drafts but cannot save yet.
+ * owner, and what is still to check on their phone. Saved to the application,
+ * with an audit entry, for the next person who picks the shop up.
  */
 function SetupNotes({ application }: { application: PartnerApplication }) {
   const [draft, setDraft] = useState<string | null>(null);
   const save = useApiMutation(
     (setupNotes: string) => setApplicationNotes(application.id, { setupNotes }),
-    { invalidates: [keys.admin.partnerApplications()] },
+    {
+      invalidates: [keys.admin.partnerApplications()],
+      onSuccess: () => setDraft(null),
+    },
   );
   const value = draft ?? application.setupNotes ?? "";
+  const changed = draft !== null && draft !== (application.setupNotes ?? "");
 
   return (
     <div className="mt-5">
       <label className="grid gap-2 text-xs font-extrabold">
-        <span className="flex flex-wrap items-center gap-2">
-          Setup with a person
-          <PreviewBadge />
-        </span>
+        Setup with a person
         <textarea
           rows={3}
           value={value}
@@ -402,13 +402,16 @@ function SetupNotes({ application }: { application: PartnerApplication }) {
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <Button
           tone="quiet"
-          disabled
-          title={PREVIEW_WRITE_REASON}
+          disabled={!changed || save.isPending}
           onClick={() => draft !== null && save.mutate(draft)}
         >
-          Save notes
+          {save.isPending ? "Saving…" : "Save notes"}
         </Button>
-        <p className="text-[11px] text-[var(--muted-strong)]">{PREVIEW_WRITE_REASON}</p>
+        {save.error ? (
+          <p role="alert" className="text-[11px] font-bold text-[var(--danger)]">
+            {save.error.message}
+          </p>
+        ) : null}
       </div>
     </div>
   );

@@ -52,11 +52,15 @@ button:disabled {
   color: var(--ink);
 }
 
-.site-grid {
-  background-image:
-    linear-gradient(rgb(24 18 12 / 3.5%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(24 18 12 / 3.5%) 1px, transparent 1px);
-  background-size: 28px 28px;
+/* A faint amber wash behind the hero. It was graph paper; the owner asked
+   for the squares to go (2026-09-19). */
+.site-canvas {
+  background-image: radial-gradient(
+    60rem 30rem at 100% 0%,
+    color-mix(in oklab, var(--accent) 14%, transparent),
+    transparent 70%
+  );
+  background-repeat: no-repeat;
 }
 
 .receipt-paper {

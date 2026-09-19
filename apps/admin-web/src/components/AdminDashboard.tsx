@@ -109,7 +109,7 @@ export function AdminDashboard({
   ];
 
   return (
-    <main className="admin-grid min-h-[calc(100dvh-68px)] px-4 py-6 sm:px-7 lg:px-10 lg:py-8">
+    <main className="admin-canvas min-h-[calc(100dvh-68px)] px-4 py-6 sm:px-7 lg:px-10 lg:py-8">
       <div className="mx-auto max-w-[1500px]">
         <div>
           <Eyebrow>Platform control room</Eyebrow>

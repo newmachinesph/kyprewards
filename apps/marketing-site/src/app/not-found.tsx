@@ -3,7 +3,7 @@ import { ArrowLeft, Stamp } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <main className="site-grid grid min-h-[calc(100dvh-72px)] place-items-center px-4 py-20 text-center">
+    <main className="site-canvas grid min-h-[calc(100dvh-72px)] place-items-center px-4 py-20 text-center">
       <div>
         <span className="ink-stamp mx-auto grid size-24 -rotate-6 place-items-center rounded-full bg-[var(--surface)] text-[var(--accent-strong)]">
           <span>

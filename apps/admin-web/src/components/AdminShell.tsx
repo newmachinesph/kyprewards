@@ -388,7 +388,9 @@ export function AdminShell({
                 className="relative grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] transition hover:bg-[var(--surface-2)]"
               >
                 <Bell size={17} />
-                <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--accent)]" />
+                {openTicketCount > 0 && (
+                  <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--accent)]" />
+                )}
               </button>
             )}
             <div className="relative" ref={accountRef}>
