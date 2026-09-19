@@ -152,7 +152,8 @@ export function NewProgramDialog({
                 // Publish that its plan would never allow it - leaving dead
                 // drafts behind. The onboarding wizard already disables these.
                 <option key={type} value={type} disabled={locked}>
-                  {locked ? `${type} — needs ${needs}` : type}
+                  {/* A native option cannot hold PlanTag; same words. */}
+                  {locked ? `${type} — ${needs} feature` : type}
                 </option>
               );
             })}
