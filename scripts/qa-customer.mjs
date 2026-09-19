@@ -77,7 +77,7 @@ await step("turn the card over for the code", async () => {
 });
 
 await step("open the full QR screen", async () => {
-  await p.getByRole("button", { name: /My QR/i }).first().click();
+  await p.getByRole("button", { name: /My code/i }).first().click();
   await p.waitForTimeout(2000);
   const img = p.locator('img[alt*="Loyalty code"]');
   if (!(await img.count())) throw new Error("no QR image rendered");

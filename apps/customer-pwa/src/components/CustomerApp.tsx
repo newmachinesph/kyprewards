@@ -2796,11 +2796,12 @@ function CustomerWallet() {
     ),
   }[tab];
 
-  const tabs = [
-    { key: "home" as Tab, label: "Home", icon: Home },
-    { key: "wallet" as Tab, label: "Wallet", icon: WalletCards },
-    { key: "discover" as Tab, label: "Discover", icon: Compass },
-    { key: "profile" as Tab, label: "Profile", icon: UserRound },
+  const tabs: { key: Tab | "code"; label: string; icon: typeof Home }[] = [
+    { key: "home", label: "Home", icon: Home },
+    { key: "wallet", label: "Wallet", icon: WalletCards },
+    { key: "code", label: "My code", icon: QrCode },
+    { key: "discover", label: "Discover", icon: Compass },
+    { key: "profile", label: "Profile", icon: UserRound },
   ];
 
   return (
@@ -2847,31 +2848,20 @@ function CustomerWallet() {
         </div>
       </header>
 
-      {/* The scroller runs to the bottom of the shell, under both the tab bar
-          and the My QR button - deliberately, because both are translucent and
-          content blurring past them is the point. The end of a list is not:
-          the button floats 76px up and stands 48 tall, so the last 124px of
-          every list was unreachable, and on the wallet that was a whole card's
-          name and balance with nothing left to scroll. */}
+      {/* The scroller runs to the bottom of the shell, under the tab bar -
+          deliberately, because the bar is translucent and content blurring
+          past it is the point. The end of a list is not: the padding clears
+          the 68px bar so the last card's name and balance stay reachable. */}
       <div
-        className="customer-scroll max-h-[calc(100dvh-68px)] min-h-[calc(100dvh-68px)] overflow-y-auto pb-[124px]"
+        className="customer-scroll max-h-[calc(100dvh-68px)] min-h-[calc(100dvh-68px)] overflow-y-auto pb-[84px]"
       >
         {content}
       </div>
 
-      <button
-        type="button"
-        onClick={() => setQrOpen(true)}
-        className="absolute bottom-[76px] left-1/2 z-40 inline-flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] shadow-[0_12px_30px_rgb(24_18_12/28%)] transition hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
-      >
-        <span className="grid size-8 place-items-center rounded-full bg-[var(--accent)] text-[var(--ink)]">
-          <QrCode size={17} />
-        </span>{" "}
-        My QR
-      </button>
-
+      {/* Same five tabs as the Expo app, but flat: My code is a plain tab
+          here that opens the full-screen code instead of a raised button. */}
       <nav
-        className="absolute inset-x-0 bottom-0 z-30 grid h-[68px] grid-cols-4 border-t border-[var(--line)] bg-[rgb(255_254_251/94%)] px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
+        className="absolute inset-x-0 bottom-0 z-30 grid h-[68px] grid-cols-5 border-t border-[var(--line)] bg-[rgb(255_254_251/96%)] px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl"
         aria-label="Customer navigation"
       >
         {tabs.map((item) => {
@@ -2882,12 +2872,14 @@ function CustomerWallet() {
               key={item.key}
               type="button"
               onClick={() => {
-                navigate(item.key);
+                if (item.key === "code") setQrOpen(true);
+                else navigate(item.key);
               }}
               aria-current={active ? "page" : undefined}
-              className={`flex flex-col items-center justify-center gap-1 text-[10px] font-bold transition ${active ? "text-[var(--accent-strong)]" : "text-[var(--muted)] hover:text-[var(--ink)]"}`}
+              aria-haspopup={item.key === "code" ? "dialog" : undefined}
+              className={`flex min-h-11 flex-col items-center justify-center gap-1 text-[10px] font-bold transition ${active ? "text-[var(--accent-strong)]" : "text-[var(--muted)] hover:text-[var(--ink)]"}`}
             >
-              <Icon size={19} strokeWidth={active ? 2.5 : 1.8} />
+              <Icon size={22} aria-hidden="true" />
               <span>{item.label}</span>
             </button>
           );
