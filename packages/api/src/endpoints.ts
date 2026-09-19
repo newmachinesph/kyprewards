@@ -211,10 +211,28 @@ export const acceptInvite = (
 ): Promise<LoginResult> =>
   http(`/auth/invites/${encodeURIComponent(token)}/accept`, { method: "POST", body });
 
+/**
+ * What sign-up does next. `code`: a code went to the number, and the code
+ * screen takes the password. `confirm_email`: the wallet exists with its
+ * password and signs in once the emailed link comes back.
+ */
+export type CustomerRegistered = {
+  next: "code" | "confirm_email";
+  sent: boolean;
+  expiresInSeconds: number | null;
+};
+
+/**
+ * By mobile (email optional), or by email and password with no mobile.
+ * A number or email that already has a wallet is a 409 whose body carries
+ * `code: "wallet_exists"` and `via` (read them from `ApiError.body`).
+ */
 export const registerCustomer = (body: {
   name: string;
-  mobile: string;
+  mobile?: string;
   email?: string;
+  /** The email path only, 8 to 200 characters. */
+  password?: string;
   /**
    * Day and month, no year. Optional, but the API takes both or neither -
    * a month with no day cannot schedule a birthday treat.
@@ -223,7 +241,7 @@ export const registerCustomer = (body: {
   birthdayMonth?: number;
   /** As above: the checkbox the form already enforces, now recorded. */
   acceptedTerms: boolean;
-}): Promise<{ sent: boolean }> =>
+}): Promise<CustomerRegistered> =>
   http("/auth/register/customer", { method: "POST", body });
 
 /* ── Public ───────────────────────────────────────────────────────────

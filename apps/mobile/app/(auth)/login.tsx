@@ -1,27 +1,33 @@
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
-import { Link, useRouter } from "expo-router";
-import { Mail, Smartphone } from "lucide-react-native";
+import { Pressable, Text } from "react-native";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { ApiError, customerLogin, requestOtp } from "@kypstamping/api";
 import { isCompleteMobile, normalizeMobile } from "@kypstamping/ui/format";
-import { AuthShell, Field, MobileField } from "@/components/AuthShell";
+import {
+  AuthShell,
+  ChannelSwitch,
+  Field,
+  MobileField,
+  type Channel,
+} from "@/components/AuthShell";
 import { SocialSignIn } from "@/components/SocialSignIn";
 import { Button } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { KEYS, remember } from "@/lib/storage";
-import { colors } from "@/lib/theme";
-
-type Channel = "mobile" | "email";
 
 /**
  * Sign in with a mobile or an email and a password. A code is sent only to
- * prove the number: "Forgot or never set a password?" goes to the code
- * screen, which takes a new password with the code.
+ * prove the number: "Forgot password?" goes to the code screen, which takes
+ * a new password with the code - and covers a wallet from before passwords.
+ * Sign-up opens this with `channel` and `identifier` already filled in.
  */
 export default function Login() {
   const router = useRouter();
-  const [channel, setChannel] = useState<Channel>("mobile");
-  const [identifier, setIdentifier] = useState("");
+  const params = useLocalSearchParams<{ channel?: string; identifier?: string }>();
+  const [channel, setChannel] = useState<Channel>(
+    params.channel === "email" ? "email" : "mobile",
+  );
+  const [identifier, setIdentifier] = useState(params.identifier ?? "");
   const [password, setPassword] = useState("");
   const signIn = useAuth((state) => state.signIn);
   const [busy, setBusy] = useState(false);
@@ -95,36 +101,14 @@ export default function Login() {
       title="Open your wallet."
       description="Use your mobile number or email and your password."
     >
-      <View className="flex-row rounded-2xl border border-line bg-surface p-1">
-        {(
-          [
-            ["mobile", "Mobile", Smartphone],
-            ["email", "Email", Mail],
-          ] as const
-        ).map(([key, label, Icon]) => {
-          const on = channel === key;
-          return (
-            <Pressable
-              key={key}
-              accessibilityRole="button"
-              accessibilityState={{ selected: on }}
-              onPress={() => {
-                setChannel(key);
-                setIdentifier("");
-                setNotice("");
-              }}
-              className={`min-h-[44px] flex-1 flex-row items-center justify-center gap-2 rounded-xl ${on ? "bg-ink" : ""}`}
-            >
-              <Icon size={15} color={on ? colors.paper : colors.mutedStrong} />
-              <Text
-                className={`font-sans-extrabold text-[13px] ${on ? "text-paper" : "text-muted-strong"}`}
-              >
-                {label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <ChannelSwitch
+        value={channel}
+        onChange={(key) => {
+          setChannel(key);
+          setIdentifier("");
+          setNotice("");
+        }}
+      />
 
       {channel === "mobile" ? (
         <MobileField value={identifier} onChange={setIdentifier} />
@@ -168,7 +152,9 @@ export default function Login() {
         className="min-h-[44px] items-center justify-center"
       >
         <Text className="font-sans-extrabold text-[13px] text-accent-strong">
-          Forgot or never set a password? Get a code
+          {channel === "mobile"
+            ? "Forgot password? Text me a code"
+            : "Forgot password? Email me a code"}
         </Text>
       </Pressable>
 

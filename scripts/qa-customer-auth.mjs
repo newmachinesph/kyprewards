@@ -47,6 +47,8 @@ function watchRuntime(page, surface) {
     // refused one-time code is deliberate too - the suite sends a wrong one.
     if (response.status() === 401 && path.endsWith("/auth/session")) return;
     if (response.status() === 401 && path.endsWith("/auth/otp/verify")) return;
+    // So is signing up with a number that already has a wallet.
+    if (response.status() === 409 && path.endsWith("/auth/register/customer")) return;
     runtimeErrors.push(`${surface}: ${response.status()} ${path}`);
   });
 }
@@ -79,7 +81,7 @@ try {
   // Deliberately not a real shop's name: 0ba2c7f renamed this illustration
   // off "Sweet Crumbs" so a visitor cannot mistake it for someone's card.
   await mobilePage.getByText("Your local favourite", { exact: true }).waitFor();
-  await mobilePage.getByRole("button", { name: "Text me a code" }).waitFor();
+  await mobilePage.getByRole("button", { name: "Forgot password? Text me a code" }).waitFor();
   await mobilePage.waitForTimeout(700);
   const loginFit = await viewportState(mobilePage);
   assert.equal(loginFit.horizontalOverflow, false, "Mobile login must not overflow horizontally");
@@ -107,17 +109,23 @@ try {
   // answer the question for you.
   assert.equal(await emailField.inputValue(), "");
   assert.match(await emailField.getAttribute("placeholder"), /@/);
-  await mobilePage.getByRole("button", { name: "Email me a code" }).waitFor();
+  await mobilePage.getByRole("button", { name: "Forgot password? Email me a code" }).waitFor();
 
   await mobilePage.getByRole("button", { name: /^mobile$/i }).click();
   const mobileField = mobilePage.getByLabel("Mobile number");
+  const forgotByText = mobilePage.getByRole("button", { name: "Forgot password? Text me a code" });
   await mobileField.fill("");
-  await mobilePage.getByRole("button", { name: "Text me a code" }).click();
+  // Sign-in is a password; with neither field filled it says what is missing.
+  await mobilePage.getByRole("button", { name: "Sign in", exact: true }).click();
   await mobilePage.getByText("Enter your mobile number.").waitFor();
+  await forgotByText.click();
+  await mobilePage.getByText("Enter your mobile number first.").waitFor();
   await mobileField.fill("+63 917 555 0182");
+  // The forgot link is the one way a code reaches an existing wallet: the
+  // code screen then takes a new password with it.
   const [otpResponse] = await Promise.all([
     mobilePage.waitForResponse((response) => response.url().includes("/auth/otp/request")),
-    mobilePage.getByRole("button", { name: "Text me a code" }).click(),
+    forgotByText.click(),
   ]);
   // Three codes per destination per ten minutes, by design. Running this suite
   // in a tight loop trips it, and without saying so the failure reads like a
@@ -141,21 +149,25 @@ try {
     path: join(artifactDirectory, "verify-mobile.png"),
     fullPage: false,
   });
+  const verifyButton = mobilePage.getByRole("button", { name: "Verify and continue" });
+  const newPasswordField = mobilePage.getByLabel("Choose a password");
   await codeField.fill("");
-  assert.equal(
-    await mobilePage.getByRole("button", { name: "Verify and continue" }).isDisabled(),
-    true,
-  );
+  assert.equal(await verifyButton.isDisabled(), true);
+  // Six digits alone are not enough: the code screen sets the password.
+  await codeField.fill("999999");
+  await newPasswordField.fill("short");
+  assert.equal(await verifyButton.isDisabled(), true, "Verify must wait for an 8+ character password");
+  await newPasswordField.fill("qa-wallet-pass-1");
+  assert.equal(await verifyButton.isDisabled(), false);
   // The refusal is the API's now, not a string this app compares for itself,
   // so the assertion is that the wrong code is refused and the journey stays
   // put - not that it is refused in one particular wording.
-  await codeField.fill("999999");
-  await mobilePage.getByRole("button", { name: "Verify and continue" }).click();
+  await verifyButton.click();
   await mobilePage.getByText(/not valid|not correct|expired/i).waitFor();
   assert.match(new URL(mobilePage.url()).pathname, /\/verify$/);
 
   await codeField.fill(await latestOtp());
-  await mobilePage.getByRole("button", { name: "Verify and continue" }).click();
+  await verifyButton.click();
   await mobilePage.waitForURL(/#home$/);
 
   await mobilePage.goto(`${baseUrl}/create-account`, { waitUntil: "networkidle" });
@@ -168,22 +180,49 @@ try {
     path: join(artifactDirectory, "create-mobile.png"),
     fullPage: false,
   });
-  // A real registration now: name and mobile are required, and the button is
-  // "Create wallet" - there is nothing demo about it any more.
-  await mobilePage.getByLabel("Full name").fill("Tessa Cruz");
-  // Unique per run: the API answers the same whether or not the number is
-  // known, but a fresh one keeps repeated runs from piling onto one account.
+  // The email path swaps the number for an email and a password, and its
+  // button creates the wallet outright; a confirmation link follows.
+  await mobilePage.getByRole("button", { name: /^email$/i }).click();
+  await mobilePage.getByLabel(/^Password/).waitFor();
+  await mobilePage.getByRole("button", { name: "Create wallet" }).waitFor();
+  await mobilePage.getByRole("button", { name: /^mobile$/i }).click();
+
+  // A real registration by mobile: name and number are required, and the
+  // button sends the code the verify screen asks for.
+  const textMeACode = mobilePage.getByRole("button", { name: "Text me a code", exact: true });
+  await mobilePage.getByLabel("Name", { exact: true }).fill("Tessa Cruz");
+  // Unique per run: a number that already has a wallet is refused (below).
   const newMobile = `+63 917 ${String(Date.now()).slice(-7, -4)} ${String(Date.now()).slice(-4)}`;
   await mobilePage.getByLabel("Mobile number").fill(newMobile);
   const consent = mobilePage.getByRole("checkbox");
   await consent.uncheck();
-  await mobilePage.getByRole("button", { name: "Create wallet" }).click();
+  await textMeACode.click();
   await mobilePage.getByText("Accept the terms to continue.").waitFor();
   await consent.check();
-  await mobilePage.getByRole("button", { name: "Create wallet" }).click();
+  await textMeACode.click();
   await mobilePage.waitForURL(/\/verify$/);
   const createFit = await viewportState(mobilePage);
   assert.equal(createFit.horizontalOverflow, false, "Mobile signup must not overflow horizontally");
+
+  // The same sign-up with a number that already has a wallet: nothing is
+  // sent, and the screen says so with the two ways on.
+  await mobilePage.goto(`${baseUrl}/create-account`, { waitUntil: "networkidle" });
+  await mobilePage.getByLabel("Name", { exact: true }).fill("Tessa Cruz");
+  await mobilePage.getByLabel("Mobile number").fill("+63 917 555 0182");
+  await mobilePage.getByRole("checkbox").check();
+  await textMeACode.click();
+  const existsPanel = mobilePage.getByRole("alert").filter({
+    hasText: "This number already has a KYP wallet. Sign in with your password.",
+  });
+  await existsPanel.waitFor();
+  await existsPanel.getByRole("button", { name: "Forgot password? Text me a code" }).waitFor();
+  await existsPanel.getByRole("button", { name: /^Sign in/ }).click();
+  await mobilePage.waitForURL(/\/login$/);
+  await mobilePage.getByRole("heading", { name: "Open your wallet." }).waitFor();
+  // Sign-in opens on the number that was refused, with Mobile selected.
+  await mobilePage.waitForFunction(
+    () => (document.querySelector('input[type="tel"]')?.value ?? "").replace(/\D/g, "") === "9175550182",
+  );
 
   const desktopContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const desktopPage = await desktopContext.newPage();
@@ -215,10 +254,13 @@ try {
           "mobile app shell and loyalty identity",
           "mobile/email channel switch",
           "empty identifier validation",
-          "login to verification navigation",
+          "forgot-password code to verification navigation",
           "auth route scroll-position reset",
-          "verification disabled and completed states",
+          "verification needs code and 8+ character password",
+          "signup mobile/email switch",
           "signup consent validation and navigation",
+          "signup with an existing number shows the wallet_exists panel",
+          "wallet_exists sign-in opens login with the number filled in",
           "mobile horizontal viewport fit",
           "desktop centered phone-shell fit",
           "browser console and page errors",

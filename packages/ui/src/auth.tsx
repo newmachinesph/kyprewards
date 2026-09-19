@@ -42,6 +42,7 @@ import {
   useSession,
   verifyMfa,
   verifyOtp,
+  walletExists,
   type InvitePreview,
   type Workspace,
 } from "@kypstamping/api";
@@ -88,6 +89,24 @@ function readOtpIdentifier(): string | null {
  *  cold open, so the first paint of a perfectly normal sign-in flashed "We
  *  have lost track of where that code was sent." before settling. */
 const noOtpIdentifierOnServer = () => null;
+
+/**
+ * Who sign-up sent to sign-in, as `mobile:+63…` or `email:you@…`: the
+ * "already has a wallet" panel and the "check your inbox" state both open
+ * sign-in with the same identifier and toggle. Session storage for the same
+ * reason as the code's destination - not in the URL.
+ */
+const SIGN_IN_PREFILL_KEY = "kypstamping-sign-in-prefill";
+
+function readSignInPrefill(): string {
+  try {
+    return window.sessionStorage.getItem(SIGN_IN_PREFILL_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+const noSignInPrefillOnServer = () => "";
 
 /** The shop whose first stamp is waiting to be claimed, written by the poster
  *  flow before it sends somebody here to register. Read the same way as the
@@ -723,6 +742,78 @@ function PrimaryButton({ children, disabled = false }: { children: ReactNode; di
   );
 }
 
+type Channel = "mobile" | "email";
+
+/** Mobile or email, on sign-in and sign-up alike. */
+function ChannelSwitch({ value, onChange }: { value: Channel; onChange: (channel: Channel) => void }) {
+  return (
+    <div className="mb-5 grid grid-cols-2 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-1">
+      {(["mobile", "email"] as const).map((item) => (
+        <button
+          key={item}
+          type="button"
+          aria-pressed={value === item}
+          onClick={() => onChange(item)}
+          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg text-xs font-extrabold capitalize transition ${value === item ? "bg-[var(--ink)] text-[var(--paper)] shadow-sm" : "text-[var(--muted-strong)]"}`}
+        >
+          {item === "mobile" ? <Smartphone size={14} /> : <Mail size={14} />}
+          {item}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** A password with a show/hide eye. `hint` sits under it, tied by id. */
+function PasswordField({
+  label,
+  value,
+  onChange,
+  autoComplete,
+  visible,
+  onToggle,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  autoComplete: string;
+  visible: boolean;
+  onToggle: () => void;
+  hint?: string;
+}) {
+  const hintId = `${autoComplete}-help`;
+  return (
+    <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
+      {label}
+      <span className="relative">
+        <input
+          type={visible ? "text" : "password"}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          autoComplete={autoComplete}
+          minLength={autoComplete === "new-password" ? 8 : undefined}
+          aria-describedby={hint ? hintId : undefined}
+          className="min-h-12 w-full rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 pr-12 text-sm font-semibold outline-none transition focus:border-[var(--accent-strong)]"
+        />
+        <button
+          type="button"
+          aria-label={visible ? "Hide password" : "Show password"}
+          onClick={onToggle}
+          className="absolute inset-y-0 right-1 grid w-11 place-items-center text-[var(--muted-strong)]"
+        >
+          {visible ? <EyeOff size={17} /> : <Eye size={17} />}
+        </button>
+      </span>
+      {hint && (
+        <span id={hintId} className="text-[10px] font-semibold text-[var(--muted)]">
+          {hint}
+        </span>
+      )}
+    </label>
+  );
+}
+
 const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 let googleInitialised = false;
 let googleHandler: ((credential: string) => void) | null = null;
@@ -882,7 +973,10 @@ export function DemoAuthFlow({
   const [birthdayMonth, setBirthdayMonth] = useState("");
   const [notice, setNotice] = useState("");
   const [sent, setSent] = useState(false);
-  const [channel, setChannel] = useState<"mobile" | "email">("mobile");
+  const [channel, setChannel] = useState<Channel>("mobile");
+  // Sign-up by a number or email that already has a wallet: the API's
+  // sentence, which of the two it matched, and the identifier itself.
+  const [existing, setExisting] = useState<{ detail: string; via: Channel; to: string } | null>(null);
   const [workspace, setWorkspace] = useState("");
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
 
@@ -947,6 +1041,16 @@ export function DemoAuthFlow({
   // than waiting for six digits to be typed first.
   const sentTo = useSyncExternalStore(subscribeToOtpIdentifier, readOtpIdentifier, noOtpIdentifierOnServer);
   const pendingShop = useSyncExternalStore(subscribeToPendingShop, readPendingShop, noPendingShopOnServer);
+  const signInPrefill = useSyncExternalStore(subscribeToOtpIdentifier, readSignInPrefill, noSignInPrefillOnServer);
+  // Applied once, during render rather than in an effect: the server snapshot
+  // is empty, so hydration matches and the fields fill on the next pass.
+  const [prefillApplied, setPrefillApplied] = useState(false);
+  if (mode === "login" && role === "customer" && signInPrefill && !prefillApplied) {
+    setPrefillApplied(true);
+    const split = signInPrefill.indexOf(":");
+    setChannel(signInPrefill.slice(0, split) === "email" ? "email" : "mobile");
+    setIdentifier(signInPrefill.slice(split + 1));
+  }
 
   /**
    * Whoever is already signed in on this device, if anyone.
@@ -1034,20 +1138,22 @@ export function DemoAuthFlow({
   }
 
   /**
-   * "Forgot or never set a password?": a code to the number or address, and
-   * the code screen takes a new password with it. Unconditional, as the API
-   * answers the same whether or not the identifier has a wallet.
+   * "Forgot password?": a code to the number or address, and the code screen
+   * takes a new password with it - which also covers a wallet from before
+   * passwords. Unconditional, as the API answers the same whether or not the
+   * identifier has a wallet. Sign-up's "already has a wallet" panel passes
+   * the identifier it matched.
    */
-  async function sendCustomerCode() {
-    if (!identifier.trim()) {
+  async function sendCustomerCode(to = identifier.trim()) {
+    if (!to) {
       setNotice(`Enter your ${channel === "mobile" ? "mobile number" : "email address"} first.`);
       return;
     }
     setBusy(true);
     setNotice("");
     try {
-      await requestOtp(identifier.trim());
-      window.sessionStorage.setItem(OTP_IDENTIFIER_KEY, identifier.trim());
+      await requestOtp(to);
+      window.sessionStorage.setItem(OTP_IDENTIFIER_KEY, to);
       go("/verify");
     } catch (failure) {
       setNotice(failure instanceof ApiError ? failure.message : "Could not send a code.");
@@ -1109,23 +1215,13 @@ export function DemoAuthFlow({
           </p>
         )}
         {role === "customer" && (
-          <div className="mb-5 grid grid-cols-2 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-1">
-            {(["mobile", "email"] as const).map((item) => (
-              <button
-                key={item}
-                type="button"
-                aria-pressed={channel === item}
-                onClick={() => {
-                  setChannel(item);
-                  setIdentifier("");
-                }}
-                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg text-xs font-extrabold capitalize transition ${channel === item ? "bg-[var(--ink)] text-[var(--paper)] shadow-sm" : "text-[var(--muted-strong)]"}`}
-              >
-                {item === "mobile" ? <Smartphone size={14} /> : <Mail size={14} />}
-                {item}
-              </button>
-            ))}
-          </div>
+          <ChannelSwitch
+            value={channel}
+            onChange={(item) => {
+              setChannel(item);
+              setIdentifier("");
+            }}
+          />
         )}
         <form onSubmit={submitLogin} className="space-y-5" noValidate>
           {role === "customer" && channel === "mobile" ? (
@@ -1144,28 +1240,14 @@ export function DemoAuthFlow({
               autoComplete={role === "customer" ? "email" : "email"}
             />
           )}
-          {(
-            <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
-              Password
-              <span className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  autoComplete="current-password"
-                  className="min-h-12 w-full rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 pr-12 text-sm font-semibold outline-none transition focus:border-[var(--accent-strong)]"
-                />
-                <button
-                  type="button"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  onClick={() => setShowPassword((visible) => !visible)}
-                  className="absolute inset-y-0 right-1 grid w-11 place-items-center text-[var(--muted-strong)]"
-                >
-                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                </button>
-              </span>
-            </label>
-          )}
+          <PasswordField
+            label="Password"
+            value={password}
+            onChange={setPassword}
+            autoComplete="current-password"
+            visible={showPassword}
+            onToggle={() => setShowPassword((visible) => !visible)}
+          />
           {/* "Remember this browser" / "Trust this device" was a checkbox that
               set a value nothing sent: the login body is only the email and
               the password, and how long a session lasts is policy - 30 days
@@ -1177,10 +1259,10 @@ export function DemoAuthFlow({
               <button
                 type="button"
                 disabled={busy}
-                onClick={sendCustomerCode}
-                className="font-extrabold text-[var(--accent-strong)] hover:underline disabled:opacity-60"
+                onClick={() => void sendCustomerCode()}
+                className="min-h-11 font-extrabold text-[var(--accent-strong)] hover:underline disabled:opacity-60"
               >
-                Forgot or never set a password? Get a code
+                {channel === "mobile" ? "Forgot password? Text me a code" : "Forgot password? Email me a code"}
               </button>
             ) : (
               <a href="/forgot-password" className="font-extrabold text-[var(--accent-strong)] hover:underline">
@@ -1375,31 +1457,15 @@ export function DemoAuthFlow({
             </span>
           </label>
           {role === "customer" && (
-            <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
-              Choose a password
-              <span className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
-                  autoComplete="new-password"
-                  minLength={8}
-                  aria-describedby="new-password-help"
-                  className="min-h-12 w-full rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 pr-12 text-sm font-semibold outline-none transition focus:border-[var(--accent-strong)]"
-                />
-                <button
-                  type="button"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  onClick={() => setShowPassword((visible) => !visible)}
-                  className="absolute inset-y-0 right-1 grid w-11 place-items-center text-[var(--muted-strong)]"
-                >
-                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                </button>
-              </span>
-              <span id="new-password-help" className="text-[10px] font-semibold text-[var(--muted)]">
-                At least 8 characters. Next time you sign in with it, no code needed.
-              </span>
-            </label>
+            <PasswordField
+              label="Choose a password"
+              value={newPassword}
+              onChange={setNewPassword}
+              autoComplete="new-password"
+              visible={showPassword}
+              onToggle={() => setShowPassword((visible) => !visible)}
+              hint="At least 8 characters. Next time you sign in with it, no code needed."
+            />
           )}
           {notice && <p aria-live="polite" className="text-xs font-bold text-[var(--muted-strong)]">{notice}</p>}
           <PrimaryButton disabled={code.length !== 6 || (role === "customer" && newPassword.length < 8)}>
@@ -1451,6 +1517,33 @@ export function DemoAuthFlow({
   }
 
   if (mode === "create") {
+    const byEmail = channel === "email";
+    /** Sign-in, opened on this identifier with its toggle set. */
+    const toSignIn = (via: Channel, to: string) => {
+      window.sessionStorage.setItem(SIGN_IN_PREFILL_KEY, `${via}:${to}`);
+      go("/login");
+    };
+
+    // The email path's wallet exists; it signs in once the link comes back.
+    if (sent) {
+      return (
+        <AuthShell
+          role="customer"
+          mode="create"
+          title="Check your inbox."
+          description={`We sent a link to ${email.trim()}. Tap it, then sign in with your email and password.`}
+        >
+          <button
+            type="button"
+            onClick={() => toSignIn("email", email.trim())}
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] transition hover:bg-[var(--ink-soft)]"
+          >
+            Go to sign in <ArrowRight size={16} />
+          </button>
+        </AuthShell>
+      );
+    }
+
     return (
       <AuthShell
         role="customer"
@@ -1458,7 +1551,7 @@ export function DemoAuthFlow({
         title={pendingShop ? "Save your stamp." : "Set up your wallet."}
         description={
           pendingShop
-            ? `Your first stamp at ${pendingShop} is waiting. Give us a number and it goes on your card.`
+            ? `Your first stamp at ${pendingShop} is waiting. Set up your wallet and it goes on your card.`
             : "Keep rewards from nearby businesses together, with permissions you can change anytime."
         }
       >
@@ -1473,49 +1566,95 @@ export function DemoAuthFlow({
             , or fill this in to set up a different one.
           </div>
         )}
+        <ChannelSwitch
+          value={channel}
+          onChange={(item) => {
+            setChannel(item);
+            setNotice("");
+            setExisting(null);
+          }}
+        />
         <form
           onSubmit={async (event) => {
             event.preventDefault();
             if (!name.trim()) { setNotice("Enter your name."); return; }
-            if (!identifier.trim()) { setNotice("Enter your mobile number."); return; }
+            if (byEmail) {
+              if (!/^\S+@\S+\.\S+$/.test(email.trim())) { setNotice("Enter your email address."); return; }
+              if (password.length < 8) { setNotice("Choose a password of at least 8 characters."); return; }
+            } else if (!identifier.trim()) { setNotice("Enter your mobile number."); return; }
             if (!accepted) { setNotice("Accept the terms to continue."); return; }
 
             setBusy(true);
             setNotice("");
+            setExisting(null);
+            // Both or neither: the API refuses a half-filled birthday, and the
+            // form treats a partly answered optional question as not answered
+            // rather than blocking the sign-up over it.
+            const birthday =
+              birthdayDay && birthdayMonth
+                ? { birthdayDay: Number(birthdayDay), birthdayMonth: Number(birthdayMonth) }
+                : {};
             try {
-              // Answers the same whether or not the number is already
-              // registered, so this cannot be used to discover who has a
-              // wallet. Either way a code is on its way.
-              await registerCustomer({
-                name: name.trim(),
-                mobile: identifier.trim(),
-                email: email.trim() || undefined,
-                // Both or neither: the API refuses a half-filled birthday,
-                // and the form treats a partly answered optional question as
-                // not answered rather than blocking the sign-up over it.
-                ...(birthdayDay && birthdayMonth
-                  ? {
-                      birthdayDay: Number(birthdayDay),
-                      birthdayMonth: Number(birthdayMonth),
-                    }
-                  : {}),
-                acceptedTerms: accepted,
-              });
+              const result = await registerCustomer(
+                byEmail
+                  ? { name: name.trim(), email: email.trim(), password, ...birthday, acceptedTerms: accepted }
+                  : {
+                      name: name.trim(),
+                      mobile: identifier.trim(),
+                      email: email.trim() || undefined,
+                      ...birthday,
+                      acceptedTerms: accepted,
+                    },
+              );
+              if (result.next === "confirm_email") {
+                setSent(true);
+                setBusy(false);
+                return;
+              }
               window.sessionStorage.setItem("kypstamping-customer-signup-name", name);
               window.sessionStorage.setItem(OTP_IDENTIFIER_KEY, identifier.trim());
               go("/verify");
             } catch (failure) {
-              setNotice(
-                failure instanceof ApiError ? failure.message : "Could not set that up.",
-              );
+              // A number or email that already has a wallet: nothing was sent,
+              // and the way on is sign-in or a code from "Forgot password".
+              const found = walletExists(failure);
+              if (found) {
+                setExisting({ ...found, to: found.via === "email" ? email.trim() : identifier.trim() });
+              } else {
+                setNotice(failure instanceof ApiError ? failure.message : "Could not set that up.");
+              }
               setBusy(false);
             }
           }}
           className="space-y-5"
         >
           <Field label="Name" value={name} onChange={setName} autoComplete="name" />
-          <MobileField label="Mobile number" value={identifier} onChange={setIdentifier} />
-          <Field label="Email, optional" type="email" value={email} onChange={setEmail} autoComplete="email" required={false} />
+          {byEmail ? (
+            <>
+              <Field
+                label="Email"
+                type="email"
+                value={email}
+                onChange={setEmail}
+                autoComplete="email"
+                placeholder="you@example.com"
+              />
+              <PasswordField
+                label="Password"
+                value={password}
+                onChange={setPassword}
+                autoComplete="new-password"
+                visible={showPassword}
+                onToggle={() => setShowPassword((visible) => !visible)}
+                hint="At least 8 characters."
+              />
+            </>
+          ) : (
+            <>
+              <MobileField label="Mobile number" value={identifier} onChange={setIdentifier} />
+              <Field label="Email, optional" type="email" value={email} onChange={setEmail} autoComplete="email" required={false} />
+            </>
+          )}
           <BirthdayField
             day={birthdayDay}
             month={birthdayMonth}
@@ -1552,9 +1691,31 @@ export function DemoAuthFlow({
             Offers from shops you join arrive by push and email; SMS stays off. Turn any of
             them off in Notifications at any time.
           </p>
-          {notice &&<p aria-live="polite" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
+          {existing && (
+            <div role="alert" className="rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] p-4">
+              <p className="text-sm font-extrabold leading-snug">{existing.detail}</p>
+              <div className="mt-4 grid gap-2">
+                <button
+                  type="button"
+                  onClick={() => toSignIn(existing.via, existing.to)}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] transition hover:bg-[var(--ink-soft)]"
+                >
+                  Sign in <ArrowRight size={15} />
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void sendCustomerCode(existing.to)}
+                  className="min-h-11 text-xs font-extrabold text-[var(--accent-strong)] hover:underline disabled:opacity-60"
+                >
+                  {existing.via === "mobile" ? "Forgot password? Text me a code" : "Forgot password? Email me a code"}
+                </button>
+              </div>
+            </div>
+          )}
+          {notice && <p role="alert" className="text-xs font-bold text-[var(--danger)]">{notice}</p>}
           <PrimaryButton disabled={busy}>
-            {busy ? "Setting up\u2026" : "Create wallet"}
+            {busy ? "Setting up\u2026" : byEmail ? "Create wallet" : "Text me a code"}
           </PrimaryButton>
           <a href="/login" className="flex min-h-11 items-center justify-center gap-2 text-xs font-extrabold text-[var(--muted-strong)]"><ArrowLeft size={14} /> I already have a wallet</a>
         </form>

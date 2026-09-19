@@ -51,6 +51,18 @@ export function fieldErrors(error: unknown): FieldError[] {
 }
 
 /**
+ * The sign-up 409 for a number or email that already has a wallet, or null
+ * for any other error. `detail` is the API's sentence; `via` is which of the
+ * two it matched, so the screen can offer the matching sign-in and code.
+ */
+export function walletExists(
+  error: unknown,
+): { detail: string; via: "mobile" | "email" } | null {
+  if (!(error instanceof ApiError) || error.body.code !== "wallet_exists") return null;
+  return { detail: error.message, via: error.body.via === "email" ? "email" : "mobile" };
+}
+
+/**
  * Empty in the browser so requests are same-origin through a rewrite; set to
  * the absolute API root when the apps and the API are on different hosts.
  *
@@ -174,6 +186,7 @@ export async function toApiError(response: Response): Promise<ApiError> {
     parsed.detail ?? response.statusText ?? "Request failed",
     response.status,
     parsed.requestId,
+    parsed,
   );
   if (parsed.errors?.length) fieldErrorsByError.set(error, parsed.errors);
   return error;

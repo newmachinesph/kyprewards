@@ -39,6 +39,7 @@ export {
 export {
   ApiError,
   fieldErrors,
+  walletExists,
   http,
   httpPage,
   nextCursorFrom,

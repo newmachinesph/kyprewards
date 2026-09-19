@@ -8,13 +8,14 @@ import {
 } from "react";
 import {
   Keyboard,
+  Pressable,
   ScrollView,
   Text,
   TextInput,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Croissant } from "lucide-react-native";
+import { Croissant, Mail, Smartphone } from "lucide-react-native";
 import { displayMobile, normalizeMobile, toE164 } from "@kypstamping/ui/format";
 import { BrandMark } from "@/components/Brand";
 import { Eyebrow } from "@/components/ui";
@@ -186,6 +187,46 @@ export function Field({
           {hint}
         </Text>
       ) : null}
+    </View>
+  );
+}
+
+export type Channel = "mobile" | "email";
+
+/** Mobile or email, on sign-in and sign-up alike. */
+export function ChannelSwitch({
+  value,
+  onChange,
+}: {
+  value: Channel;
+  onChange: (channel: Channel) => void;
+}) {
+  return (
+    <View className="flex-row rounded-2xl border border-line bg-surface p-1">
+      {(
+        [
+          ["mobile", "Mobile", Smartphone],
+          ["email", "Email", Mail],
+        ] as const
+      ).map(([key, label, Icon]) => {
+        const on = value === key;
+        return (
+          <Pressable
+            key={key}
+            accessibilityRole="button"
+            accessibilityState={{ selected: on }}
+            onPress={() => onChange(key)}
+            className={`min-h-[44px] flex-1 flex-row items-center justify-center gap-2 rounded-xl ${on ? "bg-ink" : ""}`}
+          >
+            <Icon size={15} color={on ? colors.paper : colors.mutedStrong} />
+            <Text
+              className={`font-sans-extrabold text-[13px] ${on ? "text-paper" : "text-muted-strong"}`}
+            >
+              {label}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }

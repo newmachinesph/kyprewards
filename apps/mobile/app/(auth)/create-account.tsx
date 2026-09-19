@@ -2,9 +2,20 @@ import { useEffect, useState } from "react";
 import { Linking, Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Check, ChevronDown } from "lucide-react-native";
-import { ApiError, registerCustomer } from "@kypstamping/api";
+import {
+  ApiError,
+  registerCustomer,
+  requestOtp,
+  walletExists,
+} from "@kypstamping/api";
 import { isCompleteMobile, normalizeMobile } from "@kypstamping/ui/format";
-import { AuthShell, Field, MobileField } from "@/components/AuthShell";
+import {
+  AuthShell,
+  ChannelSwitch,
+  Field,
+  MobileField,
+  type Channel,
+} from "@/components/AuthShell";
 import { SocialSignIn } from "@/components/SocialSignIn";
 import { Button } from "@/components/ui";
 import { readClaim } from "@/lib/claim";
@@ -28,7 +39,10 @@ const MONTHS = [
 ];
 
 /**
- * A wallet, from a name and a number. Email and birthday are optional - the
+ * A wallet, from a name and a number (a code follows), or a name, an email
+ * and a password (a confirmation link follows). A number or email that
+ * already has a wallet gets sign-in and "Forgot password?" instead.
+ * On the mobile path email is optional; birthday always is - the
  * birthday is day and month only, because a treat needs to know when to
  * fire and not how old anyone is, and both halves go together or neither.
  */
@@ -44,43 +58,125 @@ export default function CreateAccount() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [pendingShop, setPendingShop] = useState("");
+  const [channel, setChannel] = useState<Channel>("mobile");
+  const [password, setPassword] = useState("");
+  // The email path's wallet exists and waits on the emailed link.
+  const [confirmSent, setConfirmSent] = useState(false);
+  // Sign-up by a number or email that already has a wallet.
+  const [existing, setExisting] = useState<{
+    detail: string;
+    via: Channel;
+    to: string;
+  } | null>(null);
+  const byEmail = channel === "email";
 
   useEffect(() => {
     readClaim().then((claim) => claim && setPendingShop(claim.shop));
   }, []);
 
+  function toSignIn(via: Channel, to: string) {
+    router.replace({
+      pathname: "/(auth)/login",
+      params: { channel: via, identifier: to },
+    });
+  }
+
   async function submit() {
     if (!name.trim()) return setNotice("Enter your name.");
-    if (!isCompleteMobile(normalizeMobile(mobile)))
+    if (byEmail) {
+      if (!/^\S+@\S+\.\S+$/.test(email.trim()))
+        return setNotice("Enter your email address.");
+      if (password.length < 8)
+        return setNotice("Choose a password of at least 8 characters.");
+    } else if (!isCompleteMobile(normalizeMobile(mobile)))
       return setNotice("Enter your ten-digit mobile number.");
     if ((day && !month) || (!day && month))
       return setNotice("Give both the day and the month, or neither.");
     if (!accepted) return setNotice("Accept the terms to continue.");
     setBusy(true);
     setNotice("");
+    setExisting(null);
+    const birthday =
+      day && month ? { birthdayDay: Number(day), birthdayMonth: month } : {};
     try {
-      await registerCustomer({
-        name: name.trim(),
-        mobile: mobile.trim(),
-        email: email.trim() || undefined,
-        ...(day && month
-          ? { birthdayDay: Number(day), birthdayMonth: month }
-          : {}),
-        acceptedTerms: accepted,
-      });
+      const result = await registerCustomer(
+        byEmail
+          ? {
+              name: name.trim(),
+              email: email.trim(),
+              password,
+              ...birthday,
+              acceptedTerms: accepted,
+            }
+          : {
+              name: name.trim(),
+              mobile: mobile.trim(),
+              email: email.trim() || undefined,
+              ...birthday,
+              acceptedTerms: accepted,
+            },
+      );
+      if (result.next === "confirm_email") {
+        setConfirmSent(true);
+        setBusy(false);
+        return;
+      }
       await remember(KEYS.otpIdentifier, mobile.trim());
       router.push({
         pathname: "/(auth)/verify",
         params: { identifier: mobile.trim() },
       });
     } catch (failure) {
+      // Nothing was sent: the way on is sign-in, or a code from "Forgot
+      // password".
+      const found = walletExists(failure);
+      if (found) {
+        setExisting({
+          ...found,
+          to: found.via === "email" ? email.trim() : mobile.trim(),
+        });
+      } else {
+        setNotice(
+          failure instanceof ApiError
+            ? failure.message
+            : "Could not set that up.",
+        );
+      }
+      setBusy(false);
+    }
+  }
+
+  /** "Forgot password?", as sign-in does it: a code, then the code screen. */
+  async function sendCode(to: string) {
+    setBusy(true);
+    setNotice("");
+    try {
+      await requestOtp(to);
+      await remember(KEYS.otpIdentifier, to);
+      router.push({ pathname: "/(auth)/verify", params: { identifier: to } });
+    } catch (failure) {
       setNotice(
         failure instanceof ApiError
           ? failure.message
-          : "Could not set that up.",
+          : "Could not send a code just now.",
       );
+    } finally {
       setBusy(false);
     }
+  }
+
+  if (confirmSent) {
+    return (
+      <AuthShell
+        eyebrow="Join KYP"
+        title="Check your inbox."
+        description={`We sent a link to ${email.trim()}. Tap it, then sign in with your email and password.`}
+      >
+        <Button onPress={() => toSignIn("email", email.trim())}>
+          Go to sign in
+        </Button>
+      </AuthShell>
+    );
   }
 
   return (
@@ -89,25 +185,58 @@ export default function CreateAccount() {
       title={pendingShop ? "Save your stamp." : "Set up your wallet."}
       description={
         pendingShop
-          ? `Your first stamp at ${pendingShop} is waiting. Give us a number and it goes on your card.`
+          ? `Your first stamp at ${pendingShop} is waiting. Set up your wallet and it goes on your card.`
           : "Keep rewards from nearby shops together, with permissions you can change anytime."
       }
     >
+      <ChannelSwitch
+        value={channel}
+        onChange={(key) => {
+          setChannel(key);
+          setNotice("");
+          setExisting(null);
+        }}
+      />
       <Field
         label="Name"
         value={name}
         onChange={setName}
         autoComplete="name"
       />
-      <MobileField value={mobile} onChange={setMobile} />
-      <Field
-        label="Email, optional"
-        value={email}
-        onChange={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoComplete="email"
-      />
+      {byEmail ? (
+        <>
+          <Field
+            label="Email"
+            value={email}
+            onChange={setEmail}
+            placeholder="you@example.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+          />
+          <Field
+            label="Password"
+            value={password}
+            onChange={setPassword}
+            secure
+            autoCapitalize="none"
+            autoComplete="new-password"
+            hint="At least 8 characters."
+          />
+        </>
+      ) : (
+        <>
+          <MobileField value={mobile} onChange={setMobile} />
+          <Field
+            label="Email, optional"
+            value={email}
+            onChange={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+          />
+        </>
+      )}
       <View className="gap-2">
         <Text className="font-sans-extrabold text-[12px] text-ink">
           Birthday, optional
@@ -194,6 +323,31 @@ export default function CreateAccount() {
         Turn any of them off in Notifications at any time.
       </Text>
 
+      {existing ? (
+        <View
+          accessibilityRole="alert"
+          className="gap-3 rounded-2xl border border-line-strong bg-surface p-4"
+        >
+          <Text className="font-sans-extrabold text-[14px] leading-[20px] text-ink">
+            {existing.detail}
+          </Text>
+          <Button onPress={() => toSignIn(existing.via, existing.to)}>
+            Sign in
+          </Button>
+          <Pressable
+            accessibilityRole="button"
+            disabled={busy}
+            onPress={() => void sendCode(existing.to)}
+            className="min-h-[44px] items-center justify-center"
+          >
+            <Text className="font-sans-extrabold text-[13px] text-accent-strong">
+              {existing.via === "mobile"
+                ? "Forgot password? Text me a code"
+                : "Forgot password? Email me a code"}
+            </Text>
+          </Pressable>
+        </View>
+      ) : null}
       {notice ? (
         <Text
           accessibilityRole="alert"
@@ -203,7 +357,7 @@ export default function CreateAccount() {
         </Text>
       ) : null}
       <Button onPress={submit} busy={busy}>
-        Text me a code
+        {byEmail ? "Create wallet" : "Text me a code"}
       </Button>
       <SocialSignIn onNotice={setNotice} />
       <Button tone="quiet" onPress={() => router.replace("/(auth)/login")}>
