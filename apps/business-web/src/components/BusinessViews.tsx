@@ -25,6 +25,7 @@ import {
   type VisitOutcome,
   useAudience,
   useAutomations,
+  useCampaignAttribution,
   useCampaigns,
   useFavoriteOrders,
   useLocations,
@@ -109,7 +110,6 @@ import {
   Mail,
   MessageCircle,
   MessageSquareText,
-  Nfc,
   Pencil,
   Phone,
   PlugZap,
@@ -939,12 +939,7 @@ function ScanView({
     >
       <div className="grid gap-3 xl:grid-cols-[minmax(420px,0.8fr)_minmax(0,1.2fr)]">
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)] sm:p-8">
-          <div className="flex items-center justify-between">
-            <Eyebrow>Secure scanner</Eyebrow>
-            <span className="font-mono text-[10px] text-white/60">
-              CAMERA 01
-            </span>
-          </div>
+          <Eyebrow>Secure scanner</Eyebrow>
 
           {step === "ready" && (
             <div className="mx-auto mt-8 max-w-sm">
@@ -1457,18 +1452,6 @@ function ScanView({
               </div>
             ))}
           </div>
-          <div className="mt-5 rounded-2xl border border-dashed border-[var(--line-strong)] p-4">
-            <div className="flex items-start gap-3">
-              <Nfc size={18} className="mt-0.5 text-[var(--accent-strong)]" />
-              <div>
-                <p className="text-sm font-extrabold">NFC counter mode</p>
-                <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-                  Customers can tap a supported tag to open the same
-                  confirmation flow. Staff still approves the value event.
-                </p>
-              </div>
-            </div>
-          </div>
         </section>
       </div>
     </ViewFrame>
@@ -1819,15 +1802,6 @@ function BirthdayView({ notify }: { notify: Notify }) {
   const gate = usePlanGate();
   const needed = planFor("Birthday and anniversary journeys");
   const blocked = writeBlock(gate, needed, false);
-  const { data: profile } = useBusinessProfile();
-  const { data: programs = [] } = usePrograms();
-  const reward = programs.find((program) => program.rewardName)?.rewardName;
-  const shopName = profile?.name ?? "our shop";
-  const branchCount = useLocations().data?.length ?? 1;
-  const draft =
-    `A birthday treat should feel easy. Visit ` +
-    `${branchCount > 1 ? `any ${shopName} branch` : shopName} this week and ` +
-    `${reward ? `${reward.toLowerCase()} is on us` : "we will have something for you"}.`;
   // The pill asserted "Automation live" whatever the automation was actually
   // doing, and "Save journey" reported "Birthday journey saved with channel
   // guardrails" while saving nothing at all - this screen has no editable
@@ -1846,14 +1820,9 @@ function BirthdayView({ notify }: { notify: Notify }) {
     }))
     .filter(
       (entry): entry is { customer: typeof entry.customer; inDays: number } =>
-        entry.inDays !== null,
+        entry.inDays !== null && entry.inDays <= 30,
     )
     .sort((a, b) => a.inDays - b.inDays);
-  const [channels, setChannels] = useState({
-    Push: true,
-    Email: true,
-    SMS: false,
-  });
   return (
     <ViewFrame
       eyebrow="Birthday moments"
@@ -1917,55 +1886,13 @@ function BirthdayView({ notify }: { notify: Notify }) {
           </div>
         </section>
         <section className="rounded-2xl bg-[var(--ink)] p-6 text-[var(--paper)]">
-          <Eyebrow>Journey editor</Eyebrow>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-2 text-xs font-bold">
-              Send timing
-              <select className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm">
-                <option>7 days before</option>
-                <option>On the birthday</option>
-                <option>Birthday month</option>
-              </select>
-            </label>
-            <label className="grid gap-2 text-xs font-bold">
-              Reward
-              <select className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm">
-                {reward && <option>{reward}</option>}
-                <option>Double stamp</option>
-                <option>A free item on us</option>
-              </select>
-            </label>
-          </div>
-          <label className="mt-4 grid gap-2 text-xs font-bold">
-            Message
-            <textarea
-              key={draft}
-              defaultValue={draft}
-              rows={4}
-              className="rounded-xl border border-white/15 bg-[var(--ink-soft)] p-3 text-sm leading-relaxed outline-none focus:border-[var(--accent)]"
-            />
-          </label>
-          <div className="mt-5">
-            <p className="text-xs font-bold">Delivery channels</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {Object.entries(channels).map(([channel, active]) => (
-                <button
-                  type="button"
-                  key={channel}
-                  aria-pressed={active}
-                  onClick={() =>
-                    setChannels((current) => ({
-                      ...current,
-                      [channel]: !active,
-                    }))
-                  }
-                  className={`rounded-full border px-3 py-2 text-xs font-bold ${active ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--ink)]" : "border-white/15 text-white/55"}`}
-                >
-                  {channel}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Timing, reward, message and channel pickers stood here and none
+              of them was saved. The automation is the real thing; this
+              switches it. */}
+          <Eyebrow>Birthday journey</Eyebrow>
+          <p className="mt-4 text-sm leading-relaxed text-white/75">
+            Sends an email at 9 in the morning on the birthday, to members who gave one.
+          </p>
           <div className="mt-6 flex items-start gap-3 rounded-2xl bg-white/6 p-4">
             <ShieldCheck
               size={17}
@@ -1987,7 +1914,7 @@ function BirthdayView({ notify }: { notify: Notify }) {
                 onSuccess: (result) =>
                   notify(
                     result.enabled
-                      ? "Birthday journey is live. It sends on the day, inside your quiet hours."
+                      ? "Birthday journey is live. It emails members at 9 in the morning on the day."
                       : "Birthday journey paused. Nothing will send until you switch it back on.",
                   ),
                 onError: (failure) => notify(failure.message, "error"),
@@ -2433,7 +2360,7 @@ const channelConfig: {
     audienceKey: "push",
     icon: BellRing,
     unit: 0,
-    note: "Allowance on every plan · delivered in-app, not to a closed phone",
+    note: "Allowance on every plan · web push to the wallet, push notification to the app, where the customer turned it on",
     status: "ready",
   },
   {
@@ -2483,6 +2410,7 @@ function CampaignsView({ notify }: { notify: Notify }) {
   );
   const { data: metrics = EMPTY_BUSINESS_METRICS } = useBusinessMetrics();
   const { data: campaigns = [] } = useCampaigns();
+  const { data: attribution = [] } = useCampaignAttribution();
   const schedule = useCreateCampaign();
   const { data: billing } = useBilling();
   const allowanceRemaining = useMemo(
@@ -2494,11 +2422,11 @@ function CampaignsView({ notify }: { notify: Notify }) {
   // with a floor of 100, so a shop with three customers could not express its
   // own audience and was shown someone else's.
   const widestReach = Math.max(...audienceRows.map((row) => row.reachable), 0);
-  const [campaignName, setCampaignName] = useState("Tuesday treat");
+  const [campaignName, setCampaignName] = useState("");
   const [audience, setAudience] = useState<number | null>(null);
   // These three were uncontrolled selects, so the composer showed choices that
   // never reached the scheduled campaign.
-  const [audienceSegment, setAudienceSegment] = useState("Almost regulars");
+  const [audienceSegment, setAudienceSegment] = useState("All members");
   // A real instant, not prose. The three options here were display strings -
   // "Tuesday, 1:30 PM", "Now after preflight", "At each customer's usual
   // time" - and nothing downstream could act on any of them. The last was a
@@ -2595,15 +2523,21 @@ function CampaignsView({ notify }: { notify: Notify }) {
     audienceSize,
     Math.max(...selectedChannels.map(reachOf), 0),
   );
-  const predictedVisits = Math.round(reachable * 0.118);
+  // The shop's own past campaigns: visits over sends. A fixed 11.8% stood
+  // here for every shop; with no history there is no prediction.
+  const pastSent = attribution.reduce((sum, row) => sum + row.sent, 0);
+  const pastRate = pastSent
+    ? attribution.reduce((sum, row) => sum + row.visited, 0) / pastSent
+    : null;
+  const predictedVisits =
+    pastRate === null ? null : Math.round(reachable * pastRate);
   // deliveryCost is pesos, from the published channel rates in plans.ts; the
   // API sends the average order in centavos. Both are named for their unit
   // because dividing one by the other silently put the ROI out by 100x.
   const predictedRevenuePesos =
-    (predictedVisits * metrics.averageOrderCentavos) / 100;
-  const roi = deliveryCost
-    ? predictedRevenuePesos / deliveryCost
-    : predictedRevenuePesos;
+    predictedVisits === null
+      ? null
+      : (predictedVisits * metrics.averageOrderCentavos) / 100;
   return (
     <ViewFrame
       eyebrow="Campaign studio"
@@ -2868,11 +2802,23 @@ function CampaignsView({ notify }: { notify: Notify }) {
                 "Estimated delivery cost",
                 peso(deliveryCost, { decimals: true }),
               ],
-              ["Predicted visits", predictedVisits],
-              ["Predicted visit revenue", peso(predictedRevenuePesos)],
+              [
+                "Predicted visits",
+                predictedVisits ?? "No past campaigns yet",
+              ],
+              [
+                "Predicted visit revenue",
+                predictedRevenuePesos === null
+                  ? "—"
+                  : peso(predictedRevenuePesos),
+              ],
               [
                 "Revenue / delivery cost",
-                deliveryCost ? `${roi.toFixed(1)}×` : "No paid channel",
+                !deliveryCost
+                  ? "No paid channel"
+                  : predictedRevenuePesos === null
+                    ? "—"
+                    : `${(predictedRevenuePesos / deliveryCost).toFixed(1)}×`,
               ],
               [
                 "Break-even visits",
@@ -3095,7 +3041,7 @@ function MessageLogView({ notify }: { notify: Notify }) {
     <ViewFrame
       eyebrow="Delivery ledger"
       title="Message log"
-      description="Every customer communication across in-app, push, email and SMS, with cost, consent outcome and downstream visits. Push is delivered in-app, not to a closed phone."
+      description="Every customer communication across in-app, push, email and SMS, with cost, consent outcome and downstream visits. Push reaches the wallet by web push and the app by push notification, where the customer turned it on."
       action={
         <Button
           tone="quiet"

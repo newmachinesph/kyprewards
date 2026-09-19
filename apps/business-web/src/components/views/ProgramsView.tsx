@@ -473,8 +473,7 @@ export function ProgramsView({ notify }: { notify: Notify }) {
                 className="mt-0.5 shrink-0 text-[var(--accent)]"
               />
               <p className="text-xs leading-relaxed text-white/65">
-                Publishing a rule change creates a new version. Existing points,
-                balances, and rewards remain protected.
+                Existing points, balances, and rewards remain protected.
               </p>
             </div>
           </div>

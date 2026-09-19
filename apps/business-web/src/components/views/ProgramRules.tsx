@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   isPreview,
   keys,
-  PREVIEW_WRITE_REASON,
   setCategoryRates,
   setStampRules,
   useApiMutation,
@@ -122,8 +121,9 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
     setDraft(null);
   }
   const rules = draft ?? program.rules ?? DEFAULT_RULES;
+  // The API sends rules on every stamp program; if one ever arrives without
+  // them, the editor starts from the product defaults and saving writes them.
   const carried = Boolean(program.rules);
-  const blocked = carried ? null : PREVIEW_WRITE_REASON;
   const successors = programs.filter(
     (candidate) => candidate.id !== program.id && candidate.type === "Stamps" && candidate.status === "Live",
   );
@@ -154,13 +154,12 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
             <h2 className="mt-1 text-lg font-extrabold">Card rules, on every plan</h2>
           </div>
           <span className="flex items-center gap-2">
-            {!carried && <PreviewBadge />}
             <PlanTag plan="Launch" included />
           </span>
         </div>
         <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
           These are the rules of the card, not upsells. Held-until-redeemed, customer approval and grandfathering are always on.
-          {!carried && " The API does not carry these fields on a program yet; saving opens when it does."}
+          {!carried && " Nothing is saved for this card yet; these are the defaults until you save."}
         </p>
 
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
@@ -326,11 +325,9 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Button
-            disabled={Boolean(blocked) || !draft || save.isPending}
-            title={blocked ?? undefined}
+            disabled={(carried && !draft) || save.isPending}
             onClick={() =>
-              draft &&
-              save.mutate(draft, {
+              save.mutate(draft ?? rules, {
                 onSuccess: () => {
                   setDraft(null);
                   notify("Card rules saved. Cards in progress keep their target.");
@@ -341,12 +338,11 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
           >
             {save.isPending ? "Saving…" : "Save card rules"}
           </Button>
-          {draft && !blocked && (
+          {draft && (
             <Button tone="quiet" onClick={() => setDraft(null)}>
               Discard changes
             </Button>
           )}
-          <BlockedNote reason={blocked} />
         </div>
       </article>
 

@@ -28,7 +28,6 @@ import {
   MapPin,
   Megaphone,
   MessageSquareText,
-  Nfc,
   PlugZap,
   QrCode,
   Repeat2,
@@ -364,6 +363,7 @@ export function BusinessDashboard({
           detail={metricsError ? "hidden for your role" : "today"}
           icon={Repeat2}
           accent
+          trend="flat"
         />
         <StatCard
           className="col-span-6 lg:col-span-3"
@@ -375,6 +375,7 @@ export function BusinessDashboard({
               : `${metrics.repeatRate}% repeat rate`
           }
           icon={UserPlus}
+          trend="flat"
         />
         <StatCard
           className="col-span-6 lg:col-span-3"
@@ -385,6 +386,7 @@ export function BusinessDashboard({
           // quiet morning and went looking for the outage.
           detail={metricsError ? "hidden for your role" : "today"}
           icon={Stamp}
+          trend="flat"
         />
         <StatCard
           className="col-span-6 lg:col-span-3"
@@ -866,7 +868,6 @@ export function BusinessDashboard({
                 stood over a workspace with no customers. The Settings screen
                 and the campaign studio each showed a different third answer. */}
             {[
-              "Channel consent checked",
               `Quiet hours · ${hourLabel(policy?.quietFromHour)}–${hourLabel(policy?.quietToHour)}`,
               `Promotion cap · ${policy?.maxPerWeek ?? 0} per week`,
               `${widestReach} eligible in this audience`,
@@ -910,25 +911,21 @@ export function BusinessDashboard({
               icon: QrCode,
               title: "QR + join links",
               detail: "Customer ID, posters, social links",
-              status: "Ready",
             },
             {
-              icon: Nfc,
-              title: "NFC + offline",
-              detail: "Signed queue and safe reconciliation",
-              status: "Ready",
+              icon: WifiOff,
+              title: "Offline counter",
+              detail: "Visits held on the device sync when it reconnects",
             },
             {
               icon: PlugZap,
               title: "API + webhooks",
               detail: "POS, ecommerce, messaging",
-              status: "Connect",
             },
             {
               icon: DatabaseZap,
               title: "Import + export",
               detail: "Portable, permissioned records",
-              status: "Review",
             },
           ].map((item) => {
             const Icon = item.icon;
@@ -937,14 +934,9 @@ export function BusinessDashboard({
                 key={item.title}
                 className="rounded-xl border border-[var(--line)] bg-[var(--paper)] p-5"
               >
-                <div className="flex items-start justify-between">
-                  <span className="grid size-10 place-items-center rounded-xl bg-[var(--surface)]">
-                    <Icon size={17} />
-                  </span>
-                  <span className="rounded-full border border-[var(--line)] bg-[var(--surface)] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted-strong)]">
-                    {item.status}
-                  </span>
-                </div>
+                <span className="grid size-10 place-items-center rounded-xl bg-[var(--surface)]">
+                  <Icon size={17} />
+                </span>
                 <h3 className="mt-7 text-sm font-extrabold">{item.title}</h3>
                 <p className="mt-1 text-xs leading-relaxed text-[var(--muted)]">
                   {item.detail}
@@ -1033,9 +1025,6 @@ export function BusinessDashboard({
               <div className="absolute bottom-5 left-5 size-12 border-b-2 border-l-2 border-[var(--accent)]" />
               <div className="absolute bottom-5 right-5 size-12 border-b-2 border-r-2 border-[var(--accent)]" />
               <QrCode className="size-full text-white/70" strokeWidth={1.1} />
-            </div>
-            <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full bg-[rgb(15_118_85/12%)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--success)]">
-              <WifiOff size={13} /> Offline queue ready
             </div>
             <p className="mx-auto mt-3 max-w-[34ch] text-center text-sm leading-relaxed text-[var(--muted-strong)]">
               Scanning happens on the counter screen. Open it and scan a

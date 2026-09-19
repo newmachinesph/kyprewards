@@ -2,7 +2,6 @@
 
 import { NothingYet } from "@/components/views/shared";
 import { useState } from "react";
-import { sharedScenario } from "@kypstamping/demo-data";
 import type { Environment } from "@kypstamping/api";
 import {
   Button,
@@ -26,7 +25,6 @@ import {
   ExternalLink,
   KeyRound,
   Link2,
-  PlugZap,
   RefreshCcw,
   RotateCcw,
   ServerCog,
@@ -103,15 +101,6 @@ const connectionOptions = [
     eyebrow: "Any register",
     description:
       "Post sale and refund events from your existing POS using the shared event contract.",
-    availability: "Sandbox ready",
-  },
-  {
-    id: "pos-pull",
-    name: "Scheduled pull",
-    icon: PlugZap,
-    eyebrow: "Any register",
-    description:
-      "Let KYP Stamping fetch sales on a schedule when your POS cannot send webhooks.",
     availability: "Sandbox ready",
   },
 ] as const;
@@ -243,7 +232,7 @@ export function IntegrationsView({
 }) {
   const [environment, setEnvironment] = useState<Environment>("sandbox");
   const [inspecting, setInspecting] = useState("");
-  // Matches the adapter the platform control room reports for this tenant.
+  // Only picks which inbound URL below to show; nothing is saved.
   const [connection, setConnection] =
     useState<(typeof connectionOptions)[number]["id"]>("custom");
   const { data: credentials = [] } = useCredentials(environment);
@@ -312,33 +301,30 @@ export function IntegrationsView({
   const { data: profile } = useBusinessProfile();
   const { data: locations = [] } = useLocations();
   const [keyLabel, setKeyLabel] = useState("Main counter backup");
-  const [branchScope, setBranchScope] = useState(sharedScenario.branch);
+  const [branchScope, setBranchScope] = useState("All branches");
   const [selectedScopes, setSelectedScopes] = useState([
     "customers:read",
     "transactions:write",
     "rewards:read",
   ]);
   const [oneTimeSecret, setOneTimeSecret] = useState<string | null>(null);
-  const [inboundSecret, setInboundSecret] = useState<string | null>(null);
   const [testSending, setTestSending] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const secretPrefix = environment === "sandbox" ? "sk_test" : "sk_live_demo";
   const providerSlug = connection === "sidecar" ? "terminal" : connection;
   const inboundUrl = `${contract?.apiBase ?? ""}/integrations/${providerSlug}/webhook`;
-  // Every value below is the shared scenario's own visit, so the request the
-  // merchant copies matches the event the wallet and the control room show.
+  // Angle brackets are placeholders; the branch id is this workspace's own.
+  // Shape per POST /transactions and the machine-credential scheme.
   const quickstart = `curl --request POST \\
   --url ${contract?.apiBase ?? ""}/transactions \\
-  --header 'Authorization: Bearer ${secretPrefix}_••••••••' \\
-  --header '${contract?.idempotency.header ?? "Idempotency-Key"}: ${sharedScenario.delivery.idempotencyKey}' \\
-  --header 'X-Merchant-ID: ${sharedScenario.merchantId}' \\
+  --header 'Authorization: Bearer <clientKey>:<secret>' \\
+  --header '${contract?.idempotency.header ?? "Idempotency-Key"}: sale_<receipt-number>' \\
+  --header 'Content-Type: application/json' \\
   --data '{
-    "external_transaction_id": "${sharedScenario.externalTransactionId}",
-    "customer_phone": "+639171234567",
-    "branch_id": "${sharedScenario.branchId}",
-    "amount": ${sharedScenario.purchase.amountCentavos},
-    "currency": "${sharedScenario.purchase.currency}"
+    "mobile": "<customer mobile, +63...>",
+    "branchId": "${locations[0]?.id ?? "<branch-id>"}",
+    "amountCentavos": <amount in centavos>,
+    "externalReference": "<receipt-number>"
   }'`;
 
   // A production preview must not list sandbox keys as if they worked there.
@@ -358,14 +344,13 @@ export function IntegrationsView({
       await navigator.clipboard.writeText(value);
       notify(`${label} copied.`);
     } catch {
-      notify(`${label} is selected for this local demo.`);
+      notify(`${label} could not be copied. Select it and copy by hand.`, "error");
     }
   }
 
   function chooseEnvironment(next: Environment) {
     setEnvironment(next);
     setOneTimeSecret(null);
-    setInboundSecret(null);
     // Each environment has its own endpoint. Carrying a typed URL across
     // would offer to save the sandbox destination over the production one.
     clearDraft();
@@ -384,7 +369,7 @@ export function IntegrationsView({
 
   function createCredential() {
     if (!keyLabel.trim()) {
-      notify("Add a key name before creating the sample credential.", "error");
+      notify("Add a key name before creating the credential.", "error");
       return;
     }
     if (selectedScopes.length === 0) {
@@ -448,7 +433,7 @@ export function IntegrationsView({
   function sendTestWebhook() {
     if (!webhookUrl.startsWith("https://")) {
       notify(
-        "Use an HTTPS destination before sending a sample webhook.",
+        "Use an HTTPS destination before sending a test webhook.",
         "error",
       );
       return;
@@ -601,7 +586,7 @@ export function IntegrationsView({
             integration.
           </p>
         </div>
-        <div className="grid sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3">
           {connectionOptions.map((option, index) => {
             const Icon = option.icon;
             const active = connection === option.id;
@@ -610,12 +595,7 @@ export function IntegrationsView({
                 key={option.id}
                 type="button"
                 aria-pressed={active}
-                onClick={() => {
-                  setConnection(option.id);
-                  notify(
-                    `${option.name} is now the active connection in this demo.`,
-                  );
-                }}
+                onClick={() => setConnection(option.id)}
                 className={`min-h-64 p-5 text-left transition focus-visible:z-10 ${
                   index > 0
                     ? "border-t border-[var(--line)] sm:border-t-0 sm:border-l"
@@ -705,7 +685,7 @@ export function IntegrationsView({
                 {locations.map((location) => (
                   <option key={location.id}>{location.name}</option>
                 ))}
-                <option>All sandbox branches</option>
+                <option>All branches</option>
               </select>
             </label>
             <fieldset className="sm:col-span-2">
@@ -791,9 +771,9 @@ export function IntegrationsView({
                     </code>
                     <button
                       type="button"
-                      aria-label="Copy one-time sample secret"
+                      aria-label="Copy one-time secret"
                       onClick={() =>
-                        copyValue(oneTimeSecret, "One-time sample secret")
+                        copyValue(oneTimeSecret, "One-time secret")
                       }
                       className="grid size-9 shrink-0 place-items-center rounded-lg bg-[var(--ink)] text-[var(--paper)]"
                     >
@@ -878,7 +858,7 @@ export function IntegrationsView({
                       Secret
                     </span>
                     <code className="mt-0.5 block text-xs font-bold">
-                      ••••••••••••Q4N8
+                      {credential.secretPreview}
                     </code>
                   </div>
                 </div>
@@ -992,7 +972,7 @@ export function IntegrationsView({
           </div>
           <div className="space-y-5 p-5 sm:p-6">
             <div>
-              <FieldLabel>Planned endpoint</FieldLabel>
+              <FieldLabel>Endpoint</FieldLabel>
               <div className="flex items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--paper)] p-2 pl-3">
                 <code className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[11px] font-bold">
                   {inboundUrl}
@@ -1006,29 +986,6 @@ export function IntegrationsView({
                   <Copy size={14} />
                 </button>
               </div>
-            </div>
-            <div>
-              <FieldLabel>Signing secret</FieldLabel>
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3 py-3">
-                <code className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-bold">
-                  {inboundSecret ?? "whsec_test_••••••••7D2Q"}
-                </code>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setInboundSecret("whsec_test_sample_3F8K2P7N");
-                    notify("Sample signing secret rotated and shown once.");
-                  }}
-                  className="shrink-0 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]"
-                >
-                  Rotate
-                </button>
-              </div>
-              {inboundSecret && (
-                <p className="mt-2 text-[10px] font-bold text-[var(--accent-strong)]">
-                  One-time sample value—copy it before leaving this view.
-                </p>
-              )}
             </div>
             <div>
               <FieldLabel>Accepted POS events</FieldLabel>
@@ -1143,7 +1100,7 @@ export function IntegrationsView({
                 disabled={testSending}
                 onClick={sendTestWebhook}
               >
-                {testSending ? "Sending sample…" : "Send test webhook"}
+                {testSending ? "Sending test…" : "Send test webhook"}
               </Button>
               <Button
                 tone="quiet"
