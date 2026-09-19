@@ -1,5 +1,13 @@
-import { useEffect, useRef, type ReactNode } from "react";
 import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  type ReactNode,
+} from "react";
+import {
+  Keyboard,
   ScrollView,
   Text,
   TextInput,
@@ -13,6 +21,9 @@ import { Eyebrow } from "@/components/ui";
 import { StampDots } from "@/components/StampDots";
 import { useKeyboardInset } from "@/lib/keyboard";
 import { colors } from "@/lib/theme";
+
+/** Scrolls the sheet to whichever field just took focus. */
+const RevealContext = createContext<() => void>(() => undefined);
 
 /**
  * The sign-in frame: amber above with a card illustration, paper sheet below.
@@ -34,12 +45,25 @@ export function AuthShell({
 }) {
   const insets = useSafeAreaInsets();
   const scroller = useRef<ScrollView>(null);
+  const content = useRef<View>(null);
   const keyboard = useKeyboardInset();
-  // The form is the last thing on every auth screen, so the end of the
-  // sheet is where the keyboard should leave you.
+  // Bring the field being typed into to just below the top of the screen.
+  // This used to scroll to the end on every keyboard, which pushed the name
+  // and number fields out of sight while you typed into them.
+  const reveal = useCallback(() => {
+    const focused = TextInput.State.currentlyFocusedInput();
+    if (!Keyboard.isVisible() || !focused || !content.current) return;
+    focused.measureLayout(
+      content.current,
+      (_x, y) =>
+        scroller.current?.scrollTo({ y: Math.max(0, y - 96), animated: true }),
+      () => undefined,
+    );
+  }, []);
   useEffect(() => {
-    if (keyboard > 0) scroller.current?.scrollToEnd({ animated: true });
-  }, [keyboard]);
+    // A frame later, once the sheet has grown by the keyboard's height.
+    if (keyboard > 0) requestAnimationFrame(reveal);
+  }, [keyboard, reveal]);
   return (
     // With edge-to-edge (Android 15 and up, the SDK 57 default) the window
     // no longer resizes under a keyboard, and KeyboardAvoidingView did not
@@ -50,6 +74,8 @@ export function AuthShell({
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top + 12 }}
       >
+        <RevealContext.Provider value={reveal}>
+        <View ref={content} className="flex-1">
         <View className="px-5">
           <BrandMark />
           <View className="mt-5 rounded-2xl bg-ink px-5 py-5">
@@ -101,6 +127,8 @@ export function AuthShell({
           </Text>
           <View className="mt-6 gap-5">{children}</View>
         </View>
+        </View>
+        </RevealContext.Provider>
       </ScrollView>
     </View>
   );
@@ -134,19 +162,23 @@ export function Field({
   secure?: boolean;
   hint?: string;
 }) {
+  const reveal = useContext(RevealContext);
   return (
     <View className="gap-2">
-      <Text className="font-sans-extrabold text-[12px] text-ink">{label}</Text>
+      {label ? (
+        <Text className="font-sans-extrabold text-[12px] text-ink">{label}</Text>
+      ) : null}
       <TextInput
         value={value}
         onChangeText={onChange}
+        onFocus={reveal}
         placeholder={placeholder}
         placeholderTextColor={colors.muted}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         autoComplete={autoComplete}
         secureTextEntry={secure}
-        accessibilityLabel={label}
+        accessibilityLabel={label || placeholder}
         className="min-h-[50px] rounded-2xl border border-line-strong bg-surface px-4 font-sans-semibold text-[15px] text-ink"
       />
       {hint ? (
@@ -172,6 +204,7 @@ export function MobileField({
   onChange: (e164: string) => void;
   label?: string;
 }) {
+  const reveal = useContext(RevealContext);
   const national = normalizeMobile(value);
   return (
     <View className="gap-2">
@@ -187,6 +220,7 @@ export function MobileField({
             const digits = normalizeMobile(typed);
             onChange(toE164(digits) || digits);
           }}
+          onFocus={reveal}
           placeholder="917 555 0182"
           placeholderTextColor={colors.muted}
           keyboardType="phone-pad"

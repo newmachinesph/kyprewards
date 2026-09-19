@@ -1513,7 +1513,7 @@ export function DemoAuthFlow({
           }}
           className="space-y-5"
         >
-          <Field label="Full name" value={name} onChange={setName} autoComplete="name" />
+          <Field label="Name" value={name} onChange={setName} autoComplete="name" />
           <MobileField label="Mobile number" value={identifier} onChange={setIdentifier} />
           <Field label="Email, optional" type="email" value={email} onChange={setEmail} autoComplete="email" required={false} />
           <BirthdayField
@@ -1522,8 +1522,8 @@ export function DemoAuthFlow({
             onDayChange={setBirthdayDay}
             onMonthChange={setBirthdayMonth}
           />
-          <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">
-            <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-0.5 size-4 accent-[var(--ink)]" />
+          <label className="flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">
+            <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="size-4 shrink-0 accent-[var(--ink)]" />
             <span>
               I agree to the{" "}
               <a
