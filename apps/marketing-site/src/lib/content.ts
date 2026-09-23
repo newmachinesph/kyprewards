@@ -25,12 +25,12 @@ export const industries: Industry[] = [
     eyebrow: "Built for the morning rush",
     headline: "Turn a familiar order into a reason to return.",
     description:
-      "Keep the warmth of a neighborhood café while KYP Stamping quietly remembers visits, favorite orders, and the moment a reward is ready.",
+      "Keep the warmth of a neighborhood café while KYP Rewards quietly remembers visits, favorite orders, and the moment a reward is ready.",
     reward: "8 visits → a pastry on us",
     metric: "8 visits",
     metricLabel: "a typical stamp card, live in one afternoon",
     challenge:
-      "Paper cards disappear. Names get forgotten during the rush. KYP Stamping keeps the relationship without slowing the counter.",
+      "Paper cards disappear. Names get forgotten during the rush. KYP Rewards keeps the relationship without slowing the counter.",
     features: [
       {
         title: "Fast counter scanning",
@@ -61,7 +61,7 @@ export const industries: Industry[] = [
     metric: "One tap",
     metricLabel: "rebooking prompt after every visit",
     challenge:
-      "Great service creates loyalty, but busy clients still forget to rebook. KYP Stamping makes the next visit visible before they leave.",
+      "Great service creates loyalty, but busy clients still forget to rebook. KYP Rewards makes the next visit visible before they leave.",
     features: [
       {
         title: "Visit-based rewards",
@@ -93,7 +93,7 @@ export const industries: Industry[] = [
     metric: "No POS change",
     metricLabel: "runs beside the register you already use",
     challenge:
-      "Guests have endless choices. KYP Stamping makes progress tangible and keeps your restaurant present between meals.",
+      "Guests have endless choices. KYP Rewards makes progress tangible and keeps your restaurant present between meals.",
     features: [
       {
         title: "One QR identity",
@@ -125,7 +125,7 @@ export const industries: Industry[] = [
     metric: "Consent first",
     metricLabel: "customers choose what a shop can see",
     challenge:
-      "Transactions are easy to count; relationships are harder. KYP Stamping connects the two without replacing the tools you already use.",
+      "Transactions are easy to count; relationships are harder. KYP Rewards connects the two without replacing the tools you already use.",
     features: [
       {
         title: "No POS replacement",
@@ -157,7 +157,7 @@ export const industries: Industry[] = [
     metric: "2\u00d7",
     metricLabel: "stamps in a slow-hour window, switched on in a minute",
     challenge:
-      "The next milk tea shop is a hundred metres away and the menu is the same. What is not the same is who remembers a regular. KYP Stamping does, without slowing a line that is already long.",
+      "The next milk tea shop is a hundred metres away and the menu is the same. What is not the same is who remembers a regular. KYP Rewards does, without slowing a line that is already long.",
     features: [
       {
         title: "Bonus windows",
@@ -371,7 +371,7 @@ export const faqs = [
   {
     question: "Do customers need to download an app?",
     answer:
-      "No. KYP Stamping runs as a fast mobile web app and can be saved to the home screen like an installed app.",
+      "No. KYP Rewards runs as a fast mobile web app and can be saved to the home screen like an installed app.",
   },
   {
     question: "Do we need to replace our POS?",

@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Data sharing",
   description:
-    "What moves between KYP Stamping and a business when a customer joins its program, and who is answerable for what.",
+    "What moves between KYP Rewards and a business when a customer joins its program, and who is answerable for what.",
   alternates: { canonical: "/data-sharing" },
 };
 
@@ -21,7 +21,7 @@ const sections = [
   {
     title: "Why this page exists",
     paragraphs: [
-      "A KYP Stamping account belongs to the customer and works at every business they join — one card, many shops. That design is the point of the product, and it means a customer's details are held by us and, for the shops they choose, seen by those shops too.",
+      "A KYP Rewards account belongs to the customer and works at every business they join — one card, many shops. That design is the point of the product, and it means a customer's details are held by us and, for the shops they choose, seen by those shops too.",
       "Both sides therefore decide things about the same personal data. The Data Privacy Act of 2012 (Republic Act No. 10173) expects that arrangement to be documented rather than assumed, and this page says publicly what the agreement with each merchant says privately.",
     ],
   },
@@ -43,7 +43,7 @@ const sections = [
       "Neither party is simply acting on the other's instructions, so responsibility is split rather than delegated.",
     ],
     bullets: [
-      "KYP Stamping is answerable for the account itself: identity, authentication, the central record, retention, security of the platform, and honoring rights requests over platform-held data.",
+      "KYP Rewards is answerable for the account itself: identity, authentication, the central record, retention, security of the platform, and honoring rights requests over platform-held data.",
       "The business is answerable for what it does with what it sees: the program it runs, the messages it sends, the staff it authorizes, and any copy it exports and holds itself.",
       "An exported file leaves our control. From the moment a business downloads its member list, that copy is the business's responsibility alone.",
       "Each side must tell the other promptly about a request, complaint or incident that touches the other's part.",
@@ -79,7 +79,7 @@ const sections = [
   {
     title: "Status of this document",
     paragraphs: [
-      "This page describes how data actually moves between a customer, a merchant and KYP Stamping today, and it is accurate for the beta. Three things are still being completed alongside our incorporation: the executed data sharing agreement, the appointment and contact details of the Data Protection Officer, and registration with the National Privacy Commission. Each will be settled with qualified Philippine counsel and named here before anything is charged.",
+      "This page describes how data actually moves between a customer, a merchant and KYP Rewards today, and it is accurate for the beta. Three things are still being completed alongside our incorporation: the executed data sharing agreement, the appointment and contact details of the Data Protection Officer, and registration with the National Privacy Commission. Each will be settled with qualified Philippine counsel and named here before anything is charged.",
       "Questions can be sent to hello@kypstamping.ph.",
     ],
   },

@@ -4,7 +4,7 @@
  * Three audiences, one graph:
  *  - search engines read the types they support (Breadcrumb, FAQ, Article…)
  *  - answer engines lift the Question/Answer and HowTo nodes directly
- *  - generative engines resolve the @id references into one KYP Stamping entity
+ *  - generative engines resolve the @id references into one KYP Rewards entity
  *
  * Every node that describes the company points at `organizationId` rather than
  * restating the name, so the entity stays singular across ~25 pages.

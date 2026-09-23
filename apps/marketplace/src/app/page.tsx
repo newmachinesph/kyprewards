@@ -145,7 +145,7 @@ export default function Home() {
             </p>
             <div className="mt-6">
               <ActionLink href={`${merchantSiteUrl}/partners`} tone="outline">
-                Go to KYP Stamping
+                Go to KYP Rewards
               </ActionLink>
             </div>
           </div>

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     "What runs today on the free beta, what opens with each paid tier, and what waits until a merchant asks. Generated from the pricing data, so it cannot drift.",
   alternates: { canonical: "/roadmap" },
   openGraph: {
-    title: "KYP Stamping roadmap — live, next, later",
+    title: "KYP Rewards roadmap — live, next, later",
     description:
       "No dates we would miss. What runs today, what opens with paid tiers, and what waits for a merchant to ask.",
     url: "/roadmap",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
  * pricing page come to disagree, and this site has had enough of that.
  */
 /** Rows that describe a state of the plan rather than a capability of the product. */
-const notCapabilities = new Set(["KYP Stamping badge on customer cards", "Support"]);
+const notCapabilities = new Set(["KYP Rewards badge on customer cards", "Support"]);
 
 const live = featureMatrix.flatMap((group) =>
   group.rows
@@ -100,7 +100,7 @@ export default function RoadmapPage() {
       <StructuredData
         data={[
           webPage({
-            name: "KYP Stamping roadmap",
+            name: "KYP Rewards roadmap",
             description:
               "What is live on the free beta, what opens with the paid tiers, and what comes later.",
             path: "/roadmap",
@@ -120,7 +120,7 @@ export default function RoadmapPage() {
         </SiteButton>
       </PageHero>
       <AnswerBlock
-        question="Is KYP Stamping ready to use today?"
+        question="Is KYP Rewards ready to use today?"
         answer="Yes, for a stamp card. The free Launch plan is live and in open beta: the whole stamp-card loop with every rule, the printable join code, the staff ledger, in-app and push messages, and the Data Privacy Act controls. Everything on a paid tier is built or being built and opens with that tier after the beta; nothing on this site describes a feature we have not committed to."
         facts={[
           { label: "Live today", value: `${live.length} capabilities, free` },

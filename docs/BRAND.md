@@ -1,6 +1,6 @@
-# KYPStamping — Brand Guidelines
+# KYP Rewards — Brand Guidelines
 
-The mark, palette, and type that every KYPStamping surface is built from. Tokens
+The mark, palette, and type that every KYP Rewards surface is built from. Tokens
 live in `packages/ui/src/tokens.css`; the lockup lives in `packages/ui/src/index.tsx`.
 Change them there, never per app.
 
@@ -57,7 +57,7 @@ customer list.
 Seal + wordmark + tagline, as rendered by `BrandMark`:
 
 ```
-[seal]  KYPStamping
+[seal]  KYP Rewards
         KEEP STAMPING · EARN THE REWARD
 ```
 
@@ -147,15 +147,28 @@ Say "3 more visits to a free drink", not "You're on your way!".
 
 ## 9. Two names, one mark
 
-The audiences were split across two domains on 2026-09-03.
+The audiences were split across two domains on 2026-09-03. The merchant
+side was renamed from KYP Stamping and moved to kyprewards.com on
+2026-09-23; kypstamping.ph stays alive and redirects permanently, so the
+old name will keep arriving in search results and inboxes for months.
 
 | Name | Where | Who reads it |
 |---|---|---|
-| **KYP Stamping** (two words in prose; the wordmark stays `KYP` + `Stamping`) | kypstamping.ph, biz.kypstamping.ph, admin.kypstamping.ph | shop owners, staff, platform operators |
+| **KYP Rewards** (two words always; the wordmark is `KYP` + ` Rewards`) | kyprewards.com, biz.kyprewards.com, admin.kyprewards.com | shop owners, staff, platform operators |
 | **KYP** | kyp.ph and the wallet at app.kyp.ph | shoppers |
 
 The seal, palette and type are shared. The wallet and the marketplace use
-`KYP` alone in amber as their wordmark and never show "Stamping"; the
+`KYP` alone in amber as their wordmark and never show "Rewards"; the
 merchant surfaces use the full lockup. Footers on the shopper side may say
-"KYP is operated by KYPStamping" and nothing more specific: there is no
+"KYP is operated by KYP Rewards" and nothing more specific: there is no
 registered entity to name yet.
+
+The old rule said `KYP` and `Stamping` were never separated, because the
+name ran together as one word. `KYP Rewards` has a space in it, so what
+survives is the weaker form: the two halves stay one unbroken unit - no
+line break between them, no colour change mid-wordmark, nothing but the
+space. `KYP` keeps the amber; `Rewards` takes the ink.
+
+The tagline "KEEP STAMPING · EARN THE REWARD" is unchanged. It describes
+what a customer does, not what the company is called, and stamp cards are
+still the product.

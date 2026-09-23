@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     "Keep the register you own. Start beside any POS, then connect sales through a REST API, signed webhooks or a POS adapter when it earns its place.",
   alternates: { canonical: "/integrations" },
   openGraph: {
-    title: "Works beside any POS — KYP Stamping integrations",
+    title: "Works beside any POS — KYP Rewards integrations",
     description:
       "No POS replacement, no per-vendor lock-in. One shared event contract for any register.",
     url: "/integrations",
@@ -48,7 +48,7 @@ const questions = [
   {
     question: "Which POS systems are supported?",
     answer:
-      "KYP Stamping does not maintain per-vendor integrations. Any register that can post sale webhooks, expose a read API, or export sale files connects through one shared event contract, so support does not depend on a vendor partnership.",
+      "KYP Rewards does not maintain per-vendor integrations. Any register that can post sale webhooks, expose a read API, or export sale files connects through one shared event contract, so support does not depend on a vendor partnership.",
   },
   {
     question: "How are duplicate sales prevented?",

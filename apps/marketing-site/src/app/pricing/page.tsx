@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "Free for one program with unlimited customers and branches. Paid tiers from ₱499 a month. Every message rate published — ₱0.95 per SMS, never bundled.",
   alternates: { canonical: "/pricing" },
   openGraph: {
-    title: "KYP Stamping pricing — from ₱0, in pesos",
+    title: "KYP Rewards pricing — from ₱0, in pesos",
     description:
       "Unlimited customers on every plan. Published per-message rates. No per-member fee, ever.",
     url: "/pricing",
@@ -36,7 +36,7 @@ export default function PricingPage() {
       <StructuredData
         data={[
           webPage({
-            name: "KYP Stamping pricing",
+            name: "KYP Rewards pricing",
             description:
               "Plan prices, included limits, and per-channel message rates in Philippine pesos.",
             path: "/pricing",
@@ -48,10 +48,10 @@ export default function PricingPage() {
         data={{
           "@context": "https://schema.org",
           "@type": "Product",
-          name: "KYP Stamping loyalty platform",
+          name: "KYP Rewards loyalty platform",
           description:
             "Digital loyalty software for local businesses, staff, and customers.",
-          brand: { "@type": "Brand", name: "KYP Stamping" },
+          brand: { "@type": "Brand", name: "KYP Rewards" },
           // availability is not decoration here: only Launch can be bought,
           // and publishing bare prices for three tiers that cannot be is a
           // live risk under Google's merchant policies.
@@ -248,7 +248,7 @@ export default function PricingPage() {
                   icon: MessagesSquare,
                   title: "In-app communication",
                   detail:
-                    "Reach customers in their KYP Stamping inbox without an external provider.",
+                    "Reach customers in their KYP Rewards inbox without an external provider.",
                 },
                 {
                   icon: Building2,

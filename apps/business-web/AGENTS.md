@@ -70,7 +70,7 @@ remembered under `kypstamping-till-branch`.
 | Staff | 2, 5, 15 or 50 accounts by tier. Owner, manager, marketer and counter roles from Core. The named ledger on every plan. |
 | Business | Profile, unlimited branches never charged for, hours and neighborhood for Discover, own branding on Core, Discover listing on every plan. |
 | Integrations | Grow only: scoped API keys with one-time secrets, webhooks with the four published events, POS adapters by approval, the offline queue. Wallet passes are blocked on certificates and the screen says so. |
-| Settings and billing | Launch is the live plan; Core, Grow and Scale are coming soon with no date. Founding offer: Core free for three months when it opens. Payment by GCash, Maya, Visa or Mastercard, InstaPay or PESONet. Add-ons: Featured in Discover ₱299 a month, extra branch reporting ₱150 a branch, setup with a person ₱1,500 once and free in beta, SMS credits at ₱0.95, ₱0.90 and ₱0.85, email top-up ₱25 per 1,000. The KYP Stamping badge shows on Launch and is hidden on paid plans. |
+| Settings and billing | Launch is the live plan; Core, Grow and Scale are coming soon with no date. Founding offer: Core free for three months when it opens. Payment by GCash, Maya, Visa or Mastercard, InstaPay or PESONet. Add-ons: Featured in Discover ₱299 a month, extra branch reporting ₱150 a branch, setup with a person ₱1,500 once and free in beta, SMS credits at ₱0.95, ₱0.90 and ₱0.85, email top-up ₱25 per 1,000. The KYP Rewards badge shows on Launch and is hidden on paid plans. |
 | Privacy | Consent ledger, export and deletion workflows on every plan. |
 
 ## Known gaps, in order

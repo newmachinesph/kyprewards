@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Sub-processors",
   description:
-    "The third-party services KYP Stamping uses to deliver messages, take payments, store files, and monitor errors.",
+    "The third-party services KYP Rewards uses to deliver messages, take payments, store files, and monitor errors.",
   alternates: { canonical: "/subprocessors" },
 };
 
@@ -37,7 +37,7 @@ const sections = [
     title: "Payments",
     paragraphs: [
       "PayMongo (Philippines) processes subscription payments from businesses. It receives the payer's billing details and the amount.",
-      "Card and e-wallet credentials are entered with the provider and are never held by KYP Stamping. Customers of a business never transact through this path — it bills the shop, not the shopper.",
+      "Card and e-wallet credentials are entered with the provider and are never held by KYP Rewards. Customers of a business never transact through this path — it bills the shop, not the shopper.",
     ],
   },
   {

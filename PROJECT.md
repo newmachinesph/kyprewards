@@ -1,4 +1,4 @@
-# KYPStamping — the product, as the marketing site defines it
+# KYP Rewards — the product, as the marketing site defines it
 
 This is a condensed reading of kypstamping.ph for anyone building the apps.
 The site wins over this file; when in doubt open the page named in each
@@ -12,7 +12,7 @@ Staff record visits from any phone, tablet or browser beside the existing
 register. Nothing to install on either side, no POS to replace, prices in
 pesos, built around the Data Privacy Act and NPC Circular 2023-04.
 
-Two brands, two audiences: **KYP Stamping** sells to shop owners on
+Two brands, two audiences: **KYP Rewards** sells to shop owners on
 kypstamping.ph; **KYP** is what shoppers see on kyp.ph and in the wallet.
 
 ## The surfaces (`/product#apps`, `llms.txt`)
@@ -91,7 +91,7 @@ keeps its own target until the run closes.
 | Branch analytics | none | 3 branches | 5 branches | 10 branches |
 | Email campaigns per month | none | 1,000 | 3,000 | 10,000 |
 | Push per month | 1,000 | 10,000 | 50,000 | 200,000 |
-| KYP Stamping badge on the card | shown | hidden | hidden | hidden |
+| KYP Rewards badge on the card | shown | hidden | hidden | hidden |
 
 Customers, branches and transactions are unlimited on every plan. SMS is
 add-on credit on every plan (₱0.95 / ₱0.90 / ₱0.85 per segment). The full

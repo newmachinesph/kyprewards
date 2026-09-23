@@ -6,7 +6,7 @@ import { SiteEyebrow } from "@/components/MarketingUi";
 export const metadata: Metadata = {
   title: "Cookies",
   description:
-    "What KYP Stamping stores in your browser: one sign-in cookie, a few saved drafts, and Google Analytics only if you say yes first.",
+    "What KYP Rewards stores in your browser: one sign-in cookie, a few saved drafts, and Google Analytics only if you say yes first.",
   alternates: { canonical: "/cookies" },
 };
 

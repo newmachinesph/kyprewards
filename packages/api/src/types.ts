@@ -472,7 +472,7 @@ export type WalletCard = {
   closeOutcome?: "expired" | "carriedOver" | null;
   successorProgram?: string | null;
   completions?: number;
-  /** The KYP Stamping badge shows on Launch shops. */
+  /** The KYP Rewards badge shows on Launch shops. */
   badge?: boolean;
   plan?: PlanName;
   tier?: CardTier | null;

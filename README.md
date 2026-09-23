@@ -1,4 +1,4 @@
-# KYPStamping frontends
+# KYP Rewards frontends
 
 Five Next.js applications on two domains share a design package and one data
 layer over the FastAPI service. `AGENTS.md` is how to work here, `PROJECT.md`

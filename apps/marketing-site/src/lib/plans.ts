@@ -515,7 +515,7 @@ export const featureMatrix: FeatureGroup[] = [
         cells: [false, true, true, true],
       },
       {
-        label: "KYP Stamping badge on customer cards",
+        label: "KYP Rewards badge on customer cards",
         hint: "The free plan carries our badge. Every paid plan removes it — your customers should be looking at your shop, not at us.",
         cells: ["Shown", "Hidden", "Hidden", "Hidden"],
       },

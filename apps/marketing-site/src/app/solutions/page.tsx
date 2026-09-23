@@ -42,7 +42,7 @@ export default function SolutionsPage() {
       <StructuredData
         data={[
           itemList({
-            name: "KYP Stamping loyalty solutions by industry",
+            name: "KYP Rewards loyalty solutions by industry",
             items: industries.map((industry) => ({
               name: industry.name,
               path: `/solutions/${industry.slug}`,
@@ -56,7 +56,7 @@ export default function SolutionsPage() {
         image="/images/hero-solutions.webp"
         eyebrow="Solutions by business rhythm"
         title="Loyalty should feel native to the visit."
-        description="A morning coffee, an afternoon milk tea, a six-week appointment, a dinner reservation, a sari-sari run and a considered purchase do not follow the same cadence. KYP Stamping adapts to each one."
+        description="A morning coffee, an afternoon milk tea, a six-week appointment, a dinner reservation, a sari-sari run and a considered purchase do not follow the same cadence. KYP Rewards adapts to each one."
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="/pricing" tone="outline">

@@ -2,7 +2,7 @@
 
 Research date: 25 August 2026
 
-This is the product-coverage baseline for KYPStamping. It inventories publicly documented capabilities from GoBalik and Suki Cards, then checks the wider Philippine market so KYPStamping does not merely copy one competitor. Product UI can demonstrate these flows before the shared API and workers make them operational.
+This is the product-coverage baseline for KYP Rewards. It inventories publicly documented capabilities from GoBalik and Suki Cards, then checks the wider Philippine market so KYP Rewards does not merely copy one competitor. Product UI can demonstrate these flows before the shared API and workers make them operational.
 
 ## What the market already expects
 
@@ -37,9 +37,9 @@ This is the product-coverage baseline for KYPStamping. It inventories publicly d
 - ScalePlus markets no-app QR enrollment, points and punch cards, targeted reminders, POS and email integration, reporting, and an ROI calculator.
 - Loyalteey describes a universal customer QR, cross-store discovery, store-specific points, time-limited reward events, four VIP tiers, printable IDs, targeted almost-eligible offers, staff and branch tools, and offline scan-and-sync.
 
-## KYPStamping parity-plus requirement
+## KYP Rewards parity-plus requirement
 
-| Area           | Required parity                                                                                              | KYPStamping advantage                                                                                                     |
+| Area           | Required parity                                                                                              | KYP Rewards advantage                                                                                                     |
 | -------------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
 | Enrollment     | QR poster, link, NFC, minimal fields, no app-store dependency                                                | One private customer identity across joined businesses, with PWA and optional wallet pass                            |
 | Counter        | Scan, tap, redeem, reverse, branch and staff attribution                                                     | Signed rotating QR, customer confirmation, encrypted offline queue, duplicate checks                                 |
@@ -76,7 +76,7 @@ charges no per-customer fee.
 
 ### The change
 
-KYPStamping used to price on members: 250 / 1,500 / 10,000 / 50,000. That was
+KYP Rewards used to price on members: 250 / 1,500 / 10,000 / 50,000. That was
 the weakest position on the page. Two competitors offer an unlimited free tier,
 so a 250-member free plan was the first number a prospect compared and lost on.
 
@@ -141,7 +141,7 @@ These are product and financial assumptions for validation, not final tax or leg
 1. Discover a nearby business or scan its poster.
 2. Review program terms and choose the minimum profile details to share.
 3. Join in the PWA, then optionally add a quick-access Apple or Google Wallet pass.
-4. Show one rotating KYPStamping QR, tap NFC, or use an approved printed fallback.
+4. Show one rotating KYP Rewards QR, tap NFC, or use an approved printed fallback.
 5. Staff sees the customer, eligible programs, purchase context, and confirmation step.
 6. The visit, points, stamps, tier, or balance updates immediately or enters a signed offline queue.
 7. The customer sees progress, value, expiry, messages, and a complete activity history.

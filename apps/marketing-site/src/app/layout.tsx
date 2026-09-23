@@ -16,10 +16,10 @@ const sora = Sora({ subsets: ["latin"], weight: ["600", "700"], variable: "--fon
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  applicationName: "KYP Stamping",
+  applicationName: "KYP Rewards",
   title: {
-    default: "KYP Stamping — Digital Loyalty for Philippine Shops",
-    template: "%s | KYP Stamping",
+    default: "KYP Rewards — Digital Loyalty for Philippine Shops",
+    template: "%s | KYP Rewards",
   },
   description:
     "Free digital stamp cards for Philippine cafés, salons, restaurants and shops. Unlimited customers, nothing to install, no POS to replace. Priced in pesos.",
@@ -37,9 +37,9 @@ export const metadata: Metadata = {
     "Data Privacy Act loyalty program",
     "loyalty program pricing peso",
   ],
-  authors: [{ name: "KYP Stamping", url: siteUrl }],
-  creator: "KYP Stamping",
-  publisher: "KYP Stamping",
+  authors: [{ name: "KYP Rewards", url: siteUrl }],
+  creator: "KYP Rewards",
+  publisher: "KYP Rewards",
   category: "business software",
   icons: { icon: "/icon.svg", shortcut: "/icon.svg" },
   robots: {
@@ -54,11 +54,11 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "KYP Stamping — Loyalty, made local",
+    title: "KYP Rewards — Loyalty, made local",
     description:
       "Turn one visit into the next. A digital loyalty program Philippine shops can start free, with unlimited customers and nothing to install.",
     url: siteUrl,
-    siteName: "KYP Stamping",
+    siteName: "KYP Rewards",
     type: "website",
     locale: "en_PH",
     images: [
@@ -66,13 +66,13 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "KYP Stamping loyalty program receipt and return-visit ledger",
+        alt: "KYP Rewards loyalty program receipt and return-visit ledger",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "KYP Stamping — Loyalty, made local",
+    title: "KYP Rewards — Loyalty, made local",
     description:
       "Turn one visit into the next. Free to start, unlimited customers, nothing to install.",
     images: ["/opengraph-image"],
@@ -100,11 +100,11 @@ export default function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "Organization",
                 "@id": `${siteUrl}/#organization`,
-                name: "KYP Stamping",
+                name: "KYP Rewards",
                 // The unspaced spelling stays only as an alternate: people do
                 // search it, and an alternateName is what that field is for.
-                // Everything a reader sees says "KYP Stamping".
-                alternateName: ["KYP Stamping", "KYPStamping", "KYP"],
+                // Everything a reader sees says "KYP Rewards".
+                alternateName: ["KYP Rewards", "KYP Rewards", "KYP"],
                 url: siteUrl,
                 description:
                   "A digital loyalty platform designed for Philippine local businesses.",
@@ -155,7 +155,7 @@ export default function RootLayout({
                 "@type": "WebSite",
                 "@id": `${siteUrl}/#website`,
                 url: siteUrl,
-                name: "KYP Stamping",
+                name: "KYP Rewards",
                 publisher: { "@id": `${siteUrl}/#organization` },
                 inLanguage: "en-PH",
               },
@@ -163,7 +163,7 @@ export default function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "SoftwareApplication",
                 "@id": `${siteUrl}/#software`,
-                name: "KYP Stamping",
+                name: "KYP Rewards",
                 applicationCategory: "BusinessApplication",
                 operatingSystem: "Web",
                 description:

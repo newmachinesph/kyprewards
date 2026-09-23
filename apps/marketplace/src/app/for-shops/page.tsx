@@ -6,7 +6,7 @@ import { ActionLink, Eyebrow, PageIntro, Section } from "@/components/Ui";
 export const metadata: Metadata = {
   title: "For shops",
   description:
-    "Run a shop? Every shop with a live rewards program is listed on KYP, on every plan. Set yours up on KYP Stamping.",
+    "Run a shop? Every shop with a live rewards program is listed on KYP, on every plan. Set yours up on KYP Rewards.",
   alternates: { canonical: "/for-shops" },
 };
 
@@ -55,7 +55,7 @@ const listing = [
 
 const steps = [
   {
-    title: "Apply on KYP Stamping",
+    title: "Apply on KYP Rewards",
     text: "The merchant side of KYP. It asks about your shop, your counter and how to reach you — a few minutes, and no card details.",
   },
   {
@@ -84,12 +84,12 @@ export default function ForShops() {
             listed here, on every plan including the free one.
             Each listing carries your category, neighborhood, hours and the reward in plain words,
             and leads straight to your join code. Setting up the card, the counter and the poster
-            happens on KYP Stamping, the merchant side of KYP.
+            happens on KYP Rewards, the merchant side of KYP.
           </>
         }
       >
         <div className="mt-8 flex flex-wrap gap-3">
-          <ActionLink href={`${merchantSiteUrl}/partners`}>Go to KYP Stamping</ActionLink>
+          <ActionLink href={`${merchantSiteUrl}/partners`}>Go to KYP Rewards</ActionLink>
           <ActionLink href="/discover" tone="outline">
             See the directory
           </ActionLink>

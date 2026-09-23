@@ -831,7 +831,7 @@ function Submitted({
             One last thing, and it is for us rather than you.
           </p>
           <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-            How did you come across KYP Stamping? It tells us where to keep
+            How did you come across KYP Rewards? It tells us where to keep
             showing up. Skip it freely.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">

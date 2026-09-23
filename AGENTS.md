@@ -1,4 +1,4 @@
-# KYPStamping frontends — how to work here
+# KYP Rewards frontends — how to work here
 
 Loadout: `web` (Next.js 16, React 19, Tailwind v4).
 
@@ -30,9 +30,9 @@ is the user's call.
 
 | App | Audience | Brand | Local | Production | API host |
 |---|---|---|---|---|---|
-| `apps/marketing-site` | shop owners | KYP Stamping | :3003 | kypstamping.ph | api.kypstamping.ph, public endpoints only |
-| `apps/business-web` | owners and staff | KYP Stamping | :3000 | biz.kypstamping.ph | api.kypstamping.ph |
-| `apps/admin-web` | platform operators | KYP Stamping | :3001 | admin.kypstamping.ph | api.kypstamping.ph |
+| `apps/marketing-site` | shop owners | KYP Rewards | :3003 | kypstamping.ph | api.kypstamping.ph, public endpoints only |
+| `apps/business-web` | owners and staff | KYP Rewards | :3000 | biz.kypstamping.ph | api.kypstamping.ph |
+| `apps/admin-web` | platform operators | KYP Rewards | :3001 | admin.kypstamping.ph | api.kypstamping.ph |
 | `apps/customer-pwa` | shoppers | KYP | :3002 | app.kyp.ph | api.kyp.ph |
 | `apps/marketplace` | shoppers, public | KYP | :3004 | kyp.ph | api.kyp.ph, public endpoints only |
 | `apps/mobile` | shoppers | KYP | Expo Go or a dev build | Play Store and App Store, as KYP | api.kyp.ph, with a bearer session |
@@ -58,7 +58,7 @@ shoppers. The split keeps the session cookie first-party on both sides with
   and marked coming soon, with no dates. Founding merchants get Core free for
   three months when it opens.
 - Everything on Launch is unlimited customers, unlimited branches, one stamp
-  card, two staff, the KYP Stamping badge on the card.
+  card, two staff, the KYP Rewards badge on the card.
 - Channels: in-app inbox, web push to the wallet and Expo push to the app are
   live (push needs the `VAPID_*` keys where it runs). Campaign email is refused by the API until a campaign
   sender separate from the transactional one exists. SMS is credits, priced
@@ -115,7 +115,7 @@ the three `overrides` in the root `package.json` that keep it that way).
    through `formatDistance`. No display strings from the API, ever.
 5. **No analytics or third-party scripts** in the signed-in apps or the
    marketplace. The marketing site loads GA4 only through `AnalyticsConsent`.
-6. **Brand names:** "KYP Stamping" (two words) in merchant-facing copy; the
+6. **Brand names:** "KYP Rewards" (two words) in merchant-facing copy; the
    wordmark is `KYP` + `Stamping` set tight; "KYP" alone on kyp.ph and in the
    wallet. See `docs/BRAND.md`.
 7. **Vocabulary:** tiers are "suki tiers", gifting is "pasalubong", the free

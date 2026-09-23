@@ -17,12 +17,12 @@ import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, organizationId } from "@/lib/schema";
 
 export const metadata: Metadata = {
-  title: "About KYP Stamping",
+  title: "About KYP Rewards",
   description:
     "Why we are building a loyalty platform for Philippine shops, what guides it, and exactly where we are today: open beta, free, onboarding by application.",
   alternates: { canonical: "/about" },
   openGraph: {
-    title: "About KYP Stamping — local loyalty, built in Manila",
+    title: "About KYP Rewards — local loyalty, built in Manila",
     description:
       "Why this exists, what guides it, and exactly where we are today.",
     url: "/about",
@@ -39,9 +39,9 @@ export default function AboutPage() {
           {
             "@context": "https://schema.org",
             "@type": "AboutPage",
-            name: "About KYP Stamping",
+            name: "About KYP Rewards",
             description:
-              "Why KYP Stamping exists and how it approaches local loyalty in the Philippines.",
+              "Why KYP Rewards exists and how it approaches local loyalty in the Philippines.",
             inLanguage: "en-PH",
             mainEntity: { "@id": organizationId },
           },
@@ -50,9 +50,9 @@ export default function AboutPage() {
       />
       <PageHero
         image="/images/hero-about.webp"
-        eyebrow="Why KYP Stamping exists"
+        eyebrow="Why KYP Rewards exists"
         title="Local loyalty deserves better than another discount engine."
-        description="Independent businesses already create real relationships. KYP Stamping gives those relationships a simple digital memory without making them feel transactional."
+        description="Independent businesses already create real relationships. KYP Rewards gives those relationships a simple digital memory without making them feel transactional."
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="/product" tone="outline">
@@ -76,7 +76,7 @@ export default function AboutPage() {
             </p>
             <p>
               Technology should protect that feeling, not crowd it out. That is
-              why KYP Stamping begins with one fast QR moment and keeps the rest
+              why KYP Rewards begins with one fast QR moment and keeps the rest
               quiet: visible progress for the customer, useful context for
               staff, and clear decisions for the owner.
             </p>

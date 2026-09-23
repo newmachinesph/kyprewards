@@ -4,15 +4,15 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "How KYP Stamping handles customer, business, staff, and website visitor information.",
+    "How KYP Rewards handles customer, business, staff, and website visitor information.",
   alternates: { canonical: "/privacy" },
 };
 
 const sections = [
   {
-    title: "Information KYP Stamping receives",
+    title: "Information KYP Rewards receives",
     paragraphs: [
-      "KYP Stamping receives information people provide when creating an account, joining a business program, operating a business workspace, contacting support, or using the public website.",
+      "KYP Rewards receives information people provide when creating an account, joining a business program, operating a business workspace, contacting support, or using the public website.",
     ],
     bullets: [
       "Account details such as name, email address, mobile number, and birthday when provided.",
@@ -35,10 +35,10 @@ const sections = [
   {
     title: "Sharing and service providers",
     paragraphs: [
-      "KYP Stamping does not sell personal information. We may use contracted service providers for hosting, storage, authentication, communications, security, analytics, and payment processing. They may process information only to provide their contracted service.",
+      "KYP Rewards does not sell personal information. We may use contracted service providers for hosting, storage, authentication, communications, security, analytics, and payment processing. They may process information only to provide their contracted service.",
     ],
     bullets: [
-      "We may disclose information when legally required or necessary to protect customers, businesses, KYP Stamping, or the public.",
+      "We may disclose information when legally required or necessary to protect customers, businesses, KYP Rewards, or the public.",
       "A business may receive information a customer intentionally shares after joining its program.",
       "On the public website only, Google Analytics counts visits — and only after a visitor allows it. Nothing loads before that choice, and the cookies page explains and controls it.",
     ],
@@ -63,7 +63,7 @@ const sections = [
   {
     title: "Your rights under Philippine law",
     paragraphs: [
-      "KYP Stamping operates in the Philippines, and personal information here is protected by the Data Privacy Act of 2012 (Republic Act No. 10173). The Act gives every data subject a specific set of rights, and naming them is more use than a general promise to respect your privacy.",
+      "KYP Rewards operates in the Philippines, and personal information here is protected by the Data Privacy Act of 2012 (Republic Act No. 10173). The Act gives every data subject a specific set of rights, and naming them is more use than a general promise to respect your privacy.",
     ],
     bullets: [
       "To be informed that your personal data is being collected and processed, and why.",
@@ -100,7 +100,7 @@ const sections = [
   {
     title: "Businesses you join",
     paragraphs: [
-      "Joining a business's program shares a defined set of your details with that business, and both they and KYP Stamping then make decisions about that data. What moves, when it moves, and who answers for what is set out on the data sharing page.",
+      "Joining a business's program shares a defined set of your details with that business, and both they and KYP Rewards then make decisions about that data. What moves, when it moves, and who answers for what is set out on the data sharing page.",
       "Leaving a program stops that sharing and removes you from that business's member list. Your account, and your membership of any other business, is unaffected.",
     ],
   },
@@ -119,7 +119,7 @@ export default function PrivacyPage() {
       path="/privacy"
       eyebrow="Your information"
       title="Privacy notice"
-      summary="KYP Stamping is designed so customers control their personal profile and businesses receive only the information needed to operate a joined loyalty program."
+      summary="KYP Rewards is designed so customers control their personal profile and businesses receive only the information needed to operate a joined loyalty program."
       effective="4 September 2026"
       sections={sections}
     />

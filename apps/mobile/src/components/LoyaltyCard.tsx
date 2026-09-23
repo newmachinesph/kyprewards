@@ -182,7 +182,7 @@ export function LoyaltyCard({
               color: withAlpha(brand.foreground, 0.6),
             }}
           >
-            KYP Stamping
+            KYP Rewards
           </Text>
         ) : null}
       </View>

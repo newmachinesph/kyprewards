@@ -85,7 +85,7 @@ export function MarketingFooter() {
             href="/contact"
             className="focus-ring mt-6 inline-flex items-center gap-2 rounded-full text-sm font-bold text-[var(--accent-strong)]"
           >
-            Talk to KYP Stamping <ArrowUpRight size={15} />
+            Talk to KYP Rewards <ArrowUpRight size={15} />
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
@@ -122,7 +122,7 @@ export function MarketingFooter() {
       </div>
       <div className="border-t border-[var(--line)] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-2 py-5 text-[11px] font-semibold text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 KYP Stamping.</span>
+          <span>© 2026 KYP Rewards.</span>
           <span>Built in Manila, for Philippine businesses.</span>
         </div>
       </div>

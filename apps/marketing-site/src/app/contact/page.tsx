@@ -6,7 +6,7 @@ import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, organizationId } from "@/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Contact KYP Stamping",
+  title: "Contact KYP Rewards",
   description:
     "Support for a shop already running, questions before you apply, or press. We answer from Manila on weekdays, usually the same working day.",
   alternates: { canonical: "/contact" },
@@ -20,7 +20,7 @@ export default function ContactPage() {
           {
             "@context": "https://schema.org",
             "@type": "ContactPage",
-            name: "Contact KYP Stamping",
+            name: "Contact KYP Rewards",
             description:
               "Talk through a loyalty setup for a Philippine local business.",
             inLanguage: "en-PH",

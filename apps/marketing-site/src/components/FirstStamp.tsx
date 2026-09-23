@@ -59,7 +59,7 @@ export function FirstStamp() {
           </div>
           <p className="max-w-[62ch] text-base leading-relaxed text-[var(--muted-strong)] lg:text-lg">
             Most loyalty programs open with a form. A queue builds, the offer
-            stops being worth it, and the customer says no thanks. KYP Stamping
+            stops being worth it, and the customer says no thanks. KYP Rewards
             turns that around: a welcome stamp is already waiting on their card
             the moment they join, and the first visit turns it into a real one
             — with your staff, in your shop, in seconds.

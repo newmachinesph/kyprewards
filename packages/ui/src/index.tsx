@@ -54,7 +54,7 @@ type BrandMarkProps = {
    * 8.61:1 and ink-soft 7.14:1, both clear of AA at any size.
    */
   onAccent?: boolean;
-  /** "KYP Stamping" on merchant surfaces; "KYP" alone on kyp.ph and the wallet. */
+  /** "KYP Rewards" on merchant surfaces; "KYP" alone on kyp.ph and the wallet. */
   label?: string;
   /** The lockup line under the wordmark. `null` removes it. */
   tagline?: string | null;
@@ -120,7 +120,7 @@ export function BrandMark({
   compact = false,
   inverse = false,
   onAccent = false,
-  label = "KYP Stamping",
+  label = "KYP Rewards",
   tagline = "Keep stamping · Earn the reward",
 }: BrandMarkProps) {
   return (

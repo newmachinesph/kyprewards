@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { DemoAuthFlow } from "@kypstamping/ui/auth";
 
 export const metadata: Metadata = {
-  title: "Set a new password · KYP Stamping Business",
+  title: "Set a new password · KYP Rewards Business",
   // The token is in the query string. Nothing here should be indexed.
   robots: { index: false, follow: false },
 };

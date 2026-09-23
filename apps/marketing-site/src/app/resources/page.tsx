@@ -44,7 +44,7 @@ export default function ResourcesPage() {
       <StructuredData
         data={[
           itemList({
-            name: "KYP Stamping return-visit library",
+            name: "KYP Rewards return-visit library",
             items: resources.map((resource) => ({
               name: resource.title,
               path: `/resources/${resource.slug}`,

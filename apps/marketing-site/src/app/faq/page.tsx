@@ -13,8 +13,8 @@ const groups = [
     title: "Getting started",
     questions: [
       [
-        "What is KYP Stamping?",
-        "KYP Stamping is a loyalty platform for Philippine local businesses. It combines a customer wallet that runs in the browser, a business and staff workspace, a public page for each shop, and platform administration.",
+        "What is KYP Rewards?",
+        "KYP Rewards is a loyalty platform for Philippine local businesses. It combines a customer wallet that runs in the browser, a business and staff workspace, a public page for each shop, and platform administration.",
       ],
       [
         "Is the product live today?",
@@ -112,7 +112,7 @@ const groups = [
         "Customers can review joined businesses, shared fields, communication choices, loyalty history, exports, and deletion or leave requests in the privacy center of the wallet.",
       ],
       [
-        "Does KYP Stamping guarantee legal compliance?",
+        "Does KYP Rewards guarantee legal compliance?",
         "No software alone can guarantee compliance. The product is designed to support consent records, purpose limitation, objections, access control, audit history, exports, and deletion workflows; each operator still needs appropriate legal and operational review.",
       ],
       [
@@ -134,7 +134,7 @@ const groups = [
     questions: [
       [
         "Can loyalty points and stamps expire in the Philippines?",
-        "Generally yes, and this is a common point of confusion. The Gift Check Act of 2017 (RA 10962) bans expiry dates on gift checks — but it carves out checks issued under loyalty, rewards and promotional programs, as determined by the DTI. So a stamp or a point earned for free in your program can carry an expiry, while a gift certificate a customer paid pesos for is a different instrument with different rules. KYP Stamping keeps the two apart, and whatever expiry you set is shown to the customer on the card before they collect their first stamp. Confirm your own terms with your counsel — we build the controls, we do not give legal advice.",
+        "Generally yes, and this is a common point of confusion. The Gift Check Act of 2017 (RA 10962) bans expiry dates on gift checks — but it carves out checks issued under loyalty, rewards and promotional programs, as determined by the DTI. So a stamp or a point earned for free in your program can carry an expiry, while a gift certificate a customer paid pesos for is a different instrument with different rules. KYP Rewards keeps the two apart, and whatever expiry you set is shown to the customer on the card before they collect their first stamp. Confirm your own terms with your counsel — we build the controls, we do not give legal advice.",
       ],
       [
         "Do we need a DTI permit to run a loyalty program?",
@@ -146,7 +146,7 @@ const groups = [
       ],
       [
         "How does a customer pay for a membership, a multipass or a gift card?",
-        "At your counter, the way they already pay you — cash, GCash to your shop, or your own card terminal. KYP Stamping does not take money from your customers; staff record the purchase on the card, and the ledger tracks what was paid, what remains and when a membership is due for renewal. Our billing runs the other way: it charges the shop for the subscription, never the shopper.",
+        "At your counter, the way they already pay you — cash, GCash to your shop, or your own card terminal. KYP Rewards does not take money from your customers; staff record the purchase on the card, and the ledger tracks what was paid, what remains and when a membership is due for renewal. Our billing runs the other way: it charges the shop for the subscription, never the shopper.",
       ],
       [
         "Who pays for SMS, and what does it actually cost?",
@@ -176,7 +176,7 @@ export const metadata: Metadata = {
     "Straight answers on setup, branches, SMS and email cost, offline counters, the Data Privacy Act, points expiry under RA 10962, and what is live today.",
   alternates: { canonical: "/faq" },
   openGraph: {
-    title: "KYP Stamping FAQ — straight answers for merchants",
+    title: "KYP Rewards FAQ — straight answers for merchants",
     description:
       "Setup, pricing, privacy, points expiry, and what is live today. No hedging.",
     url: "/faq",
@@ -216,7 +216,7 @@ export default function FaqPage() {
           <aside>
             <SiteEyebrow>Quick answer</SiteEyebrow>
             <p className="mt-4 text-sm leading-relaxed text-[var(--muted-strong)]">
-              KYP Stamping is designed to make loyalty clear at the counter, useful
+              KYP Rewards is designed to make loyalty clear at the counter, useful
               between visits, controllable by the customer, and priced so a
               single shop can carry it.
             </p>

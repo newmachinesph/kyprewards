@@ -333,7 +333,7 @@ export default function FeaturesPage() {
       <StructuredData
         data={[
           webPage({
-            name: "KYP Stamping features",
+            name: "KYP Rewards features",
             description:
               "Acquisition, retention, reactivation and growth levers for Philippine shops, on one loyalty engine.",
             path: "/features",
@@ -355,7 +355,7 @@ export default function FeaturesPage() {
       <AnswerBlock
         image="/images/answer-features.webp"
         question="What can a small business actually do with a loyalty program?"
-        answer="Four things: bring strangers in, keep regulars coming, bring lapsed customers back, and grow what each one spends. KYP Stamping gives a Philippine shop a lever for each, all on one card the customer already carries."
+        answer="Four things: bring strangers in, keep regulars coming, bring lapsed customers back, and grow what each one spends. KYP Rewards gives a Philippine shop a lever for each, all on one card the customer already carries."
         points={[
           {
             label: "Bring them in:",

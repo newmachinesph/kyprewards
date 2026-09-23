@@ -79,7 +79,7 @@ export default function LoyaltyPhilippinesPage() {
           {
             "@context": "https://schema.org",
             "@type": "Service",
-            name: "KYP Stamping digital loyalty platform",
+            name: "KYP Rewards digital loyalty platform",
             areaServed: { "@type": "Country", name: "Philippines" },
             serviceType: "Customer loyalty program software",
             offers: {
@@ -89,7 +89,7 @@ export default function LoyaltyPhilippinesPage() {
               priceCurrency: "PHP",
               availability: "https://schema.org/InStock",
             },
-            provider: { "@type": "Organization", name: "KYP Stamping" },
+            provider: { "@type": "Organization", name: "KYP Rewards" },
           },
           {
             "@context": "https://schema.org",
@@ -137,7 +137,7 @@ export default function LoyaltyPhilippinesPage() {
               The best digital loyalty program is easy to explain in one
               sentence and takes seconds at checkout. It gives customers control
               of their contact choices, and it costs less than the profit from
-              the return visits it brings in. KYP Stamping starts at ₱0 with no
+              the return visits it brings in. KYP Rewards starts at ₱0 with no
               limit on customers. It rises to ₱499 a month for an established
               shop, within a hundred pesos of the cheapest paid tool with
               published peso pricing in this market. SMS is metered separately,
@@ -346,7 +346,7 @@ export default function LoyaltyPhilippinesPage() {
                 tag: "RA 10173",
                 title: "Consent is per purpose, not per signup",
                 body: "The Data Privacy Act governs every customer name, number and birthday you collect. NPC Circular 2023-04 requires consent to be freely given, specific, informed and unambiguous — and data gathered for one purpose cannot be reused for another without asking again. Joining a stamp card is consent to run the stamp card. Marketing is a separate question, asked separately, withdrawable per channel.",
-                foot: "In KYP Stamping this is not a setting you can switch off: service and promotional consent are recorded apart on every plan, and campaign audiences are filtered against that record before a send.",
+                foot: "In KYP Rewards this is not a setting you can switch off: service and promotional consent are recorded apart on every plan, and campaign audiences are filtered against that record before a send.",
               },
               {
                 tag: "DAO 02 s.2002",

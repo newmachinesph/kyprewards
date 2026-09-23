@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Start a loyalty program for your shop. Three minutes, no documents, no card. We read every application and set your first program up before you sign in.",
   alternates: { canonical: "/partners" },
   openGraph: {
-    title: "Apply to join KYP Stamping — free during beta",
+    title: "Apply to join KYP Rewards — free during beta",
     description:
       "Three minutes, no documents, no card. A person sets your first program up with you.",
     url: "/partners",
@@ -50,9 +50,9 @@ export default function PartnersPage() {
           {
             "@context": "https://schema.org",
             "@type": "WebPage",
-            name: "Become a KYP Stamping partner",
+            name: "Become a KYP Rewards partner",
             description:
-              "Apply to run a loyalty program for a Philippine local business on KYP Stamping.",
+              "Apply to run a loyalty program for a Philippine local business on KYP Rewards.",
             inLanguage: "en-PH",
             isPartOf: { "@id": organizationId },
           },

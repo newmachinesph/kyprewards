@@ -112,7 +112,7 @@ export default async function ResourcePage({ params }: Props) {
               <Stamp />
             </span>
             <p className="mt-5 max-w-[24ch] text-xs leading-relaxed text-[var(--muted)]">
-              Field notes from the KYP Stamping team for owners building thoughtful
+              Field notes from the KYP Rewards team for owners building thoughtful
               repeat business.
             </p>
           </aside>
@@ -160,7 +160,7 @@ export default async function ResourcePage({ params }: Props) {
 
       <MarketingCta
         title="Turn the field note into a live program."
-        description="KYP Stamping gives you the tools to launch, measure, and refine the return-visit loop without replacing the way your business already works."
+        description="KYP Rewards gives you the tools to launch, measure, and refine the return-visit loop without replacing the way your business already works."
       />
     </main>
     </>

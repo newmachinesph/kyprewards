@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Merchant agreement",
   description:
-    "The agreement between KYP Stamping and a business running a loyalty program on the platform.",
+    "The agreement between KYP Rewards and a business running a loyalty program on the platform.",
   alternates: { canonical: "/merchant-terms" },
 };
 
@@ -23,14 +23,14 @@ const sections = [
   {
     title: "What this covers",
     paragraphs: [
-      "This agreement applies to a business that operates a loyalty program through KYP Stamping, and to the staff accounts it authorizes. It sits alongside the general terms; where the two differ on a business matter, this document governs.",
+      "This agreement applies to a business that operates a loyalty program through KYP Rewards, and to the staff accounts it authorizes. It sits alongside the general terms; where the two differ on a business matter, this document governs.",
       "Accepting an invitation, opening a workspace, or running a program is acceptance of these terms by the business.",
     ],
   },
   {
     title: "Each side's role with customer data",
     paragraphs: [
-      "A customer's account belongs to the customer and lives on the platform, not inside any one shop. When a customer joins your program they choose to share a defined set of details with you, and from that moment both KYP Stamping and your business make decisions about that data.",
+      "A customer's account belongs to the customer and lives on the platform, not inside any one shop. When a customer joins your program they choose to share a defined set of details with you, and from that moment both KYP Rewards and your business make decisions about that data.",
       "That makes each of us responsible in our own right rather than one of us acting purely on the other's instructions. What each side may do is set out in the data sharing terms.",
     ],
     bullets: [
@@ -43,7 +43,7 @@ const sections = [
   {
     title: "Running a program honestly",
     paragraphs: [
-      "The reward you publish is a promise to the customer, and it is your promise. KYP Stamping records and enforces the mechanics; the obligation to honor a completed card is yours.",
+      "The reward you publish is a promise to the customer, and it is your promise. KYP Rewards records and enforces the mechanics; the obligation to honor a completed card is yours.",
     ],
     bullets: [
       "Reward terms must be stated before a customer starts earning, and must not be changed in a way that removes value somebody has already earned.",
@@ -130,7 +130,7 @@ export default function MerchantTermsPage() {
       path="/merchant-terms"
       eyebrow="For businesses"
       title="Merchant agreement"
-      summary="The terms for a business running a loyalty program on KYP Stamping: what you may do with member data, what your reward promise obliges, and what happens to both when the arrangement ends."
+      summary="The terms for a business running a loyalty program on KYP Rewards: what you may do with member data, what your reward promise obliges, and what happens to both when the arrangement ends."
       effective="2 September 2026"
       sections={sections}
     />

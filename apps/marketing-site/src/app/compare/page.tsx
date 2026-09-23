@@ -25,9 +25,9 @@ export default function ComparePage() {
       <StructuredData
         data={[
           itemList({
-            name: "KYP Stamping platform comparisons",
+            name: "KYP Rewards platform comparisons",
             items: comparisons.map((comparison) => ({
-              name: `KYP Stamping vs ${comparison.competitor}`,
+              name: `KYP Rewards vs ${comparison.competitor}`,
               path: `/compare/${comparison.slug}`,
               description: comparison.summary,
             })),
@@ -35,7 +35,7 @@ export default function ComparePage() {
           webPage({
             name: "Compare loyalty platforms in the Philippines",
             description:
-              "How KYP Stamping compares with the Philippine loyalty platforms buyers shortlist most often.",
+              "How KYP Rewards compares with the Philippine loyalty platforms buyers shortlist most often.",
             path: "/compare",
           }),
           breadcrumb([{ name: "Compare", path: "/compare" }]),
@@ -55,7 +55,7 @@ export default function ComparePage() {
       <AnswerBlock
         image="/images/answer-compare.webp"
         question="Which loyalty platforms do Philippine businesses compare?"
-        answer="The realistic shortlist is the platforms that quote in pesos: ZAP, the established local incumbent at ₱4,800 a month above a free tier; Qashier Treats at ₱590 a month but only on top of a Qashier POS subscription; StoreHub from ₱2,249 a month with loyalty bundled into a full POS; Suki Cards on annual peso pricing with Apple and Google Wallet passes; and GoBalik at ₱399 for a stamp card and little else. KYP Stamping is the one that costs nothing to start, replaces no part of your checkout, and publishes what each message costs to send."
+        answer="The realistic shortlist is the platforms that quote in pesos: ZAP, the established local incumbent at ₱4,800 a month above a free tier; Qashier Treats at ₱590 a month but only on top of a Qashier POS subscription; StoreHub from ₱2,249 a month with loyalty bundled into a full POS; Suki Cards on annual peso pricing with Apple and Google Wallet passes; and GoBalik at ₱399 for a stamp card and little else. KYP Rewards is the one that costs nothing to start, replaces no part of your checkout, and publishes what each message costs to send."
         facts={comparisons.map((comparison) => ({
           label: comparison.competitor,
           value: comparison.publicPricing,
@@ -79,7 +79,7 @@ export default function ComparePage() {
                   {comparison.descriptor}
                 </p>
                 <h3 className="mt-3 flex items-start justify-between gap-3 text-xl font-extrabold tracking-[-0.02em]">
-                  KYP Stamping vs {comparison.competitor}
+                  KYP Rewards vs {comparison.competitor}
                   <ArrowUpRight
                     size={18}
                     aria-hidden="true"

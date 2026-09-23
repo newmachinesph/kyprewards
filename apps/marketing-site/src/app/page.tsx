@@ -29,27 +29,27 @@ import { VirtualCard } from "@/components/VirtualCard";
 import { industries, resources } from "@/lib/content";
 
 export const metadata: Metadata = {
-  // `absolute` so the root layout's "%s | KYP Stamping" template does not
+  // `absolute` so the root layout's "%s | KYP Rewards" template does not
   // append the brand a second time — it is already the first word here.
   title: {
     absolute:
-      "KYP Stamping — Free Digital Stamp Cards for Philippine Shops",
+      "KYP Rewards — Free Digital Stamp Cards for Philippine Shops",
   },
   description:
     "Free digital stamp cards for Philippine cafés, salons, restaurants and shops. Unlimited customers, nothing to install, no POS to replace. From ₱0.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "KYP Stamping — Loyalty, made local",
+    title: "KYP Rewards — Loyalty, made local",
     description:
       "Turn one visit into the next. A loyalty program your customers understand, your staff can run in seconds, and you can actually learn from. Free to start, unlimited customers.",
     url: "/",
-    siteName: "KYP Stamping",
+    siteName: "KYP Rewards",
     locale: "en_PH",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "KYP Stamping — Loyalty, made local",
+    title: "KYP Rewards — Loyalty, made local",
     description:
       "Free digital stamp cards for Philippine shops. Unlimited customers, nothing to install, no POS to replace.",
   },

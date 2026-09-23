@@ -259,7 +259,7 @@ export function AdminDashboard({
               <div>
                 <Eyebrow>Event stream</Eyebrow>
                 <h2 className="mt-1 text-lg font-extrabold tracking-[-0.03em]">
-                  Happening across KYP Stamping
+                  Happening across KYP Rewards
                 </h2>
               </div>
             </div>

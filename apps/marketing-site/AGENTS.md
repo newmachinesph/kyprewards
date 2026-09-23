@@ -62,7 +62,7 @@ cap, no dates. The apps build to these; the backend enforces them in 1A.
 
 - Beta language: open beta, Launch is free, the paid tiers are published and
   not sellable yet, no dates anywhere.
-- Brand is "KYP Stamping" in prose; the wordmark stays `KYP` + `Stamping`.
+- Brand is "KYP Rewards" in prose; the wordmark stays `KYP` + `Stamping`.
 - Staff fraud is "detected", never "prevented".
 - Viber and WhatsApp are "connecting". Push is included with an allowance.
   SMS is credits. Email campaigns are a paid-tier allowance. Transactional

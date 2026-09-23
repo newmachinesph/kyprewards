@@ -59,7 +59,7 @@ that pattern.
 
 Views in nav order: Overview, Businesses, Applications, People, Operations,
 Integrations, Support queue, Audit ledger, Revenue & margin, Add-ons,
-Platform settings. Titles are "KYP Stamping Platform". Applications show
+Platform settings. Titles are "KYP Rewards Platform". Applications show
 every intake answer, a founding-merchant checkbox (on by default through
 31 December 2026, sent in the decide body the API ignores today) and setup
 notes (save disabled with `PREVIEW_WRITE_REASON`). Businesses carry plan,

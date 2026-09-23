@@ -157,7 +157,7 @@ Send another
       )}
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-[46ch] text-[11px] leading-relaxed text-[var(--muted)]">
-          By contacting us, you agree that KYP Stamping may respond about your
+          By contacting us, you agree that KYP Rewards may respond about your
           inquiry. We do not add you to marketing lists without permission.
         </p>
         <button

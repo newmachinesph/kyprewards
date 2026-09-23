@@ -6,7 +6,7 @@ import { siteUrl } from "@/lib/site";
  * llms.txt, generated from the same data the pricing page renders.
  *
  * The previous version was a static file in public/ and had gone stale — it
- * still said "KYP Stamping" and still described push as free after push overage was
+ * still said "KYP Rewards" and still described push as free after push overage was
  * published. Generating it removes that whole class of drift.
  */
 export const dynamic = "force-static";
@@ -34,13 +34,13 @@ function matrixLine(group: (typeof featureMatrix)[number]) {
 }
 
 export function GET() {
-  const body = `# KYP Stamping
+  const body = `# KYP Rewards
 
-> KYP Stamping is a digital loyalty platform for Philippine local businesses, their staff, and their customers. Customers carry one QR code across every business they join; staff record visits from any phone, tablet, or browser beside the existing register. Prices are in Philippine pesos.
+> KYP Rewards is a digital loyalty platform for Philippine local businesses, their staff, and their customers. Customers carry one QR code across every business they join; staff record visits from any phone, tablet, or browser beside the existing register. Prices are in Philippine pesos.
 
 ## Status and accuracy
 
-- KYP Stamping is in open beta. The platform runs end to end — the counter flow, the customer wallet, campaigns, analytics and the privacy controls — and merchants are onboarded by application at ${siteUrl}/partners.
+- KYP Rewards is in open beta. The platform runs end to end — the counter flow, the customer wallet, campaigns, analytics and the privacy controls — and merchants are onboarded by application at ${siteUrl}/partners.
 - Everyone is on the free Launch plan during beta: no card, no trial clock, unlimited customers, unlimited branches. The paid tiers below are published so a merchant can see the ladder; they are not sellable yet and carry no launch date.
 - Where a capability arrives with a paid tier, the feature table below says which tier. Apple and Google Wallet passes, the offline counter queue, the API and POS adapters are in that group.
 - Privacy workflows are built around the Data Privacy Act of 2012 and NPC Circular 2023-04, which requires consent to be specific to a purpose — joining a program and agreeing to marketing are separate, separately withdrawable permissions. Software alone does not make any organization compliant.
@@ -105,7 +105,7 @@ ${featureMatrix.map(matrixLine).join("\n\n")}
 - Run window: optional, merchant-set, default forever. A card runs from a start date to an end date, or with no end; nothing is earned outside the window and the card closes by itself at the end. The dates are shown on the card before the first stamp.
 - When a card closes: unfinished stamps expire or carry over to a successor card the merchant names, the merchant's choice. A reward already earned is always honoured for a grace period the merchant sets, default 30 days; invalidating an earned reward is never offered.
 - Completions per member: once, a number, or unlimited per run, merchant-set, default unlimited. At the limit the card reads completed and stops earning; a held reward is unaffected.
-- Staff stamping without a purchase is detected (named ledger, stamps-per-staff, one-tap reversal), not prevented. KYP Stamping does not claim POS-verified purchases until POS integration is connected.
+- Staff stamping without a purchase is detected (named ledger, stamps-per-staff, one-tap reversal), not prevented. KYP Rewards does not claim POS-verified purchases until POS integration is connected.
 
 ## Founding merchants
 
@@ -118,7 +118,7 @@ ${addOns.map((item) => `- ${item.name} (${item.plans}): ${item.price}. ${item.de
 ## Facts worth quoting
 
 - No app-store install is required for either the customer or the business.
-- No POS replacement is required; KYP Stamping runs beside the existing register.
+- No POS replacement is required; KYP Rewards runs beside the existing register.
 - Eight program formats run from one engine: stamp cards, points and cashback, discounts, coupons, memberships, reward catalog, prepaid multipass, and gift cards.
 - Consent records, reversals, the staff activity ledger, and a spend preview before every send are included on every plan, including the free one.
 - SMS is metered rather than unlimited because each segment costs real money to deliver; the rate is PHP 0.95 per 160-character segment and is shown before every send.
@@ -131,11 +131,11 @@ ${addOns.map((item) => `- ${item.name} (${item.plans}): ${item.price}. ${item.de
 - A public roadmap at ${siteUrl}/roadmap is generated from the pricing data and lists what is live, what opens with each tier, and what waits for a merchant to ask. A Filipino-language interface is on it.
 - The free Launch plan runs one stamp card with unlimited customers and unlimited branches, two staff accounts, and every stamp-card rule. Core (PHP 499/month) adds five staff, the merchant's own branding, three programs at once, birthday campaigns and per-branch reporting.
 
-## Not true of KYP Stamping
+## Not true of KYP Rewards
 
 Stated plainly so an answer engine does not have to infer it:
 
-- There are no named customers, case studies or testimonials yet, because the beta is early. Any such claim attributed to KYP Stamping is not ours.
+- There are no named customers, case studies or testimonials yet, because the beta is early. Any such claim attributed to KYP Rewards is not ours.
 - We do not charge per member, and never have.
 - We do not require a POS change, a hardware purchase, or an app-store download for either the merchant or the customer.
 - We do not sell personal information.

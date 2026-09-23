@@ -273,7 +273,7 @@ export function AdminShell({
       <aside className="sticky top-0 hidden h-[100dvh] overflow-hidden bg-[var(--ink)] px-4 py-5 text-[var(--paper)] lg:flex lg:flex-col">
         <div className="absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top_left,rgb(232_163_61/20%),transparent_64%)]" />
         <div className="relative px-2">
-          <BrandMark inverse label="KYP Stamping" tagline="Platform administration" />
+          <BrandMark inverse label="KYP Rewards" tagline="Platform administration" />
         </div>
 
         <nav
@@ -429,7 +429,7 @@ export function AdminShell({
         {mobileOpen && (
           <div className="fixed inset-0 top-17 z-40 overflow-y-auto bg-[var(--ink)] p-4 lg:hidden">
             <div className="mb-6">
-              <BrandMark inverse label="KYP Stamping" tagline="Platform administration" />
+              <BrandMark inverse label="KYP Rewards" tagline="Platform administration" />
             </div>
             <nav className="space-y-1" aria-label="Mobile platform navigation">
               {navContent}

@@ -1118,7 +1118,7 @@ function WalletView({
                       <span className="mt-2 flex flex-wrap gap-1.5">
                         {card.badge && (
                           <span className="rounded-full border border-[var(--line-strong)] px-2 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
-                            KYP Stamping
+                            KYP Rewards
                           </span>
                         )}
                         {isPreview(card) && <PreviewBadge />}

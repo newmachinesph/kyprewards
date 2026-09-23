@@ -25,7 +25,7 @@ export default function ErrorPage({
           This view did not load.
         </h1>
         <p className="mx-auto mt-4 max-w-[42ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-          The rest of KYP Stamping is still available. Try loading this page
+          The rest of KYP Rewards is still available. Try loading this page
           again.
         </p>
         <button

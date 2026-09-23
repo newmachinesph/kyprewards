@@ -117,7 +117,7 @@ export default function ProductPage() {
       <StructuredData
         data={[
           howTo({
-            name: "How a KYP Stamping loyalty visit works",
+            name: "How a KYP Rewards loyalty visit works",
             description:
               "The four steps a customer and staff member complete at the counter to record a loyalty visit.",
             steps: [
@@ -140,7 +140,7 @@ export default function ProductPage() {
             ],
           }),
           webPage({
-            name: "KYP Stamping product tour",
+            name: "KYP Rewards product tour",
             description:
               "How the customer wallet, staff counter flow, and owner workspace fit together.",
             path: "/product",

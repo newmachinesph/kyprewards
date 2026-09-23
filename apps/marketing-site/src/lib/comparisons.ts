@@ -35,7 +35,7 @@ export const comparisons: Comparison[] = [
     competitor: "ZAP",
     descriptor: "The established Philippine loyalty and engagement platform",
     summary:
-      "ZAP is the incumbent: a mature local provider combining loyalty, POS connectivity, customer analytics and outbound messaging, with a free entry tier and a ₱4,800 step up. KYP Stamping is the lighter option for a local team that wants the same loop without a five-figure annual commitment, and wants to see what every message costs before it sends.",
+      "ZAP is the incumbent: a mature local provider combining loyalty, POS connectivity, customer analytics and outbound messaging, with a free entry tier and a ₱4,800 step up. KYP Rewards is the lighter option for a local team that wants the same loop without a five-figure annual commitment, and wants to see what every message costs before it sends.",
     publicPricing: "Express free; Premium ₱4,800/month",
     bestFor:
       "Larger F&B operators who want the most established local provider and are comfortable at ₱4,800 a month.",
@@ -79,7 +79,7 @@ export const comparisons: Comparison[] = [
     competitor: "Qashier Treats",
     descriptor: "Loyalty as an add-on to a Philippine POS subscription",
     summary:
-      "Qashier Treats is the closest thing to KYP Stamping on price, and the difference is what you have to buy around it. Treats runs on a Qashier POS account, so the real monthly figure is the add-on plus the terminal software. KYP Stamping runs beside whatever register you already own and replaces nothing.",
+      "Qashier Treats is the closest thing to KYP Rewards on price, and the difference is what you have to buy around it. Treats runs on a Qashier POS account, so the real monthly figure is the add-on plus the terminal software. KYP Rewards runs beside whatever register you already own and replaces nothing.",
     publicPricing: "Treats ₱590/month, on top of POS from ₱1,790/month",
     bestFor:
       "Businesses already running Qashier POS, or willing to switch their whole checkout to get loyalty.",
@@ -180,7 +180,7 @@ export const comparisons: Comparison[] = [
     competitor: "Suki Cards",
     descriptor: "Wallet-pass loyalty with a broad menu of card types",
     summary:
-      "Suki Cards leads on Apple and Google Wallet passes and publishes an annual peso price. KYP Stamping covers the same eight card types and adds the parts that appear after launch: staff roles and an activity ledger at the counter, campaign cost shown before sending, and privacy controls a customer operates themselves.",
+      "Suki Cards leads on Apple and Google Wallet passes and publishes an annual peso price. KYP Rewards covers the same eight card types and adds the parts that appear after launch: staff roles and an activity ledger at the counter, campaign cost shown before sending, and privacy controls a customer operates themselves.",
     publicPricing: "₱5,399, ₱7,999 or ₱10,999 per year",
     bestFor:
       "Businesses whose first requirement is an Apple or Google Wallet pass on day one.",
@@ -232,7 +232,7 @@ export const comparisons: Comparison[] = [
     competitor: "GoBalik",
     descriptor: "A low-cost Philippine digital stamp card",
     summary:
-      "GoBalik is the cheapest way into a digital stamp card in this market, and for a single shop that wants exactly that, it is a fair answer. KYP Stamping starts lower — at nothing — and carries the program formats, campaign economics and customer privacy controls a shop grows into rather than migrates for.",
+      "GoBalik is the cheapest way into a digital stamp card in this market, and for a single shop that wants exactly that, it is a fair answer. KYP Rewards starts lower — at nothing — and carries the program formats, campaign economics and customer privacy controls a shop grows into rather than migrates for.",
     publicPricing: "Starter ₱399/month; Growth ₱499/month",
     bestFor:
       "A single shop that wants a digital stamp card and nothing else, at the lowest paid price in the market.",

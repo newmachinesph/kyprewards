@@ -27,11 +27,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const comparison = getComparison(competitor);
   if (!comparison) return {};
   return {
-    title: `KYP Stamping vs ${comparison.competitor}`,
+    title: `KYP Rewards vs ${comparison.competitor}`,
     description: `${comparison.publicPricing}. An honest side-by-side on price, program formats, campaigns and customer control — with ${comparison.competitor}'s own sources linked, and a straight answer on where it is the better fit.`,
     alternates: { canonical: `/compare/${comparison.slug}` },
     openGraph: {
-      title: `KYP Stamping vs ${comparison.competitor}`,
+      title: `KYP Rewards vs ${comparison.competitor}`,
       description: comparison.summary,
       url: `/compare/${comparison.slug}`,
       locale: "en_PH",
@@ -51,7 +51,7 @@ export default async function ComparisonPage({ params }: Props) {
           {
             "@context": "https://schema.org",
             "@type": "Article",
-            headline: `KYP Stamping vs ${comparison.competitor}`,
+            headline: `KYP Rewards vs ${comparison.competitor}`,
             description: comparison.summary,
             datePublished: "2026-08-25",
             dateModified: "2026-09-03",
@@ -75,7 +75,7 @@ export default async function ComparisonPage({ params }: Props) {
       <PageHero
         image="/images/hero-integrations.webp"
         eyebrow="Fair product comparison"
-        title={`KYP Stamping vs ${comparison.competitor}`}
+        title={`KYP Rewards vs ${comparison.competitor}`}
         description={comparison.summary}
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
@@ -112,7 +112,7 @@ export default async function ComparisonPage({ params }: Props) {
               {comparison.competitor} facts come from its own public pages, read
               on {comparison.observed}, and every source is linked at the foot of
               this page. Offers change — verify current terms with the provider
-              before you decide. Where a KYP Stamping capability arrives with a
+              before you decide. Where a KYP Rewards capability arrives with a
               paid tier, the row says which tier.
             </p>
           </div>
@@ -127,7 +127,7 @@ export default async function ComparisonPage({ params }: Props) {
                     {comparison.competitor}
                   </th>
                   <th scope="col" className="px-6 py-5 text-xs uppercase tracking-[0.12em]">
-                    KYP Stamping
+                    KYP Rewards
                   </th>
                 </tr>
               </thead>
@@ -184,7 +184,7 @@ export default async function ComparisonPage({ params }: Props) {
       </section>
       <MarketingCta
         title="Pick the system your team will actually run."
-        description={`Tell us how your best customers already come back, and we will say honestly whether KYP Stamping is the better fit for you than ${comparison.competitor}.`}
+        description={`Tell us how your best customers already come back, and we will say honestly whether KYP Rewards is the better fit for you than ${comparison.competitor}.`}
       />
     </main>
   );

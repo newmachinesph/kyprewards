@@ -18,7 +18,7 @@ below is the work.
 ## Where it runs
 
 - Local: `npm run dev:customer` on :3002. Production: app.kyp.ph, Vercel
-  project `kyp-wallet`, API at api.kyp.ph. Brand: **KYP**, not KYP Stamping.
+  project `kyp-wallet`, API at api.kyp.ph. Brand: **KYP**, not KYP Rewards.
   `noindex`; the indexable shopper surface is the marketplace at kyp.ph.
 - Installable PWA: `app/manifest.ts`, icons in `public/`, service worker in
   `public/sw.js` registered only in production builds.
@@ -72,7 +72,7 @@ Brand is KYP throughout (layout, manifest, page titles, the auth flow in
 three sample cards sit after the real ones: a pending welcome stamp, a
 Ber-months run with a tier, a live bonus window, a mission and store
 credit, and a closed run with a held reward and "Redeem by". Card states,
-terms in plain language, `nextStampAt`, the KYP Stamping badge on Launch
+terms in plain language, `nextStampAt`, the KYP Rewards badge on Launch
 cards, tier chip, missions and store credit render from
 `src/components/cards.tsx`. New sheets: `ApproveSheet` (`#approve`,
 pending redemption approvals), `GiftsSheet` (`#gifts`, pasalubong sent and

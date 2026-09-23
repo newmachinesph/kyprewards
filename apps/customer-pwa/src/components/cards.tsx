@@ -144,7 +144,7 @@ export function KypBadge({ onCard = false }: { onCard?: boolean }) {
       }`}
       title="This shop is on the free Launch plan."
     >
-      KYP Stamping
+      KYP Rewards
     </span>
   );
 }

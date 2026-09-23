@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: `${industry.headline} Free digital stamp cards for ${industry.name.toLowerCase()}, built for the Philippines.`,
     alternates: { canonical: `/solutions/${industry.slug}` },
     openGraph: {
-      title: `${industry.headline} — KYP Stamping for ${industry.name}`,
+      title: `${industry.headline} — KYP Rewards for ${industry.name}`,
       description: industry.description,
       url: `/solutions/${industry.slug}`,
       locale: "en_PH",
@@ -59,7 +59,7 @@ export default async function IndustryPage({ params }: Props) {
       <StructuredData
         data={[
           service({
-            name: `KYP Stamping for ${industry.name}`,
+            name: `KYP Rewards for ${industry.name}`,
             description: industry.description,
             path: `/solutions/${industry.slug}`,
             audience: industry.name,
