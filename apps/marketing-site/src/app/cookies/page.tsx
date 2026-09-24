@@ -41,7 +41,7 @@ const sections = [
   {
     title: "Google Analytics, only if you allow it",
     paragraphs: [
-      "On kypstamping.ph — not in the signed-in apps — we ask once whether we may use Google Analytics 4 to see which pages help people and which do not. Until you choose Allow, no script is fetched from Google and no analytics cookie exists. If you choose No thanks, nothing is loaded and you are not asked again in this browser.",
+      "On kyprewards.com — not in the signed-in apps — we ask once whether we may use Google Analytics 4 to see which pages help people and which do not. Until you choose Allow, no script is fetched from Google and no analytics cookie exists. If you choose No thanks, nothing is loaded and you are not asked again in this browser.",
     ],
     bullets: [
       "If allowed, Google sets cookies named _ga and _ga_ followed by an identifier, to tell one visit from the next. They are not tied to your name or email; the marketing site does not know who you are.",

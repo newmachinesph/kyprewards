@@ -63,7 +63,7 @@ export default function PricingPage() {
             availability: plan.available
               ? "https://schema.org/InStock"
               : "https://schema.org/PreOrder",
-            url: "https://kypstamping.ph/pricing",
+            url: "https://kyprewards.com/pricing",
             ...(plan.monthly > 0 && {
               priceSpecification: {
                 "@type": "UnitPriceSpecification",
