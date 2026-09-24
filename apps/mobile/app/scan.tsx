@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { AppState, Linking, Pressable, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Haptics from "expo-haptics";
@@ -20,9 +20,16 @@ import { colors } from "@/lib/theme";
 export default function Scan() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [permission, requestPermission] = useCameraPermissions();
+  const [permission, requestPermission, getPermission] = useCameraPermissions();
   const [notice, setNotice] = useState("");
   const [locked, setLocked] = useState(false);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") void getPermission();
+    });
+    return () => subscription.remove();
+  }, [getPermission]);
 
   function onScanned({ data }: { data: string }) {
     if (locked) return;
@@ -63,15 +70,28 @@ export default function Scan() {
             KYP uses it only while this screen is open, to find the shop&apos;s
             join code. Nothing is recorded.
           </Text>
+          {permission?.canAskAgain === false ? (
+            <Text className="mt-2 max-w-[30ch] text-center font-sans text-[13px] leading-[19px] text-white/65">
+              Camera access is off. You can change it in Settings to scan a
+              poster, or close this screen to keep using KYP.
+            </Text>
+          ) : null}
           <Button
             tone="accent"
             className="mt-6"
             full={false}
-            onPress={() => void requestPermission()}
+            disabled={!permission}
+            onPress={() => {
+              if (permission?.canAskAgain === false) {
+                void Linking.openSettings();
+              } else {
+                void requestPermission();
+              }
+            }}
           >
             {permission?.canAskAgain === false
-              ? "Open settings to allow the camera"
-              : "Allow the camera"}
+              ? "Open Settings"
+              : "Continue"}
           </Button>
         </View>
       ) : (
