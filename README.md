@@ -7,13 +7,13 @@ and cross-app contract, and each app carries its own `AGENTS.md`.
 
 | App | Audience | Local | Production |
 |---|---|---|---|
-| `apps/marketing-site` | shop owners | http://localhost:3003 | kypstamping.ph |
-| `apps/business-web` | owners and staff | http://localhost:3000 | biz.kypstamping.ph |
-| `apps/admin-web` | platform operators | http://localhost:3001 | admin.kypstamping.ph |
+| `apps/marketing-site` | shop owners | http://localhost:3003 | kyprewards.com |
+| `apps/business-web` | owners and staff | http://localhost:3000 | biz.kyprewards.com |
+| `apps/admin-web` | platform operators | http://localhost:3001 | admin.kyprewards.com |
 | `apps/customer-pwa` | shoppers | http://localhost:3002 | app.kyp.ph |
 | `apps/marketplace` | shoppers, public | http://localhost:3004 | kyp.ph |
 
-kypstamping.ph speaks to merchants and is the product spec; kyp.ph and the
+kyprewards.com speaks to merchants and is the product spec; kyp.ph and the
 wallet under it speak to shoppers. The marketing site never links to the
 wallet, and the join poster lands on the customer domain.
 

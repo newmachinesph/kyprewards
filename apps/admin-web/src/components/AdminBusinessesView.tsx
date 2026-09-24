@@ -32,7 +32,7 @@ const PLANS: PlanName[] = ["Launch", "Core", "Grow", "Scale"];
 const RISKS: TenantRisk[] = ["Healthy", "Watch", "At risk"];
 /** Where support access opens: the business portal shares the API cookie, so
  *  a new tab there lands inside the shop with no second sign-in. */
-const BUSINESS_APP_URL = process.env.NEXT_PUBLIC_BUSINESS_APP_URL ?? "https://biz.kypstamping.ph";
+const BUSINESS_APP_URL = process.env.NEXT_PUBLIC_BUSINESS_APP_URL ?? "https://biz.kyprewards.com";
 const SUPPORT_MINUTES = [30, 60, 120] as const;
 
 function riskTone(risk: TenantRisk) {

@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Business workspace — biz.kypstamping.ph
+# Business workspace — biz.kyprewards.com
 
 Read `../../AGENTS.md`, `../../PROJECT.md` and `../../CONTRACT.md` first.
 This app is the counter and the owner's workspace the marketing site
@@ -17,8 +17,8 @@ spec; the gap list below is the work.
 
 ## Where it runs
 
-- Local: `npm run dev:business` on :3000. Production: biz.kypstamping.ph,
-  Vercel project `kyp-business`, API at api.kypstamping.ph. Brand: KYP
+- Local: `npm run dev:business` on :3000. Production: biz.kyprewards.com,
+  Vercel project `kyp-business`, API at api.kyprewards.com. Brand: KYP
   Stamping. `noindex`.
 - Sign-in: password, then the workspace picker (skipped when there is one),
   then hash views on `/`. No sign-up: a workspace exists only from an approved

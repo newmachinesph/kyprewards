@@ -1,6 +1,6 @@
 # KYP Rewards — the product, as the marketing site defines it
 
-This is a condensed reading of kypstamping.ph for anyone building the apps.
+This is a condensed reading of kyprewards.com for anyone building the apps.
 The site wins over this file; when in doubt open the page named in each
 section. Last reconciled against the site on 2026-09-04.
 
@@ -13,7 +13,7 @@ register. Nothing to install on either side, no POS to replace, prices in
 pesos, built around the Data Privacy Act and NPC Circular 2023-04.
 
 Two brands, two audiences: **KYP Rewards** sells to shop owners on
-kypstamping.ph; **KYP** is what shoppers see on kyp.ph and in the wallet.
+kyprewards.com; **KYP** is what shoppers see on kyp.ph and in the wallet.
 
 ## The surfaces (`/product#apps`, `llms.txt`)
 

@@ -1330,7 +1330,7 @@ export function IntegrationsView({
             action: "Tell us about it",
             onClick: () =>
               window.open(
-                `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://kypstamping.ph"}/contact`,
+                `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://kyprewards.com"}/contact`,
                 "_blank",
                 "noopener,noreferrer",
               ),

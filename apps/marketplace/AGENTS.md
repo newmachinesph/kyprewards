@@ -24,7 +24,7 @@ ships the public Discover routes.
   api.kyp.ph. Brand: **KYP**, `BrandMark` with `label="KYP"` and the
   shopper tagline. Indexable; the wallet is `noindex`.
 - `src/lib/site.ts` holds `customerAppUrl` (app.kyp.ph), `merchantSiteUrl`
-  (kypstamping.ph) and `siteUrl` (kyp.ph). Read hosts from there and from
+  (kyprewards.com) and `siteUrl` (kyp.ph). Read hosts from there and from
   `NEXT_PUBLIC_*`, never literals.
 - Uses `@kypstamping/api` for public reads only, wrapped in `ApiProvider`
   for the query client. No session is ever sent or read.
@@ -60,7 +60,7 @@ location"; the position never enters the URL.
 - Never list a shop that is not returned by the API; featured placement is
   the API's `featured` flag, never a client-side sort by plan.
 - The two doors and nothing else: "Open my wallet" to `app.kyp.ph/login`,
-  "I run a shop" to `kypstamping.ph/partners`. Legal links go to the merchant
+  "I run a shop" to `kyprewards.com/partners`. Legal links go to the merchant
   site. The footer says "© 2026 KYP." and nothing more specific: there is no
   registered entity yet, so no page names an operator, an address or a DPO.
 - No analytics until kyp.ph has its own cookies page and consent gate.

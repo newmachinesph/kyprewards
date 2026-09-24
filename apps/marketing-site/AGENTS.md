@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Marketing site — kypstamping.ph
+# Marketing site — kyprewards.com
 
 Read `../../AGENTS.md` first. **This app is the product spec.** Every other
 app is measured against what this one says. Edit product copy here only when
@@ -17,10 +17,10 @@ gap lists in the other apps' `AGENTS.md` in the same change.
 
 ## Where it runs
 
-- Local: `npm run dev:marketing` on :3003. Production: kypstamping.ph, Vercel
+- Local: `npm run dev:marketing` on :3003. Production: kyprewards.com, Vercel
   project `kyp-marketing`, deployed with `vercel deploy --prod` from
   `frontend/`, never by git push, and only when asked. Confirm a deploy by
-  fetching `https://kypstamping.ph/llms.txt`.
+  fetching `https://kyprewards.com/llms.txt`.
 - Talks to the API without a session: `POST /public/contact`,
   `POST /public/playbook`, `POST /public/partner-applications`. Each takes
   `category` as a free string, so changing the category list needs no

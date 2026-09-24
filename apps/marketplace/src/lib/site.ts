@@ -9,7 +9,7 @@ export const customerAppUrl =
 /** Where a shop owner goes. A different audience on a different domain. */
 export const merchantSiteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  (isDev ? "http://localhost:3003" : "https://kypstamping.ph");
+  (isDev ? "http://localhost:3003" : "https://kyprewards.com");
 
 export const siteUrl =
   process.env.NEXT_PUBLIC_MARKETPLACE_URL ??

@@ -129,12 +129,12 @@ const noPendingShopOnServer = () => "";
  *  build without the variable still links somewhere real rather than to a
  *  relative path these apps do not serve. */
 const marketingSiteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://kypstamping.ph";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://kyprewards.com";
 
 /**
  * Where a *shopper's* terms and privacy notice live.
  *
- * kypstamping.ph is the merchant side and its legal pages are written for
+ * kyprewards.com is the merchant side and its legal pages are written for
  * somebody running a shop: workspaces, staff accounts, billing. A person
  * joining a loyalty card is not that reader, and sending them there to agree
  * to it was asking for consent to the wrong document.

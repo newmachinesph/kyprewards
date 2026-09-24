@@ -8,9 +8,9 @@ record is `../backend/INTEGRATION.md`; the two must agree.
 
 | Origin | Talks to | Session |
 |---|---|---|
-| kypstamping.ph | api.kypstamping.ph | none; public endpoints only |
-| biz.kypstamping.ph | api.kypstamping.ph | httpOnly cookie, `SameSite=Lax` |
-| admin.kypstamping.ph | api.kypstamping.ph | httpOnly cookie, `SameSite=Lax` |
+| kyprewards.com | api.kyprewards.com | none; public endpoints only |
+| biz.kyprewards.com | api.kyprewards.com | httpOnly cookie, `SameSite=Lax` |
+| admin.kyprewards.com | api.kyprewards.com | httpOnly cookie, `SameSite=Lax` |
 | app.kyp.ph | api.kyp.ph | httpOnly cookie, `SameSite=Lax` |
 | the KYP app (Android, iOS) | api.kyp.ph | bearer token in `Authorization`, issued by OTP verify when the request carries `X-KYP-Client: mobile`; kept in the device's secure store, never a cookie |
 | kyp.ph | api.kyp.ph | none; public endpoints only |
@@ -32,14 +32,14 @@ Every app ships a `.env.local`; the documented shape is `.env.example`.
 | Variable | Used for |
 |---|---|
 | `NEXT_PUBLIC_API_BASE` | where the app reaches the API |
-| `NEXT_PUBLIC_BUSINESS_APP_URL` | biz.kypstamping.ph |
-| `NEXT_PUBLIC_ADMIN_APP_URL` | admin.kypstamping.ph |
+| `NEXT_PUBLIC_BUSINESS_APP_URL` | biz.kyprewards.com |
+| `NEXT_PUBLIC_ADMIN_APP_URL` | admin.kyprewards.com |
 | `NEXT_PUBLIC_CUSTOMER_APP_URL` | app.kyp.ph; the only way an app may name the wallet |
-| `NEXT_PUBLIC_SITE_URL` | kypstamping.ph |
+| `NEXT_PUBLIC_SITE_URL` | kyprewards.com |
 | `NEXT_PUBLIC_MARKETPLACE_URL` | kyp.ph; read by the marketplace, not yet in `.env.example` |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | marketing site only, consent-gated |
 | `EXPO_PUBLIC_API_BASE` | the mobile app's API root; `http://10.0.2.2:8000/api/v1` reaches a local API from the Android emulator |
-| `EXPO_PUBLIC_MARKETPLACE_URL`, `EXPO_PUBLIC_SITE_URL` | kyp.ph and kypstamping.ph for the mobile app, set per profile in `apps/mobile/eas.json` |
+| `EXPO_PUBLIC_MARKETPLACE_URL`, `EXPO_PUBLIC_SITE_URL` | kyp.ph and kyprewards.com for the mobile app, set per profile in `apps/mobile/eas.json` |
 
 Defaults for local and production live in each app's `src/lib/site.ts`
 (marketing site, marketplace). Nowhere else may a hostname be a literal.

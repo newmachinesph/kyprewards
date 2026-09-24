@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Platform administration — admin.kypstamping.ph
+# Platform administration — admin.kyprewards.com
 
 Read `../../AGENTS.md`, `../../PROJECT.md` and `../../CONTRACT.md` first.
 This app is "platform administration" in the marketing site's `llms.txt`:
@@ -18,8 +18,8 @@ private apps to the spec.
 
 ## Where it runs
 
-- Local: `npm run dev:admin` on :3001. Production: admin.kypstamping.ph,
-  Vercel project `kyp-admin`, API at api.kypstamping.ph. Brand: KYP
+- Local: `npm run dev:admin` on :3001. Production: admin.kyprewards.com,
+  Vercel project `kyp-admin`, API at api.kyprewards.com. Brand: KYP
   Stamping. `noindex`.
 - Sign-in: password, then a TOTP on `/verify`. Seeded administrator
   `admin@kypstamping.ph` / `DemoPass123!`; the seed prints the TOTP secret.
@@ -96,7 +96,7 @@ below is what is left.
    "scoped support access" is real. The tenant drawer opens a business with
    a reason and 30, 60 or 120 minutes (`POST
    /admin/tenants/{businessId}/support-access`); the API steps this session
-   into the shop, emails the owner, writes the ledger, and biz.kypstamping.ph
+   into the shop, emails the owner, writes the ledger, and biz.kyprewards.com
    opens in a new tab on the same cookie, with a banner and an End button.
    Inside, the role is `Support`: profile, image, branches, programs, staff,
    analytics and billing reads; never the counter, a customer record, an

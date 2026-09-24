@@ -198,7 +198,7 @@ const accountItems = [
  * render leak the shape of the business: plan, renewal date, the roster.
  */
 /** Where a platform user goes back to once they end their support access. */
-const ADMIN_APP_URL = process.env.NEXT_PUBLIC_ADMIN_APP_URL ?? "https://admin.kypstamping.ph";
+const ADMIN_APP_URL = process.env.NEXT_PUBLIC_ADMIN_APP_URL ?? "https://admin.kyprewards.com";
 
 /**
  * The strip a platform user sees the whole time they are inside a shop on

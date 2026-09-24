@@ -10,7 +10,7 @@ plan first, exactly as sold, then Core, Grow and Scale.
 
 ## The one rule
 
-**`apps/marketing-site` is the product spec.** What kypstamping.ph says is
+**`apps/marketing-site` is the product spec.** What kyprewards.com says is
 what the other apps must do. Its data files are canonical:
 
 | File | Owns |
@@ -30,21 +30,21 @@ is the user's call.
 
 | App | Audience | Brand | Local | Production | API host |
 |---|---|---|---|---|---|
-| `apps/marketing-site` | shop owners | KYP Rewards | :3003 | kypstamping.ph | api.kypstamping.ph, public endpoints only |
-| `apps/business-web` | owners and staff | KYP Rewards | :3000 | biz.kypstamping.ph | api.kypstamping.ph |
-| `apps/admin-web` | platform operators | KYP Rewards | :3001 | admin.kypstamping.ph | api.kypstamping.ph |
+| `apps/marketing-site` | shop owners | KYP Rewards | :3003 | kyprewards.com | api.kyprewards.com, public endpoints only |
+| `apps/business-web` | owners and staff | KYP Rewards | :3000 | biz.kyprewards.com | api.kyprewards.com |
+| `apps/admin-web` | platform operators | KYP Rewards | :3001 | admin.kyprewards.com | api.kyprewards.com |
 | `apps/customer-pwa` | shoppers | KYP | :3002 | app.kyp.ph | api.kyp.ph |
 | `apps/marketplace` | shoppers, public | KYP | :3004 | kyp.ph | api.kyp.ph, public endpoints only |
 | `apps/mobile` | shoppers | KYP | Expo Go or a dev build | Play Store and App Store, as KYP | api.kyp.ph, with a bearer session |
 
-kypstamping.ph speaks to merchants. kyp.ph and the wallet under it speak to
+kyprewards.com speaks to merchants. kyp.ph and the wallet under it speak to
 shoppers. The split keeps the session cookie first-party on both sides with
 `SameSite=Lax`. Consequences:
 
 - The marketing site never links to the wallet. `customerAppUrl` was deleted
   from it on purpose so a stray link is a compile error.
 - The only shopper-to-merchant door is "I run a shop" on kyp.ph, pointing at
-  kypstamping.ph.
+  kyprewards.com.
 - The join poster lands on the customer domain: `app.kyp.ph/join/<slug>`.
 - Anything the business or admin app shows a shopper as a link must use
   `NEXT_PUBLIC_CUSTOMER_APP_URL`, never a literal host.

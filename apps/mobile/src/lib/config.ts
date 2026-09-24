@@ -18,9 +18,9 @@ export const API_BASE =
 export const MARKETPLACE_URL =
   process.env.EXPO_PUBLIC_MARKETPLACE_URL || "https://kyp.ph";
 
-/** kypstamping.ph - the merchant site, for "I run a shop". */
+/** kyprewards.com - the merchant site, for "I run a shop". */
 export const SITE_URL =
-  process.env.EXPO_PUBLIC_SITE_URL || "https://kypstamping.ph";
+  process.env.EXPO_PUBLIC_SITE_URL || "https://kyprewards.com";
 
 /** The web wallet's host, which is what a counter poster's QR encodes. */
 export const WALLET_HOSTS = ["app.kyp.ph", "kyp.ph"];
