@@ -12,7 +12,7 @@ import { PricingEstimator } from "@/components/PricingEstimator";
 import { AddOns, ChannelRates, PricingTable } from "@/components/PricingTable";
 import { StructuredData } from "@/components/StructuredData";
 import { faqs } from "@/lib/content";
-import { plans } from "@/lib/plans";
+import { plans } from "@kypstamping/ui/plans";
 import { breadcrumb, webPage } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -77,6 +77,7 @@ export default function PricingPage() {
         }}
       />
       <PageHero
+        seam
         image="/images/hero-pricing.webp"
         eyebrow="Simple plans, useful limits"
         title="Start small. Pay when loyalty starts working."

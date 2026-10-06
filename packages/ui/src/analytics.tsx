@@ -6,7 +6,12 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 /**
  * Google Analytics, loaded only after the visitor says yes.
  *
- * The cookies page promises that no analytics script loads before consent,
+ * One implementation for the two public sites, kyprewards.com and kyp.ph, so
+ * the gate cannot drift between them. It is a subpath export rather than part
+ * of the index on purpose: the wallet and the signed-in apps never import it,
+ * so the Google tag is not even in their module graph.
+ *
+ * Each site's cookies page promises that no analytics script loads before consent,
  * and the whole site sells "consent is per purpose" as a product principle.
  * Loading a third-party tag on first paint and asking afterwards would break
  * both. So: nothing is fetched from Google until the choice below is

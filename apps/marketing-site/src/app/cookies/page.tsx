@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AnalyticsPreference } from "@/components/Analytics";
+import { AnalyticsPreference } from "@kypstamping/ui/analytics";
 import { LegalPage } from "@/components/LegalPage";
 import { SiteEyebrow } from "@/components/MarketingUi";
 
@@ -15,8 +15,10 @@ export const metadata: Metadata = {
  *
  * Every entry here was read out of the codebase rather than copied from a
  * template: one session cookie, a small set of named browser-storage keys,
- * and one analytics tool on the marketing site that does not load until the
- * visitor allows it. The signed-in apps carry no analytics at all.
+ * and one analytics tool on the two public sites, kyprewards.com and kyp.ph,
+ * that does not load until the visitor allows it. The gate is one shared
+ * component, `@kypstamping/ui/analytics`. The signed-in apps and the shopper
+ * wallet carry no analytics at all.
  */
 const sections = [
   {
@@ -42,6 +44,7 @@ const sections = [
     title: "Google Analytics, only if you allow it",
     paragraphs: [
       "On kyprewards.com — not in the signed-in apps — we ask once whether we may use Google Analytics 4 to see which pages help people and which do not. Until you choose Allow, no script is fetched from Google and no analytics cookie exists. If you choose No thanks, nothing is loaded and you are not asked again in this browser.",
+      "kyp.ph, the site for shoppers, uses the same consent gate and has its own cookies page; an answer given on one site does not carry over to the other. The shopper wallet never loads analytics.",
     ],
     bullets: [
       "If allowed, Google sets cookies named _ga and _ga_ followed by an identifier, to tell one visit from the next. They are not tied to your name or email; the marketing site does not know who you are.",
@@ -67,7 +70,7 @@ const sections = [
     title: "Managing it",
     paragraphs: [
       "Your browser can block or clear cookies and site data at any time. Blocking the session cookie will stop you being able to sign in, because it is the mechanism that keeps you signed in — the signed-out marketing pages will still work normally. The analytics choice is changed with the control at the foot of this page.",
-      "Questions can be sent to hello@kypstamping.ph.",
+      "Questions can be sent to support@kyprewards.com.",
     ],
   },
   {

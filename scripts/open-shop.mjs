@@ -31,6 +31,22 @@ export function totp(secret, at = Date.now()) {
   return String((digest.readUInt32BE(offset) & 0x7fffffff) % 1_000_000).padStart(6, "0");
 }
 
+// The API accepts each 30-second step's code once (a replayed code is
+// refused), and a script signs the administrator in more than once a minute.
+// Every sign-in in this process gets a step nobody here has used yet,
+// waiting for the next one when it must.
+let lastStep = -1;
+
+export async function freshTotp(secret) {
+  let step = Math.floor(Date.now() / 30_000);
+  if (step <= lastStep) {
+    step = lastStep + 1;
+    await new Promise((resolve) => setTimeout(resolve, step * 30_000 - Date.now() + 250));
+  }
+  lastStep = step;
+  return totp(secret, step * 30_000);
+}
+
 export async function signInAdmin(admin) {
   const login = await admin.call("/auth/login", {
     method: "POST",
@@ -39,7 +55,7 @@ export async function signInAdmin(admin) {
   if (login.status !== 200) throw new Error(`admin login: ${login.status} ${login.text.slice(0, 90)}`);
   const verified = await admin.call("/auth/mfa/verify", {
     method: "POST",
-    body: { code: totp(ADMIN_MFA_SECRET) },
+    body: { code: await freshTotp(ADMIN_MFA_SECRET) },
   });
   if (verified.status !== 200) throw new Error(`admin mfa: ${verified.status}`);
 }

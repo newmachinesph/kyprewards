@@ -14,8 +14,8 @@
  * flag, so this walks the real auth path.
  */
 
-import { createHmac } from "node:crypto";
 import { chromium } from "playwright";
+import { freshTotp } from "./open-shop.mjs";
 
 const businessUrl = process.env.BUSINESS_APP_URL ?? "http://localhost:3000";
 const adminUrl = process.env.ADMIN_APP_URL ?? "http://localhost:3001";
@@ -32,21 +32,6 @@ const OWNER_EMAIL = process.env.DEMO_EMAIL ?? "mara@sweetcrumbs.ph";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@kypstamping.ph";
 const OWNER_PASSWORD = process.env.DEMO_PASSWORD ?? "DemoPass123!";
 const ADMIN_MFA_SECRET = process.env.ADMIN_MFA_SECRET ?? "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
-
-/** RFC 6238, 30-second step, 6 digits. Same helper as the contract tests. */
-function totp(secret, at = Date.now()) {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-  let bits = "";
-  for (const character of secret.replace(/=+$/, "")) {
-    bits += alphabet.indexOf(character.toUpperCase()).toString(2).padStart(5, "0");
-  }
-  const key = Buffer.from((bits.match(/.{8}/g) ?? []).map((byte) => parseInt(byte, 2)));
-  const counter = Buffer.alloc(8);
-  counter.writeBigUInt64BE(BigInt(Math.floor(at / 1000 / 30)));
-  const digest = createHmac("sha1", key).update(counter).digest();
-  const offset = digest[digest.length - 1] & 0x0f;
-  return String((digest.readUInt32BE(offset) & 0x7fffffff) % 1_000_000).padStart(6, "0");
-}
 
 const BUSINESS_VIEWS = [
   "dashboard", "scan", "join-code", "customers", "business", "programs",
@@ -162,7 +147,7 @@ const admin = await openApp("admin", adminUrl, ADMIN_VIEWS, async (page) => {
   await page.waitForURL(/verify/);
   // A real second factor: the API verifies this, so a fixed demo code no
   // longer gets in.
-  await page.getByLabel(/verification code/i).fill(totp(ADMIN_MFA_SECRET));
+  await page.getByLabel(/verification code/i).fill(await freshTotp(ADMIN_MFA_SECRET));
   await page.getByRole("button", { name: /Verify/i }).click();
   await page.waitForURL((url) => !/\/(login|verify)/.test(url.pathname));
   await page.locator("#main-content").waitFor();

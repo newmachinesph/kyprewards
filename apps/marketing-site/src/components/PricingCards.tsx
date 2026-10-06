@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { SiteButton } from "@/components/MarketingUi";
-import { foundingOffer, paymentMethods, plans } from "@/lib/plans";
+import { foundingOffer, paymentMethods, plans } from "@kypstamping/ui/plans";
 
 export function PricingCards() {
   const [annual, setAnnual] = useState(true);
@@ -43,7 +43,7 @@ export function PricingCards() {
           return (
             <article
               key={plan.name}
-              className={`relative flex min-h-[590px] flex-col rounded-[var(--radius-card)] p-7 ${plan.featured ? "bg-[var(--ink)] text-[var(--paper)] xl:-my-4 xl:min-h-[622px] xl:py-10" : "border border-[var(--line)] bg-[var(--surface)]"}`}
+              className={`panel relative flex min-h-[590px] flex-col p-7 ${plan.featured ? "shadow-lift bg-[var(--ink)] text-[var(--paper)] xl:-my-4 xl:min-h-[622px] xl:py-10" : "shadow-soft border border-[var(--line)] bg-[var(--surface)]"}`}
             >
               {/* A tier that cannot be bought yet says so where the badge
                   goes, rather than wearing "Most useful" over a button that

@@ -7,12 +7,23 @@
     ".": "./src/index.tsx",
     "./auth": "./src/auth.tsx",
     "./shell": "./src/shell.tsx",
-    "./format": "./src/format.ts"
+    "./format": "./src/format.ts",
+    "./plans": "./src/plans.ts",
+    "./sentry": "./src/sentry.ts",
+    "./analytics": "./src/analytics.tsx",
+    "./sentry-client": "./src/sentry-client.ts"
+  },
+  "scripts": {
+    "test": "node --test --experimental-strip-types src/*.test.ts"
   },
   "dependencies": {
     "@kypstamping/api": "*",
+    "@next/third-parties": "^16.3.4",
     "lucide-react": "latest",
     "react": "19.2.8"
+  },
+  "peerDependencies": {
+    "@sentry/nextjs": "^11.4.0"
   },
   "devDependencies": {
     "@types/react": "latest",

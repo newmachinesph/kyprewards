@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { isPreview, usePublicCategories, usePublicDiscover } from "@kypstamping/api";
+import {
+  isPreview,
+  usePublicCategories,
+  usePublicDiscover,
+  type DiscoverFacet,
+  type Page,
+  type PublicShop,
+} from "@kypstamping/api";
 import { PreviewBadge, QueryBoundary } from "@kypstamping/ui";
 import { ArrowRight, LocateFixed } from "lucide-react";
 import { categoryPath } from "@/lib/routes";
@@ -10,8 +17,8 @@ import { ActionLink, EmptyState } from "./Ui";
 import { ShopCard } from "./ShopCard";
 import { useCoordinates } from "./useCoordinates";
 
-export function CategoryChips() {
-  const categories = usePublicCategories();
+export function CategoryChips({ initialData }: { initialData?: DiscoverFacet[] }) {
+  const categories = usePublicCategories({ initialData });
   return (
     <QueryBoundary
       isPending={categories.isPending}
@@ -73,8 +80,8 @@ export function LocationButton() {
 }
 
 /** Featured shops, or the first few when nobody has bought placement yet. */
-export function FeaturedRow() {
-  const shops = usePublicDiscover({ limit: 6 });
+export function FeaturedRow({ initialData }: { initialData?: Page<PublicShop> }) {
+  const shops = usePublicDiscover({ limit: 6 }, { initialData });
   const items = shops.data?.items ?? [];
   const featured = items.filter((shop) => shop.featured);
   const picks = (featured.length ? featured : items).slice(0, 3);

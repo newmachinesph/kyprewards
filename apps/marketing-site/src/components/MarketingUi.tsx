@@ -2,6 +2,11 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check, QrCode } from "lucide-react";
 
+/**
+ * The section tag. A small pill rather than bare uppercase text: it sits
+ * centred over a heading as often as it sits above a left-aligned one, and a
+ * pill reads the same in both places.
+ */
 export function SiteEyebrow({
   children,
   inverse = false,
@@ -10,9 +15,7 @@ export function SiteEyebrow({
   inverse?: boolean;
 }) {
   return (
-    <span
-      className={`text-[11px] font-extrabold uppercase tracking-[0.17em] ${inverse ? "text-white/70" : "text-[var(--accent-strong)]"}`}
-    >
+    <span className={`eyebrow-pill ${inverse ? "eyebrow-pill-inverse" : ""}`}>
       {children}
     </span>
   );
@@ -36,10 +39,10 @@ export function SiteButton({
     light:
       "border border-white/35 bg-[var(--surface)] text-[var(--ink)] shadow-[0_2px_0_rgb(0_0_0/14%)] hover:-translate-y-0.5 hover:bg-white",
     outline:
-      "border border-[var(--line-strong)] bg-[rgb(255_254_251/72%)] text-[var(--ink)] hover:-translate-y-0.5 hover:border-[var(--ink)] hover:bg-[var(--surface)]",
+      "shadow-soft border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:-translate-y-0.5 hover:border-[var(--ink)]",
   };
   const external = href.startsWith("http");
-  const className = `focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-extrabold transition duration-200 active:translate-y-0 active:scale-[0.98] ${tones[tone]}`;
+  const className = `focus-ring inline-flex min-h-13 items-center justify-center gap-2 rounded-full px-7 text-sm font-extrabold transition duration-200 active:translate-y-0 active:scale-[0.98] ${tones[tone]}`;
   const content = (
     <>
       {children}
@@ -62,17 +65,22 @@ export function PageHero({
   title,
   description,
   image,
+  seam = false,
   children,
 }: {
   eyebrow: string;
   title: string;
   description: string;
-  /** Path under /images. Rendered behind the copy, faded to paper like the homepage hero. */
+  /** Path under /images. Rendered behind the copy, faded to paper. */
   image?: string;
+  /** True when the next section is an `AnswerBlock`, whose arch rides over this hero. */
+  seam?: boolean;
   children?: ReactNode;
 }) {
   return (
-    <section className="site-canvas relative overflow-hidden border-b border-[var(--line)]">
+    <section
+      className={`site-canvas relative overflow-hidden ${seam ? "pad-seam" : ""}`}
+    >
       {image && (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -81,40 +89,32 @@ export function PageHero({
             alt=""
             aria-hidden="true"
             fetchPriority="high"
-            className="absolute inset-0 size-full object-cover object-[70%_center]"
+            className="absolute inset-0 size-full object-cover object-center"
           />
-          {/* Heavier wash than the homepage: this hero runs body copy over the
-              right half, where the homepage only has a solid card. */}
+          {/* The copy is centred now, so the wash is even rather than
+              weighted to one side: paper at the edges, a window of photo
+              behind the headline. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-[linear-gradient(90deg,var(--paper)_10%,rgb(250_248_243/93%)_52%,rgb(250_248_243/74%)_100%)]"
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent,var(--paper))]"
+            className="absolute inset-0 bg-[linear-gradient(180deg,var(--paper)_0%,rgb(250_248_243/88%)_45%,var(--paper)_100%)]"
           />
         </>
       )}
-      {/* Gutter outside the 1400px box, matching every section below it.
-          Inside, the hero's left edge sat 32px in from the sections under it
-          and the page read as two different layouts stacked. */}
       <div className="relative px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto grid min-h-[540px] max-w-[1400px] items-end gap-12 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:py-28">
-        <div>
+        <div className="mx-auto flex max-w-[900px] flex-col items-center py-16 text-center lg:py-24">
           <SiteEyebrow>{eyebrow}</SiteEyebrow>
-          <h1 className="mt-5 max-w-[14ch] text-5xl font-extrabold leading-[0.96] tracking-[-0.03em] sm:text-6xl lg:text-7xl">
+          <h1 className="mt-6 max-w-[16ch] text-5xl font-extrabold leading-[0.98] tracking-[-0.03em] sm:text-6xl lg:text-7xl">
             {title}
           </h1>
-        </div>
-        <div className="pb-1 lg:pl-10">
-          <p className="max-w-[52ch] text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
+          <p className="mt-6 max-w-[58ch] text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
             {description}
           </p>
           {children && (
-            <div className="mt-7 flex flex-wrap gap-3">{children}</div>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              {children}
+            </div>
           )}
         </div>
-      </div>
       </div>
     </section>
   );
@@ -129,24 +129,47 @@ export function MarketingCta({
 }) {
   return (
     <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-      <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[var(--radius-card)] bg-[var(--ink)] px-6 py-12 text-[var(--paper)] sm:px-10 lg:grid lg:grid-cols-[1fr_auto] lg:items-end lg:px-14 lg:py-16">
-        <div className="absolute right-10 top-1/2 hidden size-48 -translate-y-1/2 rounded-full border-[38px] border-[var(--accent)] opacity-80 lg:block" />
-        <div className="relative">
+      <div className="panel shadow-lift relative mx-auto max-w-[1400px] overflow-hidden bg-[var(--ink)] px-6 py-14 text-center text-[var(--paper)] sm:px-10 lg:py-20">
+        {/* Two of the loop's objects keep the panel company on wide screens:
+            the reward and the return. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/obj-gift.webp"
+          alt=""
+          aria-hidden="true"
+          width={800}
+          height={800}
+          loading="lazy"
+          decoding="async"
+          className="drift absolute -left-6 bottom-6 hidden w-[200px] lg:block"
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/obj-return.webp"
+          alt=""
+          aria-hidden="true"
+          width={800}
+          height={800}
+          loading="lazy"
+          decoding="async"
+          className="drift-late absolute -right-4 top-6 hidden w-[180px] lg:block"
+        />
+        <div className="relative mx-auto flex max-w-[760px] flex-col items-center">
           <SiteEyebrow inverse>Start with KYP Rewards</SiteEyebrow>
-          <h2 className="mt-4 max-w-[16ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
+          <h2 className="mt-5 max-w-[18ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
             {title}
           </h2>
           <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-white/70 sm:text-base">
             {description}
           </p>
-        </div>
-        <div className="relative mt-8 flex flex-wrap gap-3 lg:mt-0 lg:pl-20">
-          <SiteButton href="/partners" tone="accent">
-            Apply to join
-          </SiteButton>
-          <SiteButton href="/product" tone="light">
-            See how it works
-          </SiteButton>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <SiteButton href="/partners" tone="accent">
+              Apply to join
+            </SiteButton>
+            <SiteButton href="/product" tone="light">
+              See how it works
+            </SiteButton>
+          </div>
         </div>
       </div>
     </section>
@@ -162,11 +185,13 @@ export function ReceiptDemo({ compact = false }: { compact?: boolean }) {
             not at the top of their receipt. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/sweet-crumbs-mark.png"
+          src="/images/sweet-crumbs-mark.webp"
           alt=""
           aria-hidden="true"
           width={64}
           height={64}
+          loading="lazy"
+          decoding="async"
           className="mx-auto size-16"
         />
         <p className="mt-3 text-lg font-extrabold tracking-[-0.02em]">
@@ -305,9 +330,9 @@ export function AnswerBlock({
   image?: string;
 }) {
   return (
-    <section className="px-4 py-14 sm:px-6 lg:px-8">
+    <section className="seam-top bg-[var(--paper)] px-4 pt-14 pb-14 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1400px]">
-        <div className="rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-9">
+        <div className="panel shadow-soft border border-[var(--line)] bg-[var(--surface)] p-7 sm:p-10">
           <div
             className={
               image
@@ -359,7 +384,7 @@ export function AnswerBlock({
             )}
           </div>
           {facts && (
-            <dl className="mt-7 grid gap-px overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-4">
+            <dl className="mt-7 grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-4">
               {facts.map((fact) => (
                 <div key={fact.label} className="bg-[var(--surface)] p-4">
                   <dt className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">

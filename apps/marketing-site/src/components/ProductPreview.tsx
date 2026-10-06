@@ -12,15 +12,7 @@ import { SealMark } from "@kypstamping/ui";
 
 export function ProductPreview() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-[var(--surface)] text-[var(--ink)] shadow-[0_30px_100px_rgb(0_0_0/28%)]">
-      <div className="flex h-12 items-center gap-2 border-b border-[var(--line)] px-4">
-        <span className="size-2.5 rounded-full bg-[var(--line-strong)]" />
-        <span className="size-2.5 rounded-full bg-[var(--line-strong)]" />
-        <span className="size-2.5 rounded-full bg-[var(--accent)]" />
-        <span className="ml-2 rounded-full bg-[var(--surface-2)] px-3 py-1 font-mono text-[9px] text-[var(--muted)]">
-          biz.kyprewards.com
-        </span>
-      </div>
+    <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[var(--surface)] text-[var(--ink)] shadow-[0_30px_100px_rgb(0_0_0/28%)]">
       <div className="grid min-h-[430px] grid-cols-[76px_1fr] sm:grid-cols-[150px_1fr]">
         <aside className="border-r border-[var(--line)] bg-[var(--paper)] p-3">
           <SealMark size={32} />

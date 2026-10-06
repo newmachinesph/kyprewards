@@ -76,21 +76,6 @@ const sections = [
     ],
   },
   {
-    title: "Sending SMS from your own phone",
-    paragraphs: [
-      "From Core upwards, once the companion app is released, you can install it to send your messages from your own handset, using your own SIM and your own load, instead of paying a per-message fee to us. It is Android only, because iOS does not permit an app to send SMS.",
-      "When you send this way you are the sender, not us. The message leaves your number, under your telco's terms, and the responsibility for it is yours.",
-    ],
-    bullets: [
-      "Consumer unlimited-text promotions are generally sold for personal use. Using one for bulk commercial messaging may breach your telco's terms, and the usual consequence is that your number is blocked for spam. Check what your plan permits before you rely on it.",
-      "Philippine rules on SIM registration and on unsolicited commercial messages apply to you as the sender.",
-      "The consent, quiet-hours and frequency rules the platform enforces still apply. Sending is queued and checked here before it reaches your phone.",
-      "A handset sends slowly and carriers throttle bursts, so a large send takes time. This route suits a timely message to a modest list, not a mass promotion.",
-      "If your phone is off, out of load, or out of signal, messages wait. On Grow and above they fall back to our gateway against your SMS credits; below that they stay queued until the phone is reachable.",
-      "Sign-in codes are never sent this way. They are platform authentication, they must work whether or not your phone is on, and the person signing in may not be your customer at all.",
-    ],
-  },
-  {
     title: "Fees, plans and the free tier",
     paragraphs: [
       "Plan prices, allowances and inclusions are published on the pricing page and may change with reasonable advance notice. Paid plans are billed for the selected period plus applicable taxes.",
@@ -119,7 +104,7 @@ const sections = [
     paragraphs: [
       "To the fullest extent permitted by law, the platform is provided without guarantees beyond those expressly stated here. We are not liable for the reward decisions you make, for losses arising from a third-party service you connect, or for indirect or consequential loss.",
       "These terms govern the free beta and are complete for it. Four clauses are deliberately still open: governing law, dispute resolution, limitation amounts and the contracting entity. They are being settled with qualified Philippine counsel alongside our incorporation, and we would rather leave them blank than state something we would have to change. Nothing is being charged during the beta, and we will give notice before these become paid terms.",
-      "Questions about this agreement can be sent to hello@kypstamping.ph.",
+      "Questions about this agreement can be sent to support@kyprewards.com.",
     ],
   },
 ];

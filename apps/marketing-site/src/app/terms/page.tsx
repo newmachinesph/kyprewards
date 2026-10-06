@@ -83,7 +83,7 @@ const sections = [
   {
     title: "Contact",
     paragraphs: [
-      "Questions about these terms, and support for a shop already running, both reach us at hello@kypstamping.ph. If you are signed in, the in-product support channel is faster.",
+      "Questions about these terms, and support for a shop already running, both reach us at support@kyprewards.com. If you are signed in, the in-product support channel is faster.",
     ],
   },
 ];

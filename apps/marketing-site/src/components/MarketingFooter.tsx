@@ -73,7 +73,7 @@ const groups = [
 
 export function MarketingFooter() {
   return (
-    <footer className="border-t border-[var(--line)] bg-[var(--surface)]">
+    <footer className="band border-t border-[var(--line)]">
       <div className="px-4 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-[1400px] gap-12 py-14 md:grid-cols-[1.1fr_1.9fr] lg:py-20">
         <div>
@@ -81,6 +81,20 @@ export function MarketingFooter() {
           <p className="mt-5 max-w-[31ch] text-sm leading-relaxed text-[var(--muted-strong)]">
             The simple loyalty layer for businesses people love returning to.
           </p>
+          {/* Two facts the site already states, as pills: what it costs and
+              what it needs. */}
+          <div className="mt-5 flex flex-wrap gap-2">
+            {["Free to start, unlimited customers", "Nothing to install"].map(
+              (fact) => (
+                <span
+                  key={fact}
+                  className="shadow-soft rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-[11px] font-bold text-[var(--accent-strong)]"
+                >
+                  {fact}
+                </span>
+              ),
+            )}
+          </div>
           <Link
             href="/contact"
             className="focus-ring mt-6 inline-flex items-center gap-2 rounded-full text-sm font-bold text-[var(--accent-strong)]"

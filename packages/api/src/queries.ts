@@ -582,6 +582,10 @@ export const useProviderPolicy = () =>
 export const usePlatformFlags = (options?: Options<ToggleResult[]>): Query<ToggleResult[]> =>
   useQuery({ queryKey: keys.admin.flags(), queryFn: api.getPlatformFlags, ...options });
 
+/** The campaign relay, without its password. */
+export const useMarketingSender = () =>
+  useQuery({ queryKey: keys.admin.marketingSender(), queryFn: api.getMarketingSender });
+
 export const useAdministrators = () =>
   useQuery({ queryKey: keys.admin.administrators(), queryFn: api.getAdministrators });
 

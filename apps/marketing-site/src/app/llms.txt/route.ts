@@ -1,4 +1,4 @@
-import { addOns, channelRates, featureMatrix, foundingOffer, paymentMethods, plans } from "@/lib/plans";
+import { addOns, channelRates, featureMatrix, foundingOffer, paymentMethodsText, plans } from "@kypstamping/ui/plans";
 import { comparisons } from "@/lib/comparisons";
 import { siteUrl } from "@/lib/site";
 
@@ -126,7 +126,7 @@ ${addOns.map((item) => `- ${item.name} (${item.plans}): ${item.price}. ${item.de
 - The free Launch plan starts below every paid loyalty tool publishing Philippine peso pricing. Core at PHP 499/month is within PHP 100 of the cheapest paid stamp-card tool in the market (GoBalik Starter, PHP 399/month, as read on 25 August 2026).
 - Loyalty points and stamps may generally expire in the Philippines: RA 10962 bans expiry on gift checks but carves out checks issued under loyalty, rewards and promotional programs. A purchased gift check is a different instrument and is treated separately in the product.
 - A merchant can export their entire customer list in one click on any plan, including the free one.
-- Merchants pay in pesos by ${paymentMethods.join(", ")}. No dollar billing.
+- Merchants pay in pesos by ${paymentMethodsText}. No dollar billing.
 - Retention levers beyond the stamp card: bonus windows, promo codes and store credit on Core; suki tiers, missions, two-sided referrals, automated win-back, gifting and category earning on Grow. Suki tiers are merchant-named levels a customer climbs by visits or spend.
 - A public roadmap at ${siteUrl}/roadmap is generated from the pricing data and lists what is live, what opens with each tier, and what waits for a merchant to ask. A Filipino-language interface is on it.
 - The free Launch plan runs one stamp card with unlimited customers and unlimited branches, two staff accounts, and every stamp-card rule. Core (PHP 499/month) adds five staff, the merchant's own branding, three programs at once, birthday campaigns and per-branch reporting.

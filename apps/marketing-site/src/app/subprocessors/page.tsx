@@ -16,16 +16,16 @@ export const metadata: Metadata = {
  * list on this platform is entitled to know which companies touch it, which is
  * also what a data sharing agreement is normally asked to disclose.
  *
- * Everything here is a service the codebase actually integrates. Where the
- * production choice is not settled yet it says so rather than naming a vendor
- * we have not committed to — an invented list is worse than none.
+ * Everything here is a service production actually runs on. Add a vendor
+ * here before it receives any data, never after — an invented or stale list
+ * is worse than none.
  */
 const sections = [
   {
     title: "Messaging",
     paragraphs: [
       "Semaphore (Philippines) sends SMS, including one-time sign-in codes and any SMS campaign a business chooses to run. It receives the destination mobile number and the message text, and nothing else.",
-      "Email is sent over SMTP. The provider for production is not settled; whichever is chosen receives the destination address, the subject and the body of the message. This page will name it before the paid tiers open.",
+      "Zoho sends transactional email: sign-in codes, reward notices, staff invitations and data-export links. It receives the destination address, the subject and the body of the message.",
     ],
     bullets: [
       "A one-time code is transactional and is sent regardless of marketing consent.",
@@ -37,14 +37,14 @@ const sections = [
     title: "Payments",
     paragraphs: [
       "PayMongo (Philippines) processes subscription payments from businesses. It receives the payer's billing details and the amount.",
-      "Card and e-wallet credentials are entered with the provider and are never held by KYP Rewards. Customers of a business never transact through this path — it bills the shop, not the shopper.",
+      "Every payment is a QR Ph code the business scans with GCash, Maya or a bank app, so wallet and bank credentials stay with the payer and are never held by KYP Rewards. Customers of a business never transact through this path — it bills the shop, not the shopper.",
     ],
   },
   {
     title: "Storage and infrastructure",
     paragraphs: [
-      "Uploaded files — storefront photos, exports, and generated bundles — are held in S3-compatible object storage. Application data is held in PostgreSQL, with Redis used for queues and short-lived state.",
-      "The production hosting region and provider are being settled and will be named here before the paid tiers open, along with where data is stored at rest.",
+      "DigitalOcean, in Singapore, hosts the API and its PostgreSQL database, where application data is stored at rest. Singapore is the nearest region to the Philippines.",
+      "Cloudflare R2 holds uploaded files — storefront photos, exports, and generated bundles. Upstash holds the short-lived counters used for rate limiting. Inngest schedules and runs background jobs, such as sending queued messages and the nightly clean-up. Vercel serves the websites, kyprewards.com and kyp.ph, and the apps under them.",
     ],
     bullets: [
       "Export bundles containing personal data are served through short-lived signed links rather than public URLs.",
@@ -54,7 +54,7 @@ const sections = [
   {
     title: "Analytics, with consent",
     paragraphs: [
-      "Google (Google Analytics 4) counts visits to the public marketing site, kyprewards.com, and only for visitors who answered yes to the one question the site asks. It receives the pages viewed, a truncated IP address, and the kind of device and browser. It is not used in the signed-in customer, business or admin apps, is not used for advertising, and is never joined to a customer or merchant record.",
+      "Google (Google Analytics 4) counts visits to the two public sites, kyprewards.com and kyp.ph, and only for visitors who answered yes to the one question each site asks. It receives the pages viewed, a truncated IP address, and the kind of device and browser. It is not used in the shopper wallet or the signed-in business and admin apps, is not used for advertising, and is never joined to a customer or merchant record.",
     ],
     bullets: [
       "No script is fetched from Google until the visitor allows it, and the choice can be reversed on the cookies page.",
@@ -64,20 +64,20 @@ const sections = [
   {
     title: "Error monitoring",
     paragraphs: [
-      "Sentry receives application errors so faults can be found and fixed. Reports carry technical context — the request path, an error type, a request identifier — and are configured to avoid message bodies, credentials and personal details.",
+      "Sentry receives application errors so faults can be found and fixed. Personal data is scrubbed: reports are sent without IP addresses, cookies or request bodies, and carry technical context — the request path, an error type, where in the code it happened.",
     ],
   },
   {
     title: "Changes to this list",
     paragraphs: [
       "We will update this page when a sub-processor is added, removed, or replaced. A business that objects to a new sub-processor on reasonable data-protection grounds can raise it with us before the change takes effect, and can export its data and close its workspace if it is not resolved.",
-      "Questions can be sent to hello@kypstamping.ph.",
+      "Questions can be sent to support@kyprewards.com.",
     ],
   },
   {
     title: "Status of this page",
     paragraphs: [
-      "This list describes the services the platform integrates today, while it is in open beta. Two entries — the production email provider and the hosting region — are deliberately unnamed because those decisions are not made yet, and naming a vendor we have not committed to would be worse than saying so.",
+      "This list describes the services the platform runs on today, while it is in open beta.",
     ],
   },
 ];
@@ -88,8 +88,8 @@ export default function SubprocessorsPage() {
       path="/subprocessors"
       eyebrow="Who else touches the data"
       title="Sub-processors"
-      summary="The third-party services that see some part of what the platform holds, named individually — including the two we have not chosen yet."
-      effective="2 September 2026"
+      summary="The third-party services that see some part of what the platform holds, named individually."
+      effective="6 October 2026"
       sections={sections}
     />
   );

@@ -445,16 +445,6 @@ export const featureMatrix: FeatureGroup[] = [
         hint: "Chosen automatically per customer, from ₱0.42 a message — cheaper than SMS and read sooner. Being connected and not live yet; when it opens the campaign composer will try them before falling back to SMS.",
         cells: [false, "Coming", "Coming", "Coming"],
       },
-      {
-        label: "SMS from your own phone",
-        hint: "Opens with Core once the consent flow around it is finished: a companion app that sends from your shop's own SIM and load, so a text costs what your telco charges rather than a per-message platform fee. Android only — iOS does not let an app send SMS. You are the sender: your number, your telco's terms, your responsibility for consent. Sign-in codes never use this route.",
-        cells: [false, "Android app", "Android app", "Android app"],
-      },
-      {
-        label: "Automatic fallback to our gateway",
-        hint: "When your phone is off, out of load, or out of signal, the message goes out through our carrier gateway against your SMS credits instead of failing quietly.",
-        cells: [false, false, true, true],
-      },
     ],
   },
   {
@@ -537,13 +527,15 @@ export const featureMatrix: FeatureGroup[] = [
   },
 ];
 
-/** How a merchant settles the bill. Dollar-billed competitors cannot say this. */
-export const paymentMethods = [
-  "GCash",
-  "Maya",
-  "Visa or Mastercard",
-  "Bank transfer, InstaPay or PESONet",
-] as const;
+/**
+ * How a merchant settles the bill. Dollar-billed competitors cannot say this.
+ * Every payment is a QR Ph code, so this is what scans one; cards, InstaPay
+ * and PESONet come back here only when PayMongo enables them on the account.
+ */
+export const paymentMethods = ["GCash", "Maya", "bank apps through QR Ph"] as const;
+
+/** The same list as a sentence: "GCash, Maya and bank apps through QR Ph". */
+export const paymentMethodsText = `${paymentMethods.slice(0, -1).join(", ")} and ${paymentMethods.at(-1)}`;
 
 /**
  * What a shop that joins during the beta gets when the paid tiers open. Three
@@ -584,7 +576,7 @@ export const addOns = [
     name: "Setup with a person",
     price: "₱1,500 once · free in beta",
     detail:
-      "We read your application, configure your first program with you, and check the counter flow on your own phone before you go live. Every founding merchant gets this free.",
+      "Requested from your dashboard and invoiced by KYP Rewards. We read your application, configure your first program with you, and check the counter flow on your own phone before you go live. Every founding merchant gets this free.",
     plans: "Any plan",
   },
   {
@@ -598,7 +590,7 @@ export const addOns = [
     name: "Email top-up",
     price: "₱25 / 1,000",
     detail:
-      "Past your monthly campaign allowance, buy more. Never cut off mid-send, never pushed up a tier to finish a month.",
+      "Opens with campaign email. Past your monthly campaign allowance, buy more. Never cut off mid-send, never pushed up a tier to finish a month.",
     plans: "Core and up",
   },
 ];

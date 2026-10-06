@@ -21,9 +21,11 @@ browser origin above. A preview on `*.vercel.app` is cross-site and gets no
 cookie unless `SESSION_COOKIE_SAMESITE=none`; that is the reason every
 authenticated call answers 401 with nothing in the network tab.
 
-`NEXT_PUBLIC_API_BASE` is empty in production (same-origin path) or the
-absolute API root. It is inlined at build time; changing it after a build
-changes nothing.
+`NEXT_PUBLIC_API_BASE` is the absolute API root on the app's own site:
+`https://api.kyprewards.com/api/v1` for the marketing site, business and
+admin apps, `https://api.kyp.ph/api/v1` for the wallet and the marketplace.
+There is no same-origin rewrite. It is inlined at build time; changing it
+after a build changes nothing.
 
 ## Environment variables
 

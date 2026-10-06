@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { captureError } from "@kypstamping/ui/sentry";
 
 export default function GlobalError({
   error,
@@ -9,7 +10,10 @@ export default function GlobalError({
   error: Error & { digest?: string };
   retry: () => void;
 }) {
-  useEffect(() => console.error(error), [error]);
+  useEffect(() => {
+    console.error(error);
+    captureError(error);
+  }, [error]);
 
   return (
     <html lang="en">

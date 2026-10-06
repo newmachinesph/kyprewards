@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
 import { ApiProvider } from "@kypstamping/api";
+import { AnalyticsConsent } from "@kypstamping/ui/analytics";
 import { siteUrl } from "@/lib/site";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -38,6 +39,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
+          {/* Consent-gated, the same gate as kyprewards.com: nothing is
+              fetched from Google until the visitor allows it on this site.
+              Unset the env var and nothing renders at all. */}
+          {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+            <AnalyticsConsent gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+          )}
         </ApiProvider>
       </body>
     </html>

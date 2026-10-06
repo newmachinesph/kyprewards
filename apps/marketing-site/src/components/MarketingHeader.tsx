@@ -22,7 +22,7 @@ export function MarketingHeader({
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[rgb(250_248_243/88%)] backdrop-blur-xl">
+    <header className="sticky top-0 z-50 bg-[rgb(250_248_243/86%)] backdrop-blur-xl">
       {/* Padding outside the 1400px box, which is how every section on the
           site is built. Inside it, the gutter came out of the content instead
           of off the edge, so the nav sat 64px narrower than everything under
@@ -55,7 +55,7 @@ export function MarketingHeader({
           </a>
           <Link
             href="/partners"
-            className="focus-ring ml-1 inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(24_18_12/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
+            className="focus-ring ml-1 inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)] shadow-[0_2px_0_rgb(24_18_12/16%)] transition hover:-translate-y-0.5 hover:bg-[var(--ink-soft)] active:translate-y-0 active:scale-[0.98]"
           >
             Apply to join <ArrowUpRight size={16} />
           </Link>
@@ -94,14 +94,14 @@ export function MarketingHeader({
             <div className="mt-4 grid gap-2 border-t border-[var(--line)] pt-4 sm:grid-cols-2">
               <a
                 href={businessUrl}
-                className="focus-ring flex min-h-11 items-center justify-center whitespace-nowrap rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-sm font-bold"
+                className="focus-ring flex min-h-11 items-center justify-center whitespace-nowrap rounded-full border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-sm font-bold"
               >
                 Business sign in
               </a>
               <Link
                 href="/partners"
                 onClick={() => setOpen(false)}
-                className="focus-ring flex min-h-11 items-center justify-center whitespace-nowrap rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)]"
+                className="focus-ring flex min-h-11 items-center justify-center whitespace-nowrap rounded-full border border-[var(--ink)] bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--surface)]"
               >
                 Apply to join
               </Link>

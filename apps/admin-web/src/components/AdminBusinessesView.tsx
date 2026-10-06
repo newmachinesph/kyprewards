@@ -9,6 +9,7 @@ import {
   keys,
   moveTenantPlan,
   openSupportAccess,
+  setTenantGrace,
   setTenantManagers,
   useAddOns,
   useAdministrators,
@@ -298,6 +299,10 @@ function TenantDrawer({
 }) {
   const [target, setTarget] = useState<PlanName>(tenant.plan);
   const [outcome, setOutcome] = useState<{ tone: "ok" | "refused"; text: string } | null>(null);
+  // While the paid tiers are closed, a move onto one is a comp: the API puts
+  // the shop there free and never invoices it.
+  const { flags } = useAdminState();
+  const comp = !flags["billing.paid_tiers"] && target !== "Launch";
   const move = useApiMutation(
     (plan: PlanName) => moveTenantPlan(tenant.businessId ?? "", plan),
     { invalidates: [keys.admin.tenants(), keys.admin.audit()] },
@@ -332,6 +337,10 @@ function TenantDrawer({
             tenant.founding ? "Yes · Core free for three months when it opens" : "Not recorded",
           ],
           ["Featured in Discover", tenant.featured ? "Yes" : "No"],
+          [
+            "Payment grace",
+            tenant.graceUntil ? `Until ${longDate(tenant.graceUntil)}` : "Standard seven days",
+          ],
         ].map(([label, value]) => (
           <div key={label} className="bg-[var(--ink-soft)] p-4">
             <p className="text-[10px] text-white/50">{label}</p>
@@ -360,10 +369,11 @@ function TenantDrawer({
       <div className="mt-5">
         <Eyebrow>Move plan</Eyebrow>
         <p className="mt-2 text-[11px] leading-relaxed text-white/55">
-          The same rules as the billing screen merchants see: while the paid tiers are closed
-          only Launch is open, a downgrade that would strand a live program is refused by name,
-          and a founding merchant gets the three free months of Core the first time they move
-          up.
+          The same rules as the billing screen merchants see: a downgrade that would strand a
+          live program is refused by name. While the paid tiers are closed, moving a shop onto
+          one is a comp: free, never invoiced, and recorded as a comp in the audit ledger. A comp
+          stays free until an administrator moves the shop again; a founding merchant&apos;s
+          three free months of Core are not used by it.
         </p>
         <div className="mt-3 flex gap-2">
           <select
@@ -383,12 +393,18 @@ function TenantDrawer({
             disabled={!tenant.businessId || target === tenant.plan || move.isPending}
             onClick={() =>
               move.mutate(target, {
-                onSuccess: (saved) => setOutcome({ tone: "ok", text: `Moved to ${saved.plan}.` }),
+                onSuccess: (saved) =>
+                  setOutcome({
+                    tone: "ok",
+                    text: comp
+                      ? `Comped onto ${saved.plan}: free, no invoice.`
+                      : `Moved to ${saved.plan}.`,
+                  }),
                 onError: (failure) => setOutcome({ tone: "refused", text: failure.message }),
               })
             }
           >
-            {move.isPending ? "Moving…" : "Move"}
+            {move.isPending ? (comp ? "Comping…" : "Moving…") : comp ? `Comp ${target}` : "Move"}
           </Button>
         </div>
         {outcome && (
@@ -401,6 +417,8 @@ function TenantDrawer({
         )}
       </div>
       )}
+
+      {isAdmin && <GraceCard tenant={tenant} />}
 
       {isAdmin && (
       <div className="mt-5">
@@ -448,6 +466,64 @@ function TenantDrawer({
         </div>
       </div>
     </aside>
+  );
+}
+
+/**
+ * How long this shop has to pay a due invoice before it drops to Launch.
+ * Unset is the standard seven days from the invoice; an extension is one
+ * date, written to the audit ledger by the API.
+ */
+function GraceCard({ tenant }: { tenant: Tenant }) {
+  const [until, setUntil] = useState(tenant.graceUntil ?? "");
+  const [outcome, setOutcome] = useState<string | null>(null);
+  const save = useApiMutation(
+    (next: string | null) => setTenantGrace(tenant.businessId ?? "", next),
+    {
+      invalidates: [keys.admin.tenants(), keys.admin.audit()],
+      onSuccess: (saved) =>
+        setOutcome(
+          saved.graceUntil
+            ? `Grace extended to ${longDate(saved.graceUntil)}.`
+            : "Back to the standard seven days.",
+        ),
+      onError: (failure) => setOutcome(failure.message),
+    },
+  );
+  return (
+    <div className="mt-5">
+      <Eyebrow>Payment grace</Eyebrow>
+      <p className="mt-2 text-[11px] leading-relaxed text-white/55">
+        An unpaid invoice moves the shop to Launch seven days after it is issued. Extend that here
+        for a shop that has asked for time; their data and programs are kept either way.
+      </p>
+      <div className="mt-3 flex gap-2">
+        <input
+          type="date"
+          aria-label="Grace until"
+          value={until}
+          onChange={(event) => setUntil(event.target.value)}
+          className="min-h-10 flex-1 rounded-xl border border-white/20 bg-transparent px-3 text-sm font-bold text-[var(--paper)]"
+        />
+        <Button
+          tone="accent"
+          disabled={!tenant.businessId || !until || until === tenant.graceUntil || save.isPending}
+          onClick={() => save.mutate(until)}
+        >
+          {save.isPending ? "Saving…" : "Extend"}
+        </Button>
+        {tenant.graceUntil && (
+          <Button tone="quiet" disabled={save.isPending} onClick={() => { setUntil(""); save.mutate(null); }}>
+            Reset
+          </Button>
+        )}
+      </div>
+      {outcome && (
+        <p role="status" className="mt-2 text-[11px] font-semibold text-white/80">
+          {outcome}
+        </p>
+      )}
+    </div>
   );
 }
 

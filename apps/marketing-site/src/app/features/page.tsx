@@ -37,7 +37,7 @@ import {
   SiteEyebrow,
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
-import { paymentMethods } from "@/lib/plans";
+import { paymentMethodsText } from "@kypstamping/ui/plans";
 import { breadcrumb, webPage } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -292,7 +292,7 @@ const philippines = [
   {
     icon: Wallet,
     title: "Pesos, paid the way you already pay",
-    detail: `Priced in pesos, billed in pesos, settled by ${paymentMethods.slice(0, 2).join(" or ")}, card or bank transfer. Dollar-billed tools cannot say that.`,
+    detail: `Priced in pesos, billed in pesos, settled by ${paymentMethodsText}. Dollar-billed tools cannot say that.`,
   },
   {
     icon: Languages,
@@ -342,6 +342,7 @@ export default function FeaturesPage() {
         ]}
       />
       <PageHero
+        seam
         image="/images/hero-features.webp"
         eyebrow="The full loyalty system"
         title="Every way to keep a customer. One card in their pocket."

@@ -20,7 +20,7 @@ import { longDate, pesoFromCentavos } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { Clock3, MapPin, Sparkles } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate } from "@/lib/plan";
-import { addOns } from "@/lib/plans";
+import { addOns } from "@kypstamping/ui/plans";
 import { useUpdateProfile } from "@/components/mutations";
 import { PaymentSheet } from "@/components/views/PaymentSheet";
 import { BlockedNote, inputClass, type Notify } from "@/components/views/shared";

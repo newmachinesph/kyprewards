@@ -8,7 +8,7 @@ import {
   SiteEyebrow,
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
-import { featureMatrix, plans } from "@/lib/plans";
+import { featureMatrix, plans } from "@kypstamping/ui/plans";
 import { breadcrumb, webPage } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -109,6 +109,7 @@ export default function RoadmapPage() {
         ]}
       />
       <PageHero
+        seam
         image="/images/hero-resources.webp"
         eyebrow="Live, next, later"
         title="What runs today, and what we are not pretending does."

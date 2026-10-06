@@ -7,6 +7,7 @@ import {
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb } from "@/lib/schema";
+import { paymentMethodsText } from "@kypstamping/ui/plans";
 
 const groups = [
   {
@@ -142,7 +143,7 @@ const groups = [
       ],
       [
         "How do we pay, and can we use GCash?",
-        "Yes. The subscription and add-ons are priced in pesos and settled by GCash, Maya, Visa or Mastercard, or bank transfer through InstaPay or PESONet. There is no dollar conversion, no foreign transaction fee, and no card required for the free plan.",
+        `Yes. The subscription and add-ons are priced in pesos and settled by ${paymentMethodsText}. There is no dollar conversion, no foreign transaction fee, and no card required for the free plan.`,
       ],
       [
         "How does a customer pay for a membership, a multipass or a gift card?",

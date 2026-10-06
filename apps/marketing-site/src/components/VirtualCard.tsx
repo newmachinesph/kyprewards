@@ -377,16 +377,14 @@ export function VirtualCard() {
   const [step, setStep] = useState(0);
 
   return (
-    <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-32">
+    <section className="px-4 pt-20 pb-32 sm:px-6 lg:px-8 lg:pt-32">
       <div className="mx-auto max-w-[1400px]">
-        <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr]">
-          <div>
-            <SiteEyebrow>The virtual card</SiteEyebrow>
-            <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
-              The card lives on their phone.
-            </h2>
-          </div>
-          <p className="max-w-[56ch] self-end text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
+        <div className="mx-auto flex max-w-[820px] flex-col items-center text-center">
+          <SiteEyebrow>The virtual card</SiteEyebrow>
+          <h2 className="mt-5 max-w-[16ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
+            The card lives on their phone.
+          </h2>
+          <p className="mt-5 max-w-[60ch] text-base leading-relaxed text-[var(--muted-strong)] sm:text-lg">
             One side shows how close they are to the reward, the other is the
             code the counter scans. It carries your color and your storefront,
             the card never expires, and there is nothing to install.
@@ -398,7 +396,7 @@ export function VirtualCard() {
               inside refused to shrink and forced this panel to 380px on a
               320px phone - the page scrolled sideways and the panel's right
               edge was off it. */}
-          <div className="min-w-0 rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
+          <div className="panel shadow-soft min-w-0 border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
             <WalletCardVisual />
             <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-[var(--line)] pt-6">
               {[

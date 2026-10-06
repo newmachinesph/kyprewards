@@ -69,6 +69,8 @@ import type {
   NearbyNudge,
   PartnerApplication,
   OnboardingRow,
+  MarketingSender,
+  MarketingSenderInput,
   OfflineSyncResult,
   OfflineVisit,
   RecoveryItem,
@@ -573,8 +575,9 @@ export const requestData = (kind: "export" | "deletion"): Promise<{ id: string; 
 
 export const getTenants = (): Promise<Tenant[]> => http("/admin/tenants");
 
-/** Move a tenant between tiers. 409 while the paid tiers are closed, except
- *  down to Launch; 409 by name when a downgrade would strand a live program. */
+/** Move a tenant between tiers. While the paid tiers are closed a move onto
+ *  one is a comp: free and never invoiced. 409 by name when a downgrade
+ *  would strand a live program. */
 export const moveTenantPlan = (
   businessId: string,
   plan: string,
@@ -596,6 +599,11 @@ export const openSupportAccess = (
 
 export const endSupportAccess = (grantId: string): Promise<Tenant> =>
   http(`/admin/support-access/${grantId}/end`, { method: "POST" });
+
+/** Give one shop longer to pay before an unpaid invoice downgrades it.
+ *  `until` is a date (YYYY-MM-DD); null goes back to the standard seven days. */
+export const setTenantGrace = (businessId: string, until: string | null): Promise<Tenant> =>
+  http(`/admin/tenants/${businessId}/grace`, { method: "PATCH", body: { until } });
 
 /** Replaces the set of account managers who may open support access here. */
 export const setTenantManagers = (businessId: string, userIds: string[]): Promise<Tenant> =>
@@ -748,7 +756,9 @@ export type CustomerLookup = {
   name: string;
   email: string | null;
   mobile: string | null;
-  memberCode: string;
+  /** Null for a wallet that has not joined this business: the code is
+   *  theirs to show at the till, not the API's to hand out. */
+  memberCode: string | null;
   isMember: boolean;
 };
 
@@ -906,7 +916,7 @@ export const createCustomer = (body: {
   name: string;
   email: string | null;
   mobile: string | null;
-  memberCode: string;
+  memberCode: string | null;
   isMember: boolean;
 }> => http("/customers", { method: "POST", body });
 
@@ -1392,6 +1402,18 @@ export const getPlatformFlags = (): Promise<ToggleResult[]> => http("/admin/flag
 
 export const setPlatformFlag = (key: string, value: boolean): Promise<ToggleResult> =>
   http("/admin/flags", { method: "PATCH", body: { key, value } });
+
+export const getMarketingSender = (): Promise<MarketingSender> =>
+  http("/admin/marketing-sender");
+
+/** 422 on a development relay outside local, or a username without STARTTLS.
+ *  Any change clears the last test: campaign email needs a new pass. */
+export const saveMarketingSender = (body: MarketingSenderInput): Promise<MarketingSender> =>
+  http("/admin/marketing-sender", { method: "PUT", body });
+
+/** One message through the relay as saved; the outcome is kept on the sender. */
+export const testMarketingSender = (to: string): Promise<{ ok: boolean; detail: string }> =>
+  http("/admin/marketing-sender/test", { method: "POST", body: { to } });
 
 /** Moves every dead-lettered delivery back into the send queue. */
 export const replayRecoveryQueue = (): Promise<{ queued: number }> =>

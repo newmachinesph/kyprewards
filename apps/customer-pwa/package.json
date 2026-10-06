@@ -13,6 +13,7 @@
     "@kypstamping/api": "*",
     "@kypstamping/demo-data": "*",
     "@kypstamping/ui": "*",
+    "@sentry/nextjs": "^11.4.0",
     "@tanstack/react-query": "^5.102.8",
     "geist": "latest",
     "lucide-react": "latest",

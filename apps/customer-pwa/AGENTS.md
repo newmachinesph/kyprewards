@@ -119,7 +119,8 @@ Every write against an unbuilt route is disabled with
 - Nothing says "you will be notified" or "request received" without an
   endpoint that recorded it.
 - No analytics, no third-party scripts, no links to merchant pages except
-  the legal ones.
+  the legal ones. Sentry, with personal data scrubbed, is the one exception
+  (`../../AGENTS.md` rule 5); GA never loads here.
 
 ## Verify
 

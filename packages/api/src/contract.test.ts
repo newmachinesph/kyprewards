@@ -545,6 +545,14 @@ describe("customer wallet", () => {
     assert.ok(isEan13(profile.memberCode), profile.memberCode);
   });
 
+  live("a data request says when it completed, or null", async () => {
+    // `completedAt` was in the type and missing from the response.
+    for (const request of await api.getDataRequests()) {
+      assert.ok("completedAt" in request, "completedAt is absent");
+      assert.ok(request.completedAt === null || isIso(request.completedAt));
+    }
+  });
+
   live("discover and consent history answer", async () => {
     const [discover, consent] = await Promise.all([
       api.getDiscover(),
@@ -571,6 +579,19 @@ describe("platform administration", () => {
     assert.ok(tenants.length > 0);
     assert.ok(isCentavos(tenants[0].mrrCentavos));
     assert.match(tenants[0].joinedOn, /^\d{4}-\d{2}-\d{2}$/);
+    // The payment grace is a date or null, never absent.
+    for (const tenant of tenants) {
+      assert.ok(tenant.graceUntil === null || /^\d{4}-\d{2}-\d{2}$/.test(tenant.graceUntil ?? ""));
+    }
+  });
+
+  live("the marketing sender never sends its password back", async () => {
+    const sender = await api.getMarketingSender();
+
+    assert.equal(typeof sender.passwordSet, "boolean");
+    assert.equal(typeof sender.flagEnabled, "boolean");
+    assert.ok(!("password" in sender));
+    assert.ok(!("passwordSealed" in sender));
   });
 
   live("platform metrics are centavos", async () => {
@@ -645,8 +666,9 @@ describe("counter writes", () => {
     const byEmail = await api.lookupCustomer({ email: CUSTOMER_EMAIL });
 
     assert.equal(byPhone.id, byEmail.id);
-    assert.ok(isEan13(byPhone.memberCode), byPhone.memberCode);
+    // A member's code comes back; a wallet that has not joined gets null.
     assert.equal(byPhone.isMember, true);
+    assert.ok(byPhone.memberCode && isEan13(byPhone.memberCode), String(byPhone.memberCode));
   });
 
   live("a balance says where the card stands", async () => {

@@ -568,6 +568,39 @@ export type Tenant = {
   managerIds?: string[];
   /** The caller's own live support grant here, if any. */
   support?: SupportAccess | null;
+  /** An administrator's extension of the payment grace, as a date.
+   *  Null means the standard seven days from the invoice. */
+  graceUntil?: string | null;
+};
+
+/** The relay campaign email leaves through. The password is never sent
+ *  back; `passwordSet` is all the console learns. */
+export type MarketingSender = {
+  host: string;
+  port: number;
+  starttls: boolean;
+  username: string;
+  fromAddress: string;
+  fromName: string;
+  passwordSet: boolean;
+  /** A host and a from address are saved. */
+  configured: boolean;
+  /** `messaging.marketing_email`: whether campaigns may use it at all. */
+  flagEnabled: boolean;
+  lastTestAt: string | null;
+  lastTestOk: boolean | null;
+  lastTestDetail: string;
+};
+
+export type MarketingSenderInput = {
+  host: string;
+  port: number;
+  starttls: boolean;
+  username: string;
+  /** Omit to keep the stored password; an empty string clears it. */
+  password?: string;
+  fromAddress: string;
+  fromName: string;
 };
 
 /** Counts only. No administrator reads a customer's record from these. */
@@ -979,7 +1012,7 @@ export type OfflineSyncResult = {
   accepted: number;
   duplicates: number;
   rejected: number;
-  results: {
+  entries: {
     externalReference: string;
     status: "accepted" | "duplicate" | "rejected";
     transactionId: string | null;
@@ -1353,13 +1386,6 @@ export type QrPayment = {
 };
 
 export type CreditBundle = "payg" | "1000" | "5000";
-
-export type CreditPurchase = {
-  bundle: CreditBundle;
-  segments: number;
-  perSegmentCentavos: number;
-  totalCentavos: number;
-};
 
 export type AddOnSubscription = {
   id: string;

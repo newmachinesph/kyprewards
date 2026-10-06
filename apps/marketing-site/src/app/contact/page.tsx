@@ -61,8 +61,8 @@ export default function ContactPage() {
                 {
                   icon: Mail,
                   title: "Prefer email?",
-                  text: "hello@kypstamping.ph",
-                  href: "mailto:hello@kypstamping.ph",
+                  text: "support@kyprewards.com",
+                  href: "mailto:support@kyprewards.com",
                 },
                 {
                   icon: MessageCircle,

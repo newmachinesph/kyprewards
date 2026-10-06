@@ -13,6 +13,8 @@
 
 import { z } from "zod";
 
+import { isMapsLink } from "./maps-link.ts";
+
 /* ── Shared primitives ────────────────────────────────────────────── */
 
 /**
@@ -119,16 +121,7 @@ export const profileSchema = z.object({
 });
 export type ProfileInput = z.infer<typeof profileSchema>;
 
-/**
- * Google hands out four different share formats. All of them are fine.
- *
- * The short `maps.app.goo.gl` one is what the mobile share sheet produces,
- * which is what a merchant standing in their own shop will paste.
- */
-export const isMapsLink = (value: string) =>
-  /^https?:\/\/((www\.)?google\.[a-z.]+\/maps|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(
-    value.trim(),
-  );
+export { isMapsLink } from "./maps-link.ts";
 
 export const locationSchema = z.object({
   name: z.string().trim().min(2, "Name this branch"),

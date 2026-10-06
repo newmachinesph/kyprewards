@@ -149,6 +149,7 @@ export default function ProductPage() {
         ]}
       />
       <PageHero
+        seam
         image="/images/hero-product.webp"
         eyebrow="The digital stamp card"
         title="One stamp. Then the next."

@@ -14,8 +14,8 @@ const joinUrl = (branch: Pick<PublicBranch, "slug">) =>
 
 const walletUrl = `${customerAppUrl}/login`;
 
-export function ShopPage({ slug }: { slug: string }) {
-  const shop = usePublicShop(slug);
+export function ShopPage({ slug, initial }: { slug: string; initial?: PublicShop }) {
+  const shop = usePublicShop(slug, { initialData: initial });
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1200px] py-10 lg:py-14">

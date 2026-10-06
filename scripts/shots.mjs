@@ -9,9 +9,9 @@
  * Usage: node scripts/shots.mjs [business|admin|customer|marketing|marketplace ...]
  */
 
-import { createHmac } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { chromium } from "playwright";
+import { freshTotp } from "./open-shop.mjs";
 
 const API = process.env.KYP_TEST_API ?? "http://localhost:8000/api/v1";
 const urls = {
@@ -36,18 +36,6 @@ const CUSTOMER_MOBILE = process.env.CUSTOMER_MOBILE ?? "+63 917 555 0182";
 const only = new Set(process.argv.slice(2));
 const wants = (app) => only.size === 0 || only.has(app);
 mkdirSync("design/shots", { recursive: true });
-
-function totp(secret, at = Date.now()) {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-  let bits = "";
-  for (const c of secret.replace(/=+$/, "")) bits += alphabet.indexOf(c.toUpperCase()).toString(2).padStart(5, "0");
-  const key = Buffer.from((bits.match(/.{8}/g) ?? []).map((b) => parseInt(b, 2)));
-  const counter = Buffer.alloc(8);
-  counter.writeBigUInt64BE(BigInt(Math.floor(at / 1000 / 30)));
-  const digest = createHmac("sha1", key).update(counter).digest();
-  const offset = digest[digest.length - 1] & 0x0f;
-  return String((digest.readUInt32BE(offset) & 0x7fffffff) % 1_000_000).padStart(6, "0");
-}
 
 const problems = [];
 const browser = await chromium.launch({ headless: true });
@@ -124,7 +112,7 @@ if (wants("admin")) {
   await page.waitForURL(/verify/, { timeout: 20_000 }).catch(() => {});
   const code = page.locator('input[inputmode="numeric"], input[autocomplete="one-time-code"]').first();
   if (await code.count()) {
-    await code.fill(totp(ADMIN_MFA_SECRET));
+    await code.fill(await freshTotp(ADMIN_MFA_SECRET));
     await page.getByRole("button", { name: /verify|continue/i }).first().click();
   }
   await page.waitForURL((u) => !/login|verify/.test(u.pathname), { timeout: 20_000 });

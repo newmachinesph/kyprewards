@@ -26,6 +26,7 @@ const groups = [
       // document a person joining a stamp card should be reading.
       ["Privacy", "/privacy"],
       ["Terms", "/terms"],
+      ["Cookies", "/cookies"],
     ],
   },
 ];

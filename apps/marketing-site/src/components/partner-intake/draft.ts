@@ -156,4 +156,4 @@ export const isEmail = (value: string) =>
 
 // The intake and the dashboard's location editor accept the same four
 // formats; the rule lives with the schemas so it can only be one rule.
-export { isMapsLink } from "@kypstamping/api/forms";
+export { isMapsLink } from "@kypstamping/api/maps-link";

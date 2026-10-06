@@ -126,7 +126,7 @@ import {
 } from "lucide-react";
 import type { BusinessView } from "@/components/BusinessShell";
 import { IntegrationsView } from "@/components/IntegrationsView";
-import { overageRates, channelRates } from "@/lib/plans";
+import { overageRates, channelRates } from "@kypstamping/ui/plans";
 import { planFor, refusal, usePlanGate, writeBlock } from "@/lib/plan";
 import {
   BlockedNote,
@@ -652,8 +652,18 @@ function AddWalkIn({
               },
               {
                 onSuccess: (created) => {
+                  // A number that already has a KYP wallet is not joined from
+                  // the till: the person joins the shop themselves, or shows
+                  // their own code. Typing a number is not their consent.
+                  if (!created.isMember || !created.memberCode) {
+                    notify(
+                      "That number already has a KYP wallet. Ask them to show their member code, or to join from their wallet.",
+                      "error",
+                    );
+                    return;
+                  }
                   notify(`${created.name} added.`);
-                  onAdded(created);
+                  onAdded({ ...created, memberCode: created.memberCode });
                 },
                 onError: (failure) => notify(failure.message, "error"),
               },
@@ -826,7 +836,13 @@ function ScanView({
             ? { memberCode: typed }
             : { phone: typed },
       );
-      scan(found);
+      // A lookup only answers for this shop's members, so a code is always
+      // there; checked anyway so a member-less answer can never be stamped.
+      if (!found.isMember || !found.memberCode) {
+        setNotFound(typed);
+        return;
+      }
+      scan({ ...found, memberCode: found.memberCode });
       setIdentifier("");
     } catch (failure) {
       if (failure instanceof ApiError && failure.status === 404) {

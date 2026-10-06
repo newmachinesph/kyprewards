@@ -2,6 +2,26 @@
 @import "../../../../packages/ui/src/tokens.css";
 @source "../../../../packages/ui/src";
 
+/* Hallmark · genre: playful · macrostructure: Marquee Hero (loop scene)
+ * theme: studied-DNA (source: https://www.gobalik.com/, 2026-10-06) carried on
+ * the KYP tokens — paper #faf8f3 · ink #18120c · amber #e8a33d · Sora + Inter
+ * enrichment: Tier C generated 3D objects + counter photography (gpt-image-2)
+ * nav: N1b · footer: Ft3 brand-card · designed-as-app (see design.md)
+ * pre-emit critique: P4 H4 E4 S4 R4 V4 */
+
+:root {
+  /* Marketing-only tokens. The brand trio lives in packages/ui/tokens.css. */
+  --band: color-mix(in oklab, var(--accent) 7%, var(--paper));
+  --band-deep: color-mix(in oklab, var(--accent) 13%, var(--paper));
+  --radius-panel: 32px;
+  --shadow-soft:
+    0 1px 2px rgb(24 18 12 / 4%),
+    0 14px 36px -14px rgb(24 18 12 / 16%);
+  --shadow-lift: 0 28px 70px -24px rgb(24 18 12 / 30%);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --seam: 4.5rem;
+}
+
 
 * {
   box-sizing: border-box;
@@ -212,4 +232,95 @@ button:disabled {
   .flip-card-face {
     transition: none;
   }
+}
+
+/* Bands and seams.
+
+   The page alternates paper and a warm amber-tinted band, and the section
+   that follows a band rides over it with an arched top, the way a sheet of
+   paper lies on a counter. `50%` horizontal radius makes the arch span the
+   full width whatever the viewport; the vertical radius is the seam depth. */
+.band {
+  background: var(--band);
+}
+.seam-top {
+  position: relative;
+  margin-top: calc(var(--seam) * -1);
+  border-radius: 50% 50% 0 0 / var(--seam) var(--seam) 0 0;
+}
+.seam-top-band {
+  position: relative;
+  margin-top: calc(var(--seam) * -1);
+  border-radius: 50% 50% 0 0 / var(--seam) var(--seam) 0 0;
+  background: var(--band);
+}
+.pad-seam {
+  padding-bottom: calc(var(--seam) + 2rem);
+}
+
+.panel {
+  border-radius: var(--radius-panel);
+}
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+.shadow-lift {
+  box-shadow: var(--shadow-lift);
+}
+
+/* The section tag: a small pill, centred over its heading. */
+.eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 0.45rem 0.95rem;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+  box-shadow: var(--shadow-soft);
+  /* A long tag wraps on a phone; centred lines and a looser corner keep the
+     two-line pill reading as one shape. */
+  text-align: center;
+  line-height: 1.4;
+  border-radius: 1.25rem;
+}
+.eyebrow-pill-inverse {
+  /* An opaque ink ground, not a white tint: the pill also sits on photos,
+     and amber on an 8% tint over a bright counter fell under 2:1. */
+  border-color: rgb(255 255 255 / 14%);
+  background: rgb(24 18 12 / 72%);
+  color: var(--accent);
+  box-shadow: none;
+}
+
+/* Objects drift a few pixels so the scene reads as rendered, not pasted. */
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+.drift {
+  animation: drift 7s var(--ease-out) infinite;
+}
+.drift-late {
+  animation: drift 8.5s var(--ease-out) 1.4s infinite;
+}
+
+/* The loop ring behind the hero scene: a dashed amber circle. */
+.loop-ring {
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-dasharray: 16 14;
+  stroke-linecap: round;
+  fill: none;
+  opacity: 0.85;
 }

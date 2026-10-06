@@ -80,7 +80,7 @@ apply inside a run exactly as they do to a card that runs forever. A closed
 run is a separate event from raising the target; a card started in a run
 keeps its own target until the run closes.
 
-## Plans (`/pricing`, `plans.ts`)
+## Plans (`/pricing`, `packages/ui/src/plans.ts`)
 
 | | Launch | Core | Grow | Scale |
 |---|---|---|---|---|
@@ -98,9 +98,10 @@ add-on credit on every plan (₱0.95 / ₱0.90 / ₱0.85 per segment). The full
 row-by-row matrix is `featureMatrix` in `plans.ts`; the roadmap page is
 generated from it. Add-ons: Featured in Discover ₱299 a month, extra branch
 reporting ₱150 per branch a month, setup with a person ₱1,500 once (free in
-beta), email top-up ₱25 per 1,000. Merchants pay by GCash, Maya, Visa or
-Mastercard, InstaPay or PESONet. Founding merchants get Core free for three
-months when it opens.
+beta; requested from the dashboard and invoiced by KYP Rewards), email top-up
+₱25 per 1,000 (opens with campaign email). Merchants pay by GCash, Maya and
+bank apps through QR Ph. Founding merchants get Core free for three months
+when it opens.
 
 Where a lever arrives:
 
@@ -126,10 +127,9 @@ Where a lever arrives:
 |---|---|
 | In-app inbox | live, unlimited, every plan |
 | Push | an allowance on every plan; delivery is in-app only until web push exists, which is built last in Phase 1 (D1) |
-| Email campaigns | allowance on paid tiers; the API refuses the channel until a campaign sender exists; transactional email always sends. Two senders by design: transactional (ZeptoMail in production) and marketing (provider undecided); locally two Mailpit boxes, so a campaign seen in the transactional box is a bug |
+| Email campaigns | allowance on paid tiers; the API refuses the channel until a campaign sender exists; transactional email always sends. Two senders by design: transactional (Zoho in production) and marketing (SMTP, configured by an admin in the app and switched off until then); locally two Mailpit boxes, so a campaign seen in the transactional box is a bug |
 | SMS | credits, ₱0.95 per segment, cost shown before every send |
 | Viber and WhatsApp | "connecting", from ₱0.42; never shown as live |
-| SMS from the shop's own phone | Android companion app, opens with Core; roadmap |
 
 Consent is per purpose: joining a program is not consent to marketing.
 Promotional permissions are asked, stored and withdrawable per channel.
@@ -213,5 +213,15 @@ charged for. Off with the same flag as every other purchase.
 
 ## Open decisions the apps should not pre-empt
 
-None as of 2026-09-10. The campaign email provider and the PayMongo webhook
-registration are operations, not app decisions.
+None as of 2026-10-06. The PayMongo webhook registration is an operation,
+not an app decision.
+
+## Analytics and error monitoring (2026-10-06)
+
+GA4 runs on kyprewards.com and kyp.ph only, behind one shared consent gate
+(`@kypstamping/ui/analytics`), each site with its own `/cookies` page. The
+wallet and the signed-in apps never load it. All five Next apps report
+errors to Sentry with personal data scrubbed, only when
+`NEXT_PUBLIC_SENTRY_DSN` is set: the kyp.ph DSN for the wallet and kyp.ph,
+the kyprewards DSN for the other three. `/subprocessors` names every
+production service.

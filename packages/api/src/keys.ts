@@ -121,6 +121,7 @@ export const keys = {
     onboarding: () => [...keys.admin.all, "onboarding"] as const,
     providerPolicy: () => [...keys.admin.all, "provider-policy"] as const,
     flags: () => [...keys.admin.all, "flags"] as const,
+    marketingSender: () => [...keys.admin.all, "marketing-sender"] as const,
     privacy: () => [...keys.admin.all, "privacy"] as const,
     deletionRequests: () => [...keys.admin.all, "deletion-requests"] as const,
     economics: {

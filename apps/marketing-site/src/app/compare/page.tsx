@@ -42,6 +42,7 @@ export default function ComparePage() {
         ]}
       />
       <PageHero
+        seam
         image="/images/hero-integrations.webp"
         eyebrow="Fair product comparison"
         title="See the shortlist honestly."

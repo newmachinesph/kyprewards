@@ -42,8 +42,8 @@ Every view lives in its own file under `src/components/views/`;
 `BusinessViews.tsx` keeps the counter, business profile, favorite orders,
 birthday, redemptions, campaigns and message log, and the `views` record.
 Plan gating is `src/lib/plan.ts` (`usePlanGate`, `writeBlock`, `refusal`,
-`planFor`) over `src/lib/plans.ts`, a byte-for-byte mirror of the marketing
-site's `plans.ts` that must be kept identical. Every tier's feature renders
+`planFor`) over `@kypstamping/ui/plans`, the same file the marketing site
+renders its pricing from; there is no copy to keep in step. Every tier's feature renders
 its full screen; a feature above the plan is tagged with `PlanTag` and its
 writes are disabled with "Opens with <Plan>". A route the API does not serve
 yet renders preview samples under `PreviewBadge` with its writes disabled
@@ -70,7 +70,7 @@ remembered under `kypstamping-till-branch`.
 | Staff | 2, 5, 15 or 50 accounts by tier. Owner, manager, marketer and counter roles from Core. The named ledger on every plan. |
 | Business | Profile, unlimited branches never charged for, hours and neighborhood for Discover, own branding on Core, Discover listing on every plan. |
 | Integrations | Grow only: scoped API keys with one-time secrets, webhooks with the four published events, POS adapters by approval, the offline queue. Wallet passes are blocked on certificates and the screen says so. |
-| Settings and billing | Launch is the live plan; Core, Grow and Scale are coming soon with no date. Founding offer: Core free for three months when it opens. Payment by GCash, Maya, Visa or Mastercard, InstaPay or PESONet. Add-ons: Featured in Discover ₱299 a month, extra branch reporting ₱150 a branch, setup with a person ₱1,500 once and free in beta, SMS credits at ₱0.95, ₱0.90 and ₱0.85, email top-up ₱25 per 1,000. The KYP Rewards badge shows on Launch and is hidden on paid plans. |
+| Settings and billing | Launch is the live plan; Core, Grow and Scale are coming soon with no date. Founding offer: Core free for three months when it opens. Payment by GCash, Maya and bank apps through QR Ph. Add-ons: Featured in Discover ₱299 a month, extra branch reporting ₱150 a branch, setup with a person ₱1,500 once and free in beta (requested from the dashboard, invoiced by KYP Rewards), SMS credits at ₱0.95, ₱0.90 and ₱0.85, email top-up ₱25 per 1,000 (opens with campaign email). The KYP Rewards badge shows on Launch and is hidden on paid plans. |
 | Privacy | Consent ledger, export and deletion workflows on every plan. |
 
 ## Known gaps, in order
@@ -123,7 +123,8 @@ every tier's feature. What is left:
 - Every refusal the API sends is shown; the toast renders outside
   `#main-content`, so tests read the whole page.
 - `POST /counter/offline-sync` is never called from here.
-- No analytics, no third-party scripts.
+- No analytics, no third-party scripts. Sentry, with personal data
+  scrubbed, is the one exception (`../../AGENTS.md` rule 5).
 
 ## Verify
 

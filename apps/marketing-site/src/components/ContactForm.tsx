@@ -2,7 +2,8 @@
 
 import { FormEvent, useState } from "react";
 import { Check, LoaderCircle, Send } from "lucide-react";
-import { ApiError, submitContact } from "@kypstamping/api";
+import { submitContact } from "@kypstamping/api/endpoints";
+import { ApiError } from "@kypstamping/api/http";
 import { businessCategories } from "@/lib/content";
 
 type FormState = "idle" | "sending" | "sent";

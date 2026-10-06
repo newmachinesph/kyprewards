@@ -1,4 +1,16 @@
 apps/mobile
-# Local env points at localhost and turns preview data on; never upload it.
-.env*.local
-**/.env*.local
+# Every env file. Local ones point at localhost and turn preview data on; the
+# root .env holds deploy tokens. Production values are set per Vercel project.
+.env
+.env*
+**/.env
+**/.env*
+!.env.example
+# Local build output and caches: Vercel builds from source.
+**/.next
+**/node_modules
+**/*.tsbuildinfo
+**/.turbo
+.vercel
+test-results
+playwright-report

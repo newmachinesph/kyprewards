@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { captureError } from "@kypstamping/ui/sentry";
 import { RotateCcw, Stamp } from "lucide-react";
 
 export default function ErrorPage({
@@ -10,7 +11,10 @@ export default function ErrorPage({
   error: Error & { digest?: string };
   retry: () => void;
 }) {
-  useEffect(() => console.error(error), [error]);
+  useEffect(() => {
+    console.error(error);
+    captureError(error);
+  }, [error]);
 
   return (
     <main className="site-canvas grid min-h-[calc(100dvh-72px)] place-items-center px-4 py-20 text-center">

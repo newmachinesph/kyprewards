@@ -56,7 +56,7 @@ const sections = [
       "Rights under the Act include being informed, access, objection, correction, erasure or blocking, data portability, damages, and lodging a complaint with the National Privacy Commission.",
     ],
     bullets: [
-      "Requests about an account, its history, or removal from the platform: send to us at hello@kypstamping.ph, or use the privacy center in the customer app.",
+      "Requests about an account, its history, or removal from the platform: send to us at support@kyprewards.com, or use the privacy center in the customer app.",
       "Requests about a specific shop's own records or messages: the shop is the right first stop, and we will pass on anything that reaches us.",
       "Leaving a business's program stops further sharing immediately and removes the customer from that business's member list.",
       "We may verify identity before acting, and will say so rather than going silent.",
@@ -80,7 +80,7 @@ const sections = [
     title: "Status of this document",
     paragraphs: [
       "This page describes how data actually moves between a customer, a merchant and KYP Rewards today, and it is accurate for the beta. Three things are still being completed alongside our incorporation: the executed data sharing agreement, the appointment and contact details of the Data Protection Officer, and registration with the National Privacy Commission. Each will be settled with qualified Philippine counsel and named here before anything is charged.",
-      "Questions can be sent to hello@kypstamping.ph.",
+      "Questions can be sent to support@kyprewards.com.",
     ],
   },
 ];

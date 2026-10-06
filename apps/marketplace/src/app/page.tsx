@@ -4,6 +4,7 @@ import { Search, ShieldCheck, Stamp, UserRoundCheck } from "lucide-react";
 import { customerAppUrl, merchantSiteUrl } from "@/lib/site";
 import { ActionLink, Eyebrow, Section } from "@/components/Ui";
 import { CategoryChips, FeaturedRow, LocationButton } from "@/components/HomeSections";
+import { loadHome } from "@/lib/public-data";
 
 export const metadata: Metadata = {
   title: { absolute: "KYP — rewards from the shops around you" },
@@ -28,7 +29,12 @@ const steps = [
   },
 ];
 
-export default function Home() {
+// The categories and featured shops are read on the server once an hour
+// and handed to the client, rather than fetched by every visitor's browser.
+export const revalidate = 3600;
+
+export default async function Home() {
+  const { categories, shops } = await loadHome();
   return (
     <>
       <section className="border-b border-[var(--line)] px-4 sm:px-6 lg:px-8">
@@ -72,7 +78,7 @@ export default function Home() {
                 Browse by category
               </p>
               <div className="mt-3">
-                <CategoryChips />
+                <CategoryChips initialData={categories} />
               </div>
             </div>
           </div>
@@ -93,7 +99,7 @@ export default function Home() {
       </section>
 
       <Section className="py-14 lg:py-20">
-        <FeaturedRow />
+        <FeaturedRow initialData={shops} />
       </Section>
 
       <Section className="border-t border-[var(--line)] py-14 lg:py-20">

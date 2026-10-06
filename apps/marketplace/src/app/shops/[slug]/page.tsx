@@ -6,6 +6,16 @@ import { ShopPage } from "@/components/ShopPage";
 
 type Params = Promise<{ slug: string }>;
 
+// Each shop renders at most once per ten minutes however often crawlers come;
+// a slug never seen before still renders on its first request. The empty
+// list is what makes that work: no shop is built ahead, and without it the
+// route stays fully dynamic and `revalidate` does nothing.
+export const revalidate = 600;
+
+export function generateStaticParams(): { slug: string }[] {
+  return [];
+}
+
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const lookup = await loadShop(slug);
@@ -33,7 +43,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function Shop({ params }: { params: Params }) {
   const { slug } = await params;
   // A slug the API does not know answers 404 with `noindex`; a network
-  // failure does not, because the page can still load in the browser.
-  if ((await loadShop(slug)).status === "missing") notFound();
-  return <ShopPage slug={slug} />;
+  // failure does not, because the page can still load in the browser. A
+  // found shop is handed to the client as its first data, so the server
+  // renders the whole body and the browser does not fetch it a second time.
+  const lookup = await loadShop(slug);
+  if (lookup.status === "missing") notFound();
+  return <ShopPage slug={slug} initial={lookup.status === "found" ? lookup.shop : undefined} />;
 }

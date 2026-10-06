@@ -48,7 +48,11 @@ import {
   setProviderPolicy,
   useAdministrators,
   useApiMutation,
+  useMarketingSender,
   useProviderPolicy,
+  useQueryClient,
+  saveMarketingSender,
+  testMarketingSender,
   usePlatformFlags,
   usePlatformCampaigns,
   usePlatformInvoices,
@@ -59,6 +63,7 @@ import {
   EMPTY_PLATFORM_METRICS,
   useServices,
   useTenants,
+  type MarketingSenderInput,
   type PlatformRole,
   type ProviderPolicy,
   type ServiceHealth,
@@ -1409,7 +1414,7 @@ const BILLING_FLAGS = [
   {
     key: "billing.credit_purchases",
     title: "Credit purchases",
-    detail: "SMS credit bundles and email top-ups can be bought, QR Ph only.",
+    detail: "SMS credit bundles can be bought, QR Ph only.",
   },
 ] as const;
 
@@ -1500,6 +1505,314 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
               here the day `/admin/flags` returns it; nothing on this page needs
               to change.
             </p>
+          )}
+        </QueryBoundary>
+      </div>
+    </section>
+  );
+}
+
+const MARKETING_FLAG = "messaging.marketing_email";
+
+/**
+ * The relay campaign email leaves through, and the switch that lets it.
+ *
+ * Never the transactional sender: that one carries every sign-in code. The
+ * password goes in and never comes back - the API says only whether one is
+ * set. Campaign email cannot be switched on until a test through the relay
+ * as saved has passed, and any change to the relay clears that test.
+ */
+function MarketingSenderCard({ notify }: { notify: Notify }) {
+  const { data: sender, isPending, error, refetch } = useMarketingSender();
+  const { flags, toggleFlag } = useAdminState();
+  const queryClient = useQueryClient();
+  const [draft, setDraft] = useState<Omit<MarketingSenderInput, "password"> | null>(null);
+  // "" keeps the stored password; `clearPassword` sends "" to remove it.
+  const [password, setPassword] = useState("");
+  const [clearPassword, setClearPassword] = useState(false);
+  const [testTo, setTestTo] = useState("");
+  const invalidates = [keys.admin.marketingSender(), keys.admin.audit()];
+  const save = useApiMutation(saveMarketingSender, { invalidates });
+  const test = useApiMutation(testMarketingSender, { invalidates });
+
+  const shown = draft ?? sender;
+  const dirty = draft !== null || password !== "" || clearPassword;
+  const flagPresent = MARKETING_FLAG in flags;
+  const flagOn = flags[MARKETING_FLAG] ?? false;
+  const testPassed = sender?.lastTestOk === true;
+  const switchReason = !flagPresent
+    ? PREVIEW_WRITE_REASON
+    : !flagOn && !testPassed
+      ? "Needs a saved sender and a test that passes first."
+      : null;
+  const testReason = !sender?.configured
+    ? "Save a host and a from address first."
+    : dirty
+      ? "Save your changes first; the test uses the sender as saved."
+      : null;
+  const field =
+    "min-h-10 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]";
+  const edit = (patch: Partial<Omit<MarketingSenderInput, "password">>) =>
+    shown &&
+    setDraft({
+      host: shown.host,
+      port: shown.port,
+      starttls: shown.starttls,
+      username: shown.username,
+      fromAddress: shown.fromAddress,
+      fromName: shown.fromName,
+      ...patch,
+    });
+
+  return (
+    <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+      <div className="flex items-start justify-between gap-3 border-b border-[var(--line)] p-5">
+        <div>
+          <Eyebrow>Campaign email</Eyebrow>
+          <h2 className="mt-1 text-lg font-extrabold">Marketing sender</h2>
+          <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+            The SMTP relay campaigns go out through, kept apart from the one that sends sign-in
+            codes. Every save and test is written to the audit ledger by the API.
+          </p>
+        </div>
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--surface-2)]">
+          <Mail size={17} aria-hidden="true" />
+        </span>
+      </div>
+      <div className="p-5">
+        <QueryBoundary
+          isPending={isPending}
+          error={error}
+          onRetry={refetch}
+          label="marketing sender"
+          rows={3}
+        >
+          {shown && sender && (
+            <>
+              <form
+                className="grid gap-2 sm:grid-cols-2"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  save.mutate(
+                    {
+                      ...shown,
+                      ...(clearPassword ? { password: "" } : password ? { password } : {}),
+                    },
+                    {
+                      onSuccess: () => {
+                        setDraft(null);
+                        setPassword("");
+                        setClearPassword(false);
+                        test.reset();
+                      },
+                    },
+                  );
+                }}
+              >
+                <label className="grid gap-1 text-[11px] font-bold sm:col-span-2">
+                  Host
+                  <input
+                    value={shown.host}
+                    onChange={(event) => edit({ host: event.target.value })}
+                    required
+                    maxLength={255}
+                    placeholder="smtp.example.com"
+                    className={field}
+                  />
+                </label>
+                <label className="grid gap-1 text-[11px] font-bold">
+                  Port
+                  <input
+                    type="number"
+                    min={1}
+                    max={65535}
+                    value={shown.port}
+                    onChange={(event) => edit({ port: Number(event.target.value) })}
+                    required
+                    className={field}
+                  />
+                </label>
+                <label className="flex items-center gap-2 self-end pb-2 text-[11px] font-bold">
+                  <input
+                    type="checkbox"
+                    checked={shown.starttls}
+                    onChange={(event) => edit({ starttls: event.target.checked })}
+                  />
+                  STARTTLS
+                </label>
+                <label className="grid gap-1 text-[11px] font-bold">
+                  Username
+                  <input
+                    value={shown.username}
+                    onChange={(event) => edit({ username: event.target.value })}
+                    maxLength={255}
+                    autoComplete="off"
+                    className={field}
+                  />
+                </label>
+                <label className="grid gap-1 text-[11px] font-bold">
+                  <span className="flex items-center gap-2">
+                    Password
+                    {sender.passwordSet && !clearPassword && <Pill tone="success">Set</Pill>}
+                  </span>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(event) => {
+                      setPassword(event.target.value);
+                      setClearPassword(false);
+                    }}
+                    maxLength={500}
+                    autoComplete="new-password"
+                    placeholder={
+                      clearPassword
+                        ? "Removed on save"
+                        : sender.passwordSet
+                          ? "Set; leave blank to keep"
+                          : "Not set"
+                    }
+                    className={field}
+                  />
+                </label>
+                <label className="grid gap-1 text-[11px] font-bold">
+                  From address
+                  <input
+                    type="email"
+                    value={shown.fromAddress}
+                    onChange={(event) => edit({ fromAddress: event.target.value })}
+                    required
+                    placeholder="news@kyprewards.com"
+                    className={field}
+                  />
+                </label>
+                <label className="grid gap-1 text-[11px] font-bold">
+                  From name
+                  <input
+                    value={shown.fromName}
+                    onChange={(event) => edit({ fromName: event.target.value })}
+                    maxLength={120}
+                    placeholder="KYP Rewards"
+                    className={field}
+                  />
+                </label>
+                <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
+                  <Button tone="accent" type="submit" disabled={!dirty || save.isPending}>
+                    {save.isPending ? "Saving\u2026" : dirty ? "Save sender" : "Saved"}
+                  </Button>
+                  {sender.passwordSet && !clearPassword && (
+                    <Button
+                      tone="quiet"
+                      type="button"
+                      onClick={() => {
+                        setPassword("");
+                        setClearPassword(true);
+                      }}
+                    >
+                      Remove password
+                    </Button>
+                  )}
+                  <p className="text-[10px] leading-relaxed text-[var(--muted)]">
+                    Saving a change clears the last test and switches campaign email off.
+                  </p>
+                </div>
+                {save.error && (
+                  <p role="status" className="text-[11px] font-semibold text-[var(--danger)] sm:col-span-2">
+                    {save.error.message}
+                  </p>
+                )}
+              </form>
+
+              <form
+                className="mt-5 grid gap-2 border-t border-[var(--line)] pt-5"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  test.mutate(testTo.trim());
+                }}
+              >
+                <p className="text-xs font-extrabold">Send a test</p>
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={testTo}
+                    onChange={(event) => setTestTo(event.target.value)}
+                    required
+                    aria-label="Send the test to"
+                    placeholder="you@kyprewards.com"
+                    className={field}
+                  />
+                  <Button
+                    tone="accent"
+                    type="submit"
+                    disabled={Boolean(testReason) || !testTo.trim() || test.isPending}
+                  >
+                    {test.isPending ? "Sending\u2026" : "Send test"}
+                  </Button>
+                </div>
+                {testReason && (
+                  <p className="text-[11px] text-[var(--muted-strong)]">{testReason}</p>
+                )}
+                {test.error && (
+                  <p role="status" className="text-[11px] font-semibold text-[var(--danger)]">
+                    {test.error.message}
+                  </p>
+                )}
+                {(test.data ?? sender.lastTestAt) && (
+                  <p
+                    role="status"
+                    className={`text-[11px] font-semibold ${(test.data?.ok ?? testPassed) ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
+                  >
+                    {(test.data?.ok ?? testPassed) ? "Passed" : "Failed"}:{" "}
+                    {test.data?.detail ?? sender.lastTestDetail}
+                    {!test.data && sender.lastTestAt && (
+                      <span className="ml-1 font-normal text-[var(--muted)]">
+                        ({relativeTime(sender.lastTestAt)})
+                      </span>
+                    )}
+                  </p>
+                )}
+              </form>
+
+              <div className="mt-5 flex items-start gap-4 border-t border-[var(--line)] pt-5">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-extrabold">Campaign email</p>
+                    <code className="font-mono text-[10px] text-[var(--muted)]">
+                      {MARKETING_FLAG}
+                    </code>
+                    {!flagPresent && <PreviewBadge />}
+                  </div>
+                  <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+                    Lets businesses send campaigns by email through this sender. Off, the email
+                    channel is refused with a reason; it never falls back to the sign-in relay.
+                  </p>
+                  {switchReason && (
+                    <p className="mt-1 text-[11px] text-[var(--muted-strong)]">{switchReason}</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-label="Toggle campaign email"
+                  aria-checked={flagOn}
+                  disabled={Boolean(switchReason)}
+                  title={switchReason ?? undefined}
+                  onClick={() =>
+                    toggleFlag(MARKETING_FLAG, {
+                      onDone: (next) => {
+                        void queryClient.invalidateQueries({ queryKey: keys.admin.marketingSender() });
+                        notify(`Campaign email ${next ? "on" : "off"}. The API wrote it to the audit ledger.`);
+                      },
+                      onFailed: (message) => notify(message, "error"),
+                    })
+                  }
+                  className={`relative h-6 w-10 shrink-0 rounded-full disabled:opacity-45 ${flagOn ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
+                >
+                  <span
+                    className={`absolute top-1 size-4 rounded-full bg-white transition ${flagOn ? "left-5" : "left-1"}`}
+                  />
+                </button>
+              </div>
+            </>
           )}
         </QueryBoundary>
       </div>
@@ -1697,6 +2010,7 @@ function SettingsView({ notify }: { notify: Notify }) {
             })}
           </section>
           <BillingFlagsCard notify={notify} />
+          <MarketingSenderCard notify={notify} />
         </div>
         <aside className="space-y-3">
           <ProviderPolicyCard notify={notify} />

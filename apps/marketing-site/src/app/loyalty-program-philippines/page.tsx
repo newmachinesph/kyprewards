@@ -103,6 +103,7 @@ export default function LoyaltyPhilippinesPage() {
         ]}
       />
       <PageHero
+        seam
         image="/images/hero-about.webp"
         eyebrow="Digital loyalty program Philippines"
         title="A loyalty program people can use — and a business can afford."

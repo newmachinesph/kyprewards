@@ -63,8 +63,9 @@ export function walletExists(
 }
 
 /**
- * Empty in the browser so requests are same-origin through a rewrite; set to
- * the absolute API root when the apps and the API are on different hosts.
+ * The absolute API root, on the app's own site (api.kyprewards.com or
+ * api.kyp.ph) so the session cookie stays first-party. No app rewrites to a
+ * same-origin path; empty only resolves against the page's own origin.
  *
  * `NEXT_PUBLIC_` values are inlined at build time — changing this after a
  * build does nothing to the deployed bundle.
@@ -74,8 +75,8 @@ export function apiBase(): string {
   // wherever it appears, so a function is just as bundler-friendly, and it
   // lets a test point the client at a stack without import-order games.
   //
-  // The mobile app has no rewrite to be same-origin through and no `NEXT_`
-  // variables at all; it sets the base explicitly on boot.
+  // The mobile app has no `NEXT_` variables at all; it sets the base
+  // explicitly on boot.
   return configured.base ?? process.env.NEXT_PUBLIC_API_BASE ?? "";
 }
 

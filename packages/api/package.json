@@ -7,6 +7,7 @@
     ".": "./src/index.ts",
     "./http": "./src/http.ts",
     "./forms": "./src/forms.ts",
+    "./maps-link": "./src/maps-link.ts",
     "./stores": "./src/stores.ts",
     "./types": "./src/types.ts",
     "./endpoints": "./src/endpoints.ts"

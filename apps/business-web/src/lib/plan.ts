@@ -15,7 +15,7 @@ import {
   type PlanName,
 } from "@kypstamping/api";
 import { PLAN_RANK } from "@kypstamping/api/forms";
-import { featureMatrix, planLimits, plans } from "./plans";
+import { featureMatrix, planLimits, plans } from "@kypstamping/ui/plans";
 
 export const PLAN_NAMES = plans.map((plan) => plan.name) as PlanName[];
 

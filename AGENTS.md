@@ -15,7 +15,7 @@ what the other apps must do. Its data files are canonical:
 
 | File | Owns |
 |---|---|
-| `apps/marketing-site/src/lib/plans.ts` | plans, prices, the feature matrix, plan limits, add-ons, channel rates, payment methods, founding offer |
+| `packages/ui/src/plans.ts` (`@kypstamping/ui/plans`) | plans, prices, the feature matrix, plan limits, add-ons, channel rates, payment methods, founding offer. The site's data; it lives in `packages/ui` so business-web reads the same file instead of a copy |
 | `apps/marketing-site/src/lib/content.ts` | industries, resources, business categories, the short FAQ |
 | `apps/marketing-site/src/app/llms.txt/route.ts` | the whole product in prose, generated from the two files above |
 | `/product`, `/features`, `/pricing`, `/integrations`, `/roadmap`, `/faq` | the surfaces, the stamp-card rules, what is live, next and later |
@@ -84,8 +84,11 @@ the three `overrides` in the root `package.json` that keep it that way).
   API's field errors back under inputs. `contract.test.ts` runs against the
   live service. Never copy server state into zustand.
 - `packages/ui` is tokens (`tokens.css`), the seal mark and wordmark, the
-  session gate and auth flows, the shell helpers, and `format.ts` for money,
-  time and distance. Never make a per-app copy of any of it.
+  session gate and auth flows, the shell helpers, `format.ts` for money,
+  time and distance, `plans.ts` (the pricing spec), `analytics.tsx` (the GA4
+  consent gate for the two public sites) and `sentry.ts` (the Sentry options
+  each app's `instrumentation.ts` and `instrumentation-client.ts` use). Never
+  make a per-app copy of any of it.
 - `packages/demo-data` is one narrated scenario the marketing site uses. It
   is a story, not a record, and the API has no route for it.
 - `apps/mobile` is the Android and iOS app: Expo Router screens over
@@ -113,8 +116,11 @@ the three `overrides` in the root `package.json` that keep it that way).
 4. **Units:** money is integer centavos through `pesoFromCentavos`; time is
    ISO through `relativeTime`, `timeOfDay`, `longDate`; distance is metres
    through `formatDistance`. No display strings from the API, ever.
-5. **No analytics or third-party scripts** in the signed-in apps or the
-   marketplace. The marketing site loads GA4 only through `AnalyticsConsent`.
+5. **No analytics or marketing scripts** in the signed-in apps or the
+   wallet. GA4 runs only on kyprewards.com and kyp.ph, and only through the
+   shared consent gate `AnalyticsConsent` (`@kypstamping/ui/analytics`), each
+   site with its own `/cookies` page. Error monitoring with personal data
+   scrubbed (Sentry, `@kypstamping/ui/sentry`) is allowed in every app.
 6. **Brand names:** "KYP Rewards" (two words) in merchant-facing copy; the
    wordmark is `KYP` + `Stamping` set tight; "KYP" alone on kyp.ph and in the
    wallet. See `docs/BRAND.md`.

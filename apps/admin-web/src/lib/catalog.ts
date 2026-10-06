@@ -1,10 +1,9 @@
 /**
  * The add-ons, credit rates and founding offer as the pricing page sells them.
  *
- * `apps/marketing-site/src/lib/plans.ts` is the spec and this mirrors its
- * numbers in centavos. It lives here because the admin app cannot import
- * another app's source; the day `packages/ui` or `packages/api` exports the
- * catalogue, this file goes.
+ * `packages/ui/src/plans.ts` is the spec and this mirrors its numbers in
+ * centavos. That file is now importable as `@kypstamping/ui/plans`, so the
+ * next change here should derive from it instead of mirroring it.
  */
 
 import type { AddOnSubscription } from "@kypstamping/api";

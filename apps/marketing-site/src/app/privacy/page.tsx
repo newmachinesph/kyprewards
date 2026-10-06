@@ -57,7 +57,7 @@ const sections = [
     ],
     bullets: [
       "Depending on where you live, you may have rights to access, correct, delete, restrict, or receive a copy of personal information.",
-      "Requests can be sent to hello@kypstamping.ph. We may verify identity before completing a request.",
+      "Requests can be sent to support@kyprewards.com. We may verify identity before completing a request.",
     ],
   },
   {
@@ -79,7 +79,7 @@ const sections = [
     title: "Data Protection Officer",
     paragraphs: [
       "The Act requires a Personal Information Controller to appoint a Data Protection Officer accountable for compliance. Ours is being appointed alongside our incorporation and registration with the National Privacy Commission, and this section will carry their name and a direct address before anything is charged. We would rather name a real person here than a role nobody answers.",
-      "In the meantime privacy questions, access requests, corrections, objections and deletion requests reach the team at hello@kypstamping.ph, and are handled on the timescales set out on this page — the process is running now, whatever the title on the door.",
+      "In the meantime privacy questions, access requests, corrections, objections and deletion requests reach the team at support@kyprewards.com, and are handled on the timescales set out on this page — the process is running now, whatever the title on the door.",
     ],
   },
   {
@@ -108,7 +108,7 @@ const sections = [
     title: "Changes and contact",
     paragraphs: [
       "We will update this notice when our practices or legal obligations change. Material changes will be communicated through the service or by another appropriate method.",
-      "Questions about this notice can be sent to hello@kypstamping.ph.",
+      "Questions about this notice can be sent to support@kyprewards.com.",
     ],
   },
 ];

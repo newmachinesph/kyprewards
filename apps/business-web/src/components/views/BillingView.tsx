@@ -19,9 +19,9 @@ import {
 import { Button, Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kypstamping/ui";
 import { longDate, peso, pesoFromCentavos } from "@kypstamping/ui/format";
 import { Check, CreditCard, QrCode, Sparkles } from "lucide-react";
-import { addOns, foundingOffer, paymentMethods, plans } from "@/lib/plans";
+import { addOns, foundingOffer, plans } from "@kypstamping/ui/plans";
 import { refusal, retryOnce } from "@/lib/plan";
-import { useSetSetting } from "@/components/mutations";
+import { useRaiseSupportRequest, useSetSetting } from "@/components/mutations";
 import { PaymentSheet } from "@/components/views/PaymentSheet";
 import { BlockedNote, Field, inputClass, onlyDigits, type Notify } from "@/components/views/shared";
 
@@ -43,6 +43,46 @@ const BILLING_PREFERENCES = [
   ["autoTopUpSms", "Top up SMS credits automatically", "Buy 500 more whenever the balance drops under 200"],
   ["invoiceEmails", "Email invoices to the owner", ""],
 ] as const;
+
+/** The add-on a person delivers: requested here, answered from the admin queue. */
+const SETUP_ADD_ON = "Setup with a person";
+
+/**
+ * The site says setup with a person is requested from the dashboard. This is
+ * that request: a support ticket the KYP Rewards team reads and invoices
+ * from, not a purchase, so it works whether or not billing is open.
+ */
+function SetupRequest({ notify }: { notify: Notify }) {
+  const raise = useRaiseSupportRequest();
+  const [sent, setSent] = useState<string | null>(null);
+  if (sent) {
+    return <span className="text-xs font-bold text-[var(--muted-strong)]">Requested · {sent}</span>;
+  }
+  return (
+    <Button
+      tone="quiet"
+      disabled={raise.isPending}
+      onClick={() =>
+        raise.mutate(
+          {
+            subject: SETUP_ADD_ON,
+            category: "Setup",
+            detail: "Requested from Billing. Please contact the owner to schedule setup.",
+          },
+          {
+            onSuccess: (ticket) => {
+              setSent(ticket.id);
+              notify(`Requested. Reference ${ticket.id}; someone will email you to schedule it.`);
+            },
+            onError: (failure) => notify(refusal(failure), "error"),
+          },
+        )
+      }
+    >
+      {raise.isPending ? "Requesting…" : "Request"}
+    </Button>
+  );
+}
 
 export function BillingView({ notify }: { notify: Notify }) {
   const { data: billing, isPending, error, refetch } = useBilling();
@@ -260,7 +300,6 @@ export function BillingView({ notify }: { notify: Notify }) {
             <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
               Every payment is a QR Ph code you scan with GCash, Maya or your bank app. Nothing is stored here: no card on file, no chooser.
               {billing.paymentMethods?.length ? ` The account accepts ${billing.paymentMethods.join(", ").toUpperCase()}.` : ""}
-              {" "}The site lists {paymentMethods.join(", ")}; through QR Ph they all land the same way.
             </p>
             <div className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">
               {billing.invoices.length === 0 ? (
@@ -342,6 +381,7 @@ export function BillingView({ notify }: { notify: Notify }) {
                     <th className="px-4 py-3">Price</th>
                     <th className="px-4 py-3">Plans</th>
                     <th className="px-4 py-3">What it is</th>
+                    <th className="px-4 py-3" aria-label="Request" />
                   </tr>
                 </thead>
                 <tbody>
@@ -351,6 +391,9 @@ export function BillingView({ notify }: { notify: Notify }) {
                       <td className="px-4 py-4 text-sm font-bold">{addOn.price}</td>
                       <td className="px-4 py-4 text-xs">{addOn.plans}</td>
                       <td className="px-4 py-4 text-xs leading-relaxed text-[var(--muted-strong)]">{addOn.detail}</td>
+                      <td className="px-4 py-4">
+                        {addOn.name === SETUP_ADD_ON && <SetupRequest notify={notify} />}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

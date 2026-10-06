@@ -2,7 +2,9 @@
  * Server-side reads for metadata, the sitemap and the shop page's 404.
  *
  * The screens themselves render through the hooks in `@kypstamping/api`;
- * these exist only where a hook cannot run (`generateMetadata`, `sitemap.ts`).
+ * these run where a hook cannot (`generateMetadata`, `sitemap.ts`) and hand
+ * the static pages their first data, so a visitor's browser does not repeat
+ * the call the server already made.
  * They go through the same `withPreview` seam, so under preview mode they
  * see the same sample shops the hooks do, and the day the public routes ship
  * they read the API with no change here.
@@ -19,6 +21,7 @@ import {
   previewSamples,
   withPreview,
   type DiscoverFacet,
+  type Page,
   type PublicShop,
 } from "@kypstamping/api";
 
@@ -44,6 +47,25 @@ export const loadShop = cache(async (slug: string): Promise<ShopLookup> => {
     return { status: "unknown" };
   }
 });
+
+/**
+ * The home page's two reads, made once per regeneration instead of per visit.
+ * A read that fails comes back undefined rather than empty, so the browser
+ * fetches it as before instead of caching "no shops" for an hour.
+ */
+export async function loadHome(): Promise<{
+  categories: DiscoverFacet[] | undefined;
+  shops: Page<PublicShop> | undefined;
+}> {
+  const [categories, shops] = await Promise.all([
+    withPreview(getPublicCategories, previewSamples.sampleCategories)().catch(() => undefined),
+    withPreview(
+      () => getPublicDiscover({ limit: 6 }),
+      () => previewSamples.samplePublicDiscover(),
+    )().catch(() => undefined),
+  ]);
+  return { categories, shops };
+}
 
 export async function loadDirectory(): Promise<{
   shops: PublicShop[];

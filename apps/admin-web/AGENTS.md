@@ -114,7 +114,8 @@ below is what is left.
 - Sample sizes are stated: "6 of 284 tenants" is a sample, not a table.
 - Every tenant or adapter action writes to the audit ledger through the API;
   nothing is recorded client-side.
-- No analytics, no third-party scripts.
+- No analytics, no third-party scripts. Sentry, with personal data
+  scrubbed, is the one exception (`../../AGENTS.md` rule 5).
 
 ## Verify
 

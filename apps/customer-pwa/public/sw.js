@@ -1,6 +1,7 @@
 // The wallet has to open at a counter with no signal, so the shell and its
 // static assets are cached, not just an "you are offline" page.
-const CACHE = "kyp-shell-v4";
+// v5 drops the error and redirect pages v4 may have cached.
+const CACHE = "kyp-shell-v5";
 const OFFLINE_URL = "/offline";
 const PRECACHE = ["/", OFFLINE_URL, "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
 
@@ -69,8 +70,13 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(request, copy));
+          // Only a real page is worth replaying offline. A 500, a 404 or a
+          // redirect to /login cached here was served back as the wallet the
+          // next time the counter had no signal.
+          if (response.ok && !response.redirected) {
+            const copy = response.clone();
+            caches.open(CACHE).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
         .catch(async () => {
