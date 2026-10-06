@@ -13,13 +13,12 @@ import {
 } from "@kypstamping/api";
 import { Button, Eyebrow, PreviewNotice, QueryBoundary, ViewFrame } from "@kypstamping/ui";
 import { pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
+import { Field, Input, Select } from "@kypstamping/ui/form";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { HandCoins } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
 import {
   BlockedNote,
-  Field,
-  inputClass,
   newReference,
   onlyMoney,
   pesosToCentavos,
@@ -149,18 +148,18 @@ export function StoreCreditView({ notify }: { notify: Notify }) {
             }}
           >
             <Field label="Customer">
-              <select value={customerId} onChange={(event) => setCustomerId(event.target.value)} className={inputClass}>
+              <Select value={customerId} onChange={(event) => setCustomerId(event.target.value)}>
                 <option value="">Choose a customer</option>
                 {customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>{customer.name}</option>
                 ))}
-              </select>
+              </Select>
             </Field>
             <Field label="Amount in pesos">
-              <input value={pesos} onChange={(event) => setPesos(onlyMoney(event.target.value))} inputMode="decimal" placeholder="150" className={inputClass} />
+              <Input value={pesos} onChange={(event) => setPesos(onlyMoney(event.target.value))} inputMode="decimal" placeholder="150" />
             </Field>
             <Field label="Reason" hint="Required. It is on the entry for good.">
-              <input value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Wrong order on Sunday, make-good" className={inputClass} />
+              <Input value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Wrong order on Sunday, make-good" />
             </Field>
             <p className="text-xs text-[var(--muted-strong)]">
               Issued by <strong>{session?.name ?? "you"}</strong>

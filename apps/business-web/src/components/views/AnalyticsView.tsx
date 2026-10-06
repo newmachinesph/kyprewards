@@ -23,6 +23,7 @@ import {
   type QrPayment,
 } from "@kypstamping/api";
 import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { FormMessage } from "@kypstamping/ui/form";
 import { longDate, pesoCompactFromCentavos, pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { branchAllowance, planFor, refusal, retryOnce, usePlanGate, type Gate } from "@/lib/plan";
@@ -347,9 +348,7 @@ function BranchPerformanceTable({ gate }: { gate: Gate }) {
             {buyBlocked && (
               <p className="mt-2 text-[11px] font-semibold text-[var(--muted-strong)]">{buyBlocked}.</p>
             )}
-            {failure && (
-              <p role="alert" className="mt-2 text-[11px] font-semibold text-[var(--danger)]">{failure}</p>
-            )}
+            <FormMessage tone="error" className="mt-2">{failure}</FormMessage>
           </div>
         )}
       </QueryBoundary>

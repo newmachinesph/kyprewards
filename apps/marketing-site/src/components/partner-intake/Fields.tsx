@@ -57,10 +57,10 @@ export function Field({
 }
 
 export const inputClass =
-  "focus-ring min-h-12 w-full rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 text-[15px] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]";
+  "focus-ring min-h-12 w-full rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 text-base outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]";
 
 export const inputInvalidClass =
-  "focus-ring min-h-12 w-full rounded-2xl border-2 border-[var(--danger)] bg-[var(--paper)] px-4 text-[15px] outline-none transition placeholder:text-[var(--muted)]";
+  "focus-ring min-h-12 w-full rounded-2xl border-2 border-[var(--danger)] bg-[var(--paper)] px-4 text-base outline-none transition placeholder:text-[var(--muted)]";
 
 /**
  * A set of mutually exclusive answers, as buttons rather than a select.

@@ -11,11 +11,12 @@ import {
   type Mission,
 } from "@kypstamping/api";
 import { Button, Eyebrow, Pill, PreviewNotice, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Field, Input, Select } from "@kypstamping/ui/form";
 import { longDate } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { Target } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
-import { BlockedNote, Field, inputClass, isoDay, onlyDigits, type Notify } from "@/components/views/shared";
+import { BlockedNote, isoDay, onlyDigits, type Notify } from "@/components/views/shared";
 
 const GOALS: { value: Mission["goal"]; label: string; unit: string }[] = [
   { value: "visits", label: "Visit a number of times", unit: "visits" },
@@ -168,37 +169,37 @@ export function MissionsView({ notify }: { notify: Notify }) {
             }}
           >
             <Field label="Name">
-              <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Visit three times this month" className={inputClass} />
+              <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Visit three times this month" />
             </Field>
             <Field label="Goal">
-              <select value={goal} onChange={(event) => setGoal(event.target.value as Mission["goal"])} className={inputClass}>
+              <Select value={goal} onChange={(event) => setGoal(event.target.value as Mission["goal"])}>
                 {GOALS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
-              </select>
+              </Select>
             </Field>
             <Field label={`Target, in ${GOALS.find((option) => option.value === goal)?.unit}`}>
-              <input value={targetCount} onChange={(event) => setTargetCount(onlyDigits(event.target.value))} inputMode="numeric" className={inputClass} />
+              <Input value={targetCount} onChange={(event) => setTargetCount(onlyDigits(event.target.value))} inputMode="numeric" />
             </Field>
             {goal === "items" && (
               <Field label="Item names" hint="Comma separated, at least as many as the target.">
-                <input value={items} onChange={(event) => setItems(event.target.value)} placeholder="Ube pandesal, Cheese ensaymada, Malunggay loaf" className={inputClass} />
+                <Input value={items} onChange={(event) => setItems(event.target.value)} placeholder="Ube pandesal, Cheese ensaymada, Malunggay loaf" />
               </Field>
             )}
             <div className="grid grid-cols-2 gap-3">
               <Field label="Starts">
-                <input type="date" value={startsOn} onChange={(event) => setStartsOn(event.target.value)} className={inputClass} />
+                <Input type="date" value={startsOn} onChange={(event) => setStartsOn(event.target.value)} />
               </Field>
               <Field label="Ends">
-                <input type="date" value={endsOn} min={startsOn} onChange={(event) => setEndsOn(event.target.value)} className={inputClass} />
+                <Input type="date" value={endsOn} min={startsOn} onChange={(event) => setEndsOn(event.target.value)} />
               </Field>
             </div>
             <div className="grid grid-cols-[1fr_auto] gap-3">
               <Field label="Bonus, in plain words">
-                <input value={bonus} onChange={(event) => setBonus(event.target.value)} placeholder="+2 stamps" className={inputClass} />
+                <Input value={bonus} onChange={(event) => setBonus(event.target.value)} placeholder="+2 stamps" />
               </Field>
               <Field label="Units">
-                <input value={bonusUnits} onChange={(event) => setBonusUnits(onlyDigits(event.target.value))} inputMode="numeric" className={`${inputClass} w-20`} />
+                <Input value={bonusUnits} onChange={(event) => setBonusUnits(onlyDigits(event.target.value))} inputMode="numeric" className="max-w-20" />
               </Field>
             </div>
             <Button type="submit" icon={<Target size={15} />} disabled={Boolean(blocked) || !ready || create.isPending} title={blocked ?? undefined}>

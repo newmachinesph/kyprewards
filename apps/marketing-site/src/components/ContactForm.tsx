@@ -97,7 +97,7 @@ Send another
             autoComplete="name"
             required
             aria-describedby={error ? "contact-error" : undefined}
-            className="focus-ring min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 font-normal outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
+            className="focus-ring min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 text-base font-normal outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
             placeholder="How should we address you?"
           />
         </label>
@@ -109,7 +109,7 @@ Send another
             autoComplete="email"
             required
             aria-describedby={error ? "contact-error" : undefined}
-            className="focus-ring min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 font-normal outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
+            className="focus-ring min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 text-base font-normal outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
             placeholder="you@business.com"
           />
         </label>
@@ -120,7 +120,7 @@ Send another
             autoComplete="organization"
             required
             aria-describedby={error ? "contact-error" : undefined}
-            className="focus-ring min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 font-normal outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
+            className="focus-ring min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 text-base font-normal outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
             placeholder="Your place"
           />
         </label>
@@ -129,7 +129,9 @@ Send another
           <select
             name="type"
             defaultValue=""
-            className="focus-ring min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 font-normal outline-none transition focus:border-[var(--accent-strong)]"
+            aria-describedby={error ? "contact-error" : undefined}
+            aria-invalid={error ? true : undefined}
+            className="focus-ring min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 text-base font-normal outline-none transition focus:border-[var(--accent-strong)]"
           >
             <option value="">Choose one</option>
             {businessCategories.map((category) => (
@@ -142,7 +144,9 @@ Send another
           <textarea
             name="message"
             rows={5}
-            className="focus-ring resize-y rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 py-3 font-normal leading-relaxed outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
+            aria-describedby={error ? "contact-error" : undefined}
+            aria-invalid={error ? true : undefined}
+            className="focus-ring resize-y rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 py-3 text-base font-normal leading-relaxed outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
             placeholder="Tell us how customers return today, what you have tried, and where the experience breaks down."
           />
         </label>

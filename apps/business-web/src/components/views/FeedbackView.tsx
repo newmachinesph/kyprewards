@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useFeedback } from "@kypstamping/api";
 import { Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Chip } from "@kypstamping/ui/form";
 import { relativeTime } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { planFor, usePlanGate } from "@/lib/plan";
@@ -89,16 +90,11 @@ export function FeedbackView() {
           </section>
 
           <section className="mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
-            <div className="flex flex-wrap gap-2 border-b border-[var(--line)] p-4">
+            <div role="group" aria-label="Customer feedback" className="flex flex-wrap gap-2 border-b border-[var(--line)] p-4">
               {FILTERS.map((item) => (
-                <button
-                  type="button"
-                  key={item}
-                  onClick={() => setFilter(item)}
-                  className={`focus-ring rounded-full px-3 py-2 text-xs font-bold ${filter === item ? "bg-[var(--ink)] text-[var(--paper)]" : "bg-[var(--paper)] text-[var(--muted-strong)]"}`}
-                >
+                <Chip key={item} pressed={filter === item} onClick={() => setFilter(item)}>
                   {item}
-                </button>
+                </Chip>
               ))}
             </div>
             <div className="p-4">

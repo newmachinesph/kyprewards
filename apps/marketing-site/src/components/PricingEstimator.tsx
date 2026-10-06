@@ -143,7 +143,7 @@ export function PricingEstimator() {
             min="1"
             value={profitPerVisit}
             onChange={(event) => setProfitPerVisit(Number(event.target.value))}
-            className="min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 text-sm outline-none focus:border-[var(--accent-strong)]"
+            className="min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 text-base outline-none focus:border-[var(--accent-strong)]"
           />
         </label>
         <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

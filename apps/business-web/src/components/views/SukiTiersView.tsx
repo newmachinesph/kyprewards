@@ -10,11 +10,12 @@ import {
   type SukiTier,
   type SukiTierProgram,
 } from "@kypstamping/api";
-import { Button, Eyebrow, PreviewNotice, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Button, Eyebrow, IconButton, PreviewNotice, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Chip, Field, Input } from "@kypstamping/ui/form";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { Crown, Plus, Trash2 } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
-import { BlockedNote, Field, inputClass, onlyDigits, type Notify } from "@/components/views/shared";
+import { BlockedNote, onlyDigits, type Notify } from "@/components/views/shared";
 
 const MIN_RUNGS = 3;
 
@@ -66,24 +67,17 @@ function TiersEditor({
           <legend className="text-xs font-bold">Climb by</legend>
           <div className="mt-2 flex gap-2">
             {(["visits", "spend"] as const).map((basis) => (
-              <button
-                key={basis}
-                type="button"
-                aria-pressed={shown.basis === basis}
-                onClick={() => setDraft({ ...shown, basis })}
-                className={`min-h-10 rounded-full px-4 text-xs font-bold ${shown.basis === basis ? "bg-[var(--ink)] text-[var(--paper)]" : "border border-[var(--line-strong)]"}`}
-              >
+              <Chip key={basis} pressed={shown.basis === basis} onClick={() => setDraft({ ...shown, basis })}>
                 {basis === "visits" ? "Visits" : "Pesos spent"}
-              </button>
+              </Chip>
             ))}
           </div>
         </fieldset>
         <Field label="Drop a rung after" hint="Quiet days before a member moves down one rung.">
-          <input
+          <Input
             value={shown.downgradeAfterDays}
             onChange={(event) => setDraft({ ...shown, downgradeAfterDays: Number(onlyDigits(event.target.value)) })}
             inputMode="numeric"
-            className={inputClass}
           />
         </Field>
       </div>
@@ -94,17 +88,16 @@ function TiersEditor({
               {index + 1}
             </span>
             <Field label="Name">
-              <input value={tier.name} onChange={(event) => editTier(index, { name: event.target.value })} placeholder={["Bago", "Suki", "Super suki"][index] ?? "Rung"} className={inputClass} />
+              <Input value={tier.name} onChange={(event) => editTier(index, { name: event.target.value })} placeholder={["Bago", "Suki", "Super suki"][index] ?? "Rung"} />
             </Field>
             <Field label={shown.basis === "visits" ? "From visits" : "From pesos"}>
-              <input value={tier.threshold} onChange={(event) => editTier(index, { threshold: Number(onlyDigits(event.target.value)) })} inputMode="numeric" className={inputClass} />
+              <Input value={tier.threshold} onChange={(event) => editTier(index, { threshold: Number(onlyDigits(event.target.value)) })} inputMode="numeric" />
             </Field>
             <Field label="Earn rate ×">
-              <input
+              <Input
                 value={(tier.earnRateBps / 10_000).toString()}
                 onChange={(event) => editTier(index, { earnRateBps: Math.round((Number.parseFloat(event.target.value) || 0) * 10_000) })}
                 inputMode="decimal"
-                className={inputClass}
               />
             </Field>
             <span className="text-right text-xs text-[var(--muted-strong)]">
@@ -112,23 +105,23 @@ function TiersEditor({
             </span>
             <div className="sm:col-span-4 sm:col-start-2">
               <Field label="Benefit, in plain words">
-                <input value={tier.benefit} onChange={(event) => editTier(index, { benefit: event.target.value })} placeholder="1.5× stamps on Tuesdays" className={inputClass} />
+                <Input value={tier.benefit} onChange={(event) => editTier(index, { benefit: event.target.value })} placeholder="1.5× stamps on Tuesdays" />
               </Field>
             </div>
             {shown.tiers.length > MIN_RUNGS && (
-              <button
-                type="button"
-                aria-label={`Remove ${tier.name || `rung ${index + 1}`}`}
+              <IconButton
+                tone="quiet"
+                label={`Remove ${tier.name || `rung ${index + 1}`}`}
                 onClick={() =>
                   setDraft({
                     ...shown,
                     tiers: shown.tiers.filter((_, at) => at !== index).map((entry, at) => ({ ...entry, rank: at + 1 })),
                   })
                 }
-                className="grid size-9 place-items-center rounded-full border border-[var(--line)] text-[var(--danger)] sm:col-start-5 sm:justify-self-end"
+                className="text-[var(--danger)] sm:col-start-5 sm:justify-self-end"
               >
                 <Trash2 size={14} />
-              </button>
+              </IconButton>
             )}
           </li>
         ))}

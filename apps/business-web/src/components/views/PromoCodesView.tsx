@@ -11,14 +11,13 @@ import {
   type PromoCode,
 } from "@kypstamping/api";
 import { Button, Eyebrow, Pill, PreviewNotice, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Checkbox, Field, Input, Select } from "@kypstamping/ui/form";
 import { longDate } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { Plus } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
 import {
   BlockedNote,
-  Field,
-  inputClass,
   isoDay,
   onlyDigits,
   type Notify,
@@ -194,39 +193,39 @@ export function PromoCodesView({ notify }: { notify: Notify }) {
             }}
           >
             <Field label="Code" hint="Letters and numbers, 3 to 20. Shown uppercase everywhere.">
-              <input
+              <Input
                 value={code}
                 onChange={(event) => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
                 placeholder="FIESTA"
-                className={`${inputClass} font-mono`}
+                className="font-mono"
               />
             </Field>
             <Field label="Grants">
-              <select value={grants} onChange={(event) => setGrants(event.target.value as PromoCode["grants"])} className={inputClass}>
+              <Select value={grants} onChange={(event) => setGrants(event.target.value as PromoCode["grants"])}>
                 {GRANTS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
-              </select>
+              </Select>
             </Field>
             {grants === "coupon" ? (
               <Field label="Coupon name">
-                <input value={couponName} onChange={(event) => setCouponName(event.target.value)} placeholder="₱50 off any cake" className={inputClass} />
+                <Input value={couponName} onChange={(event) => setCouponName(event.target.value)} placeholder="₱50 off any cake" />
               </Field>
             ) : (
               <Field label={grants === "stamp" ? "Stamps" : "Points"}>
-                <input value={amount} onChange={(event) => setAmount(onlyDigits(event.target.value))} inputMode="numeric" className={inputClass} />
+                <Input value={amount} onChange={(event) => setAmount(onlyDigits(event.target.value))} inputMode="numeric" />
               </Field>
             )}
             <div className="grid grid-cols-2 gap-3">
               <Field label="From">
-                <input type="date" value={startsOn} onChange={(event) => setStartsOn(event.target.value)} className={inputClass} />
+                <Input type="date" value={startsOn} onChange={(event) => setStartsOn(event.target.value)} />
               </Field>
               <Field label="Until" hint="Empty means no end.">
-                <input type="date" value={endsOn} min={startsOn} onChange={(event) => setEndsOn(event.target.value)} className={inputClass} />
+                <Input type="date" value={endsOn} min={startsOn} onChange={(event) => setEndsOn(event.target.value)} />
               </Field>
             </div>
             <label className="flex items-center gap-3 text-xs font-bold">
-              <input type="checkbox" checked={oncePerMember} onChange={(event) => setOncePerMember(event.target.checked)} className="size-4 accent-[var(--accent-strong)]" />
+              <Checkbox checked={oncePerMember} onChange={(event) => setOncePerMember(event.target.checked)} />
               Once per member
             </label>
             <Button type="submit" icon={<Plus size={15} />} disabled={Boolean(blocked) || !ready || create.isPending} title={blocked ?? undefined}>

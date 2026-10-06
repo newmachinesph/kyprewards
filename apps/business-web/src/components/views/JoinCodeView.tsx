@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useBusinessProfile, useLocations, usePrograms } from "@kypstamping/api";
 import { Button, Eyebrow, Skeleton, ViewFrame } from "@kypstamping/ui";
+import { Field, Select } from "@kypstamping/ui/form";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { Copy, CreditCard, Eye, Link2, Nfc, Printer, Send, ShieldCheck, Smartphone, WalletCards, WifiOff } from "lucide-react";
 import { useRaiseSupportRequest } from "@/components/mutations";
@@ -232,18 +233,13 @@ export function JoinCodeView({ notify }: { notify: Notify }) {
 
       <div className="grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 sm:p-8">
-          <label className="grid gap-2 text-xs font-bold">
-            Branch
-            <select
-              value={selected}
-              onChange={(event) => setBranch(event.target.value)}
-              className="min-h-12 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 text-sm outline-none"
-            >
+          <Field label="Branch">
+            <Select value={selected} onChange={(event) => setBranch(event.target.value)}>
               {locations.map((location) => (
                 <option key={location.id}>{location.name}</option>
               ))}
-            </select>
-          </label>
+            </Select>
+          </Field>
           <div className="mt-5 grid grid-cols-3 gap-2" role="tablist" aria-label="Layout">
             {LAYOUTS.map((option) => (
               <button
@@ -291,16 +287,18 @@ export function JoinCodeView({ notify }: { notify: Notify }) {
                 <li>Hold the tag to the back of the phone until it confirms.</li>
                 <li>Tap it with another phone to check it opens {profile?.shortName ?? "your"} sign-up.</li>
               </ol>
-              <button
-                type="button"
+              <Button
+                tone="quiet"
+                size="sm"
+                className="mt-4"
+                icon={<Copy size={14} />}
                 onClick={() => {
                   navigator.clipboard?.writeText(joinUrl).catch(() => {});
                   notify("Join link copied. Paste it into the writer app.");
                 }}
-                className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-xl border border-[var(--line-strong)] px-4 text-xs font-extrabold"
               >
-                <Copy size={14} /> Copy the link again
-              </button>
+                Copy the link again
+              </Button>
             </div>
           )}
           <div className="mt-6 rounded-2xl border border-dashed border-[var(--line-strong)] bg-[var(--surface)] p-5">

@@ -14,6 +14,7 @@ import {
   type MessagingPolicy,
 } from "@kypstamping/api";
 import { Button, Eyebrow, ViewFrame } from "@kypstamping/ui";
+import { Field, Input, PasswordInput, Select, Switch, Textarea } from "@kypstamping/ui/form";
 import { longDate } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { pesoFromCentavos } from "@kypstamping/ui/format";
@@ -29,7 +30,6 @@ import {
 } from "@/components/mutations";
 import { planFor, refusal, usePlanGate } from "@/lib/plan";
 import {
-  inputClass,
   useExport,
   type Notify,
   NothingYet,
@@ -77,20 +77,15 @@ function MessagingPolicyCard({ notify }: { notify: Notify }) {
             ["maxPerWeek", "Max per week", 200],
           ] as const
         ).map(([field, label, max]) => (
-          <label
-            key={field}
-            className="grid gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--muted)]"
-          >
-            {label}
-            <input
+          <Field key={field} label={label}>
+            <Input
               type="number"
               min={0}
               max={max}
               value={shown[field]}
               onChange={(event) => edit(field, Number(event.target.value))}
-              className="min-h-10 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm font-bold text-[var(--ink)] outline-none focus:border-[var(--accent-strong)]"
             />
-          </label>
+          </Field>
         ))}
       </div>
       <p className="mt-2 text-[10px] leading-relaxed text-[var(--muted)]">
@@ -154,11 +149,12 @@ function CustomFieldsCard({ notify }: { notify: Notify }) {
         </ul>
       )}
       <div className="mt-4 flex gap-2">
-        <input
+        <Input
           value={label}
           onChange={(event) => setLabel(event.target.value)}
           placeholder="Allergies"
-          className={inputClass}
+          aria-label="Allergies"
+          className="min-w-0 flex-1"
         />
         <Button
           tone="quiet"
@@ -332,31 +328,20 @@ function PasswordCard({ notify }: { notify: Notify }) {
           );
         }}
       >
-        <label className="grid gap-1.5 text-xs font-bold">
-          Current password
-          <input
-            type="password"
+        <Field label="Current password">
+          <PasswordInput
             autoComplete="current-password"
             value={current}
             onChange={(event) => setCurrent(event.target.value)}
-            className={inputClass}
           />
-        </label>
-        <label className="grid gap-1.5 text-xs font-bold">
-          New password
-          <input
-            type="password"
+        </Field>
+        <Field label="New password" error={tooShort ? "Ten characters or more." : null}>
+          <PasswordInput
             autoComplete="new-password"
             value={next}
             onChange={(event) => setNext(event.target.value)}
-            className={inputClass}
           />
-        </label>
-        {tooShort && (
-          <p className="text-[11px] font-semibold text-[var(--danger)]">
-            Ten characters or more.
-          </p>
-        )}
+        </Field>
         <Button type="submit" disabled={!ready}>
           {change.isPending ? "Changing…" : "Change password"}
         </Button>
@@ -397,35 +382,29 @@ function SupportCard({ notify }: { notify: Notify }) {
           );
         }}
       >
-        <label className="grid gap-1.5 text-xs font-bold">
-          Subject
-          <input
+        <Field label="Subject">
+          <Input
             value={subject}
             onChange={(event) => setSubject(event.target.value)}
-            className={inputClass}
           />
-        </label>
-        <label className="grid gap-1.5 text-xs font-bold">
-          About
-          <select
+        </Field>
+        <Field label="About">
+          <Select
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            className={inputClass}
           >
             {SUPPORT_CATEGORIES.map((option) => (
               <option key={option}>{option}</option>
             ))}
-          </select>
-        </label>
-        <label className="grid gap-1.5 text-xs font-bold">
-          What happened
-          <textarea
+          </Select>
+        </Field>
+        <Field label="What happened">
+          <Textarea
             value={detail}
             onChange={(event) => setDetail(event.target.value)}
             rows={3}
-            className={`${inputClass} py-2`}
           />
-        </label>
+        </Field>
         <Button type="submit" disabled={!subject.trim() || raise.isPending}>
           {raise.isPending ? "Sending…" : "Send"}
         </Button>
@@ -499,14 +478,13 @@ export function SettingsView({ notify }: { notify: Notify }) {
                         <span className="grid size-10 place-items-center rounded-xl bg-[var(--surface-2)]">
                           <PlugZap size={17} />
                         </span>
-                        <button
-                          type="button"
-                          role="switch"
-                          aria-label={`Toggle ${integration.name}`}
-                          aria-checked={isConnected}
+                        <Switch
+                          checked={Boolean(isConnected)}
+                          aria-labelledby={`${integration.id}-name`}
+                          aria-describedby={isPlanned ? `${integration.id}-planned` : `${integration.id}-detail`}
                           disabled={isPlanned}
                           title={isPlanned ? "Not available yet" : undefined}
-                          onClick={() =>
+                          onCheckedChange={() =>
                             toggle.mutate(integration.id, {
                               onSuccess: (result) =>
                                 notify(
@@ -516,20 +494,20 @@ export function SettingsView({ notify }: { notify: Notify }) {
                                 notify(refusal(failure), "error"),
                             })
                           }
-                          className={`relative h-6 w-10 shrink-0 rounded-full before:absolute before:-inset-y-2.5 before:-inset-x-2 before:content-[''] ${isPlanned ? "cursor-not-allowed bg-[var(--line)] opacity-60" : isConnected ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
-                        >
-                          <span
-                            className={`absolute top-1 size-4 rounded-full bg-white transition ${isConnected ? "left-5" : "left-1"}`}
-                          />
-                        </button>
+                        />
+                        {isPlanned && (
+                          <span id={`${integration.id}-planned`} className="sr-only">
+                            Not available yet
+                          </span>
+                        )}
                       </div>
-                      <p className="mt-6 text-sm font-extrabold">
+                      <p id={`${integration.id}-name`} className="mt-6 text-sm font-extrabold">
                         {integration.name}
                       </p>
                       <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
                         {integration.category}
                       </p>
-                      <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
+                      <p id={`${integration.id}-detail`} className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
                         {integration.detail}
                       </p>
                     </article>
@@ -544,24 +522,18 @@ export function SettingsView({ notify }: { notify: Notify }) {
               {NOTIFICATIONS.map(([key, label, detail]) => (
                 <div key={key} className="flex items-start gap-3 py-3">
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-extrabold">{label}</p>
-                    <p className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">
+                    <p id={`notify-${key}-label`} className="text-xs font-extrabold">{label}</p>
+                    <p id={`notify-${key}-detail`} className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">
                       {detail}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={Boolean(settings[key])}
-                    aria-label={label}
+                  <Switch
+                    checked={Boolean(settings[key])}
+                    aria-labelledby={`notify-${key}-label`}
+                    aria-describedby={`notify-${key}-detail`}
                     disabled={setSetting.isPending}
-                    onClick={() => flip(key, label)}
-                    className={`relative h-6 w-10 shrink-0 rounded-full ${settings[key] ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
-                  >
-                    <span
-                      className={`absolute top-1 size-4 rounded-full bg-white transition ${settings[key] ? "left-5" : "left-1"}`}
-                    />
-                  </button>
+                    onCheckedChange={() => flip(key, label)}
+                  />
                 </div>
               ))}
             </div>

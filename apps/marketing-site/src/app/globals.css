@@ -49,10 +49,10 @@ body {
   color: var(--ink);
   font-family: var(--font-sans), "Segoe UI", sans-serif;
 }
-button,
-input,
-textarea,
-select {
+/* Buttons only. Tailwind's preflight already makes form controls inherit
+   the font inside its layer; this rule sat outside it and beat every text-*
+   class on them, which left intake fields under 16px and iOS zooming. */
+button {
   font: inherit;
 }
 button {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { endSupportAccess, useApiMutation, useBusinessProfile, useWorkspaces } from "@kypstamping/api";
-import { BrandMark } from "@kypstamping/ui";
+import { BrandMark, Button, IconButton } from "@kypstamping/ui";
 import { signOut } from "@kypstamping/ui/auth";
 import { timeOfDay } from "@kypstamping/ui/format";
 import { useSessionInfo } from "@/components/views/shared";
@@ -222,14 +222,14 @@ function SupportBanner() {
         {live.reason}
       </span>
       <span className="font-bold">Until {timeOfDay(live.expiresAt)}</span>
-      <button
-        type="button"
+      <Button
+        tone="quiet"
+        size="sm"
         disabled={end.isPending}
         onClick={() => end.mutate(live.id)}
-        className="min-h-8 rounded-lg border border-[var(--line-strong)] bg-[var(--paper)] px-3 font-extrabold disabled:opacity-45"
       >
         {end.isPending ? "Ending…" : "End access"}
-      </button>
+      </Button>
       {end.error && <span className="text-[var(--danger)]">{end.error.message}</span>}
     </div>
   );
@@ -326,7 +326,7 @@ export function BusinessShell({
                   type="button"
                   onClick={() => navigate(item.view)}
                   aria-current={active ? "page" : undefined}
-                  className={`group flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-[var(--accent)] ${active ? "bg-[var(--ink)] text-[var(--paper)]" : "text-[var(--muted-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"}`}
+                  className={`group flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition-colors ${active ? "bg-[var(--ink)] text-[var(--paper)]" : "text-[var(--muted-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"}`}
                 >
                   <Icon
                     size={17}
@@ -454,25 +454,18 @@ export function BusinessShell({
       <div className="min-w-0">
         <SupportBanner />
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/92%)] px-4 backdrop-blur-xl md:hidden">
-          <button
-            type="button"
+          <IconButton
             onClick={() => setMobileOpen((value) => !value)}
             aria-expanded={mobileOpen}
-            aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
-            className="grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
+            label={mobileOpen ? "Close navigation" : "Open navigation"}
           >
             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
+          </IconButton>
           <BrandMark compact />
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Notifications"
-              onClick={() => navigate("message-log")}
-              className="grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
-            >
+            <IconButton label="Notifications" onClick={() => navigate("message-log")}>
               <Bell size={18} />
-            </button>
+            </IconButton>
             <span
               aria-hidden="true"
               className="grid size-10 place-items-center rounded-full bg-[var(--accent)] text-xs font-extrabold"
@@ -501,13 +494,9 @@ export function BusinessShell({
                   </button>
                 );
               })}
-              <button
-                type="button"
-                onClick={() => signOut()}
-                className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[rgb(178_59_43/28%)] bg-[rgb(178_59_43/7%)] text-sm font-bold text-[var(--danger)]"
-              >
-                <LogOut size={16} /> Sign out
-              </button>
+              <Button tone="danger" icon={<LogOut size={16} />} onClick={() => signOut()}>
+                Sign out
+              </Button>
             </div>
           </div>
         )}

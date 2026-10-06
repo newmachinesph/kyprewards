@@ -16,10 +16,6 @@ body {
   color: var(--ink);
   font-family: var(--font-sans), "Segoe UI", sans-serif;
 }
-button,
-input {
-  font: inherit;
-}
 button {
   cursor: pointer;
 }
@@ -29,11 +25,6 @@ button:disabled {
 ::selection {
   background: var(--accent);
   color: var(--ink);
-}
-
-:is(a, button, input, select, textarea):focus-visible {
-  outline: 3px solid var(--accent-strong);
-  outline-offset: 3px;
 }
 
 /* A plain page with a faint amber wash in the top corner. It was graph

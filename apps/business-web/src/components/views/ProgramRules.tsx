@@ -15,15 +15,14 @@ import {
   type StampRules,
   useBranding,
 } from "@kypstamping/api";
-import { Button, Eyebrow, PreviewBadge, StampDots } from "@kypstamping/ui";
+import { Button, Eyebrow, IconButton, PreviewBadge, StampDots } from "@kypstamping/ui";
+import { Checkbox, Chip, Field, Input, Select } from "@kypstamping/ui/form";
 import { longDate, pesoFromCentavos, timeOfDay } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { Plus, Trash2 } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
 import {
   BlockedNote,
-  Field,
-  inputClass,
   onlyDigits,
   onlyMoney,
   pesosToCentavos,
@@ -164,7 +163,7 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
 
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
           <label className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--paper)] p-4 text-xs font-bold sm:col-span-2">
-            <input type="checkbox" checked={rules.welcomeStamp} onChange={(event) => edit({ welcomeStamp: event.target.checked })} className="mt-0.5 size-4 accent-[var(--accent-strong)]" />
+            <Checkbox checked={rules.welcomeStamp} onChange={(event) => edit({ welcomeStamp: event.target.checked })} className="mt-0.5" />
             <span>
               Welcome stamp
               <span className="mt-1 block font-normal leading-relaxed text-[var(--muted-strong)]">
@@ -173,10 +172,10 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
             </span>
           </label>
           <Field label="Target, 1 to 30" hint="Raising it grandfathers cards in progress. Saved with the program record.">
-            <input value={program.target} readOnly className={`${inputClass} opacity-70`} />
+            <Input value={program.target} readOnly />
           </Field>
           <Field label="Reward, in plain words" hint="Saved with the program record on the right.">
-            <input value={program.rewardName} readOnly className={`${inputClass} opacity-70`} />
+            <Input value={program.rewardName} readOnly />
           </Field>
           <fieldset className="sm:col-span-2">
             <legend className="text-xs font-bold">Cooldown between stamps</legend>
@@ -184,10 +183,9 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
               {COOLDOWNS.map((option) => {
                 const on = option.minutes === 0 ? customCooldown : rules.cooldownMinutes === option.minutes;
                 return (
-                  <button
+                  <Chip
                     key={option.label}
-                    type="button"
-                    aria-pressed={on}
+                    pressed={on}
                     onClick={() => {
                       if (option.minutes === 0) {
                         setCustomPicked(true);
@@ -199,14 +197,13 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
                       setCustomPicked(false);
                       edit({ cooldownMinutes: option.minutes });
                     }}
-                    className={`min-h-10 rounded-full px-4 text-xs font-bold ${on ? "bg-[var(--ink)] text-[var(--paper)]" : "border border-[var(--line-strong)]"}`}
                   >
                     {option.label}
-                  </button>
+                  </Chip>
                 );
               })}
               {customCooldown && (
-                <input
+                <Input
                   aria-label="Cooldown in minutes"
                   value={customMinutes}
                   onChange={(event) => {
@@ -216,7 +213,7 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
                   }}
                   inputMode="numeric"
                   placeholder="minutes"
-                  className={`${inputClass} max-w-32`}
+                  className="max-w-32"
                 />
               )}
             </div>
@@ -225,53 +222,49 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
             </p>
           </fieldset>
           <Field label="Minimum spend per stamp, pesos" hint="Optional. Shown on the card so nobody argues at the counter.">
-            <input
+            <Input
               value={rules.minSpendCentavos ? String(rules.minSpendCentavos / 100) : ""}
               onChange={(event) => edit({ minSpendCentavos: pesosToCentavos(onlyMoney(event.target.value)) })}
               inputMode="decimal"
               placeholder="Off"
-              className={inputClass}
             />
           </Field>
           <Field label="Stamp expiry, days" hint="Off unless set. One term for unclaimed stamps and earned rewards, shown before the first stamp.">
-            <input
+            <Input
               value={rules.expiryDays || ""}
               onChange={(event) => edit({ expiryDays: Number(onlyDigits(event.target.value)) })}
               inputMode="numeric"
               placeholder="Off"
-              className={inputClass}
             />
           </Field>
           <Field label="Runs from" hint="Empty means forever.">
-            <input type="date" value={dateOnly(rules.startsAt)} onChange={(event) => edit({ startsAt: toIso(event.target.value) })} className={inputClass} />
+            <Input type="date" value={dateOnly(rules.startsAt)} onChange={(event) => edit({ startsAt: toIso(event.target.value) })} />
           </Field>
           <Field label="Runs until" hint="The card closes by itself at the end.">
-            <input type="date" value={dateOnly(rules.endsAt)} min={dateOnly(rules.startsAt)} onChange={(event) => edit({ endsAt: toIso(event.target.value) })} className={inputClass} />
+            <Input type="date" value={dateOnly(rules.endsAt)} min={dateOnly(rules.startsAt)} onChange={(event) => edit({ endsAt: toIso(event.target.value) })} />
           </Field>
           <fieldset className="sm:col-span-2">
             <legend className="text-xs font-bold">Unfinished stamps at close</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {(["expire", "carryOver"] as const).map((option) => (
-                <button
+                <Chip
                   key={option}
-                  type="button"
-                  aria-pressed={rules.onClose === option}
+                  pressed={rules.onClose === option}
                   onClick={() => edit({ onClose: option, successorProgramId: option === "expire" ? null : rules.successorProgramId })}
-                  className={`min-h-10 rounded-full px-4 text-xs font-bold ${rules.onClose === option ? "bg-[var(--ink)] text-[var(--paper)]" : "border border-[var(--line-strong)]"}`}
                 >
                   {option === "expire" ? "Expire" : "Carry over to a successor card"}
-                </button>
+                </Chip>
               ))}
             </div>
             {rules.onClose === "carryOver" && (
               <div className="mt-3">
                 <Field label="Successor card" hint="Only live stamp cards can receive them.">
-                  <select value={rules.successorProgramId ?? ""} onChange={(event) => edit({ successorProgramId: event.target.value || null })} className={inputClass}>
+                  <Select value={rules.successorProgramId ?? ""} onChange={(event) => edit({ successorProgramId: event.target.value || null })}>
                     <option value="">Choose a card</option>
                     {successors.map((candidate) => (
                       <option key={candidate.id} value={candidate.id}>{candidate.name}</option>
                     ))}
-                  </select>
+                  </Select>
                 </Field>
               </div>
             )}
@@ -284,7 +277,7 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
             )}
           </fieldset>
           <Field label="Reward grace after close, days" hint="How long a held reward can still be redeemed after the card closes.">
-            <input value={rules.rewardGraceDays} onChange={(event) => edit({ rewardGraceDays: Number(onlyDigits(event.target.value)) })} inputMode="numeric" className={inputClass} />
+            <Input value={rules.rewardGraceDays} onChange={(event) => edit({ rewardGraceDays: Number(onlyDigits(event.target.value)) })} inputMode="numeric" />
           </Field>
           <fieldset>
             <legend className="text-xs font-bold">Completions per member</legend>
@@ -296,19 +289,17 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
               ].map(([label, value]) => {
                 const on = value === -1 ? rules.maxCompletions > 1 : rules.maxCompletions === value;
                 return (
-                  <button
+                  <Chip
                     key={String(label)}
-                    type="button"
-                    aria-pressed={on}
+                    pressed={on}
                     onClick={() => edit({ maxCompletions: value === -1 ? Math.max(2, Number(customCompletions) || 2) : Number(value) })}
-                    className={`min-h-10 rounded-full px-3 text-xs font-bold ${on ? "bg-[var(--ink)] text-[var(--paper)]" : "border border-[var(--line-strong)]"}`}
                   >
                     {label}
-                  </button>
+                  </Chip>
                 );
               })}
               {rules.maxCompletions > 1 && (
-                <input
+                <Input
                   aria-label="Completions per member"
                   value={customCompletions}
                   onChange={(event) => {
@@ -317,7 +308,7 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
                     if (Number(typed) > 1) edit({ maxCompletions: Number(typed) });
                   }}
                   inputMode="numeric"
-                  className={`${inputClass} max-w-20`}
+                  className="max-w-20"
                 />
               )}
             </div>
@@ -428,17 +419,17 @@ export function CategoryRatesEditor({ programId, notify }: { programId: string; 
         {rows.map((row, index) => (
           <li key={index} className="grid gap-2 rounded-xl border border-[var(--line)] bg-[var(--paper)] p-3 sm:grid-cols-[1fr_120px_2fr_auto] sm:items-end">
             <Field label="Category">
-              <input value={row.category} onChange={(event) => editRow(index, { category: event.target.value })} className={inputClass} />
+              <Input value={row.category} onChange={(event) => editRow(index, { category: event.target.value })} />
             </Field>
             <Field label="Rate ×">
-              <input value={(row.rateBps / 10_000).toString()} onChange={(event) => editRow(index, { rateBps: Math.round((Number.parseFloat(event.target.value) || 0) * 10_000) })} inputMode="decimal" className={inputClass} />
+              <Input value={(row.rateBps / 10_000).toString()} onChange={(event) => editRow(index, { rateBps: Math.round((Number.parseFloat(event.target.value) || 0) * 10_000) })} inputMode="decimal" />
             </Field>
             <Field label="Items, comma separated">
-              <input value={row.items.join(", ")} onChange={(event) => editRow(index, { items: event.target.value.split(",").map((item) => item.trim()).filter(Boolean) })} className={inputClass} />
+              <Input value={row.items.join(", ")} onChange={(event) => editRow(index, { items: event.target.value.split(",").map((item) => item.trim()).filter(Boolean) })} />
             </Field>
-            <button type="button" aria-label={`Remove ${row.category || "row"}`} onClick={() => setDraft(rows.filter((_, at) => at !== index))} className="grid size-10 place-items-center rounded-full border border-[var(--line)] text-[var(--danger)]">
+            <IconButton tone="quiet" label={`Remove ${row.category || "row"}`} onClick={() => setDraft(rows.filter((_, at) => at !== index))} className="text-[var(--danger)]">
               <Trash2 size={14} />
-            </button>
+            </IconButton>
           </li>
         ))}
       </ul>

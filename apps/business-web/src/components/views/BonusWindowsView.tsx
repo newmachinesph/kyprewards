@@ -13,14 +13,13 @@ import {
   type BonusWindow,
 } from "@kypstamping/api";
 import { Button, Eyebrow, Pill, PreviewNotice, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Field, Chip, Input, Select } from "@kypstamping/ui/form";
 import { longDate, pesoFromCentavos } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { Plus } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
 import {
   BlockedNote,
-  Field,
-  inputClass,
   isoDay,
   onlyDigits,
   type Notify,
@@ -148,7 +147,7 @@ export function BonusWindowsView({ notify }: { notify: Notify }) {
                           {window.status !== "ended" && (
                             <Button
                               tone="quiet"
-                              className="min-h-9 px-3 text-xs"
+                              size="sm"
                               disabled={Boolean(blocked) || update.isPending}
                               title={blocked ?? undefined}
                               onClick={() =>
@@ -208,35 +207,28 @@ export function BonusWindowsView({ notify }: { notify: Notify }) {
             }}
           >
             <Field label="Name">
-              <input
+              <Input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Double stamps, slow afternoons"
-                className={inputClass}
               />
             </Field>
             <fieldset>
               <legend className="text-xs font-bold">Multiplier</legend>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[2, 3, 0].map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    aria-pressed={multiplier === option}
-                    onClick={() => setMultiplier(option)}
-                    className={`min-h-10 rounded-full px-4 text-xs font-bold ${multiplier === option ? "bg-[var(--ink)] text-[var(--paper)]" : "border border-[var(--line-strong)]"}`}
-                  >
+                  <Chip key={option} pressed={multiplier === option} onClick={() => setMultiplier(option)}>
                     {option === 0 ? "Custom" : `${option}× stamps`}
-                  </button>
+                  </Chip>
                 ))}
                 {multiplier === 0 && (
-                  <input
+                  <Input
                     aria-label="Custom multiplier"
                     value={customMultiplier}
                     onChange={(event) => setCustomMultiplier(event.target.value.replace(/[^0-9.]/g, ""))}
                     inputMode="decimal"
                     placeholder="1.5"
-                    className={`${inputClass} max-w-24`}
+                    className="max-w-24"
                   />
                 )}
               </div>
@@ -250,43 +242,41 @@ export function BonusWindowsView({ notify }: { notify: Notify }) {
                 {DAYS.map((day) => {
                   const on = days.includes(day);
                   return (
-                    <button
+                    <Chip
                       key={day}
-                      type="button"
-                      aria-pressed={on}
+                      pressed={on}
                       onClick={() =>
                         setDays((current) =>
                           on ? current.filter((entry) => entry !== day) : [...current, day],
                         )
                       }
-                      className={`min-h-9 rounded-full px-3 text-xs font-bold ${on ? "bg-[var(--accent)] text-[var(--ink)]" : "border border-[var(--line-strong)]"}`}
                     >
                       {day}
-                    </button>
+                    </Chip>
                   );
                 })}
               </div>
             </fieldset>
             <div className="grid grid-cols-2 gap-3">
               <Field label="From">
-                <select value={fromHour} onChange={(event) => setFromHour(Number(event.target.value))} className={inputClass}>
+                <Select value={fromHour} onChange={(event) => setFromHour(Number(event.target.value))}>
                   {HOURS.slice(0, 24).map((hour) => (
                     <option key={hour} value={hour}>{hourLabel(hour)}</option>
                   ))}
-                </select>
+                </Select>
               </Field>
               <Field label="Until">
-                <select value={toHour} onChange={(event) => setToHour(Number(event.target.value))} className={inputClass}>
+                <Select value={toHour} onChange={(event) => setToHour(Number(event.target.value))}>
                   {HOURS.slice(1).map((hour) => (
                     <option key={hour} value={hour}>{hourLabel(hour)}</option>
                   ))}
-                </select>
+                </Select>
               </Field>
               <Field label="Starts">
-                <input type="date" value={startsOn} onChange={(event) => setStartsOn(event.target.value)} className={inputClass} />
+                <Input type="date" value={startsOn} onChange={(event) => setStartsOn(event.target.value)} />
               </Field>
               <Field label="Ends" hint="Leave empty for no end date.">
-                <input type="date" value={endsOn} min={startsOn} onChange={(event) => setEndsOn(event.target.value)} className={inputClass} />
+                <Input type="date" value={endsOn} min={startsOn} onChange={(event) => setEndsOn(event.target.value)} />
               </Field>
             </div>
             {locations.length > 1 && (
@@ -299,19 +289,17 @@ export function BonusWindowsView({ notify }: { notify: Notify }) {
                   {locations.map((branch) => {
                     const on = branchIds.includes(branch.id);
                     return (
-                      <button
+                      <Chip
                         key={branch.id}
-                        type="button"
-                        aria-pressed={on}
+                        pressed={on}
                         onClick={() =>
                           setBranchIds((current) =>
                             on ? current.filter((id) => id !== branch.id) : [...current, branch.id],
                           )
                         }
-                        className={`min-h-9 rounded-full px-3 text-xs font-bold ${on ? "bg-[var(--accent)] text-[var(--ink)]" : "border border-[var(--line-strong)]"}`}
                       >
                         {branch.name}
-                      </button>
+                      </Chip>
                     );
                   })}
                 </div>
@@ -321,12 +309,11 @@ export function BonusWindowsView({ notify }: { notify: Notify }) {
               label="Stamps you expect inside the window"
               hint="Your guess; the estimate below follows it."
             >
-              <input
+              <Input
                 value={expectedStamps}
                 onChange={(event) => setExpectedStamps(onlyDigits(event.target.value))}
                 inputMode="numeric"
                 placeholder="120"
-                className={inputClass}
               />
             </Field>
             <div className="rounded-2xl bg-[var(--paper)] p-4">

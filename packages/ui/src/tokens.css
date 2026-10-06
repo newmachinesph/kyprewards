@@ -22,6 +22,8 @@
 
   --success: #0f7655;
   --danger: #b23b2b;
+  /* Error text on ink panels: --danger is about 2:1 there. */
+  --danger-on-dark: #f2917f;
 
   /* Card radius. Tailwind's own scale covers the rest; this is the one value
      outside it, used for panels and hero surfaces across all four apps. */
@@ -35,4 +37,13 @@ h2,
 h3,
 .font-display {
   font-family: var(--font-display), var(--font-sans), "Segoe UI", sans-serif;
+}
+
+/* One focus ring for every app. In a layer, so a utility on an element can
+   still change it; outside one, it beat every Tailwind class. */
+@layer base {
+  :is(a, button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 3px solid var(--accent-strong);
+    outline-offset: 3px;
+  }
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { BrandMark } from "@kypstamping/ui";
+import { BrandMark, Button, IconButton } from "@kypstamping/ui";
+import { Input } from "@kypstamping/ui/form";
 import { signOut } from "@kypstamping/ui/auth";
 import { relativeTime } from "@kypstamping/ui/format";
 import {
@@ -277,7 +278,7 @@ export function AdminShell({
         </div>
 
         <nav
-          className="relative mt-6 min-h-0 flex-1 space-y-1 overflow-y-auto pr-1"
+          className="relative mt-5 min-h-0 flex-1 space-y-1 overflow-y-auto pr-1"
           aria-label="Platform navigation"
         >
           {navContent}
@@ -291,41 +292,39 @@ export function AdminShell({
           <p className="mt-1 text-xs leading-relaxed text-white/50">
             Privileged actions will be recorded in the audit ledger.
           </p>
-          <button
-            type="button"
+          <Button
+            tone="ghost"
             onClick={() => signOut()}
-            className="mt-4 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/6 text-xs font-extrabold text-white/78 transition hover:bg-white/10 hover:text-white"
+            className="mt-3 w-full"
+            icon={<LogOut size={15} aria-hidden="true" />}
           >
-            <LogOut size={15} /> Sign out securely
-          </button>
+            Sign out securely
+          </Button>
         </div>
       </aside>
 
       <div className="min-w-0">
         <header className="sticky top-0 z-30 flex h-17 items-center gap-4 border-b border-[var(--line)] bg-[rgb(250_248_243/90%)] px-4 backdrop-blur-xl sm:px-7 lg:px-10">
-          <button
-            type="button"
+          <IconButton
             onClick={() => setMobileOpen((value) => !value)}
             aria-expanded={mobileOpen}
-            aria-label={
+            label={
               mobileOpen
                 ? "Close platform navigation"
                 : "Open platform navigation"
             }
-            className="grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] lg:hidden"
+            className="lg:hidden"
           >
             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
+          </IconButton>
           <div className="lg:hidden">
             <BrandMark compact />
           </div>
-          <div className="relative hidden min-h-10 max-w-md flex-1 items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-4 sm:flex">
-            <Search
-              size={16}
-              className="text-[var(--muted)]"
-              aria-hidden="true"
-            />
-            <input
+          <div className="relative hidden max-w-md flex-1 items-center gap-2 sm:flex">
+            <Input
+              type="search"
+              icon={<Search size={16} />}
+              className="flex-1"
               ref={searchRef}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -336,7 +335,6 @@ export function AdminShell({
                   navigate(searchResults[0].view);
                 }
               }}
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
               placeholder="Search businesses, people, or events"
               aria-label="Search platform"
             />
@@ -344,7 +342,7 @@ export function AdminShell({
               Ctrl K
             </kbd>
             {search && (
-              <span className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-2xl">
+              <span className="absolute left-0 right-0 top-14 z-50 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-2xl">
                 {searchResults.length ? (
                   searchResults.map((item) => {
                     const Icon = item.icon;
@@ -381,17 +379,16 @@ export function AdminShell({
           <div className="ml-auto flex items-center gap-2">
 
             {!manager && (
-              <button
-                type="button"
-                aria-label="Notifications"
+              <IconButton
+                label="Notifications"
                 onClick={() => navigate("support")}
-                className="relative grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] transition hover:bg-[var(--surface-2)]"
+                className="relative"
               >
                 <Bell size={17} />
                 {openTicketCount > 0 && (
                   <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--accent)]" />
                 )}
-              </button>
+              </IconButton>
             )}
             <div className="relative" ref={accountRef}>
               <button
@@ -434,7 +431,7 @@ export function AdminShell({
             <nav className="space-y-1" aria-label="Mobile platform navigation">
               {navContent}
             </nav>
-            <button type="button" onClick={() => signOut()} className="mt-6 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/7 text-sm font-extrabold text-white"><LogOut size={16} /> Sign out securely</button>
+            <Button tone="ghost" onClick={() => signOut()} className="mt-6 w-full" icon={<LogOut size={16} aria-hidden="true" />}>Sign out securely</Button>
           </div>
         )}
         <div id="main-content" tabIndex={-1}>

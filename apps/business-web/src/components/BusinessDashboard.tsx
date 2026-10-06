@@ -1,13 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import {
   Button,
   Eyebrow,
+  IconButton,
   PreviewBadge,
   StampDots,
   StatCard,
 } from "@kypstamping/ui";
+import { Segmented, Switch } from "@kypstamping/ui/form";
 import { cardTerms, DEFAULT_RULES } from "@/components/views/ProgramRules";
 import { greeting, todayLabel } from "@kypstamping/ui/shell";
 import { pesoCompactFromCentavos } from "@kypstamping/ui/format";
@@ -193,6 +195,7 @@ export function BusinessDashboard({
 }) {
   const [period, setPeriod] = useState<(typeof periods)[number]["id"]>("week");
   const [scanOpen, setScanOpen] = useState(false);
+  const automationIds = useId();
 
   // Server state, from the API. Defaulted to empty rather than guarded one by
   // one: the dashboard is a wall of counters, and blanking the whole page
@@ -302,16 +305,15 @@ export function BusinessDashboard({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label="Notifications"
+          <IconButton
+            label="Notifications"
             onClick={() => {
               onNavigate("message-log");
             }}
-            className="hidden size-11 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] transition hover:bg-[var(--surface-2)] sm:grid"
+            className="max-sm:hidden"
           >
             <Bell size={18} />
-          </button>
+          </IconButton>
           <Button
             icon={<ScanLine size={17} />}
             onClick={() => setScanOpen(true)}
@@ -425,21 +427,15 @@ export function BusinessDashboard({
                 Visits across the counter
               </h2>
             </div>
-            <div
-              className="flex rounded-full bg-[var(--surface-2)] p-1"
-              aria-label="Chart period"
-            >
-              {periods.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setPeriod(item.id)}
-                  aria-pressed={period === item.id}
-                  className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${period === item.id ? "bg-[var(--surface)] text-[var(--ink)] shadow-sm" : "text-[var(--muted)] hover:text-[var(--ink)]"}`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
+            <Segmented
+              label="Chart period"
+              value={period}
+              onChange={setPeriod}
+              options={periods.map((item) => ({
+                value: item.id,
+                label: item.label,
+              }))}
+            />
           </header>
           <div className="stamp-grid relative min-h-72 p-5 sm:p-7">
             <div className="absolute left-7 top-7">
@@ -711,7 +707,7 @@ export function BusinessDashboard({
                   type="button"
                   aria-pressed={active}
                   onClick={() => setSelectedProgramId(program.id)}
-                  className={`min-h-40 bg-[var(--surface)] p-5 text-left transition focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-[var(--accent)] ${active ? "bg-[var(--accent)]" : "hover:bg-[var(--surface-2)]"}`}
+                  className={`min-h-40 bg-[var(--surface)] p-5 text-left transition focus-visible:z-10 ${active ? "bg-[var(--accent)]" : "hover:bg-[var(--surface-2)]"}`}
                 >
                   <span className="grid size-10 place-items-center rounded-xl bg-[var(--paper)]">
                     <Icon size={18} />
@@ -820,18 +816,22 @@ export function BusinessDashboard({
                     <Icon size={17} />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-extrabold">{automation.name}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-[var(--muted)]">
+                    <p id={`${automationIds}-${automation.id}-name`} className="text-sm font-extrabold">
+                      {automation.name}
+                    </p>
+                    <p
+                      id={`${automationIds}-${automation.id}-detail`}
+                      className="mt-1 text-xs leading-relaxed text-[var(--muted)]"
+                    >
                       {automation.detail}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={enabled}
-                    aria-label={automation.name}
+                  <Switch
+                    checked={enabled}
+                    aria-labelledby={`${automationIds}-${automation.id}-name`}
+                    aria-describedby={`${automationIds}-${automation.id}-detail`}
                     disabled={toggle.isPending}
-                    onClick={() => {
+                    onCheckedChange={() => {
                       // The server decides which way it lands and says so, so
                       // the toast reports the state rather than predicting it.
                       toggle.mutate(automation.id, {
@@ -842,12 +842,7 @@ export function BusinessDashboard({
                         onError: (error) => notify(error.message, "error"),
                       });
                     }}
-                    className={`relative h-6 w-10 shrink-0 rounded-full transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
-                  >
-                    <span
-                      className={`absolute top-1 size-4 rounded-full bg-white shadow-sm transition ${enabled ? "left-5" : "left-1"}`}
-                    />
-                  </button>
+                  />
                 </div>
               );
             })}
@@ -1011,13 +1006,9 @@ export function BusinessDashboard({
                   Scan a customer code
                 </h2>
               </div>
-              <button
-                onClick={() => setScanOpen(false)}
-                aria-label="Close scanner"
-                className="grid size-10 place-items-center rounded-full bg-[var(--surface-2)]"
-              >
+              <IconButton label="Close scanner" onClick={() => setScanOpen(false)}>
                 <X size={18} />
-              </button>
+              </IconButton>
             </div>
             <div className="relative mx-auto mt-7 aspect-square max-w-64 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--ink)] p-6">
               <div className="absolute left-5 top-5 size-12 border-l-2 border-t-2 border-[var(--accent)]" />

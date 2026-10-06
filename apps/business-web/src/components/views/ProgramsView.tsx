@@ -10,6 +10,7 @@ import {
   type ProgramDraft,
 } from "@kypstamping/api";
 import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Chip, Field, Input } from "@kypstamping/ui/form";
 import { pesoFromCentavos } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { BadgeCheck, Coins, CreditCard, Gift, Plus, ShieldCheck, Stamp, TicketCheck, WalletCards } from "lucide-react";
@@ -67,8 +68,6 @@ function ProgramStock({ program, notify }: { program: Program; notify: Notify })
   const pesosToCentavos = (typed: string) => Math.round(Number.parseFloat(typed) * 100);
   const onlyMoney = (typed: string) => typed.replace(/[^0-9.]/g, "");
   const onlyDigits = (typed: string) => typed.replace(/[^0-9]/g, "");
-  const field =
-    "min-h-11 w-full rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]";
 
   if (program.type === "Coupon") {
     const active = coupons.filter((coupon) => coupon.state === "active");
@@ -80,18 +79,20 @@ function ProgramStock({ program, notify }: { program: Program; notify: Notify })
           by the API rather than by the counter.
         </p>
         <div className="mt-4 grid gap-2">
-          <input
+          <Input
             value={couponName}
             onChange={(event) => setCouponName(event.target.value)}
+            surface="dark"
+            aria-label="What it is for"
             placeholder="What it is for"
-            className={field}
           />
-          <input
+          <Input
             value={couponValue}
             onChange={(event) => setCouponValue(onlyMoney(event.target.value))}
             inputMode="decimal"
+            surface="dark"
+            aria-label="Value in pesos"
             placeholder="Value in pesos"
-            className={field}
           />
           <Button
             tone="accent"
@@ -142,18 +143,20 @@ function ProgramStock({ program, notify }: { program: Program; notify: Notify })
           holder presents.
         </p>
         <div className="mt-4 grid gap-2">
-          <input
+          <Input
             value={cardFor}
             onChange={(event) => setCardFor(event.target.value)}
+            surface="dark"
+            aria-label="Who it is for, optional"
             placeholder="Who it is for, optional"
-            className={field}
           />
-          <input
+          <Input
             value={cardValue}
             onChange={(event) => setCardValue(onlyMoney(event.target.value))}
             inputMode="decimal"
+            surface="dark"
+            aria-label="Amount in pesos"
             placeholder="Amount in pesos"
-            className={field}
           />
           <Button
             tone="accent"
@@ -202,18 +205,20 @@ function ProgramStock({ program, notify }: { program: Program; notify: Notify })
           </ul>
         )}
         <div className="mt-4 grid gap-2">
-          <input
+          <Input
             value={itemName}
             onChange={(event) => setItemName(event.target.value)}
+            surface="dark"
+            aria-label="Item name"
             placeholder="Item name"
-            className={field}
           />
-          <input
+          <Input
             value={itemCost}
             onChange={(event) => setItemCost(onlyDigits(event.target.value))}
             inputMode="numeric"
+            surface="dark"
+            aria-label="Cost in points"
             placeholder="Cost in points"
-            className={field}
           />
           <Button
             tone="accent"
@@ -273,25 +278,28 @@ function ProgramStock({ program, notify }: { program: Program; notify: Notify })
           </ul>
         )}
         <div className="mt-4 grid gap-2">
-          <input
+          <Input
             value={tierName}
             onChange={(event) => setTierName(event.target.value)}
+            surface="dark"
+            aria-label="Tier name, for example Gold"
             placeholder="Tier name, for example Gold"
-            className={field}
           />
-          <input
+          <Input
             value={tierThreshold}
             onChange={(event) => setTierThreshold(onlyDigits(event.target.value))}
             inputMode="numeric"
+            surface="dark"
+            aria-label="Unlocks at how many visits"
             placeholder="Unlocks at how many visits"
-            className={field}
           />
-          <input
+          <Input
             value={tierRate}
             onChange={(event) => setTierRate(onlyMoney(event.target.value))}
             inputMode="decimal"
+            surface="dark"
+            aria-label={isPoints ? "Multiplier, for example 1.5" : "Percent off, for example 12.5"}
             placeholder={isPoints ? "Multiplier, for example 1.5" : "Percent off, for example 12.5"}
-            className={field}
           />
           <Button
             tone="accent"
@@ -417,6 +425,7 @@ export function ProgramsView({ notify }: { notify: Notify }) {
                 <button
                   type="button"
                   key={program.id}
+                  aria-pressed={active}
                   onClick={() => setSelectedId(program.id)}
                   className={`min-h-44 border-[var(--line)] p-5 text-left transition ${index > 1 ? "border-t" : ""} ${index % 2 === 1 ? "sm:border-l" : ""} ${index === 1 ? "border-t sm:border-t-0" : ""} ${active ? "bg-[var(--accent)]" : "hover:bg-[var(--paper)]"}`}
                 >
@@ -480,8 +489,7 @@ export function ProgramsView({ notify }: { notify: Notify }) {
           <ProgramStock program={selected} notify={notify} />
           <div className="mt-6 grid grid-cols-2 gap-2">
             <Button
-              tone="quiet"
-              className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+              tone="ghost"
               disabled={duplicate.isPending}
               onClick={() =>
                 duplicate.mutate(selected.id, {
@@ -504,49 +512,39 @@ export function ProgramsView({ notify }: { notify: Notify }) {
           {editing && (
             <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
               <Eyebrow>Rule editor</Eyebrow>
-              <label className="mt-4 grid gap-2 text-xs font-bold">
-                Program name
-                <input
+              <Field label="Program name" surface="dark" className="mt-4">
+                <Input
                   value={draft.name ?? ""}
                   onChange={(event) =>
                     setDraft((current) => ({ ...current, name: event.target.value }))
                   }
-                  className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
                 />
-              </label>
+              </Field>
               <fieldset className="mt-4">
                 <legend className="text-xs font-bold">Status</legend>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {PROGRAM_STATUSES.map((status) => (
-                    <button
-                      type="button"
+                    <Chip
                       key={status}
-                      aria-pressed={draft.status === status}
+                      surface="dark"
+                      pressed={draft.status === status}
                       onClick={() => setDraft((current) => ({ ...current, status }))}
-                      className={`min-h-10 rounded-full px-3 text-xs font-bold ${
-                        draft.status === status
-                          ? "bg-[var(--accent)] text-[var(--ink)]"
-                          : "border border-white/15 text-white/60"
-                      }`}
                     >
                       {status}
-                    </button>
+                    </Chip>
                   ))}
                 </div>
               </fieldset>
-              <label className="mt-4 grid gap-2 text-xs font-bold">
-                Reward
-                <input
+              <Field label="Reward" surface="dark" className="mt-4">
+                <Input
                   value={draft.rewardName ?? ""}
                   onChange={(event) =>
                     setDraft((current) => ({ ...current, rewardName: event.target.value }))
                   }
-                  className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
                 />
-              </label>
-              <label className="mt-4 grid gap-2 text-xs font-bold">
-                Visits to earn it
-                <input
+              </Field>
+              <Field label="Visits to earn it" surface="dark" className="mt-4">
+                <Input
                   type="number"
                   min={1}
                   max={30}
@@ -557,9 +555,8 @@ export function ProgramsView({ notify }: { notify: Notify }) {
                       target: Number(event.target.value) || 1,
                     }))
                   }
-                  className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
                 />
-              </label>
+              </Field>
               {/* Derived from the ledger, so it is shown rather than edited.
                   It used to be an input, which could never have saved. */}
               <p className="mt-4 text-xs text-white/55">

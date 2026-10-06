@@ -79,10 +79,12 @@ import {
   brandColor,
   Button,
   Eyebrow,
+  IconButton,
   Pill,
   StampDots,
   ViewFrame,
 } from "@kypstamping/ui";
+import { Chip, Field, Input, Select, Textarea } from "@kypstamping/ui/form";
 import {
   daysUntilBirthday,
   longDate,
@@ -286,13 +288,14 @@ function OtherProgramActions({
 
       {live("Coupon") && (
         <div className="flex gap-2">
-          <input
+          <Input
             value={couponCode}
             onChange={(event) =>
               setCouponCode(event.target.value.toUpperCase())
             }
             placeholder="Coupon code"
-            className="min-h-10 flex-1 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-mono outline-none focus:border-[var(--accent-strong)]"
+            aria-label="Coupon code"
+            className="flex-1 font-mono"
           />
           <Button
             tone="quiet"
@@ -317,11 +320,12 @@ function OtherProgramActions({
 
       {live("Gift card") && (
         <div className="flex gap-2">
-          <input
+          <Input
             value={cardCode}
             onChange={(event) => setCardCode(event.target.value.toUpperCase())}
             placeholder="Gift card code"
-            className="min-h-10 flex-1 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-mono outline-none focus:border-[var(--accent-strong)]"
+            aria-label="Gift card code"
+            className="flex-1 font-mono"
           />
           <Button
             tone="quiet"
@@ -446,13 +450,14 @@ function OtherProgramActions({
           unreachable from the product. */}
       {referrals.some((referral) => referral.status === "pending") && (
         <div className="flex gap-2">
-          <input
+          <Input
             value={referralCode}
             onChange={(event) =>
               setReferralCode(event.target.value.toUpperCase())
             }
             placeholder="Referral code"
-            className="min-h-10 flex-1 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-mono outline-none focus:border-[var(--accent-strong)]"
+            aria-label="Referral code"
+            className="flex-1 font-mono"
           />
           <Button
             tone="quiet"
@@ -557,7 +562,7 @@ function OtherProgramActions({
                 product it could be done. */}
             {item.status === "active" && (
               <Button
-                tone="quiet"
+                tone="danger"
                 icon={<Ban size={14} />}
                 disabled={cancelMembership.isPending}
                 onClick={() =>
@@ -630,11 +635,13 @@ function AddWalkIn({
       <p className="mt-1 text-[11px] leading-relaxed text-white/60">
         Add them now and stamp in the same breath.
       </p>
-      <input
+      <Input
+        surface="dark"
         value={name}
         onChange={(event) => onName(event.target.value)}
         placeholder="Their name"
-        className="mt-3 min-h-11 w-full rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+        aria-label="Their name"
+        className="mt-3"
       />
       <div className="mt-3 grid grid-cols-2 gap-2">
         <Button tone="quiet" onClick={onCancel}>
@@ -973,18 +980,17 @@ function ScanView({
                   void find();
                 }}
               >
-                <label className="grid gap-2 text-xs font-bold">
-                  Member code, mobile number, or email
-                  <input
+                <Field
+                  surface="dark"
+                  label="Member code, mobile number, or email"
+                  hint="A hardware scanner types here and presses Enter."
+                >
+                  <Input
                     value={identifier}
                     onChange={(event) => setIdentifier(event.target.value)}
                     placeholder="0917 555 0182"
-                    className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)]"
                   />
-                  <span className="text-[10px] font-semibold text-white/55">
-                    A hardware scanner types here and presses Enter.
-                  </span>
-                </label>
+                </Field>
                 <Button
                   type="submit"
                   tone="accent"
@@ -1180,24 +1186,19 @@ function ScanView({
                   )}
                 </div>
 
-                <label className="mt-5 grid gap-2 text-xs font-bold">
-                  Purchase amount, optional
-                  <input
+                <Field
+                  className="mt-5"
+                  label="Purchase amount, optional"
+                  hint="Recorded with the visit. Leave blank for a visit-only stamp."
+                >
+                  <Input
                     value={amount}
                     onChange={(event) =>
                       setAmount(event.target.value.replace(/[^\d.]/g, ""))
                     }
                     inputMode="decimal"
-                    aria-describedby="scan-amount-help"
-                    className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]"
                   />
-                  <span
-                    id="scan-amount-help"
-                    className="text-[10px] font-semibold text-[var(--muted)]"
-                  >
-                    Recorded with the visit. Leave blank for a visit-only stamp.
-                  </span>
-                </label>
+                </Field>
 
                 <OtherProgramActions
                   customerId={scanned.id}
@@ -1344,8 +1345,9 @@ function ScanView({
                     free shop pressing it only ever got "Feedback needs the
                     Grow plan or above" - an upsell in the way of the till. */}
                 {gate.covers(feedbackPlan) && (
-                  <button
-                    type="button"
+                  <Button
+                    tone="ghost"
+                    icon={<MessageCircle size={14} />}
                     disabled={askFeedback.isPending}
                     onClick={() =>
                       askFeedback.mutate(
@@ -1358,16 +1360,16 @@ function ScanView({
                         },
                       )
                     }
-                    className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/20 text-xs font-extrabold text-white/70 transition hover:bg-white/5 disabled:opacity-50"
+                    className="mt-4 w-full"
                   >
-                    <MessageCircle size={14} />
                     {askFeedback.isPending ? "Sending…" : "Ask how it went"}
-                  </button>
+                  </Button>
                 )}
                 {/* Right here, because this is where a wrong scan is
                     noticed - one customer back, before the queue moves on. */}
-                <button
-                  type="button"
+                <Button
+                  tone="ghost"
+                  icon={<Undo2 size={14} />}
                   disabled={undo.isPending}
                   onClick={() =>
                     undo.mutate(
@@ -1384,13 +1386,12 @@ function ScanView({
                       },
                     )
                   }
-                  className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 text-xs font-extrabold text-white/55 transition hover:text-white disabled:opacity-50"
+                  className="mt-4 w-full"
                 >
-                  <Undo2 size={14} />{" "}
                   {undo.isPending
                     ? "Reversing…"
                     : "That was a mistake, undo it"}
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -1409,7 +1410,7 @@ function ScanView({
                   <select
                     value={tillBranch}
                     onChange={(event) => chooseTillBranch(event.target.value)}
-                    className="rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-2 py-1 text-lg font-extrabold outline-none focus:border-[var(--accent-strong)]"
+                    className="rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-2 py-1 text-lg font-extrabold focus:border-[var(--accent-strong)]"
                   >
                     {locations.map((branch) => (
                       <option key={branch.id} value={branch.id}>
@@ -1634,14 +1635,12 @@ function BusinessProfileView({ notify }: { notify: Notify }) {
                     : " · hours not set"}
                 </p>
               </div>
-              <button
-                type="button"
-                aria-label={`Open ${location.name} settings`}
+              <IconButton
+                label={`Open ${location.name} settings`}
                 onClick={() => setEditingLocation(location)}
-                className="grid size-10 place-items-center rounded-full border border-[var(--line)] hover:bg-[var(--surface-2)]"
               >
                 <ChevronRight size={16} />
-              </button>
+              </IconButton>
             </article>
           ))}
         </div>
@@ -2254,7 +2253,7 @@ function SalesLedger({ notify }: { notify: Notify }) {
                     <td className="px-4 py-4 text-right">
                       {item.status === "recorded" && (
                         <Button
-                          tone="quiet"
+                          tone="danger"
                           icon={<Undo2 size={14} />}
                           disabled={refund.isPending}
                           onClick={() =>
@@ -2598,20 +2597,16 @@ function CampaignsView({ notify }: { notify: Notify }) {
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
         <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
           <div className="grid gap-5 sm:grid-cols-2">
-            <label className="grid gap-2 text-xs font-bold">
-              Campaign name
-              <input
+            <Field label="Campaign name">
+              <Input
                 value={campaignName}
                 onChange={(event) => setCampaignName(event.target.value)}
-                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]"
               />
-            </label>
-            <label className="grid gap-2 text-xs font-bold">
-              Audience
-              <select
+            </Field>
+            <Field label="Audience">
+              <Select
                 value={audienceSegment}
                 onChange={(event) => setAudienceSegment(event.target.value)}
-                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
               >
                 {/* The audiences the API can resolve to people. "Custom segment"
                     had nothing behind it, and every campaign went to everyone. */}
@@ -2619,8 +2614,8 @@ function CampaignsView({ notify }: { notify: Notify }) {
                 <option>Almost regulars</option>
                 <option>At-risk regulars</option>
                 <option>One action from reward</option>
-              </select>
-            </label>
+              </Select>
+            </Field>
           </div>
           <div className="mt-5">
             <div className="flex items-center justify-between">
@@ -2737,73 +2732,72 @@ function CampaignsView({ notify }: { notify: Notify }) {
               </span>
             </button>
           </div>
-          <label className="mt-6 grid gap-2 text-xs font-bold">
-            Message
-            <textarea
+          <Field
+            className="mt-6"
+            label="Message"
+            hint={
+              <span className="block text-right">
+                {message.length}/320 · SMS may use {message.length > 160 ? 2 : 1}{" "}
+                segment{message.length > 160 ? "s" : ""}
+              </span>
+            }
+          >
+            <Textarea
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               rows={5}
               maxLength={320}
-              className="rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] p-4 text-sm leading-relaxed outline-none focus:border-[var(--accent-strong)]"
             />
-            <span className="text-right text-[10px] font-semibold text-[var(--muted)]">
-              {message.length}/320 · SMS may use {message.length > 160 ? 2 : 1}{" "}
-              segment{message.length > 160 ? "s" : ""}
-            </span>
-          </label>
+          </Field>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <label className="grid gap-2 text-xs font-bold">
-              Send time
-              <select
-                value={sendNow ? "now" : "later"}
-                onChange={(event) => setSendNow(event.target.value === "now")}
-                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
-              >
-                <option value="now">Send as soon as I schedule it</option>
-                <option value="later">Send at a time I pick</option>
-              </select>
+            {/* Two controls, so two names: the label names the choice, and
+                the time box takes the option that opened it. */}
+            <div className="grid gap-2">
+              <Field label="Send time">
+                <Select
+                  value={sendNow ? "now" : "later"}
+                  onChange={(event) => setSendNow(event.target.value === "now")}
+                >
+                  <option value="now">Send as soon as I schedule it</option>
+                  <option value="later">Send at a time I pick</option>
+                </Select>
+              </Field>
               {!sendNow && (
-                <input
+                <Input
                   type="datetime-local"
+                  aria-label="Send at a time I pick"
                   value={sendAt}
                   onChange={(event) => setSendAt(event.target.value)}
-                  className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
                 />
               )}
-            </label>
-            <label className="grid gap-2 text-xs font-bold">
-              Spend ceiling per campaign, pesos
-              <input
+            </div>
+            <Field label="Spend ceiling per campaign, pesos">
+              <Input
                 value={campaignCeiling}
                 onChange={(event) =>
                   setCampaignCeiling(event.target.value.replace(/[^0-9]/g, ""))
                 }
                 inputMode="numeric"
-                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]"
               />
-            </label>
-            <label className="grid gap-2 text-xs font-bold">
-              Spend ceiling per month, pesos
-              <input
+            </Field>
+            <Field label="Spend ceiling per month, pesos">
+              <Input
                 value={monthlyCeiling}
                 onChange={(event) =>
                   setMonthlyCeiling(event.target.value.replace(/[^0-9]/g, ""))
                 }
                 inputMode="numeric"
-                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]"
               />
-            </label>
-            <label className="grid gap-2 text-xs font-bold">
-              Frequency policy
-              <select
+            </Field>
+            <Field label="Frequency policy">
+              <Select
                 value={frequencyPolicy}
                 onChange={(event) => setFrequencyPolicy(event.target.value)}
-                className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
               >
                 <option>Respect 2 promos / week</option>
                 <option>Service message only</option>
-              </select>
-            </label>
+              </Select>
+            </Field>
           </div>
         </section>
         <aside className="rounded-2xl bg-[var(--accent)] p-6">
@@ -3071,28 +3065,24 @@ function MessageLogView({ notify }: { notify: Notify }) {
     >
       <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
         <div className="flex flex-col gap-3 border-b border-[var(--line)] p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap gap-2">
+          <div role="group" aria-label="Channel" className="flex flex-wrap gap-2">
             {messageChannels.map((item) => (
-              <button
-                type="button"
+              <Chip
                 key={item}
+                pressed={channel === item}
                 onClick={() => setChannel(item)}
-                className={`rounded-full px-3 py-2 text-xs font-bold ${channel === item ? "bg-[var(--ink)] text-[var(--paper)]" : "bg-[var(--paper)] text-[var(--muted-strong)]"}`}
               >
                 {item}
-              </button>
+              </Chip>
             ))}
           </div>
-          <label className="flex min-h-10 items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3">
-            <Search size={15} />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              aria-label="Search message history"
-              className="bg-transparent text-sm outline-none"
-              placeholder="Search messages"
-            />
-          </label>
+          <Input
+            icon={<Search size={16} />}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            aria-label="Search message history"
+            placeholder="Search messages"
+          />
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[820px] text-left">

@@ -1,8 +1,9 @@
 "use client";
 
 /**
- * What every view file shares: the notify signature, the export helper, the
- * input class, a labelled field, and the small "why is this disabled" line.
+ * What every view file shares: the notify signature, the export helper and
+ * the small "why is this disabled" line. Form controls come from
+ * @kypstamping/ui/form.
  */
 
 import { useState, type ReactNode } from "react";
@@ -32,11 +33,6 @@ export const newReference = () =>
   globalThis.crypto?.randomUUID?.() ??
   `${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
 
-export const inputClass =
-  "min-h-11 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)] disabled:opacity-60";
-
-export const darkInputClass =
-  "min-h-11 w-full rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm outline-none focus:border-[var(--accent)] disabled:opacity-60";
 
 /** Initials from a name, since a counter lookup does not return them. */
 export function initialsOf(name: string) {
@@ -77,27 +73,6 @@ export function useExport(notify: Notify) {
   };
 }
 
-export function Field({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: ReactNode;
-}) {
-  return (
-    <label className="grid gap-1.5 text-xs font-bold">
-      {label}
-      {children}
-      {hint ? (
-        <span className="text-[10px] font-semibold text-[var(--muted)]">
-          {hint}
-        </span>
-      ) : null}
-    </label>
-  );
-}
 
 /**
  * What a panel says when it has nothing to show.

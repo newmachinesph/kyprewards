@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { BrandMark } from "@kypstamping/ui";
+import { BrandMark, IconButton } from "@kypstamping/ui";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { customerAppUrl } from "@/lib/site";
 
@@ -44,16 +44,15 @@ export function SiteHeader() {
           >
             Open my wallet <ArrowUpRight size={16} aria-hidden="true" />
           </a>
-          <button
-            type="button"
+          <IconButton
+            label={open ? "Close navigation" : "Open navigation"}
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
             aria-controls="site-menu"
-            aria-label={open ? "Close navigation" : "Open navigation"}
-            className="focus-ring ml-auto grid size-11 shrink-0 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] md:hidden"
+            className="ml-auto md:hidden"
           >
             {open ? <X size={19} aria-hidden="true" /> : <Menu size={19} aria-hidden="true" />}
-          </button>
+          </IconButton>
         </div>
       </div>
       {open && (

@@ -134,6 +134,15 @@ the three `overrides` in the root `package.json` that keep it that way).
    this directory with a token, never a git push.
 10. **Smallest correct change.** Trace the flow first, grep callers, then edit.
     Reuse what is in `packages/*` before writing anything new.
+11. **Controls come from the shared layer.** Fields, selects, textareas,
+    checkboxes, switches, chips and segmented toggles are
+    `@kypstamping/ui/form`; buttons are `Button`/`IconButton` from
+    `@kypstamping/ui`, and a link styled as a button uses `buttonClass` from
+    `@kypstamping/ui/button` (safe in server components). Every control is
+    48px tall with 16px text, so iOS never zooms. Do not hand-style a raw
+    `<input>`, and do not add global CSS that restyles controls: an unlayered
+    rule beats every Tailwind class. The marketing site keeps its own intake
+    styling, at 16px.
 
 ## Verify before you say done
 

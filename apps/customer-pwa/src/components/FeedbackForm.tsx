@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Check, Star } from "lucide-react";
 import { ApiError, answerFeedback } from "@kypstamping/api";
-import { BrandMark } from "@kypstamping/ui";
+import { BrandMark, Button } from "@kypstamping/ui";
+import { Field, FormMessage, Textarea } from "@kypstamping/ui/form";
 
 /**
  * A rating and, if they want, a sentence.
@@ -84,29 +85,20 @@ export function FeedbackForm({ feedbackId }: { feedbackId: string }) {
                 </button>
               ))}
             </div>
-            <label className="mt-6 grid gap-2 text-xs font-extrabold">
-              Anything you want to add, optional
-              <textarea
+            <Field label="Anything you want to add, optional" className="mt-6">
+              <Textarea
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
                 rows={3}
                 maxLength={4000}
-                className="rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] p-3 text-sm font-normal outline-none focus:border-[var(--accent-strong)]"
               />
-            </label>
-            {failed && (
-              <p aria-live="polite" className="mt-3 text-xs font-bold text-[var(--danger)]">
-                {failed}
-              </p>
-            )}
-            <button
-              type="button"
-              disabled={rating === 0 || sending}
-              onClick={submit}
-              className="mt-6 min-h-12 w-full rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-60"
-            >
+            </Field>
+            <FormMessage tone="error" className="mt-3">
+              {failed}
+            </FormMessage>
+            <Button size="lg" disabled={rating === 0 || sending} onClick={submit} className="mt-6 w-full">
               {sending ? "Sending…" : rating === 0 ? "Pick a rating" : "Send"}
-            </button>
+            </Button>
           </div>
         )}
       </div>

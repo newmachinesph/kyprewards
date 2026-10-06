@@ -12,6 +12,7 @@ import {
 } from "@kypstamping/api";
 import { Button, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kypstamping/ui";
 import { pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
+import { Field, Input, Select } from "@kypstamping/ui/form";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { ChevronRight, FileDown, Search, Upload, Users } from "lucide-react";
 import {
@@ -128,21 +129,19 @@ function CustomerExtras({
           </div>
           <div className="mt-3 space-y-2">
             {fields.map((field) => (
-              <label key={field.key} className="grid gap-1.5 text-xs font-bold">
-                {field.label}
-                <input
+              <Field key={field.key} label={field.label} surface="dark">
+                <Input
                   value={current[field.key] ?? ""}
                   onChange={(event) =>
                     setDraft({ ...current, [field.key]: event.target.value })
                   }
-                  className="min-h-10 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3 text-sm font-normal outline-none focus:border-[var(--accent)]"
                 />
-              </label>
+              </Field>
             ))}
           </div>
           <Button
-            tone="quiet"
-            className="mt-3 w-full border-white/20 bg-white/5 text-white hover:bg-white/10"
+            tone="ghost"
+            className="mt-3 w-full"
             disabled={!draft || save.isPending}
             onClick={() =>
               draft &&
@@ -199,8 +198,8 @@ function CustomerExtras({
           <p className="mt-2 text-xs text-white/55">None outstanding.</p>
         )}
         <Button
-          tone="quiet"
-          className="mt-3 w-full border-white/20 bg-white/5 text-white hover:bg-white/10"
+          tone="ghost"
+          className="mt-3 w-full"
           disabled={invite.isPending}
           onClick={() =>
             invite.mutate(
@@ -233,7 +232,7 @@ function ImportCustomers({ notify, blocked }: { notify: Notify; blocked: string 
   return (
     <label
       title={blocked ?? undefined}
-      className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-sm font-extrabold transition hover:bg-[var(--surface-2)] ${load.isPending || blocked ? "pointer-events-none opacity-60" : ""}`}
+      className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-sm font-extrabold transition hover:bg-[var(--surface-2)] focus-within:outline-2 focus-within:outline-[var(--accent-strong)] ${load.isPending || blocked ? "pointer-events-none opacity-60" : ""}`}
     >
       <Upload size={16} />
       {load.isPending ? "Importing…" : blocked ? `Import CSV · ${blocked}` : "Import CSV"}
@@ -328,22 +327,18 @@ export function CustomersView({ notify }: { notify: Notify }) {
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
         <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
           <div className="grid items-center gap-3 border-b border-[var(--line)] p-4 sm:grid-cols-[1fr_auto_auto]">
-            <label className="flex min-h-11 items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3">
-              <Search size={16} className="text-[var(--muted)]" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                aria-label="Search customers"
-                className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-                placeholder="Search customers"
-              />
-            </label>
+            <Input
+              icon={<Search size={16} />}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              aria-label="Search customers"
+              placeholder="Search customers"
+            />
             <PlanTag plan={segmentPlan} included={gate.covers(segmentPlan)} />
-            <select
+            <Select
               value={segment}
               onChange={(event) => setSegment(event.target.value)}
               aria-label="Filter customers by lifecycle segment"
-              className="min-h-11 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3 text-sm font-bold"
             >
               {[
                 "All",
@@ -357,7 +352,7 @@ export function CustomersView({ notify }: { notify: Notify }) {
               ].map((item) => (
                 <option key={item}>{item}</option>
               ))}
-            </select>
+            </Select>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] border-collapse text-left">
@@ -386,7 +381,7 @@ export function CustomersView({ notify }: { notify: Notify }) {
                         setSelectedId(customer.id);
                       }
                     }}
-                    className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] transition focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === customer.id ? "bg-[rgb(232_163_61/9%)]" : "hover:bg-[var(--paper)]"}`}
+                    className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] transition focus-visible:outline-2 focus-visible:outline-[var(--accent-strong)] last:border-0 ${selected.id === customer.id ? "bg-[rgb(232_163_61/9%)]" : "hover:bg-[var(--paper)]"}`}
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">

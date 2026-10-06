@@ -6,6 +6,8 @@
   "exports": {
     ".": "./src/index.tsx",
     "./auth": "./src/auth.tsx",
+    "./form": "./src/form.tsx",
+    "./button": "./src/button.ts",
     "./shell": "./src/shell.tsx",
     "./format": "./src/format.ts",
     "./plans": "./src/plans.ts",

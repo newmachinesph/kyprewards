@@ -46,6 +46,7 @@ import {
 import { ImageIcon } from "lucide-react";
 import { splitRange, toDisplayTime } from "@kypstamping/ui/format";
 import { BRAND_COLORS, Button, Dialog, FieldLabel, STAMP_ICONS, StampMark } from "@kypstamping/ui";
+import { Field, Input, Select } from "@kypstamping/ui/form";
 import {
   useCreateProgram,
   useSetBrandingColor,
@@ -58,36 +59,6 @@ import {
 
 type Notify = (message: string, intent?: "info" | "review" | "error") => void;
 
-/** One input, its label, and the message under it when it is wrong. */
-function Field({
-  label,
-  error,
-  hint,
-  children,
-}: {
-  label: string;
-  error?: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="grid gap-2">
-      <FieldLabel>{label}</FieldLabel>
-      {children}
-      {hint ? (
-        <span className="text-[10px] font-semibold text-[var(--muted)]">{hint}</span>
-      ) : null}
-      {error ? (
-        <span role="alert" className="text-[11px] font-bold text-[var(--danger)]">
-          {error}
-        </span>
-      ) : null}
-    </label>
-  );
-}
-
-const inputClass =
-  "min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]";
 
 /** The form-level message, for a refusal no single input owns. */
 function Banner({ message }: { message: string }) {
@@ -142,7 +113,7 @@ export function NewProgramDialog({
       >
         <Banner message={banner} />
         <Field label="Program type" error={form.formState.errors.type?.message}>
-          <select {...form.register("type")} className={inputClass}>
+          <Select {...form.register("type")}>
             {PROGRAM_TYPES.map((type) => {
               const needs = PROGRAM_TYPE_MIN_PLAN[type];
               const locked = PLAN_RANK.indexOf(needs) > held;
@@ -157,25 +128,20 @@ export function NewProgramDialog({
                 </option>
               );
             })}
-          </select>
+          </Select>
         </Field>
         <Field label="Name" error={form.formState.errors.name?.message}>
-          <input
-            {...form.register("name")}
-            placeholder="Eight visits, pastry on us"
-            className={inputClass}
-          />
+          <Input {...form.register("name")} placeholder="Eight visits, pastry on us" />
         </Field>
         <Field label="What the customer earns" error={form.formState.errors.rewardName?.message}>
-          <input {...form.register("rewardName")} placeholder="Free pastry" className={inputClass} />
+          <Input {...form.register("rewardName")} placeholder="Free pastry" />
         </Field>
         <Field label="Visits to earn it" error={form.formState.errors.target?.message}>
-          <input
+          <Input
             type="number"
             min={1}
             max={30}
             {...form.register("target", { valueAsNumber: true })}
-            className={inputClass}
           />
         </Field>
         <div className="grid gap-2 sm:grid-cols-2">
@@ -258,11 +224,10 @@ function HoursEditor({
 
       {rows.map((row, index) => (
         <div key={index} className="grid gap-2 sm:grid-cols-[1.2fr_1fr_1fr_auto] sm:items-center">
-          <select
+          <Select
             aria-label="Days"
             value={row.days}
             onChange={(event) => set(index, { days: event.target.value })}
-            className={inputClass}
           >
             <option value="">Pick days</option>
             {DAY_SPANS.map((span) => (
@@ -270,39 +235,37 @@ function HoursEditor({
                 {span}
               </option>
             ))}
-          </select>
-          <input
+          </Select>
+          <Input
             type="time"
             aria-label="Opens"
             value={row.open}
             onChange={(event) => set(index, { open: event.target.value })}
-            className={inputClass}
           />
-          <input
+          <Input
             type="time"
             aria-label="Closes"
             value={row.close}
             onChange={(event) => set(index, { close: event.target.value })}
-            className={inputClass}
           />
-          <button
-            type="button"
+          <Button
+            tone="danger"
+            size="sm"
             onClick={() => onChange(rows.filter((_, i) => i !== index))}
             aria-label={`Remove ${row.days || "this"} hours`}
-            className="focus-ring inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--line-strong)] px-3 text-xs font-bold text-[var(--muted-strong)] transition hover:border-[var(--danger)] hover:text-[var(--danger)]"
           >
             Remove
-          </button>
+          </Button>
         </div>
       ))}
 
-      <button
-        type="button"
+      <Button
+        tone="quiet"
+        className="mt-1 w-fit"
         onClick={() => onChange([...rows, { days: "", open: "09:00", close: "18:00" }])}
-        className="focus-ring mt-1 inline-flex min-h-10 w-fit items-center gap-2 rounded-xl border border-[var(--line-strong)] px-4 text-xs font-extrabold transition hover:border-[var(--ink)]"
       >
         <span aria-hidden="true">+</span> Add hours
-      </button>
+      </Button>
     </fieldset>
   );
 }
@@ -349,28 +312,23 @@ export function NewLocationDialog({
       >
         <Banner message={banner} />
         <Field label="Branch name" error={form.formState.errors.name?.message}>
-          <input {...form.register("name")} placeholder="Kapitolyo" className={inputClass} />
+          <Input {...form.register("name")} placeholder="Kapitolyo" />
         </Field>
         <Field label="Street address" error={form.formState.errors.address?.message}>
-          <input
-            {...form.register("address")}
-            placeholder="12 East Capitol Drive"
-            className={inputClass}
-          />
+          <Input {...form.register("address")} placeholder="12 East Capitol Drive" />
         </Field>
         <Field label="City" error={form.formState.errors.city?.message}>
-          <input {...form.register("city")} placeholder="Pasig" className={inputClass} />
+          <Input {...form.register("city")} placeholder="Pasig" />
         </Field>
         <Field
           label="Google Maps link"
           hint="Optional. Share → Copy link in Google Maps. Customers tap it for directions."
           error={form.formState.errors.mapsLink?.message}
         >
-          <input
+          <Input
             {...form.register("mapsLink")}
             placeholder="https://maps.app.goo.gl/…"
             inputMode="url"
-            className={inputClass}
           />
         </Field>
         <HoursEditor rows={hours} onChange={setHours} />
@@ -446,16 +404,16 @@ export function EditProfileDialog({
       >
         <Banner message={banner} />
         <Field label="Registered name" error={form.formState.errors.name?.message}>
-          <input {...form.register("name")} className={inputClass} />
+          <Input {...form.register("name")} />
         </Field>
         <Field
           label="Short name, shown to customers"
           error={form.formState.errors.shortName?.message}
         >
-          <input {...form.register("shortName")} className={inputClass} />
+          <Input {...form.register("shortName")} />
         </Field>
         <Field label="Category" error={form.formState.errors.category?.message}>
-          <input {...form.register("category")} className={inputClass} />
+          <Input {...form.register("category")} />
         </Field>
         {/* A fieldset rather than the Field wrapper, which renders a <label>:
             the control here is itself a label for a hidden input, and a label
@@ -707,39 +665,37 @@ export function EditLocationDialog({
       >
         <Banner message={banner} />
         <Field label="Branch name" error={form.formState.errors.name?.message}>
-          <input {...form.register("name")} className={inputClass} />
+          <Input {...form.register("name")} />
         </Field>
         <Field label="Street address" error={form.formState.errors.address?.message}>
-          <input {...form.register("address")} className={inputClass} />
+          <Input {...form.register("address")} />
         </Field>
         <Field label="City" error={form.formState.errors.city?.message}>
-          <input {...form.register("city")} className={inputClass} />
+          <Input {...form.register("city")} />
         </Field>
         <Field
           label="Google Maps link"
           hint="Optional. Share → Copy link in Google Maps. Customers tap it for directions."
           error={form.formState.errors.mapsLink?.message}
         >
-          <input
+          <Input
             {...form.register("mapsLink")}
             placeholder="https://maps.app.goo.gl/…"
             inputMode="url"
-            className={inputClass}
           />
         </Field>
         <HoursEditor rows={hours} onChange={setHours} />
         <Field label="Status">
-          <select
+          <Select
             value={status}
             onChange={(event) => setStatus(event.target.value as BusinessLocation["status"])}
-            className={inputClass}
           >
             {LOCATION_STATUSES.map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
         <div className="grid gap-2 sm:grid-cols-2">
           <Button tone="quiet" type="button" onClick={onClose}>
@@ -801,31 +757,21 @@ export function EditStaffDialog({
     <Dialog title={member.name} eyebrow="Staff & access" onClose={onClose}>
       <div className="grid gap-5">
         <Banner message={banner} />
-        <label className="grid gap-2">
-          <FieldLabel>Role</FieldLabel>
-          <select
-            value={role}
-            onChange={(event) => setRole(event.target.value)}
-            className={inputClass}
-          >
+        <Field label="Role">
+          <Select value={role} onChange={(event) => setRole(event.target.value)}>
             {STAFF_ROLES.map((item) => (
               <option key={item}>{item}</option>
             ))}
-          </select>
-        </label>
-        <label className="grid gap-2">
-          <FieldLabel>Branch</FieldLabel>
-          <select
-            value={location}
-            onChange={(event) => setLocation(event.target.value)}
-            className={inputClass}
-          >
+          </Select>
+        </Field>
+        <Field label="Branch">
+          <Select value={location} onChange={(event) => setLocation(event.target.value)}>
             <option>All locations</option>
             {locations.map((branch) => (
               <option key={branch.id}>{branch.name}</option>
             ))}
-          </select>
-        </label>
+          </Select>
+        </Field>
 
         <div className="grid gap-2 sm:grid-cols-2">
           <Button tone="quiet" type="button" onClick={onClose}>

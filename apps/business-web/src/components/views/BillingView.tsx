@@ -17,13 +17,14 @@ import {
   type QrPayment,
 } from "@kypstamping/api";
 import { Button, Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Field, Input, Switch } from "@kypstamping/ui/form";
 import { longDate, peso, pesoFromCentavos } from "@kypstamping/ui/format";
 import { Check, CreditCard, QrCode, Sparkles } from "lucide-react";
 import { addOns, foundingOffer, plans } from "@kypstamping/ui/plans";
 import { refusal, retryOnce } from "@/lib/plan";
 import { useRaiseSupportRequest, useSetSetting } from "@/components/mutations";
 import { PaymentSheet } from "@/components/views/PaymentSheet";
-import { BlockedNote, Field, inputClass, onlyDigits, type Notify } from "@/components/views/shared";
+import { BlockedNote, onlyDigits, type Notify } from "@/components/views/shared";
 
 const OPENS_WITH_BILLING = "Opens with billing";
 const NOT_OPEN = "Not open yet, free during the beta";
@@ -210,16 +211,7 @@ export function BillingView({ notify }: { notify: Notify }) {
             <h2 className="mt-1 text-lg font-extrabold">Four plans, no dates</h2>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              role="switch"
-              aria-checked={yearly}
-              aria-label="Show yearly prices"
-              onClick={() => setYearly((value) => !value)}
-              className={`relative h-6 w-10 shrink-0 rounded-full ${yearly ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
-            >
-              <span className={`absolute top-1 size-4 rounded-full bg-white transition ${yearly ? "left-5" : "left-1"}`} />
-            </button>
+            <Switch checked={yearly} aria-label="Show yearly prices" onCheckedChange={setYearly} />
             <span className="text-xs font-bold">
               {yearly ? "Yearly price, billed twelve months at a time" : "Monthly price"}
             </span>
@@ -338,19 +330,17 @@ export function BillingView({ notify }: { notify: Notify }) {
               {BILLING_PREFERENCES.map(([key, label, detail]) => (
                 <div key={key} className="flex items-start gap-3 py-2">
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-extrabold">{label}</p>
-                    <p className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">
+                    <p id={`billing-${key}-label`} className="text-xs font-extrabold">{label}</p>
+                    <p id={`billing-${key}-detail`} className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">
                       {detail || (profile ? `Sent to ${profile.owner}` : "")}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={Boolean(settings[key])}
-                    aria-label={label}
+                  <Switch
+                    checked={Boolean(settings[key])}
+                    aria-labelledby={`billing-${key}-label`}
+                    aria-describedby={`billing-${key}-detail`}
                     disabled={setSetting.isPending}
-                    onClick={() => {
-                      const next = !settings[key];
+                    onCheckedChange={(next) => {
                       setSetting.mutate(
                         { key, value: next },
                         {
@@ -359,10 +349,7 @@ export function BillingView({ notify }: { notify: Notify }) {
                         },
                       );
                     }}
-                    className={`relative h-6 w-10 shrink-0 rounded-full ${settings[key] ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
-                  >
-                    <span className={`absolute top-1 size-4 rounded-full bg-white transition ${settings[key] ? "left-5" : "left-1"}`} />
-                  </button>
+                  />
                 </div>
               ))}
             </div>
@@ -431,7 +418,7 @@ export function BillingView({ notify }: { notify: Notify }) {
           {bundle === "payg" && (
             <div className="mt-3">
               <Field label="Segments">
-                <input value={segments} onChange={(event) => setSegments(onlyDigits(event.target.value))} inputMode="numeric" className={inputClass} />
+                <Input value={segments} onChange={(event) => setSegments(onlyDigits(event.target.value))} inputMode="numeric" />
               </Field>
             </div>
           )}

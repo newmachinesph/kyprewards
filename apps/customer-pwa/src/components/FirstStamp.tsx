@@ -13,7 +13,7 @@ import {
   useWallet,
   type FirstStampOffer,
 } from "@kypstamping/api";
-import { BrandMark, StampDots } from "@kypstamping/ui";
+import { BrandMark, Button, StampDots, buttonClass } from "@kypstamping/ui";
 
 /**
  * What the counter poster lands on.
@@ -231,7 +231,7 @@ export function FirstStamp({ slug }: { slug: string }) {
             </p>
             <Link
               href="/"
-              className="focus-ring mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
+              className={`mt-5 w-full ${buttonClass({ size: "lg" })}`}
             >
               Open my wallet <ArrowRight size={16} />
             </Link>
@@ -305,13 +305,13 @@ export function FirstStamp({ slug }: { slug: string }) {
                   request fails the journey continues anyway: staff can scan
                   them in, which is the fallback the error copy already
                   points at. */}
-              <button
-                type="button"
+              <Button
+                size="lg"
                 disabled={busy || alreadyMember}
                 onClick={() =>
                   signedIn ? keepOnExistingWallet() : keep("/create-account")
                 }
-                className="focus-ring mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-60"
+                className="mt-5 w-full"
               >
                 {busy
                   ? "Holding it…"
@@ -321,7 +321,7 @@ export function FirstStamp({ slug }: { slug: string }) {
                       ? "Add it to my wallet"
                       : "Save my stamp"}{" "}
                 {!busy && !alreadyMember && <ArrowRight size={16} />}
-              </button>
+              </Button>
               {!signedIn && (
                 <button
                   type="button"

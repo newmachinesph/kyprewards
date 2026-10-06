@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import {
   Button,
   Eyebrow,
@@ -9,6 +9,16 @@ import {
   QueryBoundary,
   ViewFrame as SharedViewFrame,
 } from "@kypstamping/ui";
+import {
+  Checkbox,
+  Field,
+  FormMessage,
+  Input,
+  PasswordInput,
+  Select,
+  Switch,
+  Textarea,
+} from "@kypstamping/ui/form";
 import {
   Activity,
   ArrowRight,
@@ -129,6 +139,7 @@ function DeletionQueue({ notify }: { notify: Notify }) {
                       Keep
                     </Button>
                     <Button
+                      tone="danger"
                       disabled={erase.isPending || row.openRedemptions > 0}
                       onClick={() =>
                         erase.mutate(row.id, {
@@ -145,7 +156,7 @@ function DeletionQueue({ notify }: { notify: Notify }) {
                   </span>
                 ) : (
                   <Button
-                    tone="quiet"
+                    tone="danger"
                     disabled={row.openRedemptions > 0}
                     onClick={() => setConfirming(row.id)}
                   >
@@ -703,10 +714,8 @@ function SupportView({ notify }: { notify: Notify }) {
             </div>
           )}
 
-          <label className="mt-5 grid gap-2 text-xs font-bold">
-            Assign to
-            <select
-              className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3"
+          <Field label="Assign to" surface="dark" className="mt-5">
+            <Select
               value={selected.owner}
               onChange={(event) => {
                 assignTicket(selected.id, event.target.value, (message) =>
@@ -726,12 +735,10 @@ function SupportView({ notify }: { notify: Notify }) {
               ].map((owner) => (
                 <option key={owner}>{owner}</option>
               ))}
-            </select>
-          </label>
-          <label className="mt-4 grid gap-2 text-xs font-bold">
-            Status
-            <select
-              className="min-h-11 rounded-xl border border-white/15 bg-[var(--ink-soft)] px-3"
+            </Select>
+          </Field>
+          <Field label="Status" surface="dark" className="mt-4">
+            <Select
               value={selected.status}
               // One write carrying both fields.
               //
@@ -761,19 +768,17 @@ function SupportView({ notify }: { notify: Notify }) {
                   <option key={status}>{status}</option>
                 ),
               )}
-            </select>
-          </label>
-          <label className="mt-4 grid gap-2 text-xs font-bold">
-            Internal note
-            <textarea
+            </Select>
+          </Field>
+          <Field label="Internal note" surface="dark" className="mt-4">
+            <Textarea
               rows={4}
-              className="rounded-xl border border-white/15 bg-[var(--ink-soft)] p-3 outline-none"
               placeholder="Record evidence and the next decision"
               value={note}
               onChange={(event) => setNoteDraft(event.target.value)}
               onBlur={commitNote}
             />
-          </label>
+          </Field>
           <Button
             tone="accent"
             className="mt-5 w-full"
@@ -1253,8 +1258,7 @@ function ProviderPolicyCard({ notify }: { notify: Notify }) {
   // `shrink-0` so nothing injected into the row can squeeze the box: a flex
   // child shrinks below its width by default, and the attributes below stop
   // the usual culprit rather than relying on that alone.
-  const field =
-    "min-h-9 w-28 shrink-0 rounded-lg border border-white/15 bg-[var(--ink-soft)] px-2 text-right text-xs font-bold text-white outline-none focus:border-[var(--accent)]";
+  const field = "max-w-36 shrink-0 text-right";
 
   /**
    * Keep password managers out of these boxes.
@@ -1302,8 +1306,9 @@ function ProviderPolicyCard({ notify }: { notify: Notify }) {
               {label}
               <span className="ml-1 text-white/55">({unit})</span>
             </span>
-            <input
+            <Input
               type="number"
+              surface="dark"
               value={shown[key]}
               onChange={(event) =>
                 setDraft({ ...shown, [key]: Number(event.target.value) })
@@ -1327,14 +1332,14 @@ function ProviderPolicyCard({ notify }: { notify: Notify }) {
             (demo enquiries, partner applications)
           </span>
         </span>
-        <input
+        <Input
           type="email"
+          surface="dark"
           value={shown.internalInbox ?? ""}
           onChange={(event) =>
             setDraft({ ...shown, internalInbox: event.target.value })
           }
           placeholder="inbox@example.com"
-          className="min-h-10 w-full rounded-lg border border-white/15 bg-[var(--ink-soft)] px-3 text-xs font-bold text-white outline-none placeholder:font-normal placeholder:text-white/55 focus:border-[var(--accent)]"
           {...noAutofill}
         />
       </label>
@@ -1421,6 +1426,7 @@ const BILLING_FLAGS = [
 function BillingFlagsCard({ notify }: { notify: Notify }) {
   const { flags, toggleFlag } = useAdminState();
   const { isPending, error, refetch } = usePlatformFlags();
+  const uid = useId();
   const anyMissing = BILLING_FLAGS.some((flag) => !(flag.key in flags));
   return (
     <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
@@ -1459,13 +1465,13 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-extrabold">{flag.title}</p>
+                    <p id={`${uid}-${index}-title`} className="text-sm font-extrabold">{flag.title}</p>
                     <code className="font-mono text-[10px] text-[var(--muted)]">
                       {flag.key}
                     </code>
                     {!present && <PreviewBadge />}
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+                  <p id={`${uid}-${index}-detail`} className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                     {flag.detail}
                   </p>
                   {!present && (
@@ -1474,14 +1480,13 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
                     </p>
                   )}
                 </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-label={`Toggle ${flag.title}`}
-                  aria-checked={enabled}
+                <Switch
+                  aria-labelledby={`${uid}-${index}-title`}
+                  aria-describedby={`${uid}-${index}-detail`}
+                  checked={enabled}
                   disabled={!present}
                   title={present ? undefined : PREVIEW_WRITE_REASON}
-                  onClick={() =>
+                  onCheckedChange={() =>
                     toggleFlag(flag.key, {
                       onDone: (next) =>
                         notify(
@@ -1490,12 +1495,7 @@ function BillingFlagsCard({ notify }: { notify: Notify }) {
                       onFailed: (message) => notify(message, "error"),
                     })
                   }
-                  className={`relative h-6 w-10 shrink-0 rounded-full disabled:opacity-45 ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
-                >
-                  <span
-                    className={`absolute top-1 size-4 rounded-full bg-white transition ${enabled ? "left-5" : "left-1"}`}
-                  />
-                </button>
+                />
               </div>
             );
           })}
@@ -1550,8 +1550,6 @@ function MarketingSenderCard({ notify }: { notify: Notify }) {
     : dirty
       ? "Save your changes first; the test uses the sender as saved."
       : null;
-  const field =
-    "min-h-10 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]";
   const edit = (patch: Partial<Omit<MarketingSenderInput, "password">>) =>
     shown &&
     setDraft({
@@ -1609,54 +1607,47 @@ function MarketingSenderCard({ notify }: { notify: Notify }) {
                   );
                 }}
               >
-                <label className="grid gap-1 text-[11px] font-bold sm:col-span-2">
-                  Host
-                  <input
+                <Field label="Host" className="sm:col-span-2">
+                  <Input
                     value={shown.host}
                     onChange={(event) => edit({ host: event.target.value })}
                     required
                     maxLength={255}
                     placeholder="smtp.example.com"
-                    className={field}
                   />
-                </label>
-                <label className="grid gap-1 text-[11px] font-bold">
-                  Port
-                  <input
+                </Field>
+                <Field label="Port">
+                  <Input
                     type="number"
                     min={1}
                     max={65535}
                     value={shown.port}
                     onChange={(event) => edit({ port: Number(event.target.value) })}
                     required
-                    className={field}
                   />
-                </label>
-                <label className="flex items-center gap-2 self-end pb-2 text-[11px] font-bold">
-                  <input
-                    type="checkbox"
+                </Field>
+                <label className="flex min-h-12 items-center gap-2 self-end text-[11px] font-bold">
+                  <Checkbox
                     checked={shown.starttls}
                     onChange={(event) => edit({ starttls: event.target.checked })}
                   />
                   STARTTLS
                 </label>
-                <label className="grid gap-1 text-[11px] font-bold">
-                  Username
-                  <input
+                <Field label="Username">
+                  <Input
                     value={shown.username}
                     onChange={(event) => edit({ username: event.target.value })}
                     maxLength={255}
                     autoComplete="off"
-                    className={field}
                   />
-                </label>
-                <label className="grid gap-1 text-[11px] font-bold">
-                  <span className="flex items-center gap-2">
-                    Password
-                    {sender.passwordSet && !clearPassword && <Pill tone="success">Set</Pill>}
-                  </span>
-                  <input
-                    type="password"
+                </Field>
+                {/* "Set" is the hint, not part of the label, so the field's
+                    name stays "Password". */}
+                <Field
+                  label="Password"
+                  hint={sender.passwordSet && !clearPassword ? <Pill tone="success">Set</Pill> : undefined}
+                >
+                  <PasswordInput
                     value={password}
                     onChange={(event) => {
                       setPassword(event.target.value);
@@ -1671,37 +1662,32 @@ function MarketingSenderCard({ notify }: { notify: Notify }) {
                           ? "Set; leave blank to keep"
                           : "Not set"
                     }
-                    className={field}
                   />
-                </label>
-                <label className="grid gap-1 text-[11px] font-bold">
-                  From address
-                  <input
+                </Field>
+                <Field label="From address">
+                  <Input
                     type="email"
                     value={shown.fromAddress}
                     onChange={(event) => edit({ fromAddress: event.target.value })}
                     required
                     placeholder="news@kyprewards.com"
-                    className={field}
                   />
-                </label>
-                <label className="grid gap-1 text-[11px] font-bold">
-                  From name
-                  <input
+                </Field>
+                <Field label="From name">
+                  <Input
                     value={shown.fromName}
                     onChange={(event) => edit({ fromName: event.target.value })}
                     maxLength={120}
                     placeholder="KYP Rewards"
-                    className={field}
                   />
-                </label>
+                </Field>
                 <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
                   <Button tone="accent" type="submit" disabled={!dirty || save.isPending}>
                     {save.isPending ? "Saving\u2026" : dirty ? "Save sender" : "Saved"}
                   </Button>
                   {sender.passwordSet && !clearPassword && (
                     <Button
-                      tone="quiet"
+                      tone="danger"
                       type="button"
                       onClick={() => {
                         setPassword("");
@@ -1715,11 +1701,9 @@ function MarketingSenderCard({ notify }: { notify: Notify }) {
                     Saving a change clears the last test and switches campaign email off.
                   </p>
                 </div>
-                {save.error && (
-                  <p role="status" className="text-[11px] font-semibold text-[var(--danger)] sm:col-span-2">
-                    {save.error.message}
-                  </p>
-                )}
+                <FormMessage tone="error" className="sm:col-span-2">
+                  {save.error?.message}
+                </FormMessage>
               </form>
 
               <form
@@ -1729,19 +1713,19 @@ function MarketingSenderCard({ notify }: { notify: Notify }) {
                   test.mutate(testTo.trim());
                 }}
               >
-                <p className="text-xs font-extrabold">Send a test</p>
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    value={testTo}
-                    onChange={(event) => setTestTo(event.target.value)}
-                    required
-                    aria-label="Send the test to"
-                    placeholder="you@kyprewards.com"
-                    className={field}
-                  />
+                <div className="flex items-end gap-2">
+                  <Field label="Send a test" className="flex-1">
+                    <Input
+                      type="email"
+                      value={testTo}
+                      onChange={(event) => setTestTo(event.target.value)}
+                      required
+                      placeholder="you@kyprewards.com"
+                    />
+                  </Field>
                   <Button
                     tone="accent"
+                    size="lg"
                     type="submit"
                     disabled={Boolean(testReason) || !testTo.trim() || test.isPending}
                   >
@@ -1751,37 +1735,32 @@ function MarketingSenderCard({ notify }: { notify: Notify }) {
                 {testReason && (
                   <p className="text-[11px] text-[var(--muted-strong)]">{testReason}</p>
                 )}
-                {test.error && (
-                  <p role="status" className="text-[11px] font-semibold text-[var(--danger)]">
-                    {test.error.message}
-                  </p>
-                )}
-                {(test.data ?? sender.lastTestAt) && (
-                  <p
-                    role="status"
-                    className={`text-[11px] font-semibold ${(test.data?.ok ?? testPassed) ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
-                  >
-                    {(test.data?.ok ?? testPassed) ? "Passed" : "Failed"}:{" "}
-                    {test.data?.detail ?? sender.lastTestDetail}
-                    {!test.data && sender.lastTestAt && (
-                      <span className="ml-1 font-normal text-[var(--muted)]">
-                        ({relativeTime(sender.lastTestAt)})
-                      </span>
-                    )}
-                  </p>
-                )}
+                <FormMessage tone="error">{test.error?.message}</FormMessage>
+                <FormMessage tone={(test.data?.ok ?? testPassed) ? "success" : "error"}>
+                  {(test.data ?? sender.lastTestAt) ? (
+                    <>
+                      {(test.data?.ok ?? testPassed) ? "Passed" : "Failed"}:{" "}
+                      {test.data?.detail ?? sender.lastTestDetail}
+                      {!test.data && sender.lastTestAt && (
+                        <span className="ml-1 font-normal text-[var(--muted)]">
+                          ({relativeTime(sender.lastTestAt)})
+                        </span>
+                      )}
+                    </>
+                  ) : null}
+                </FormMessage>
               </form>
 
               <div className="mt-5 flex items-start gap-4 border-t border-[var(--line)] pt-5">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-extrabold">Campaign email</p>
+                    <p id="campaign-email-title" className="text-sm font-extrabold">Campaign email</p>
                     <code className="font-mono text-[10px] text-[var(--muted)]">
                       {MARKETING_FLAG}
                     </code>
                     {!flagPresent && <PreviewBadge />}
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+                  <p id="campaign-email-detail" className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                     Lets businesses send campaigns by email through this sender. Off, the email
                     channel is refused with a reason; it never falls back to the sign-in relay.
                   </p>
@@ -1789,14 +1768,13 @@ function MarketingSenderCard({ notify }: { notify: Notify }) {
                     <p className="mt-1 text-[11px] text-[var(--muted-strong)]">{switchReason}</p>
                   )}
                 </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-label="Toggle campaign email"
-                  aria-checked={flagOn}
+                <Switch
+                  aria-labelledby="campaign-email-title"
+                  aria-describedby="campaign-email-detail"
+                  checked={flagOn}
                   disabled={Boolean(switchReason)}
                   title={switchReason ?? undefined}
-                  onClick={() =>
+                  onCheckedChange={() =>
                     toggleFlag(MARKETING_FLAG, {
                       onDone: (next) => {
                         void queryClient.invalidateQueries({ queryKey: keys.admin.marketingSender() });
@@ -1805,12 +1783,7 @@ function MarketingSenderCard({ notify }: { notify: Notify }) {
                       onFailed: (message) => notify(message, "error"),
                     })
                   }
-                  className={`relative h-6 w-10 shrink-0 rounded-full disabled:opacity-45 ${flagOn ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
-                >
-                  <span
-                    className={`absolute top-1 size-4 rounded-full bg-white transition ${flagOn ? "left-5" : "left-1"}`}
-                  />
-                </button>
+                />
               </div>
             </>
           )}
@@ -1844,8 +1817,6 @@ function AddAdministratorForm() {
       onError: (failure) => setRefused(failure.message),
     },
   );
-  const field =
-    "min-h-10 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]";
   return (
     <form
       className="mt-5 grid gap-2 border-t border-[var(--line)] pt-5"
@@ -1855,35 +1826,33 @@ function AddAdministratorForm() {
       }}
     >
       <p className="text-xs font-extrabold">Add someone</p>
-      <input
+      <Input
         value={name}
         onChange={(event) => setName(event.target.value)}
         required
         maxLength={200}
         aria-label="Name"
         placeholder="Name"
-        className={field}
       />
-      <input
+      <Input
         type="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         required
         aria-label="Work email"
         placeholder="Work email"
-        className={field}
       />
       <div className="flex gap-2">
-        <select
+        <Select
           aria-label="Role"
           value={role}
           onChange={(event) => setRole(event.target.value as PlatformRole)}
-          className={`${field} flex-1 font-bold`}
+          className="flex-1"
         >
           <option value="account_manager">Account manager</option>
           <option value="admin">Administrator</option>
-        </select>
-        <Button tone="accent" type="submit" disabled={create.isPending || !name.trim() || !email.trim()}>
+        </Select>
+        <Button tone="accent" size="lg" type="submit" disabled={create.isPending || !name.trim() || !email.trim()}>
           {create.isPending ? "Adding…" : "Add"}
         </Button>
       </div>
@@ -1891,11 +1860,7 @@ function AddAdministratorForm() {
         An account manager sees only the businesses assigned to them and opens support access
         there; an administrator runs the whole console.
       </p>
-      {refused && (
-        <p role="status" className="text-[11px] font-semibold text-[var(--danger)]">
-          {refused}
-        </p>
-      )}
+      <FormMessage tone="error">{refused}</FormMessage>
       {issued && (
         <div role="status" className="rounded-xl border border-[var(--line-strong)] bg-[var(--surface-2)] p-3 text-[11px] leading-relaxed">
           <p className="font-extrabold">
@@ -1925,6 +1890,7 @@ function SettingsView({ notify }: { notify: Notify }) {
     refetch,
   } = useAdministrators();
   const [reviewOpen, setReviewOpen] = useState(false);
+  const uid = useId();
   const signedIn = administrators.filter((person) => person.activeSessions > 0);
   const withoutMfa = administrators.filter((person) => !person.mfaEnabled);
   const { flags, toggleFlag } = useAdminState();
@@ -1982,29 +1948,23 @@ function SettingsView({ notify }: { notify: Notify }) {
                     <Icon size={17} aria-hidden="true" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-extrabold">{title}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+                    <p id={`${uid}-${key}-title`} className="text-sm font-extrabold">{title}</p>
+                    <p id={`${uid}-${key}-detail`} className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
                       {detail}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-label={`Toggle ${title}`}
-                    aria-checked={enabled}
-                    onClick={() =>
+                  <Switch
+                    aria-labelledby={`${uid}-${key}-title`}
+                    aria-describedby={`${uid}-${key}-detail`}
+                    checked={enabled}
+                    onCheckedChange={() =>
                       toggleFlag(key, {
                         onDone: (next) =>
                           notify(`${title} ${next ? "enabled" : "disabled"} network-wide.`),
                         onFailed: (message) => notify(message, "error"),
                       })
                     }
-                    className={`relative h-6 w-10 shrink-0 rounded-full ${enabled ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
-                  >
-                    <span
-                      className={`absolute top-1 size-4 rounded-full bg-white transition ${enabled ? "left-5" : "left-1"}`}
-                    />
-                  </button>
+                  />
                 </div>
               );
             })}

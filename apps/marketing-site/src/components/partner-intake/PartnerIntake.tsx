@@ -501,7 +501,7 @@ function YouStep({ draft, patch, errors }: StepProps) {
             inputMode="tel"
             autoComplete="tel-national"
             placeholder="917 123 4567"
-            className="focus-ring min-h-12 flex-1 bg-transparent px-4 text-[15px] outline-none placeholder:text-[var(--muted)]"
+            className="focus-ring min-h-12 flex-1 bg-transparent px-4 text-base outline-none placeholder:text-[var(--muted)]"
           />
         </div>
       </Field>

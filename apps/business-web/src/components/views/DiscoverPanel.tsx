@@ -17,13 +17,14 @@ import {
 } from "@kypstamping/api";
 import { brandColor, Button, Eyebrow, Pill, PreviewBadge, StampDots } from "@kypstamping/ui";
 import { longDate, pesoFromCentavos } from "@kypstamping/ui/format";
+import { Textarea } from "@kypstamping/ui/form";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { Clock3, MapPin, Sparkles } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate } from "@/lib/plan";
 import { addOns } from "@kypstamping/ui/plans";
 import { useUpdateProfile } from "@/components/mutations";
 import { PaymentSheet } from "@/components/views/PaymentSheet";
-import { BlockedNote, inputClass, type Notify } from "@/components/views/shared";
+import { BlockedNote, type Notify } from "@/components/views/shared";
 
 /** What the API accepts on `about`; the field stops there rather than 422ing. */
 const ABOUT_LIMIT = 160;
@@ -257,19 +258,16 @@ function AboutCard({ notify }: { notify: Notify }) {
         One paragraph on your kyp.ph page, in your own words. The first two lines are what shoppers
         read on your card in the directory, so lead with what you are known for.
       </p>
-      {/* No visible caption - the eyebrow above is the heading - so the label
-          carries no type styles of its own; inheriting them set the merchant's
-          paragraph in bold, which is not how it reads on the page. */}
-      <label className="mt-4 grid gap-1.5">
-        <span className="sr-only">About this shop</span>
-        <textarea
-          value={about}
-          onChange={(event) => setDraft(event.target.value.slice(0, ABOUT_LIMIT))}
-          rows={4}
-          placeholder="Pandesal out of the oven from four in the morning, and the ensaymada people queue for on Sundays."
-          className={`${inputClass} py-2 leading-relaxed`}
-        />
-      </label>
+      {/* No visible caption - the eyebrow above is the heading - so the name
+          is screen-reader only. */}
+      <Textarea
+        aria-label="About this shop"
+        value={about}
+        onChange={(event) => setDraft(event.target.value.slice(0, ABOUT_LIMIT))}
+        rows={4}
+        placeholder="Pandesal out of the oven from four in the morning, and the ensaymada people queue for on Sundays."
+        className="mt-4"
+      />
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <Button
           disabled={!changed || save.isPending}

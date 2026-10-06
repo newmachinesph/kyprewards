@@ -27,13 +27,25 @@ import {
 import {
   brandColor,
   BrandMark,
+  Button,
   Eyebrow,
+  IconButton,
   PreviewBadge,
   QueryBoundary,
   Skeleton,
   StampDots,
 } from "@kypstamping/ui";
 import { signOut } from "@kypstamping/ui/auth";
+import {
+  Chip,
+  Field,
+  FormMessage,
+  Input,
+  MobileInput,
+  PasswordInput,
+  Segmented,
+  Switch,
+} from "@kypstamping/ui/form";
 import { Toast, useToast } from "@kypstamping/ui/shell";
 import {
   formatDistance,
@@ -41,6 +53,7 @@ import {
   greeting,
   longDate,
   relativeTime,
+  toE164,
   todayLabel,
 } from "@kypstamping/ui/format";
 
@@ -636,24 +649,21 @@ function DataRequests() {
                 Asked for {relativeTime(request.requestedAt)}
               </span>
               {request.kind !== "deletion" && request.status === "ready" && (
-                <button
-                  type="button"
+                <Button
                   disabled={fetching === request.id}
                   onClick={() => download(request.id)}
-                  className="mt-2 min-h-10 rounded-xl bg-[var(--ink)] px-4 text-xs font-extrabold text-[var(--paper)] disabled:opacity-60"
+                  className="mt-2"
                 >
                   {fetching === request.id ? "Preparing\u2026" : "Download it"}
-                </button>
+                </Button>
               )}
             </span>
           </li>
         ))}
       </ul>
-      {failed && (
-        <p aria-live="polite" className="mt-3 text-xs font-bold text-[var(--danger)]">
-          {failed}
-        </p>
-      )}
+      <FormMessage tone="error" className="mt-3">
+        {failed}
+      </FormMessage>
     </section>
   );
 }
@@ -747,13 +757,15 @@ function HomeView({
             </div>
             {isPreview(approvals) && <PreviewBadge className="shrink-0" />}
           </div>
-          <button
-            type="button"
+          <Button
+            tone="accent"
+            size="lg"
             onClick={onApprove}
-            className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--accent)] text-sm font-extrabold text-[var(--ink)]"
+            icon={<BadgeCheck size={16} aria-hidden="true" />}
+            className="mt-4 w-full"
           >
-            <BadgeCheck size={16} aria-hidden="true" /> Approve
-          </button>
+            Approve
+          </Button>
         </section>
       )}
 
@@ -1027,27 +1039,20 @@ function WalletView({
         </span>
         <ChevronRight size={16} aria-hidden="true" />
       </button>
-      <label className="mt-6 flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4">
-        <Search size={17} className="text-[var(--muted)]" />
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          aria-label="Search loyalty cards"
-          placeholder="Search your cards"
-          className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
-        />
-      </label>
+      <Input
+        type="search"
+        icon={<Search size={17} />}
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        aria-label="Search loyalty cards"
+        placeholder="Search your cards"
+        className="mt-6"
+      />
       <div className="customer-scroll mt-3 flex gap-2 overflow-x-auto pb-1">
         {walletCategories.map((item) => (
-          <button
-            key={item}
-            type="button"
-            aria-pressed={category === item}
-            onClick={() => setCategory(item)}
-            className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${category === item ? "bg-[var(--ink)] text-[var(--paper)]" : "bg-[var(--surface-2)] text-[var(--muted-strong)]"}`}
-          >
+          <Chip key={item} pressed={category === item} onClick={() => setCategory(item)}>
             {item}
-          </button>
+          </Chip>
         ))}
       </div>
       <div className="mt-5">
@@ -1230,16 +1235,15 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
         Good places, made easier to return to.
       </p>
       <div className="mt-6 flex gap-2">
-        <label className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4">
-          <Search size={17} className="text-[var(--muted)]" />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            aria-label="Search nearby businesses"
-            placeholder="Name or neighborhood"
-            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
-          />
-        </label>
+        <Input
+          type="search"
+          icon={<Search size={17} />}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          aria-label="Search nearby businesses"
+          placeholder="Name or neighborhood"
+          className="min-w-0 flex-1"
+        />
         <button
           type="button"
           aria-label="Discover filters"
@@ -1264,48 +1268,31 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
                 <p className="text-xs font-extrabold">{label}</p>
                 <p className="mt-0.5 text-[10px] text-[var(--muted)]">{detail}</p>
               </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={on}
+              <Switch
+                checked={on}
+                onCheckedChange={toggle}
                 aria-label={label}
                 // Without a position every distance is null, so switching this
                 // on would empty or scramble the list and look broken.
                 disabled={!located}
-                onClick={toggle}
-                className={`relative h-6 w-10 shrink-0 rounded-full disabled:opacity-45 ${on ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
-              >
-                <span className={`absolute top-1 size-4 rounded-full bg-white transition-all ${on ? "left-5" : "left-1"}`} />
-              </button>
+              />
             </div>
           ))}
         </div>
       )}
-      <div className="customer-scroll mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Category">
+      <div role="group" className="customer-scroll mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Category">
         {walletCategories.map((item) => (
-          <button
-            key={item}
-            type="button"
-            aria-pressed={category === item}
-            onClick={() => setCategory(item)}
-            className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition ${category === item ? "bg-[var(--ink)] text-[var(--paper)]" : "bg-[var(--surface-2)] text-[var(--muted-strong)]"}`}
-          >
+          <Chip key={item} pressed={category === item} onClick={() => setCategory(item)}>
             {item}
-          </button>
+          </Chip>
         ))}
       </div>
       {neighborhoods.length > 2 && (
-        <div className="customer-scroll mt-2 flex gap-2 overflow-x-auto pb-1" aria-label="Neighborhood">
+        <div role="group" className="customer-scroll mt-2 flex gap-2 overflow-x-auto pb-1" aria-label="Neighborhood">
           {neighborhoods.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={neighborhood === item}
-              onClick={() => setNeighborhood(item)}
-              className={`shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-bold transition ${neighborhood === item ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]" : "border-[var(--line)] bg-[var(--surface)] text-[var(--muted-strong)]"}`}
-            >
+            <Chip key={item} pressed={neighborhood === item} onClick={() => setNeighborhood(item)}>
               {item === "All" ? "Anywhere" : item}
-            </button>
+            </Chip>
           ))}
         </div>
       )}
@@ -1585,13 +1572,15 @@ function ProfileView({
           </a>
         )}
       </nav>
-      <button
-        type="button"
+      <Button
+        tone="danger"
+        size="lg"
         onClick={() => signOut()}
-        className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[rgb(178_59_43/28%)] bg-[rgb(178_59_43/6%)] text-sm font-extrabold text-[var(--danger)] active:scale-[0.98]"
+        icon={<LogOut size={16} />}
+        className="mt-3 w-full"
       >
-        <LogOut size={16} /> Sign out of this device
-      </button>
+        Sign out of this device
+      </Button>
     </div>
   );
 }
@@ -1626,22 +1615,13 @@ function QrModal({
       aria-labelledby="qr-title"
     >
       <header className="flex h-17 items-center justify-between border-b border-[var(--line)] px-5 pt-[env(safe-area-inset-top)]">
-        <button
-          ref={closeRef}
-          onClick={close}
-          aria-label="Close QR code"
-          className="grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
-        >
+        <IconButton ref={closeRef} onClick={close} label="Close QR code">
           <ArrowLeft size={18} />
-        </button>
+        </IconButton>
         <BrandMark label="KYP" tagline={null} compact />
-        <button
-          onClick={close}
-          aria-label="Close"
-          className="grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
-        >
+        <IconButton onClick={close} label="Close">
           <X size={18} />
-        </button>
+        </IconButton>
       </header>
       <div className="flex min-h-[calc(100%-68px)] flex-col items-center justify-center px-6 py-10 text-center">
         <Eyebrow>Your member code</Eyebrow>
@@ -1667,8 +1647,9 @@ function QrModal({
         </div>
 
         <div className="mt-6 grid w-full max-w-[34ch] grid-cols-2 gap-2">
-          <button
-            type="button"
+          <Button
+            tone="quiet"
+            icon={<Download size={15} aria-hidden="true" />}
             onClick={() => {
               void saveQrImage(memberCode).then((saved) =>
                 notify(
@@ -1679,17 +1660,12 @@ function QrModal({
                 ),
               );
             }}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-xs font-extrabold transition active:scale-[0.98]"
           >
-            <Download size={15} aria-hidden="true" /> Save image
-          </button>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-xs font-extrabold transition active:scale-[0.98]"
-          >
-            <Printer size={15} aria-hidden="true" /> Print
-          </button>
+            Save image
+          </Button>
+          <Button tone="quiet" icon={<Printer size={15} aria-hidden="true" />} onClick={() => window.print()}>
+            Print
+          </Button>
         </div>
 
         <div className="mt-5 flex max-w-[34ch] items-start gap-2 rounded-2xl bg-[rgb(15_118_85/10%)] p-3 text-left text-xs leading-relaxed text-[var(--muted-strong)]">
@@ -1806,14 +1782,14 @@ function NotificationSheet({ close, onApprove }: { close: () => void; onApprove:
             ))}
           </QueryBoundary>
         </div>
-        <button
-          type="button"
+        <Button
+          tone="quiet"
           disabled={allRead || notifications.length === 0}
           onClick={onMarkRead}
-          className="mt-6 w-full rounded-2xl border border-[var(--line)] bg-[var(--surface)] py-3 text-sm font-bold disabled:opacity-60"
+          className="mt-6 w-full"
         >
           {allRead ? "Everything is read" : "Mark everything read"}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -1849,23 +1825,13 @@ function ActivitySheet({ close }: { close: () => void }) {
           Earns, redemptions, and membership use stay traceable across every
           business in your wallet.
         </p>
-        <div className="mt-6 grid grid-cols-3 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-1">
-          {(["All", "Earned", "Used"] as const).map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={`min-h-10 rounded-lg text-xs font-extrabold ${
-                filter === item
-                  ? "bg-[var(--ink)] text-[var(--paper)]"
-                  : "text-[var(--muted-strong)]"
-              }`}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          label="Activity"
+          options={(["All", "Earned", "Used"] as const).map((item) => ({ value: item, label: item }))}
+          value={filter}
+          onChange={setFilter}
+          className="mt-6"
+        />
         <div className="mt-6">
           <QueryBoundary
             isPending={activityQuery.isPending}
@@ -2187,20 +2153,12 @@ function JoinConsentDialog({
           </p>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="min-h-12 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] text-sm font-extrabold"
-          >
+          <Button tone="quiet" size="lg" onClick={onCancel}>
             Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="min-h-12 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
-          >
+          </Button>
+          <Button size="lg" onClick={onConfirm}>
             Share &amp; join
-          </button>
+          </Button>
         </div>
       </section>
     </div>
@@ -2321,13 +2279,9 @@ function WalletSheet({
         </section>
         <CardTerms card={card} />
         <PromoCodeEntry card={card} />
-        <button
-          type="button"
-          onClick={onShowQr}
-          className="mt-5 w-full rounded-full bg-[var(--ink)] py-3 text-sm font-extrabold text-[var(--paper)]"
-        >
+        <Button size="lg" onClick={onShowQr} className="mt-5 w-full">
           Show my code for this place
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -2418,24 +2372,17 @@ function ProfileSheet({
                     {channel.locked ? " · always on" : ""}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={channels[channel.key]}
+                <Switch
+                  checked={channels[channel.key]}
                   aria-label={`Toggle ${channel.label}`}
-                  onClick={() => {
+                  onCheckedChange={() => {
                     toggleChannel(channel.key, {
                       onDone: (next) =>
                         notify(`${channel.label} ${next ? "turned on" : "turned off"}.`),
                       onFailed: (message) => notify(message, "error"),
                     });
                   }}
-                  className={`relative h-6 w-10 shrink-0 rounded-full ${channels[channel.key] ? "bg-[var(--success)]" : "bg-[var(--line-strong)]"}`}
-                >
-                  <span
-                    className={`absolute top-1 size-4 rounded-full bg-white transition-all ${channels[channel.key] ? "left-5" : "left-1"}`}
-                  />
-                </button>
+                />
               </div>
             ))}
           </div>
@@ -2454,14 +2401,15 @@ function ProfileSheet({
                 verification.
               </p>
             </div>
-            <button
-              type="button"
+            <Button
+              tone="quiet"
+              size="lg"
               aria-expanded={leaveOpen}
               onClick={() => setLeaveOpen((open) => !open)}
-              className="mt-4 min-h-12 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] text-sm font-bold"
+              className="mt-4 w-full"
             >
               Choose a business to leave
-            </button>
+            </Button>
             {leaveOpen && (
               <div className="mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
                 {/* One row per shop: a shop running two programs is one membership. */}
@@ -2683,8 +2631,8 @@ function ProfileSheet({
               )}
             </div>
             {screen === "export" && (
-              <button
-                type="button"
+              <Button
+                size="lg"
                 disabled={exportRequested}
                 onClick={() => {
                   requestExport({
@@ -2692,10 +2640,10 @@ function ProfileSheet({
                     onFailed: (message) => notify(message, "error"),
                   });
                 }}
-                className="mt-5 min-h-12 w-full rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-65"
+                className="mt-5 w-full"
               >
                 {exportRequested ? "Export requested" : "Request portable export"}
-              </button>
+              </Button>
             )}
           </div>
         )}
@@ -2834,17 +2782,16 @@ function CustomerWallet() {
               </span>
             </button>
           )}
-          <button
-            type="button"
+          <IconButton
             onClick={() => setSheet({ kind: "notifications" })}
-            aria-label="Notifications"
-            className="relative grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
+            label="Notifications"
+            className="relative"
           >
             <Bell size={18} />
             {!notificationsRead && (
               <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[var(--accent)]" />
             )}
-          </button>
+          </IconButton>
         </div>
       </header>
 
@@ -2964,8 +2911,8 @@ function PersonalDetails({
     (field) => draft[field].trim() !== (profile[field] ?? ""),
   );
   const fields = [
-    ["Name", "name", UserRound, "text"],
-    ["Email", "email", Mail, "email"],
+    ["Name", "name", UserRound, "text", "name"],
+    ["Email", "email", Mail, "email", "email"],
   ] as const;
   return (
     <form
@@ -2976,19 +2923,16 @@ function PersonalDetails({
         updateProfile(Object.fromEntries(changed.map((field) => [field, draft[field].trim()])));
       }}
     >
-      {fields.map(([label, field, Icon, type]) => (
-        <label key={field} className="grid gap-2 text-xs font-bold">
-          {label}
-          <span className="flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 text-sm font-normal focus-within:border-[var(--ink)]">
-            <Icon size={16} className="text-[var(--muted)]" />
-            <input
-              type={type}
-              value={draft[field]}
-              onChange={(event) => setDraft((current) => ({ ...current, [field]: event.target.value }))}
-              className="min-w-0 flex-1 bg-transparent outline-none"
-            />
-          </span>
-        </label>
+      {fields.map(([label, field, Icon, type, autoComplete]) => (
+        <Field key={field} label={label}>
+          <Input
+            type={type}
+            autoComplete={autoComplete}
+            icon={<Icon size={16} />}
+            value={draft[field]}
+            onChange={(event) => setDraft((current) => ({ ...current, [field]: event.target.value }))}
+          />
+        </Field>
       ))}
       {profile.email && profile.emailVerified === false && (
         <p className="text-xs text-[var(--muted-strong)]">
@@ -3012,24 +2956,16 @@ function PersonalDetails({
           {profile.birthday ?? "Not given"}
         </span>
       </div>
-      <button
-        type="submit"
-        disabled={changed.length === 0 || profileSave.isPending}
-        className="min-h-12 w-full rounded-2xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-50"
-      >
+      <Button type="submit" size="lg" disabled={changed.length === 0 || profileSave.isPending} className="w-full">
         {profileSave.isPending ? "Saving…" : "Save changes"}
-      </button>
-      <p
-        role="status"
-        aria-live="polite"
-        className={`text-xs font-bold ${profileSave.error ? "text-[var(--danger)]" : "text-[var(--muted-strong)]"}`}
-      >
+      </Button>
+      <FormMessage tone={profileSave.error ? "error" : "success"}>
         {profileSave.error
           ? profileSave.error.message
           : profileSave.isSuccess && changed.length === 0
             ? "Saved. Your details are updated across the wallet."
             : ""}
-      </p>
+      </FormMessage>
     </form>
   );
 }
@@ -3057,30 +2993,24 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
       {hasPassword ? "Change password" : "Set a password"}
       <div className="grid gap-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 font-normal">
         {hasPassword && (
-          <label className="grid gap-1">
-            <span>Current password</span>
-            <input
-              type="password"
+          <Field label="Current password">
+            <PasswordInput
               autoComplete="current-password"
               value={current}
               onChange={(event) => setCurrent(event.target.value)}
-              className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
             />
-          </label>
+          </Field>
         )}
-        <label className="grid gap-1">
-          <span>New password, at least 8 characters</span>
-          <input
-            type="password"
+        <Field label="New password" hint="at least 8 characters">
+          <PasswordInput
             autoComplete="new-password"
             minLength={8}
             value={next}
             onChange={(event) => setNext(event.target.value)}
-            className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
           />
-        </label>
-        <button
-          type="button"
+        </Field>
+        <Button
+          size="lg"
           disabled={!ready || save.isPending}
           onClick={() => {
             setNotice("");
@@ -3097,15 +3027,10 @@ function PasswordSection({ hasPassword }: { hasPassword: boolean }) {
               },
             );
           }}
-          className="min-h-11 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-50"
         >
           {save.isPending ? "Saving…" : hasPassword ? "Change password" : "Set password"}
-        </button>
-        {notice && (
-          <p role="status" aria-live="polite" className="text-[var(--muted-strong)]">
-            {notice}
-          </p>
-        )}
+        </Button>
+        <FormMessage tone={save.isError ? "error" : "success"}>{notice}</FormMessage>
       </div>
     </div>
   );
@@ -3151,50 +3076,42 @@ function MobileNumber({ current }: { current: string }) {
         <div className="grid gap-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 font-normal">
           {sentTo === null ? (
             <>
-              <label className="grid gap-1">
-                <span>New mobile number</span>
-                <input
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  value={mobile}
-                  onChange={(event) => setMobile(event.target.value)}
-                  className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm"
-                />
-              </label>
-              <button
-                type="button"
-                disabled={!mobile.trim() || send.isPending}
+              <Field label="New mobile number">
+                <MobileInput value={mobile} onValueChange={setMobile} />
+              </Field>
+              <Button
+                size="lg"
+                disabled={!mobile || send.isPending}
                 onClick={() => {
                   setNotice("");
-                  send.mutate(mobile.trim(), {
-                    onSuccess: () => setSentTo(mobile.trim()),
+                  // An incomplete number goes as typed, so the API's refusal is what shows.
+                  const number = toE164(mobile) || mobile;
+                  send.mutate(number, {
+                    onSuccess: () => setSentTo(number),
                     onError: (failure) => setNotice(failure.message),
                   });
                 }}
-                className="min-h-11 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-50"
               >
                 {send.isPending ? "Sending…" : "Text me a code"}
-              </button>
+              </Button>
             </>
           ) : (
             <>
               <p className="text-[var(--muted-strong)]">
                 We texted a code to {sentTo}. Your wallet moves when you enter it.
               </p>
-              <label className="grid gap-1">
-                <span>Code</span>
-                <input
+              <Field label="Code">
+                <Input
                   inputMode="numeric"
                   autoComplete="one-time-code"
                   maxLength={6}
                   value={code}
                   onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
-                  className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm tracking-[0.3em]"
+                  className="tracking-[0.3em]"
                 />
-              </label>
-              <button
-                type="button"
+              </Field>
+              <Button
+                size="lg"
                 disabled={code.length !== 6 || confirm.isPending}
                 onClick={() => {
                   setNotice("");
@@ -3210,10 +3127,9 @@ function MobileNumber({ current }: { current: string }) {
                     },
                   );
                 }}
-                className="min-h-11 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-50"
               >
                 {confirm.isPending ? "Checking…" : "Move my wallet"}
-              </button>
+              </Button>
             </>
           )}
           <button type="button" onClick={reset} className="min-h-10 text-[var(--muted-strong)]">
@@ -3221,11 +3137,7 @@ function MobileNumber({ current }: { current: string }) {
           </button>
         </div>
       )}
-      {notice && (
-        <p role="status" aria-live="polite" className="font-bold text-[var(--muted-strong)]">
-          {notice}
-        </p>
-      )}
+      <FormMessage tone={send.isError || confirm.isError ? "error" : "success"}>{notice}</FormMessage>
     </div>
   );
 }

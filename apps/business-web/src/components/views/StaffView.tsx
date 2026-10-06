@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import { useLocations, useStaff, type StaffMember } from "@kypstamping/api";
-import { Button, Eyebrow, Pill, ViewFrame } from "@kypstamping/ui";
+import { Button, Eyebrow, IconButton, Pill, ViewFrame } from "@kypstamping/ui";
+import { Field, Input, Select } from "@kypstamping/ui/form";
 import { relativeTime } from "@kypstamping/ui/format";
 import { PlanTag } from "@kypstamping/ui/shell";
 import { ChevronRight, Send, UserPlus } from "lucide-react";
 import { EditStaffDialog } from "@/components/WorkspaceForms";
 import { useInviteStaff } from "@/components/mutations";
 import { PLAN_NAMES, planFor, refusal, staffCap, usePlanGate } from "@/lib/plan";
-import { inputClass, type Notify } from "@/components/views/shared";
+import type { Notify } from "@/components/views/shared";
 
 const STAFF_ROLES = [
   ["Owner", "Everything, including billing and deletion"],
@@ -94,31 +95,27 @@ export function StaffView({ notify }: { notify: Notify }) {
         <section id="staff-invite" className="mb-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
           <Eyebrow>New invitation</Eyebrow>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <label className="grid gap-2 text-xs font-bold">
-              Name
-              <input value={inviteName} onChange={(event) => setInviteName(event.target.value)} placeholder="Who are you inviting?" className={inputClass} />
-            </label>
-            <label className="grid gap-2 text-xs font-bold">
-              Email
-              <input type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} placeholder="Where should the invitation go?" className={inputClass} />
-            </label>
-            <label className="grid gap-2 text-xs font-bold">
-              Role
-              <select value={inviteRole} onChange={(event) => setInviteRole(event.target.value)} className={inputClass}>
+            <Field label="Name">
+              <Input value={inviteName} onChange={(event) => setInviteName(event.target.value)} placeholder="Who are you inviting?" />
+            </Field>
+            <Field label="Email">
+              <Input type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} placeholder="Where should the invitation go?" />
+            </Field>
+            <Field label="Role">
+              <Select value={inviteRole} onChange={(event) => setInviteRole(event.target.value)}>
                 {STAFF_ROLES.map(([role]) => (
                   <option key={role}>{role}</option>
                 ))}
-              </select>
-            </label>
-            <label className="grid gap-2 text-xs font-bold">
-              Location
-              <select value={inviteLocation} onChange={(event) => setInviteLocation(event.target.value)} className={inputClass}>
+              </Select>
+            </Field>
+            <Field label="Location">
+              <Select value={inviteLocation} onChange={(event) => setInviteLocation(event.target.value)}>
                 {locations.map((location) => (
                   <option key={location.id}>{location.name}</option>
                 ))}
                 <option>All locations</option>
-              </select>
-            </label>
+              </Select>
+            </Field>
           </div>
           <p className="mt-3 text-xs leading-relaxed text-[var(--muted-strong)]">
             {STAFF_ROLES.find(([role]) => role === inviteRole)?.[1]}
@@ -172,14 +169,9 @@ export function StaffView({ notify }: { notify: Notify }) {
                     <Pill tone={person.status === "Active" ? "success" : "warning"}>{person.status}</Pill>
                   </td>
                   <td className="px-4 py-4">
-                    <button
-                      type="button"
-                      aria-label={`Edit ${person.name} access`}
-                      onClick={() => setEditingStaff(person)}
-                      className="grid size-9 place-items-center rounded-full hover:bg-[var(--surface-2)]"
-                    >
+                    <IconButton tone="plain" label={`Edit ${person.name} access`} onClick={() => setEditingStaff(person)}>
                       <ChevronRight size={16} />
-                    </button>
+                    </IconButton>
                   </td>
                 </tr>
               ))}

@@ -11,6 +11,7 @@ import {
   type PartnerApplication,
 } from "@kypstamping/api";
 import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Checkbox, Chip, Field, FormMessage, Input, Textarea } from "@kypstamping/ui/form";
 import { longDate, relativeTime } from "@kypstamping/ui/format";
 import { useAdminState } from "@/components/AdminState";
 import { FOUNDING, foundingWindowOpen } from "@/lib/catalog";
@@ -79,19 +80,9 @@ export function PartnerQueueView({ notify }: { notify: (message: string) => void
       action={
         <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter applications">
           {(["new", "approved", "rejected", "all"] as const).map((option) => (
-            <button
-              key={option}
-              type="button"
-              aria-pressed={filter === option}
-              onClick={() => setFilter(option)}
-              className={`min-h-10 rounded-full px-4 text-xs font-extrabold capitalize transition ${
-                filter === option
-                  ? "bg-[var(--ink)] text-[var(--paper)]"
-                  : "border border-[var(--line-strong)] hover:bg-[var(--surface-2)]"
-              }`}
-            >
+            <Chip key={option} pressed={filter === option} onClick={() => setFilter(option)} className="capitalize">
               {option}
-            </button>
+            </Chip>
           ))}
         </div>
       }
@@ -321,21 +312,17 @@ function ApplicationCard({
 
           {waiting && (
             <div className="mt-5 border-t border-[var(--line)] pt-5">
-              <label className="grid gap-2 text-xs font-extrabold">
-                Reason, sent to them if you reject
-                <input
+              <Field label="Reason, sent to them if you reject">
+                <Input
                   value={reason}
                   onChange={(event) => setReason(event.target.value)}
                   placeholder="Optional for an approval, kind for a rejection"
-                  className="min-h-11 rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-sm font-normal outline-none focus:border-[var(--accent-strong)]"
                 />
-              </label>
+              </Field>
               <label className="mt-4 flex items-start gap-3 text-xs">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={founding}
                   onChange={(event) => setFounding(event.target.checked)}
-                  className="mt-0.5 size-4 accent-[var(--accent-strong)]"
                 />
                 <span>
                   <span className="block font-extrabold">Founding merchant</span>
@@ -347,7 +334,7 @@ function ApplicationCard({
               </label>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button
-                  tone="quiet"
+                  tone="danger"
                   icon={<X size={15} />}
                   disabled={busy}
                   onClick={() => onDecide(false, reason.trim() || undefined, false)}
@@ -389,16 +376,14 @@ function SetupNotes({ application }: { application: PartnerApplication }) {
 
   return (
     <div className="mt-5">
-      <label className="grid gap-2 text-xs font-extrabold">
-        Setup with a person
-        <textarea
+      <Field label="Setup with a person">
+        <Textarea
           rows={3}
           value={value}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="What was configured with the owner, what to check on their phone before they go live"
-          className="rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] p-3 text-sm font-normal outline-none focus:border-[var(--accent-strong)]"
         />
-      </label>
+      </Field>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <Button
           tone="quiet"
@@ -407,11 +392,7 @@ function SetupNotes({ application }: { application: PartnerApplication }) {
         >
           {save.isPending ? "Saving…" : "Save notes"}
         </Button>
-        {save.error ? (
-          <p role="alert" className="text-[11px] font-bold text-[var(--danger)]">
-            {save.error.message}
-          </p>
-        ) : null}
+        <FormMessage tone="error">{save.error?.message}</FormMessage>
       </div>
     </div>
   );

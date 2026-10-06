@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Form from "next/form";
 import { Search, ShieldCheck, Stamp, UserRoundCheck } from "lucide-react";
+import { Button } from "@kypstamping/ui";
+import { Input } from "@kypstamping/ui/form";
 import { customerAppUrl, merchantSiteUrl } from "@/lib/site";
 import { ActionLink, Eyebrow, Section } from "@/components/Ui";
 import { CategoryChips, FeaturedRow, LocationButton } from "@/components/HomeSections";
@@ -49,29 +51,21 @@ export default async function Home() {
               for all of them, in your browser, with no app for each shop.
             </p>
             <Form action="/discover" className="mt-8 flex max-w-[520px] gap-2">
-              <label className="relative flex-1">
+              <label className="flex-1">
                 <span className="sr-only">Search shops</span>
-                <Search
-                  size={18}
-                  aria-hidden="true"
-                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]"
-                />
-                <input
+                <Input
                   type="search"
                   name="search"
                   // Short enough to survive a 390px phone beside the Search
                   // button, where "Search by shop or category" was cut off
                   // mid-word.
                   placeholder="Shop or category"
-                  className="focus-ring min-h-13 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] pl-11 pr-4 text-sm"
+                  icon={<Search size={18} />}
                 />
               </label>
-              <button
-                type="submit"
-                className="focus-ring inline-flex min-h-13 items-center rounded-xl border border-[var(--ink)] bg-[var(--ink)] px-6 text-sm font-extrabold text-[var(--paper)] transition hover:bg-[var(--ink-soft)]"
-              >
+              <Button type="submit" size="lg">
                 Search
-              </button>
+              </Button>
             </Form>
             <div className="mt-8">
               <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--muted)]">

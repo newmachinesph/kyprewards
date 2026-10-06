@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef } from "react";
 import type React from "react";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { ApiError } from "@kypstamping/api";
+import { buttonClass, type ButtonSize, type ButtonTone } from "./button";
 
 /**
  * The colour tokens a merchant may pick for their card.
@@ -217,33 +218,47 @@ export function PreviewNotice({
   );
 }
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  tone?: "dark" | "accent" | "quiet";
+export { buttonClass } from "./button";
+
+type ButtonProps = ComponentProps<"button"> & {
+  tone?: ButtonTone;
+  size?: ButtonSize;
   icon?: ReactNode;
 };
 
-export function Button({
-  tone = "dark",
-  icon,
-  className = "",
-  children,
-  ...props
-}: ButtonProps) {
-  const tones = {
-    dark: "bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--ink-soft)]",
-    accent:
-      "bg-[var(--accent)] text-[var(--ink)] hover:bg-[#d88c38]",
-    quiet:
-      "border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:bg-[var(--surface-2)]",
-  };
-
+/** Defaults to type="button": a submit says so. */
+export function Button({ tone = "dark", size = "md", icon, className = "", children, type = "button", ...props }: ButtonProps) {
   return (
-    <button
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition duration-200 ease-out active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-45 ${tones[tone]} ${className}`}
-      {...props}
-    >
+    <button type={type} {...props} className={`${buttonClass({ tone, size })} ${className}`}>
       {icon}
       {children}
+    </button>
+  );
+}
+
+/** A round icon-only button. `label` is its accessible name. */
+export function IconButton({
+  label,
+  tone = "quiet",
+  className = "",
+  children,
+  type = "button",
+  ...props
+}: Omit<ComponentProps<"button">, "aria-label"> & { label: string; tone?: "quiet" | "plain" }) {
+  const tones = {
+    quiet: "border border-[var(--line)] bg-[var(--surface)] hover:bg-[var(--surface-2)]",
+    plain: "hover:bg-[var(--surface-2)]",
+  };
+  return (
+    <button
+      type={type}
+      {...props}
+      aria-label={label}
+      className={`grid size-11 shrink-0 place-items-center rounded-full transition disabled:cursor-not-allowed disabled:opacity-45 ${tones[tone]} ${className}`}
+    >
+      <span aria-hidden="true" className="contents">
+        {children}
+      </span>
     </button>
   );
 }

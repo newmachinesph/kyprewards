@@ -101,7 +101,7 @@ for (const file of files) {
       const line = source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
       const relative = path.relative(root, file);
 
-      if (tag === "button" || tag === "Button") {
+      if (/^(button|Button|IconButton|Chip)$/.test(tag)) {
         // `onPress` is React Native's `onClick`: the mobile app's buttons
         // are held to the same rule with the prop the platform gives them.
         const click = attributes.get("onClick") ?? attributes.get("onPress");

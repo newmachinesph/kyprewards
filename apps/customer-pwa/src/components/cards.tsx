@@ -11,7 +11,8 @@ import {
   useApiMutation,
   type WalletCard,
 } from "@kypstamping/api";
-import { PreviewBadge } from "@kypstamping/ui";
+import { Button, PreviewBadge } from "@kypstamping/ui";
+import { Field, FormMessage, Input } from "@kypstamping/ui/form";
 import { longDate, peso, pesoFromCentavos, timeOfDay } from "@kypstamping/ui/format";
 import { Check, Sparkles, Ticket } from "lucide-react";
 
@@ -296,43 +297,42 @@ export function PromoCodeEntry({ card }: { card: WalletCard }) {
   const failure = redeem.error;
   return (
     <form onSubmit={submit} className="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
-      <label htmlFor={`promo-${card.programId}`} className="text-xs font-extrabold">
-        Promo code from {card.business}
-      </label>
-      <div className="mt-2 flex gap-2">
-        <input
-          id={`promo-${card.programId}`}
-          value={code}
-          onChange={(event) => setCode(event.target.value.toUpperCase())}
-          autoCapitalize="characters"
-          autoComplete="off"
-          placeholder="WELCOME"
-          disabled={preview || redeem.isPending}
-          className="min-h-11 min-w-0 flex-1 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3 font-mono text-sm font-bold uppercase tracking-[0.08em] outline-none focus:border-[var(--ink)] disabled:opacity-60"
-        />
-        <button
-          type="submit"
-          disabled={preview || redeem.isPending || !code.trim()}
-          title={preview ? PREVIEW_WRITE_REASON : undefined}
-          className="min-h-11 rounded-xl bg-[var(--ink)] px-4 text-xs font-extrabold text-[var(--paper)] disabled:opacity-50"
-        >
-          {redeem.isPending ? "Checking…" : "Redeem"}
-        </button>
-      </div>
+      <Field label={`Promo code from ${card.business}`}>
+        <div className="flex gap-2">
+          <Input
+            value={code}
+            onChange={(event) => setCode(event.target.value.toUpperCase())}
+            autoCapitalize="characters"
+            autoComplete="off"
+            placeholder="WELCOME"
+            disabled={preview || redeem.isPending}
+            className="flex-1 font-mono uppercase tracking-[0.08em]"
+          />
+          <Button
+            type="submit"
+            disabled={preview || redeem.isPending || !code.trim()}
+            title={preview ? PREVIEW_WRITE_REASON : undefined}
+          >
+            {redeem.isPending ? "Checking…" : "Redeem"}
+          </Button>
+        </div>
+      </Field>
       {preview ? (
         <p className="mt-2 text-[11px] text-[var(--muted-strong)]">{PREVIEW_WRITE_REASON}</p>
-      ) : redeem.isSuccess ? (
-        <p role="status" className="mt-2 text-[11px] font-bold text-[var(--success)]">
-          Code applied. Your card is updated.
-        </p>
-      ) : failure ? (
-        <p role="alert" className="mt-2 text-[11px] font-bold text-[var(--danger)]">
-          {failure.message}
-          {failure instanceof ApiError && failure.requestId ? (
-            <span className="ml-1 font-mono font-normal text-[var(--muted)]">{failure.requestId}</span>
+      ) : (
+        <FormMessage tone={redeem.isSuccess ? "success" : "error"} className="mt-2">
+          {redeem.isSuccess ? (
+            "Code applied. Your card is updated."
+          ) : failure ? (
+            <>
+              {failure.message}
+              {failure instanceof ApiError && failure.requestId ? (
+                <span className="ml-1 font-mono font-normal text-[var(--muted)]">{failure.requestId}</span>
+              ) : null}
+            </>
           ) : null}
-        </p>
-      ) : null}
+        </FormMessage>
+      )}
     </form>
   );
 }

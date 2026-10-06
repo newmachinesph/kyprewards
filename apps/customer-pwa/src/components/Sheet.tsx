@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { ArrowLeft, X } from "lucide-react";
+import { IconButton } from "@kypstamping/ui";
 
 /** A full-height panel over the wallet, the way every sheet here opens. */
 export function SheetFrame({
@@ -46,24 +47,13 @@ export function SheetHeader({ title, close }: { title: string; close: () => void
   }, [close]);
   return (
     <header className="sticky top-0 z-10 flex h-17 items-center justify-between border-b border-[var(--line)] bg-[rgb(250_248_243/94%)] px-5 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
-      <button
-        ref={backRef}
-        type="button"
-        onClick={close}
-        aria-label={`Close ${title}`}
-        className="grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
-      >
+      <IconButton ref={backRef} onClick={close} label={`Close ${title}`}>
         <ArrowLeft size={18} />
-      </button>
+      </IconButton>
       <p className="text-sm font-extrabold">{title}</p>
-      <button
-        type="button"
-        onClick={close}
-        aria-label="Close"
-        className="grid size-10 place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)]"
-      >
+      <IconButton onClick={close} label="Close">
         <X size={18} />
-      </button>
+      </IconButton>
     </header>
   );
 }

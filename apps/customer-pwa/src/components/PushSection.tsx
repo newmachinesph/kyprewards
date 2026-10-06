@@ -10,7 +10,8 @@ import {
   useApiMutation,
   usePushState,
 } from "@kypstamping/api";
-import { PreviewBadge, QueryBoundary } from "@kypstamping/ui";
+import { Button, PreviewBadge, QueryBoundary } from "@kypstamping/ui";
+import { FormMessage } from "@kypstamping/ui/form";
 import { BellRing } from "lucide-react";
 
 /**
@@ -98,33 +99,30 @@ export function PushSection() {
           ) : state?.subscribed ? (
             <>
               <p className="text-xs font-bold text-[var(--success)]">Notifications are on for this phone.</p>
-              <button
-                type="button"
+              <Button
+                tone="quiet"
                 disabled={preview || busy}
                 title={preview ? PREVIEW_WRITE_REASON : undefined}
                 onClick={() => unsubscribe.mutate()}
-                className="mt-2 min-h-11 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] text-xs font-extrabold disabled:opacity-50"
+                className="mt-2 w-full"
               >
                 {unsubscribe.isPending ? "Turning off…" : "Turn off on this phone"}
-              </button>
+              </Button>
             </>
           ) : (
-            <button
-              type="button"
+            <Button
               disabled={preview || busy}
               title={preview ? PREVIEW_WRITE_REASON : undefined}
               onClick={() => subscribe.mutate()}
-              className="min-h-11 w-full rounded-xl bg-[var(--ink)] text-xs font-extrabold text-[var(--paper)] disabled:opacity-50"
+              className="w-full"
             >
               {subscribe.isPending ? "Asking your browser…" : "Allow notifications on this phone"}
-            </button>
+            </Button>
           )}
           {preview && <p className="mt-2 text-[11px] text-[var(--muted-strong)]">{PREVIEW_WRITE_REASON}</p>}
-          {failure && (
-            <p role="alert" className="mt-2 text-[11px] font-bold text-[var(--danger)]">
-              {failure.message}
-            </p>
-          )}
+          <FormMessage tone="error" className="mt-2">
+            {failure?.message}
+          </FormMessage>
         </QueryBoundary>
       </div>
     </section>

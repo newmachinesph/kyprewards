@@ -14,8 +14,6 @@ import {
   ArrowRight,
   Check,
   Croissant,
-  Eye,
-  EyeOff,
   Gift,
   Mail,
   ShieldCheck,
@@ -47,8 +45,9 @@ import {
   type Workspace,
 } from "@kypstamping/api";
 import Link from "next/link";
-import { BrandMark, StampDots } from "./index";
-import { displayMobile, normalizeMobile, toE164 } from "./format";
+import { BrandMark, Button, StampDots } from "./index";
+import { Checkbox, Field as FormField, Input, MobileInput, PasswordInput, Segmented, Select } from "./form";
+import { toE164 } from "./format";
 
 /*
  * The password and verification code that used to live here were checked in
@@ -577,8 +576,6 @@ function BirthdayField({
   onDayChange: (value: string) => void;
   onMonthChange: (value: string) => void;
 }) {
-  const selectClass =
-    "min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-sm font-semibold outline-none transition focus:border-[var(--accent-strong)]";
   const limit = month ? daysIn(Number(month)) : 31;
   return (
     <fieldset className="grid gap-2">
@@ -590,10 +587,9 @@ function BirthdayField({
         Birthday, optional
       </legend>
       <div className="grid grid-cols-2 gap-3">
-        <select
+        <Select
           aria-label="Birthday month"
           value={month}
-          className={selectClass}
           onChange={(event) => {
             const next = event.target.value;
             onMonthChange(next);
@@ -609,11 +605,10 @@ function BirthdayField({
               {name}
             </option>
           ))}
-        </select>
-        <select
+        </Select>
+        <Select
           aria-label="Birthday day"
           value={day}
-          className={selectClass}
           onChange={(event) => onDayChange(event.target.value)}
         >
           <option value="">Day</option>
@@ -622,7 +617,7 @@ function BirthdayField({
               {value}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
       <p className="text-[11px] font-semibold leading-relaxed text-[var(--muted-strong)]">
         Shops you join can send you something on your birthday. We ask for the
@@ -650,19 +645,17 @@ function Field({
   placeholder?: string;
   required?: boolean;
 }) {
+  const shared = {
+    value,
+    required,
+    autoComplete,
+    placeholder,
+    onChange: (event: { target: { value: string } }) => onChange(event.target.value),
+  };
   return (
-    <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
-      {label}
-      <input
-        type={type}
-        value={value}
-        required={required}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        onChange={(event) => onChange(event.target.value)}
-        className="min-h-12 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 text-sm font-semibold outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
-      />
-    </label>
+    <FormField label={label}>
+      {type === "password" ? <PasswordInput {...shared} /> : <Input type={type} {...shared} />}
+    </FormField>
   );
 }
 
@@ -691,54 +684,25 @@ function MobileField({
   onChange: (e164: string) => void;
   autoComplete?: string;
 }) {
-  const national = normalizeMobile(value);
   return (
-    <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
-      {label}
-      <span className="flex min-h-12 items-center gap-2 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 transition focus-within:border-[var(--accent-strong)]">
-        <span aria-hidden="true" className="text-sm font-bold text-[var(--muted-strong)]">
-          +63
-        </span>
-        <span className="h-5 w-px bg-[var(--line-strong)]" aria-hidden="true" />
-        <input
-          type="tel"
-          inputMode="numeric"
-          autoComplete={autoComplete}
-          // The grouped form is what is shown; the digits are what is kept.
-          value={displayMobile(national)}
-          placeholder="917 555 0182"
-          aria-describedby="mobile-hint"
-          onChange={(event) => {
-            const digits = normalizeMobile(event.target.value);
-            // E.164 once it is a whole number, "" until then, so a caller
-            // never sends the API half a number.
-            onChange(toE164(digits) || digits);
-          }}
-          className="min-w-0 flex-1 bg-transparent py-3 text-sm font-semibold outline-none placeholder:font-normal placeholder:text-[var(--muted)]"
-        />
-      </span>
-      {/* Not shown: the printed +63 and the grouped placeholder already say
-          it, and paste takes 0917, +63 917 and 639 alike, so the rule was
-          instruction nobody needed to follow. Kept for a screen reader, which
-          gets neither of those - the +63 is decorative and a placeholder is
-          not a description. `sr-only` is out of flow, so the label's grid gap
-          does not leave a hole where this used to be. */}
-      <span id="mobile-hint" className="sr-only">
-        Ten digits, starting with 9.
-      </span>
-    </label>
+    <FormField label={label}>
+      <MobileInput
+        value={value}
+        autoComplete={autoComplete}
+        placeholder="917 555 0182"
+        // E.164 once it is a whole number, the digits until then, so a caller
+        // never sends the API half a number.
+        onValueChange={(digits) => onChange(toE164(digits) || digits)}
+      />
+    </FormField>
   );
 }
 
 function PrimaryButton({ children, disabled = false }: { children: ReactNode; disabled?: boolean }) {
   return (
-    <button
-      type="submit"
-      disabled={disabled}
-      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] transition hover:bg-[var(--ink-soft)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45"
-    >
-      {children} <ArrowRight size={16} />
-    </button>
+    <Button type="submit" size="lg" disabled={disabled} className="w-full">
+      {children} <ArrowRight size={16} aria-hidden="true" />
+    </Button>
   );
 }
 
@@ -747,20 +711,16 @@ type Channel = "mobile" | "email";
 /** Mobile or email, on sign-in and sign-up alike. */
 function ChannelSwitch({ value, onChange }: { value: Channel; onChange: (channel: Channel) => void }) {
   return (
-    <div className="mb-5 grid grid-cols-2 rounded-xl border border-[var(--line)] bg-[var(--surface)] p-1">
-      {(["mobile", "email"] as const).map((item) => (
-        <button
-          key={item}
-          type="button"
-          aria-pressed={value === item}
-          onClick={() => onChange(item)}
-          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg text-xs font-extrabold capitalize transition ${value === item ? "bg-[var(--ink)] text-[var(--paper)] shadow-sm" : "text-[var(--muted-strong)]"}`}
-        >
-          {item === "mobile" ? <Smartphone size={14} /> : <Mail size={14} />}
-          {item}
-        </button>
-      ))}
-    </div>
+    <Segmented
+      label="Mobile or email"
+      className="mb-5"
+      value={value}
+      onChange={onChange}
+      options={[
+        { value: "mobile", label: "Mobile", icon: <Smartphone size={14} aria-hidden="true" /> },
+        { value: "email", label: "Email", icon: <Mail size={14} aria-hidden="true" /> },
+      ]}
+    />
   );
 }
 
@@ -770,47 +730,23 @@ function PasswordField({
   value,
   onChange,
   autoComplete,
-  visible,
-  onToggle,
   hint,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   autoComplete: string;
-  visible: boolean;
-  onToggle: () => void;
   hint?: string;
 }) {
-  const hintId = `${autoComplete}-help`;
   return (
-    <label className="grid gap-2 text-xs font-extrabold text-[var(--ink)]">
-      {label}
-      <span className="relative">
-        <input
-          type={visible ? "text" : "password"}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          autoComplete={autoComplete}
-          minLength={autoComplete === "new-password" ? 8 : undefined}
-          aria-describedby={hint ? hintId : undefined}
-          className="min-h-12 w-full rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-4 pr-12 text-sm font-semibold outline-none transition focus:border-[var(--accent-strong)]"
-        />
-        <button
-          type="button"
-          aria-label={visible ? "Hide password" : "Show password"}
-          onClick={onToggle}
-          className="absolute inset-y-0 right-1 grid w-11 place-items-center text-[var(--muted-strong)]"
-        >
-          {visible ? <EyeOff size={17} /> : <Eye size={17} />}
-        </button>
-      </span>
-      {hint && (
-        <span id={hintId} className="text-[10px] font-semibold text-[var(--muted)]">
-          {hint}
-        </span>
-      )}
-    </label>
+    <FormField label={label} hint={hint}>
+      <PasswordInput
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        autoComplete={autoComplete}
+        minLength={autoComplete === "new-password" ? 8 : undefined}
+      />
+    </FormField>
   );
 }
 
@@ -946,7 +882,6 @@ export function DemoAuthFlow({
     (mode === "invite" && !token
       ? "This link is missing its token. Ask for the invitation again."
       : "");
-  const [showPassword, setShowPassword] = useState(false);
   // The customer code screen: the password this code is proving the number for.
   const [newPassword, setNewPassword] = useState("");
   const [code, setCode] = useState("");
@@ -1245,8 +1180,6 @@ export function DemoAuthFlow({
             value={password}
             onChange={setPassword}
             autoComplete="current-password"
-            visible={showPassword}
-            onToggle={() => setShowPassword((visible) => !visible)}
           />
           {/* "Remember this browser" / "Trust this device" was a checkbox that
               set a value nothing sent: the login body is only the email and
@@ -1439,7 +1372,7 @@ export function DemoAuthFlow({
               inputMode="numeric"
               autoComplete="one-time-code"
               aria-describedby="code-help"
-              className="min-h-16 rounded-2xl border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-center font-mono text-2xl font-extrabold tracking-[0.42em] outline-none focus:border-[var(--accent-strong)]"
+              className="min-h-16 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-5 text-center font-mono text-2xl font-extrabold tracking-[0.42em] outline-hidden focus:border-[var(--accent-strong)] focus:ring-1 focus:ring-[var(--accent-strong)]"
             />
             <span id="code-help" className="text-[10px] font-semibold text-[var(--muted)]">
               {role === "admin"
@@ -1462,8 +1395,6 @@ export function DemoAuthFlow({
               value={newPassword}
               onChange={setNewPassword}
               autoComplete="new-password"
-              visible={showPassword}
-              onToggle={() => setShowPassword((visible) => !visible)}
               hint="At least 8 characters. Next time you sign in with it, no code needed."
             />
           )}
@@ -1644,8 +1575,6 @@ export function DemoAuthFlow({
                 value={password}
                 onChange={setPassword}
                 autoComplete="new-password"
-                visible={showPassword}
-                onToggle={() => setShowPassword((visible) => !visible)}
                 hint="At least 8 characters."
               />
             </>
@@ -1662,7 +1591,7 @@ export function DemoAuthFlow({
             onMonthChange={setBirthdayMonth}
           />
           <label className="flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-relaxed text-[var(--muted-strong)]">
-            <input type="checkbox" checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="size-4 shrink-0 accent-[var(--ink)]" />
+            <Checkbox checked={accepted} onChange={(event) => setAccepted(event.target.checked)} />
             <span>
               I agree to the{" "}
               <a

@@ -17,11 +17,6 @@ body {
   font-family: var(--font-body), "Segoe UI", sans-serif;
 }
 
-button,
-input,
-select {
-  font: inherit;
-}
 button {
   cursor: pointer;
 }
@@ -39,12 +34,6 @@ button:disabled {
 ::selection {
   background: var(--accent);
   color: var(--ink);
-}
-
-.focus-ring:focus-visible,
-:is(a, button, input, select):focus-visible {
-  outline: 3px solid var(--accent-strong);
-  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {

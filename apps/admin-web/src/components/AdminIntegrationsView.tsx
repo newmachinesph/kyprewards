@@ -8,6 +8,7 @@ import type {
   TenantConnection,
 } from "@kypstamping/api";
 import { Button, Dialog, Eyebrow, Panel } from "@kypstamping/ui";
+import { Chip, Segmented } from "@kypstamping/ui/form";
 import {
   useAdapters,
   useTenantConnections,
@@ -213,31 +214,22 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                 rules, ledger entries, idempotency, and tenant authorization stay consistent.
               </p>
             </div>
-            <div
-              className="inline-grid grid-cols-2 rounded-full border border-white/15 bg-white/7 p-1"
-              aria-label="Platform integration environment"
-            >
-              {(["sandbox", "production"] as const).map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  aria-pressed={environment === item}
-                  onClick={() => {
-                    setEnvironment(item);
-                    notify(
-                      `${item === "sandbox" ? "Sandbox" : "Production"} integration data selected.`,
-                    );
-                  }}
-                  className={`min-h-10 rounded-full px-4 text-xs font-extrabold capitalize ${
-                    environment === item
-                      ? "bg-[var(--accent)] text-[var(--ink)]"
-                      : "text-white/65 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
+            <Segmented
+              label="Platform integration environment"
+              surface="dark"
+              className="justify-self-start"
+              options={[
+                { value: "sandbox", label: "Sandbox" },
+                { value: "production", label: "Production" },
+              ]}
+              value={environment}
+              onChange={(item) => {
+                setEnvironment(item);
+                notify(
+                  `${item === "sandbox" ? "Sandbox" : "Production"} integration data selected.`,
+                );
+              }}
+            />
           </div>
           <div className="mt-7 grid gap-px overflow-hidden rounded-2xl bg-white/12 sm:grid-cols-2 xl:grid-cols-4">
             {/* Every figure here is a count from the API. The duplicate rate
@@ -275,22 +267,16 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                 Status labels distinguish usable paths from pilots, approvals, and plans.
               </p>
             </div>
-            <div className="flex flex-wrap gap-1.5" aria-label="Filter adapter status">
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter adapter status">
               {(["All", "Available", "Pilot", "Approval", "Planned"] as const).map(
                 (status) => (
-                  <button
+                  <Chip
                     key={status}
-                    type="button"
-                    aria-pressed={statusFilter === status}
+                    pressed={statusFilter === status}
                     onClick={() => setStatusFilter(status)}
-                    className={`min-h-9 rounded-full px-3 text-[10px] font-extrabold ${
-                      statusFilter === status
-                        ? "bg-[var(--ink)] text-[var(--paper)]"
-                        : "border border-[var(--line)] bg-[var(--surface)] text-[var(--muted-strong)]"
-                    }`}
                   >
                     {status}
-                  </button>
+                  </Chip>
                 ),
               )}
             </div>
@@ -415,7 +401,7 @@ export function AdminIntegrationsView({ notify }: { notify: Notify }) {
                 )}
               </div>
               <Button
-                className="mt-5"
+                className="mt-5 focus-visible:outline-[var(--ink)]"
                 icon={replaying ? <RefreshCcw size={15} className="animate-spin" /> : <RotateCcw size={15} />}
                 disabled={replaying || recoveryQueue.length === 0}
                 onClick={replayFailed}

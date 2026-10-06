@@ -23,7 +23,8 @@ import {
   type Tenant,
   type TenantRisk,
 } from "@kypstamping/api";
-import { Button, Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Button, buttonClass, Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kypstamping/ui";
+import { Checkbox, Chip, FormMessage, Input, Select } from "@kypstamping/ui/form";
 import { longDate, pesoFromCentavos, relativeTime, timeOfDay } from "@kypstamping/ui/format";
 import { Building2, ExternalLink, Search, ShieldCheck } from "lucide-react";
 import { useAdminState } from "@/components/AdminState";
@@ -57,19 +58,9 @@ function Chips<T extends string>({
         {label}
       </span>
       {(["All", ...options] as const).map((option) => (
-        <button
-          key={option}
-          type="button"
-          aria-pressed={value === option}
-          onClick={() => onChange(option as T | "All")}
-          className={`min-h-8 rounded-full px-3 text-[11px] font-extrabold transition ${
-            value === option
-              ? "bg-[var(--ink)] text-[var(--paper)]"
-              : "border border-[var(--line-strong)] bg-[var(--paper)] hover:bg-[var(--surface-2)]"
-          }`}
-        >
+        <Chip key={option} pressed={value === option} onClick={() => onChange(option as T | "All")}>
           {option}
-        </button>
+        </Chip>
       ))}
     </div>
   );
@@ -160,16 +151,14 @@ export function AdminBusinessesView() {
           <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
             <section className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
               <div className="space-y-3 border-b border-[var(--line)] p-4">
-                <label className="flex min-h-11 items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3">
-                  <Search size={16} aria-hidden="true" />
-                  <input
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                    className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-                    placeholder="Business or city"
-                    aria-label="Search businesses by name or city"
-                  />
-                </label>
+                <Input
+                  type="search"
+                  icon={<Search size={16} />}
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Business or city"
+                  aria-label="Search businesses by name or city"
+                />
                 <div className="flex flex-wrap gap-x-6 gap-y-2">
                   <Chips label="Plan" options={PLANS} value={plan} onChange={setPlan} />
                   <Chips label="Risk" options={RISKS} value={risk} onChange={setRisk} />
@@ -202,7 +191,7 @@ export function AdminBusinessesView() {
                             choose(business);
                           }
                         }}
-                        className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] focus-visible:outline-2 focus-visible:outline-[var(--accent)] last:border-0 ${selected.id === business.id ? "bg-[rgb(232_163_61/9%)]" : "hover:bg-[var(--paper)]"}`}
+                        className={`cursor-pointer border-b border-[var(--line)] outline-offset-[-2px] focus-visible:outline-2 focus-visible:outline-[var(--accent-strong)] last:border-0 ${selected.id === business.id ? "bg-[rgb(232_163_61/9%)]" : "hover:bg-[var(--paper)]"}`}
                       >
                         <td className="px-5 py-4">
                           <p className="text-sm font-extrabold">{business.name}</p>
@@ -376,20 +365,22 @@ function TenantDrawer({
           three free months of Core are not used by it.
         </p>
         <div className="mt-3 flex gap-2">
-          <select
+          <Select
+            surface="dark"
             aria-label="Plan to move this tenant to"
             value={target}
             onChange={(event) => setTarget(event.target.value as PlanName)}
-            className="min-h-10 flex-1 rounded-xl border border-white/20 bg-transparent px-3 text-sm font-bold text-[var(--paper)]"
+            className="flex-1"
           >
             {PLANS.map((plan) => (
-              <option key={plan} value={plan} className="text-[var(--ink)]">
+              <option key={plan} value={plan}>
                 {plan}
               </option>
             ))}
-          </select>
+          </Select>
           <Button
             tone="accent"
+            size="lg"
             disabled={!tenant.businessId || target === tenant.plan || move.isPending}
             onClick={() =>
               move.mutate(target, {
@@ -407,14 +398,9 @@ function TenantDrawer({
             {move.isPending ? (comp ? "Comping…" : "Moving…") : comp ? `Comp ${target}` : "Move"}
           </Button>
         </div>
-        {outcome && (
-          <p
-            role="status"
-            className={`mt-2 text-[11px] font-semibold ${outcome.tone === "ok" ? "text-[var(--accent)]" : "text-white/80"}`}
-          >
-            {outcome.text}
-          </p>
-        )}
+        <FormMessage surface="dark" tone={outcome?.tone === "refused" ? "error" : "success"} className="mt-2">
+          {outcome?.text}
+        </FormMessage>
       </div>
       )}
 
@@ -498,31 +484,31 @@ function GraceCard({ tenant }: { tenant: Tenant }) {
         for a shop that has asked for time; their data and programs are kept either way.
       </p>
       <div className="mt-3 flex gap-2">
-        <input
+        <Input
           type="date"
+          surface="dark"
           aria-label="Grace until"
           value={until}
           onChange={(event) => setUntil(event.target.value)}
-          className="min-h-10 flex-1 rounded-xl border border-white/20 bg-transparent px-3 text-sm font-bold text-[var(--paper)]"
+          className="flex-1"
         />
         <Button
           tone="accent"
+          size="lg"
           disabled={!tenant.businessId || !until || until === tenant.graceUntil || save.isPending}
           onClick={() => save.mutate(until)}
         >
           {save.isPending ? "Saving…" : "Extend"}
         </Button>
         {tenant.graceUntil && (
-          <Button tone="quiet" disabled={save.isPending} onClick={() => { setUntil(""); save.mutate(null); }}>
+          <Button tone="ghost" size="lg" disabled={save.isPending} onClick={() => { setUntil(""); save.mutate(null); }}>
             Reset
           </Button>
         )}
       </div>
-      {outcome && (
-        <p role="status" className="mt-2 text-[11px] font-semibold text-white/80">
-          {outcome}
-        </p>
-      )}
+      <FormMessage surface="dark" tone={save.isError ? "error" : "success"} className="mt-2">
+        {outcome}
+      </FormMessage>
     </div>
   );
 }
@@ -567,11 +553,11 @@ function SupportAccessCard({ tenant }: { tenant: Tenant }) {
               href={BUSINESS_APP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex min-h-9 items-center gap-1.5 rounded-xl bg-[var(--accent)] px-3 text-xs font-extrabold text-[var(--ink)]"
+              className={buttonClass({ tone: "accent", size: "sm" })}
             >
               <ExternalLink size={13} aria-hidden="true" /> Open workspace
             </a>
-            <Button tone="quiet" disabled={end.isPending} onClick={() => end.mutate(live.id)}>
+            <Button tone="danger" size="sm" disabled={end.isPending} onClick={() => end.mutate(live.id)}>
               {end.isPending ? "Ending…" : "End access"}
             </Button>
           </div>
@@ -584,32 +570,34 @@ function SupportAccessCard({ tenant }: { tenant: Tenant }) {
             if (reason.trim()) open.mutate();
           }}
         >
-          <input
+          <Input
+            surface="dark"
             value={reason}
             onChange={(event) => setReason(event.target.value)}
             maxLength={300}
             required
             aria-label="Why you are opening this workspace"
             placeholder="Why - the owner reads this, and so does the ledger"
-            className="min-h-10 rounded-xl border border-white/20 bg-transparent px-3 text-sm text-[var(--paper)] placeholder:text-white/40"
           />
           <div className="flex gap-2">
-            <select
+            <Select
+              surface="dark"
               aria-label="How long support access stays open"
               value={minutes}
               onChange={(event) =>
                 setMinutes(Number(event.target.value) as (typeof SUPPORT_MINUTES)[number])
               }
-              className="min-h-10 flex-1 rounded-xl border border-white/20 bg-transparent px-3 text-sm font-bold text-[var(--paper)]"
+              className="flex-1"
             >
               {SUPPORT_MINUTES.map((option) => (
-                <option key={option} value={option} className="text-[var(--ink)]">
+                <option key={option} value={option}>
                   {option} minutes
                 </option>
               ))}
-            </select>
+            </Select>
             <Button
               tone="accent"
+              size="lg"
               type="submit"
               disabled={!tenant.businessId || !reason.trim() || open.isPending}
             >
@@ -618,11 +606,9 @@ function SupportAccessCard({ tenant }: { tenant: Tenant }) {
           </div>
         </form>
       )}
-      {refused && (
-        <p role="status" className="mt-2 text-[11px] font-semibold text-white/80">
-          {refused}
-        </p>
-      )}
+      <FormMessage surface="dark" tone="error" className="mt-2">
+        {refused}
+      </FormMessage>
     </div>
   );
 }
@@ -656,8 +642,8 @@ function ManagersCard({ tenant }: { tenant: Tenant }) {
           {managers.map((person) => (
             <li key={person.id}>
               <label className="flex min-h-10 cursor-pointer items-center gap-3">
-                <input
-                  type="checkbox"
+                <Checkbox
+                  surface="dark"
                   checked={chosen.includes(person.id)}
                   disabled={!person.isActive}
                   onChange={(event) =>
@@ -667,7 +653,6 @@ function ManagersCard({ tenant }: { tenant: Tenant }) {
                         : current.filter((id) => id !== person.id),
                     )
                   }
-                  className="size-4 accent-[var(--accent)]"
                 />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-extrabold">{person.name}</span>
@@ -681,11 +666,12 @@ function ManagersCard({ tenant }: { tenant: Tenant }) {
       )}
       {managers.length > 0 && (
         <div className="mt-2 flex items-center justify-between gap-2">
-          <p role="status" className="text-[11px] font-semibold text-white/70">
-            {outcome ?? ""}
-          </p>
+          <FormMessage surface="dark" tone={save.isError ? "error" : "success"}>
+            {outcome}
+          </FormMessage>
           <Button
             tone="accent"
+            className="ml-auto"
             disabled={!tenant.businessId || !dirty || save.isPending}
             onClick={() => save.mutate(chosen)}
           >

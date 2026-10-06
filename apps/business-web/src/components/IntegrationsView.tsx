@@ -8,9 +8,11 @@ import {
   Dialog,
   Eyebrow,
   FieldLabel,
+  IconButton,
   Panel,
   Skeleton,
 } from "@kypstamping/ui";
+import { Checkbox, Chip, Field, Input, Select } from "@kypstamping/ui/form";
 import { PlanTag } from "@kypstamping/ui/shell";
 import type { NotifyIntent } from "@kypstamping/ui/shell";
 import {
@@ -527,22 +529,19 @@ export function IntegrationsView({
           </div>
           <div
             className="inline-grid grid-cols-2 rounded-full border border-white/15 bg-white/7 p-1"
+            role="group"
             aria-label="Integration environment"
           >
             {(["sandbox", "production"] as const).map((item) => (
-              <button
+              <Chip
                 key={item}
-                type="button"
-                aria-pressed={environment === item}
+                surface="dark"
+                pressed={environment === item}
                 onClick={() => chooseEnvironment(item)}
-                className={`min-h-10 rounded-full px-4 text-xs font-extrabold capitalize transition ${
-                  environment === item
-                    ? "bg-[var(--accent)] text-[var(--ink)]"
-                    : "text-white/70 hover:bg-white/10 hover:text-white"
-                }`}
+                className="capitalize"
               >
                 {item === "production" ? "Production preview" : item}
-              </button>
+              </Chip>
             ))}
           </div>
         </div>
@@ -667,27 +666,23 @@ export function IntegrationsView({
           </div>
 
           <div className="grid gap-4 border-b border-[var(--line)] bg-[var(--paper)] p-5 sm:grid-cols-2 sm:p-6">
-            <label>
-              <FieldLabel>Key name</FieldLabel>
-              <input
+            <Field label="Key name">
+              <Input
                 value={keyLabel}
                 onChange={(event) => setKeyLabel(event.target.value)}
-                className="min-h-11 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-semibold"
               />
-            </label>
-            <label>
-              <FieldLabel>Branch scope</FieldLabel>
-              <select
+            </Field>
+            <Field label="Branch scope">
+              <Select
                 value={branchScope}
                 onChange={(event) => setBranchScope(event.target.value)}
-                className="min-h-11 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-3 text-sm font-semibold"
               >
                 {locations.map((location) => (
                   <option key={location.id}>{location.name}</option>
                 ))}
                 <option>All branches</option>
-              </select>
-            </label>
+              </Select>
+            </Field>
             <fieldset className="sm:col-span-2">
               <legend className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted-strong)]">
                 Permission scopes
@@ -698,7 +693,7 @@ export function IntegrationsView({
                   return (
                     <label
                       key={scope.id}
-                      className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border px-3 text-xs font-bold ${
+                      className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border px-3 text-xs font-bold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--accent-strong)] ${
                         selected
                           ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]"
                           : "border-[var(--line)] bg-[var(--surface)]"
@@ -769,24 +764,22 @@ export function IntegrationsView({
                     <code className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-bold">
                       {oneTimeSecret}
                     </code>
-                    <button
-                      type="button"
-                      aria-label="Copy one-time secret"
+                    <IconButton
+                      tone="plain"
+                      label="Copy one-time secret"
                       onClick={() =>
                         copyValue(oneTimeSecret, "One-time secret")
                       }
-                      className="grid size-9 shrink-0 place-items-center rounded-lg bg-[var(--ink)] text-[var(--paper)]"
                     >
                       <Copy size={15} />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Hide one-time secret"
+                    </IconButton>
+                    <IconButton
+                      tone="plain"
+                      label="Hide one-time secret"
                       onClick={() => setOneTimeSecret(null)}
-                      className="grid size-9 shrink-0 place-items-center rounded-lg hover:bg-[var(--surface-2)]"
                     >
                       <X size={15} />
-                    </button>
+                    </IconButton>
                   </div>
                 </div>
               </div>
@@ -839,19 +832,18 @@ export function IntegrationsView({
                         {credential.clientKey}
                       </code>
                     </span>
-                    <button
-                      type="button"
-                      aria-label={`Copy ${credential.label} client key`}
+                    <IconButton
+                      tone="plain"
+                      label={`Copy ${credential.label} client key`}
                       onClick={() =>
                         copyValue(
                           credential.clientKey,
                           `${credential.label} client key`,
                         )
                       }
-                      className="grid size-9 shrink-0 place-items-center rounded-lg hover:bg-[var(--surface-2)]"
                     >
                       <Copy size={14} />
-                    </button>
+                    </IconButton>
                   </div>
                   <div className="rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3 py-2">
                     <span className="block text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--muted)]">
@@ -977,14 +969,13 @@ export function IntegrationsView({
                 <code className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[11px] font-bold">
                   {inboundUrl}
                 </code>
-                <button
-                  type="button"
+                <IconButton
+                  tone="plain"
                   onClick={() => copyValue(inboundUrl, "Inbound endpoint")}
-                  aria-label="Copy inbound endpoint"
-                  className="grid size-9 shrink-0 place-items-center rounded-lg hover:bg-[var(--surface-2)]"
+                  label="Copy inbound endpoint"
                 >
                   <Copy size={14} />
-                </button>
+                </IconButton>
               </div>
             </div>
             <div>
@@ -1051,16 +1042,14 @@ export function IntegrationsView({
             </p>
           </div>
           <div className="space-y-5 p-5 sm:p-6">
-            <label>
-              <FieldLabel>HTTPS destination</FieldLabel>
-              <input
+            <Field label="HTTPS destination">
+              <Input
                 type="url"
                 value={webhookUrl}
                 placeholder="https://your-system.example/webhooks/kypstamping"
                 onChange={(event) => setDraftUrl(event.target.value)}
-                className="min-h-11 w-full rounded-xl border border-[var(--line-strong)] bg-[var(--paper)] px-3 text-xs font-semibold"
               />
-            </label>
+            </Field>
             <fieldset>
               <legend className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--muted-strong)]">
                 Send these events
@@ -1074,11 +1063,9 @@ export function IntegrationsView({
                       title={event.detail}
                       className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={checked}
                         onChange={() => toggleEvent(event.name)}
-                        className="accent-[var(--ink)]"
                       />
                       <span className="min-w-0 break-all font-mono text-[9px] font-bold">
                         {event.name}
@@ -1147,7 +1134,7 @@ export function IntegrationsView({
                     Show signing secret
                   </Button>
                   <Button
-                    tone="quiet"
+                    tone="danger"
                     icon={<RotateCcw size={15} />}
                     disabled={rotateEndpointSecret.isPending}
                     onClick={() => {
@@ -1172,7 +1159,7 @@ export function IntegrationsView({
                     Rotate signing secret
                   </Button>
                   <Button
-                    tone="quiet"
+                    tone="danger"
                     icon={<X size={15} />}
                     disabled={removeEndpoint.isPending}
                     onClick={() => {
@@ -1279,21 +1266,22 @@ export function IntegrationsView({
                 </code>
               </div>
               {delivery.status === "Failed" ? (
-                <button
-                  type="button"
+                <Button
+                  tone="quiet"
+                  size="sm"
+                  icon={<RotateCcw size={13} />}
                   onClick={() => retryDelivery(delivery.id)}
-                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-4 text-xs font-extrabold"
                 >
-                  <RotateCcw size={13} /> Retry
-                </button>
+                  Retry
+                </Button>
               ) : (
-                <button
-                  type="button"
+                <Button
+                  tone="quiet"
+                  size="sm"
                   onClick={() => setInspecting(delivery.id)}
-                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-4 text-xs font-extrabold"
                 >
                   Inspect <ArrowRight size={13} />
-                </button>
+                </Button>
               )}
             </article>
           ))}

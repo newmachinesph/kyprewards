@@ -18,10 +18,6 @@ body {
   color: var(--ink);
   font-family: var(--font-sans), "Segoe UI", sans-serif;
 }
-button,
-input {
-  font: inherit;
-}
 button {
   cursor: pointer;
 }
@@ -33,10 +29,6 @@ button:disabled {
   color: var(--ink);
 }
 
-:is(a, button, input, select, textarea):focus-visible {
-  outline: 3px solid var(--accent-strong);
-  outline-offset: 3px;
-}
 
 .app-scrollbar {
   scrollbar-color: var(--line-strong) transparent;

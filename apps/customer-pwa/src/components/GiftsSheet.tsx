@@ -12,7 +12,8 @@ import {
   useCustomerGifts,
   type GiftTransfer,
 } from "@kypstamping/api";
-import { Eyebrow, PreviewBadge, QueryBoundary } from "@kypstamping/ui";
+import { Button, Eyebrow, PreviewBadge, QueryBoundary } from "@kypstamping/ui";
+import { Field, FormMessage, Input, Select, Textarea } from "@kypstamping/ui/form";
 import { formatMemberCode, looksLikeMemberCode, relativeTime } from "@kypstamping/ui/format";
 import { ArrowDownLeft, ArrowUpRight, Gift } from "lucide-react";
 import { SheetFrame } from "@/components/Sheet";
@@ -42,14 +43,15 @@ export function GiftsSheet({ close }: { close: () => void }) {
         <p className="mt-2 text-sm text-[var(--muted-strong)]">
           Send a held reward or points to another member of the same shop.
         </p>
-        <button
-          type="button"
+        <Button
+          size="lg"
           aria-expanded={sending}
           onClick={() => setSending((open) => !open)}
-          className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)]"
+          icon={<Gift size={16} aria-hidden="true" />}
+          className="mt-5 w-full"
         >
-          <Gift size={16} aria-hidden="true" /> {sending ? "Close the gift form" : "Send a gift"}
-        </button>
+          {sending ? "Close the gift form" : "Send a gift"}
+        </Button>
         {sending && <SendGiftForm onSent={() => setSending(false)} />}
 
         <div className="mt-7">
@@ -168,21 +170,17 @@ function SendGiftForm({ onSent }: { onSent: () => void }) {
     );
   }
 
-  const field =
-    "mt-1.5 flex min-h-11 w-full rounded-xl border border-[var(--line)] bg-[var(--paper)] px-3 text-sm outline-none focus:border-[var(--ink)] disabled:opacity-60";
-
   return (
     <form onSubmit={submit} className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
-      <label className="block text-xs font-extrabold">
-        From which card
-        <select value={cardKey} onChange={(event) => setCardKey(event.target.value)} className={field}>
+      <Field label="From which card">
+        <Select value={cardKey} onChange={(event) => setCardKey(event.target.value)}>
           {cards.map((item) => (
             <option key={`${item.id}:${item.programId}`} value={`${item.id}:${item.programId}`}>
               {item.business} · {item.program}
             </option>
           ))}
-        </select>
-      </label>
+        </Select>
+      </Field>
       {card && isPreview(card) && <PreviewBadge className="mt-2" />}
 
       <fieldset className="mt-4">
@@ -196,7 +194,7 @@ function SendGiftForm({ onSent }: { onSent: () => void }) {
           ).map(([value, label, allowed]) => (
             <label
               key={value}
-              className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border text-xs font-extrabold ${
+              className={`flex min-h-11 items-center justify-center gap-2 rounded-xl border text-xs font-extrabold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--accent-strong)] ${
                 effectiveKind === value ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]" : "border-[var(--line)]"
               } ${allowed ? "" : "opacity-45"}`}
             >
@@ -219,23 +217,24 @@ function SendGiftForm({ onSent }: { onSent: () => void }) {
       </fieldset>
 
       {effectiveKind === "points" && (
-        <label className="mt-4 block text-xs font-extrabold">
-          How many points
-          <input
+        <Field label="How many points" className="mt-4">
+          <Input
             type="number"
             inputMode="numeric"
             min={1}
             step={1}
             value={units}
             onChange={(event) => setUnits(event.target.value)}
-            className={field}
           />
-        </label>
+        </Field>
       )}
 
-      <label className="mt-4 block text-xs font-extrabold">
-        Your friend&apos;s member code
-        <input
+      <Field
+        label="Your friend's member code"
+        hint={`Thirteen digits, from the back of their card. They must be a member of ${card?.business ?? "the same shop"}.`}
+        className="mt-4"
+      >
+        <Input
           type="text"
           inputMode="numeric"
           autoComplete="off"
@@ -243,39 +242,33 @@ function SendGiftForm({ onSent }: { onSent: () => void }) {
           onChange={(event) => setToMemberCode(event.target.value)}
           onBlur={() => setToMemberCode((value) => (looksLikeMemberCode(value) ? formatMemberCode(value) : value))}
           placeholder="2988 7165 8005 5"
-          className={`${field} font-mono tracking-[0.08em]`}
+          className="font-mono tracking-[0.08em]"
         />
-        <span className="mt-1 block text-[10px] font-normal text-[var(--muted)]">
-          Thirteen digits, from the back of their card. They must be a member of {card?.business ?? "the same shop"}.
-        </span>
-      </label>
+      </Field>
 
-      <label className="mt-4 block text-xs font-extrabold">
-        A message
-        <textarea
+      <Field label="A message" className="mt-4">
+        <Textarea
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           rows={2}
           maxLength={200}
           placeholder="Pasalubong, para sa iyo"
-          className={`${field} resize-none py-2`}
         />
-      </label>
+      </Field>
 
-      <button
+      <Button
         type="submit"
+        size="lg"
         disabled={preview || !ready || send.isPending}
         title={preview ? PREVIEW_WRITE_REASON : undefined}
-        className="mt-5 min-h-12 w-full rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-50"
+        className="mt-5 w-full"
       >
         {send.isPending ? "Sending…" : "Send the gift"}
-      </button>
+      </Button>
       {preview && <p className="mt-2 text-[11px] text-[var(--muted-strong)]">{PREVIEW_WRITE_REASON}</p>}
-      {send.error && (
-        <p role="alert" className="mt-2 text-[11px] font-bold text-[var(--danger)]">
-          {send.error.message}
-        </p>
-      )}
+      <FormMessage tone="error" className="mt-2">
+        {send.error?.message}
+      </FormMessage>
     </form>
   );
 }

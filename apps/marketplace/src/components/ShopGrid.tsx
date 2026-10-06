@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { isPreview, usePublicDiscover, type PublicDiscoverQuery } from "@kypstamping/api";
-import { PreviewBadge, QueryBoundary } from "@kypstamping/ui";
+import { Button, PreviewBadge, QueryBoundary } from "@kypstamping/ui";
 import { LocateFixed, X } from "lucide-react";
 import { ShopCard } from "./ShopCard";
 import { useCoordinates } from "./useCoordinates";
@@ -116,13 +116,9 @@ function GridPage({
           )}
           {last && next && (
             <div className="flex justify-center pt-2">
-              <button
-                type="button"
-                onClick={() => onMore(next)}
-                className="focus-ring inline-flex min-h-12 items-center rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] px-6 text-sm font-extrabold transition hover:border-[var(--ink)]"
-              >
+              <Button tone="quiet" size="lg" onClick={() => onMore(next)}>
                 Show more
-              </button>
+              </Button>
             </div>
           )}
         </div>

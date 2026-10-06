@@ -10,7 +10,8 @@ import {
   usePendingApprovals,
   type PendingApproval,
 } from "@kypstamping/api";
-import { Eyebrow, PreviewBadge, QueryBoundary } from "@kypstamping/ui";
+import { Button, Eyebrow, PreviewBadge, QueryBoundary } from "@kypstamping/ui";
+import { FormMessage } from "@kypstamping/ui/form";
 import { pesoFromCentavos, relativeTime, timeOfDay } from "@kypstamping/ui/format";
 import { Gift } from "lucide-react";
 import { SheetFrame } from "@/components/Sheet";
@@ -90,42 +91,39 @@ function ApprovalRow({ row }: { row: PendingApproval }) {
         </div>
         {preview && <PreviewBadge className="shrink-0" />}
       </div>
-      {approve.isSuccess ? (
-        <p role="status" className="mt-4 text-xs font-bold text-[var(--success)]">
-          Approved. Staff can hand it over now.
-        </p>
-      ) : decline.isSuccess ? (
-        <p role="status" className="mt-4 text-xs font-bold text-[var(--muted-strong)]">
-          Declined. The reward stays on your card.
-        </p>
-      ) : (
+      {/* One live region for both outcomes, present before either happens. */}
+      <FormMessage tone={approve.isSuccess ? "success" : "info"} className="mt-4">
+        {approve.isSuccess
+          ? "Approved. Staff can hand it over now."
+          : decline.isSuccess
+            ? "Declined. The reward stays on your card."
+            : null}
+      </FormMessage>
+      {!approve.isSuccess && !decline.isSuccess && (
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <button
-            type="button"
+          <Button
+            tone="quiet"
+            size="lg"
             disabled={preview || busy}
             title={preview ? PREVIEW_WRITE_REASON : undefined}
             onClick={() => decline.mutate(row.id)}
-            className="min-h-12 rounded-xl border border-[var(--line-strong)] bg-[var(--surface)] text-sm font-extrabold disabled:opacity-50"
           >
             {decline.isPending ? "Declining…" : "Decline"}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            size="lg"
             disabled={preview || busy}
             title={preview ? PREVIEW_WRITE_REASON : undefined}
             onClick={() => approve.mutate(row.id)}
-            className="min-h-12 rounded-xl bg-[var(--ink)] text-sm font-extrabold text-[var(--paper)] disabled:opacity-50"
           >
             {approve.isPending ? "Approving…" : "Approve"}
-          </button>
+          </Button>
         </div>
       )}
       {preview && <p className="mt-2 text-[11px] text-[var(--muted-strong)]">{PREVIEW_WRITE_REASON}</p>}
-      {failure && (
-        <p role="alert" className="mt-2 text-[11px] font-bold text-[var(--danger)]">
-          {failure.message}
-        </p>
-      )}
+      <FormMessage tone="error" className="mt-2">
+        {failure?.message}
+      </FormMessage>
     </li>
   );
 }

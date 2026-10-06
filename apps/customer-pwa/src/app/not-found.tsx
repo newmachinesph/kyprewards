@@ -1,4 +1,5 @@
 import { BrandMark } from "@kypstamping/ui";
+import { buttonClass } from "@kypstamping/ui/button";
 import Link from "next/link";
 
 export default function NotFound() {
@@ -9,7 +10,7 @@ export default function NotFound() {
         <p className="mt-8 font-mono text-[10px] font-extrabold uppercase tracking-[0.16em] text-[var(--accent-strong)]">Wallet 404</p>
         <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.02em]">This reward path wandered off.</h1>
         <p className="mt-3 text-sm leading-relaxed text-[var(--muted-strong)]">Your wallet is still intact. Head home to open your wallet.</p>
-        <Link href="/" className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-[var(--ink)] px-6 text-sm font-bold text-[var(--paper)]">Back to wallet</Link>
+        <Link href="/" className={`mt-7 ${buttonClass({ size: "lg" })}`}>Back to wallet</Link>
       </div>
     </main>
   );
