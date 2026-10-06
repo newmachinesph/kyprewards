@@ -1614,7 +1614,7 @@
     ]
   },
   "contract": {
-    "apiBase": "https://api.kypstamping.ph/api/v1",
+    "apiBase": "https://api.kyprewards.com/api/v1",
     "version": "v1",
     "currency": "PHP",
     "amountUnit": "centavos",

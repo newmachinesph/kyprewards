@@ -10,7 +10,7 @@ export type LegalSection = {
 
 // Rights requests are a legal obligation; the address must be actionable.
 // The domain used to end in [\w.]+, which is greedy about dots: an address at
-// the end of a sentence took the full stop with it, and "privacy@kypstamping.ph."
+// the end of a sentence took the full stop with it, and "privacy@kyprewards.com."
 // is not an address anyone's mail client can send to. Each label is matched
 // separately so the match can only end on a word character.
 const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/;

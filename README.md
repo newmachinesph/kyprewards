@@ -61,7 +61,7 @@ cookie this code cannot read.
   reissuable. `formatMemberCode` in `packages/ui/src/format.ts` groups it for
   display; it is always stored and sent bare.
 - Seeded accounts: `mara@sweetcrumbs.ph` (business owner) and
-  `admin@kypstamping.ph` (platform), both with password `DemoPass123!`.
+  `admin@kyprewards.com` (platform), both with password `DemoPass123!`.
 - The admin's second factor is a real TOTP over the seeded secret; the
   customer's code is the one the API sent, readable from the dev sink or in
   Mailpit. Set `OTP_DEV_CODE=123456` in the backend `.env` to pin it, local

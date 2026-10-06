@@ -60,6 +60,6 @@ instead of the app.
 
 ## Retired
 
-kypstamping.ph and its subdomains redirect (308) at the domain level to
-kyprewards.com; nothing may depend on them. The public contact address is
+kypstamping.ph is no longer ours. Nothing may link to it, send from it, or
+list it as an origin. The public contact address is
 support@kyprewards.com.

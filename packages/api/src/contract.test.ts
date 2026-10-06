@@ -26,7 +26,7 @@ const API = process.env.KYP_TEST_API ?? "http://localhost:8000/api/v1";
 process.env.NEXT_PUBLIC_API_BASE = API;
 
 const OWNER = { email: "mara@sweetcrumbs.ph", password: "DemoPass123!" };
-const ADMIN = { email: "admin@kypstamping.ph", password: "DemoPass123!" };
+const ADMIN = { email: "admin@kyprewards.com", password: "DemoPass123!" };
 // Fixed in scripts/seed.py so the local admin TOTP is reproducible.
 const ADMIN_MFA_SECRET = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
 // The email rather than the mobile: OTP requests are throttled per

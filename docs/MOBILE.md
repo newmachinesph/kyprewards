@@ -6,7 +6,7 @@ app tests yet.** The plan below was written the same morning; the
 "What was built" and "Run it" sections at the end record where it landed.
 
 An Android and iOS app for shoppers, additional to the wallet at app.kyp.ph,
-which stays: kypstamping.ph sells "nothing to install", and the marketing site
+which stays: kyprewards.com sells "nothing to install", and the marketing site
 is the spec. The poster QR must keep working for somebody who never installs
 anything. The app exists for reach - a home-screen icon, real push, a camera
 - not to replace the web wallet.
@@ -376,5 +376,5 @@ and the one Expo recommends; decide when a device is in hand).
 
 ## Not in this plan
 
-Merchant app. The counter stays on biz.kypstamping.ph - a till is a browser
+Merchant app. The counter stays on biz.kyprewards.com - a till is a browser
 on a tablet, and the offline queue already lives there.

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
  * listing the API returns rather than from a pitch: these are the fields on
  * `PublicShopOut`, and the order really is featured, then nearest, then by
  * name. The merchant argument - plans, pricing, what the card can do - lives
- * on kypstamping.ph and is not repeated here.
+ * on kyprewards.com and is not repeated here.
  */
 const listing = [
   {

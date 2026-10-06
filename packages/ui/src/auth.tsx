@@ -177,7 +177,7 @@ const roleConfig = {
     eyebrow: "Restricted access",
     identifierLabel: "Administrator email",
     identifierType: "email",
-    identifier: "admin@kypstamping.ph",
+    identifier: "admin@kyprewards.com",
     signInTitle: "Enter the control room.",
     signInDescription:
       "Privileged sessions require a password and a second verification step.",

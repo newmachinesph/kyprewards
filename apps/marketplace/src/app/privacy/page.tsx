@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 /**
  * The shopper's notice.
  *
- * kypstamping.ph carries the merchant one, written for somebody running a
+ * kyprewards.com carries the merchant one, written for somebody running a
  * shop - workspaces, staff accounts, billing, exports. A person who joined a
  * stamp card is a different reader with a different set of rights, and
  * sending them to the merchant notice to agree to it was asking consent to

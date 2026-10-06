@@ -22,7 +22,7 @@ private apps to the spec.
   Vercel project `kyp-admin`, API at api.kyprewards.com. Brand: KYP
   Stamping. `noindex`.
 - Sign-in: password, then a TOTP on `/verify`. Seeded administrator
-  `admin@kypstamping.ph` / `DemoPass123!`; the seed prints the TOTP secret.
+  `admin@kyprewards.com` / `DemoPass123!`; the seed prints the TOTP secret.
   Recovery on `/forgot-password` and `/reset-password`.
 
 ## What exists

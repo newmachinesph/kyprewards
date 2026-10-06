@@ -6,7 +6,7 @@
  * first impression. Three checks: every route renders with a heading and no
  * console or page errors; every internal link on those pages resolves; and
  * the two doors go where they say, the wallet to app.kyp.ph and "I run a
- * shop" to kypstamping.ph, never the other way round.
+ * shop" to kyprewards.com, never the other way round.
  *
  * The API allows thirty `/public/*` reads a minute per caller and a browser
  * walk of the site spends them fast, so the harness watches for 429s, waits

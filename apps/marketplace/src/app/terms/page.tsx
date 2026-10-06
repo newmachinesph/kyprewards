@@ -12,7 +12,7 @@ export const metadata: Metadata = {
  * The shopper's terms.
  *
  * The distinction that matters throughout: KYP keeps the count, the shop
- * gives the reward. Merchant terms on kypstamping.ph govern the shop's side
+ * gives the reward. Merchant terms on kyprewards.com govern the shop's side
  * of that and are not these.
  */
 const sections: LegalSection[] = [

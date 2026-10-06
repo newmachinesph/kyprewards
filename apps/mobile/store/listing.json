@@ -1,5 +1,5 @@
 {
-  "_note": "Store listing copy for both stores. Every claim is something the app and kypstamping.ph already do; change it here, then run appstore.py (App Store) or paste into Play Console.",
+  "_note": "Store listing copy for both stores. Every claim is something the app and kyprewards.com already do; change it here, then run appstore.py (App Store) or paste into Play Console.",
   "name": "KYP: One card for every shop",
   "subtitle": "Stamp cards for local shops",
   "promotionalText": "Scan the poster at the counter and a welcome stamp is waiting. Collect stamps at local shops and approve your reward on your phone.",

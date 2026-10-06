@@ -22,7 +22,7 @@ const groups = [
     title: "Legal",
     links: [
       // kyp.ph's own, written for shoppers. The merchant notice on
-      // kypstamping.ph is about workspaces, staff and billing - not the
+      // kyprewards.com is about workspaces, staff and billing - not the
       // document a person joining a stamp card should be reading.
       ["Privacy", "/privacy"],
       ["Terms", "/terms"],

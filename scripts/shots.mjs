@@ -29,7 +29,7 @@ const OWNER = {
   email: process.env.OWNER_EMAIL ?? "mara@sweetcrumbs.ph",
   password: process.env.OWNER_PASSWORD ?? "DemoPass123!",
 };
-const ADMIN = { email: "admin@kypstamping.ph", password: "DemoPass123!" };
+const ADMIN = { email: "admin@kyprewards.com", password: "DemoPass123!" };
 const ADMIN_MFA_SECRET = process.env.ADMIN_MFA_SECRET ?? "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
 const CUSTOMER_MOBILE = process.env.CUSTOMER_MOBILE ?? "+63 917 555 0182";
 

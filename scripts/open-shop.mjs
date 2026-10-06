@@ -1,7 +1,7 @@
 /**
  * How a shop comes to exist, for the suites that need a fresh one.
  *
- * There is no sign-up: a shop applies on kypstamping.ph/partners, the platform
+ * There is no sign-up: a shop applies on kyprewards.com/partners, the platform
  * admin approves it, and approval mails the owner a temporary password. The
  * suites walk exactly that, through the real endpoints, so a fresh shop in a
  * test is the same shape as a fresh shop in production.
@@ -12,7 +12,7 @@
 import { createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 
-export const ADMIN_EMAIL = "admin@kypstamping.ph";
+export const ADMIN_EMAIL = "admin@kyprewards.com";
 export const ADMIN_PASSWORD = "DemoPass123!";
 export const ADMIN_MFA_SECRET = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
 

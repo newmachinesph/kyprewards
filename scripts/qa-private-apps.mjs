@@ -29,7 +29,7 @@ const adminUrl = process.env.ADMIN_APP_URL ?? "http://localhost:3001";
  * exactly as a person with an authenticator would.
  */
 const OWNER_EMAIL = process.env.DEMO_EMAIL ?? "mara@sweetcrumbs.ph";
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@kypstamping.ph";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@kyprewards.com";
 const OWNER_PASSWORD = process.env.DEMO_PASSWORD ?? "DemoPass123!";
 const ADMIN_MFA_SECRET = process.env.ADMIN_MFA_SECRET ?? "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
 

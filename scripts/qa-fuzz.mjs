@@ -594,7 +594,7 @@ if (walletShop) {
 const admin = actor();
 const signedIn = await admin.call("/auth/login", {
   method: "POST",
-  body: { email: "admin@kypstamping.ph", password: "DemoPass123!" },
+  body: { email: "admin@kyprewards.com", password: "DemoPass123!" },
 });
 if (signedIn.status === 200) {
   await admin.call("/auth/mfa/verify", {

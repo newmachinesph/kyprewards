@@ -109,7 +109,7 @@ console.log("marketing swept");
   const page = await browser.newPage({ viewport: { width: 1500, height: 1000 } });
   watch(page, "admin", "sign in");
   await page.goto(`${APPS.admin}/login`, { waitUntil: "networkidle" });
-  await page.fill('input[type="email"]', "admin@kypstamping.ph");
+  await page.fill('input[type="email"]', "admin@kyprewards.com");
   await page.fill('input[type="password"]', "DemoPass123!");
   await page.click('button[type="submit"]');
   await page.waitForURL(/verify/, { timeout: 15000 }).catch(() => {});

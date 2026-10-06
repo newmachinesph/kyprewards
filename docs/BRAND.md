@@ -149,8 +149,8 @@ Say "3 more visits to a free drink", not "You're on your way!".
 
 The audiences were split across two domains on 2026-09-03. The merchant
 side was renamed from KYP Stamping and moved to kyprewards.com on
-2026-09-23; kypstamping.ph stays alive and redirects permanently, so the
-old name will keep arriving in search results and inboxes for months.
+2026-09-23. kypstamping.ph was given up in October 2026 and is no longer
+ours: never link to it, send from it, or trust it as an origin.
 
 | Name | Where | Who reads it |
 |---|---|---|

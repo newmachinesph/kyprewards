@@ -35,7 +35,7 @@ const APPS = {
   marketplace: process.env.MARKETPLACE_APP_URL ?? "http://localhost:3004",
 };
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@kypstamping.ph";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@kyprewards.com";
 const ADMIN_PASSWORD = process.env.DEMO_PASSWORD ?? "DemoPass123!";
 const ADMIN_MFA_SECRET = process.env.ADMIN_MFA_SECRET ?? "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
 
@@ -203,7 +203,7 @@ const world = {
    ACT 1 — A shop owner finds the site and applies
    ═══════════════════════════════════════════════════════════════════════ */
 
-scene("Act 1 · Rosa reads kypstamping.ph and applies");
+scene("Act 1 · Rosa reads kyprewards.com and applies");
 
 const site = await open("marketing site");
 
