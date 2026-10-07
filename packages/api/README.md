@@ -1,4 +1,4 @@
-# `@kypstamping/api`
+# `@kyprewards/api`
 
 The data layer for the apps. Wired: every screen in the merchant workspace,
 the customer wallet and the platform console reads this service, and the
@@ -28,7 +28,7 @@ apps make — 31 reads and 15 writes — and `contract.test.ts` runs them agains
 a live stack, asserting on the real body rather than on what the OpenAPI
 schema claims. Start the backend (`make up`) before `npm test`.
 
-`@kypstamping/demo-data` is down to one export: the shared scenario, the ₱286
+`@kyprewards/demo-data` is down to one export: the shared scenario, the ₱286
 visit all four apps narrate from their own side. It is a story, not a record,
 and the API has no route for it.
 
@@ -36,7 +36,7 @@ and the API has no route for it.
 
 ```tsx
 "use client";
-import { useBusinessCustomers, useApiMutation, keys } from "@kypstamping/api";
+import { useBusinessCustomers, useApiMutation, keys } from "@kyprewards/api";
 
 const { data, isPending, error } = useBusinessCustomers({ segment: "VIP" });
 ```
@@ -77,7 +77,7 @@ needs Apple and Google signing certificates.
 ## Tests
 
 ```bash
-npm test -w @kypstamping/api
+npm test -w @kyprewards/api
 ```
 
 Thirty-eight checks: the two parsers and the normalising schemas offline, and

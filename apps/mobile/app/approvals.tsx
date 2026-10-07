@@ -8,12 +8,12 @@ import {
   useApiMutation,
   usePendingApprovals,
   type PendingApproval,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import {
   pesoFromCentavos,
   relativeTime,
   timeOfDay,
-} from "@kypstamping/ui/format";
+} from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import {
   Button,

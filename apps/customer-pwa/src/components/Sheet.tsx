@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { ArrowLeft, X } from "lucide-react";
-import { IconButton } from "@kypstamping/ui";
+import { IconButton } from "@kyprewards/ui";
 
 /** A full-height panel over the wallet, the way every sheet here opens. */
 export function SheetFrame({

@@ -1,6 +1,6 @@
 /**
  * The parts of this package that are logic rather than wiring: the two
- * parsers and the normalising schemas. Run with `npm test -w @kypstamping/api`.
+ * parsers and the normalising schemas. Run with `npm test -w @kyprewards/api`.
  *
  * The hooks are not tested here — they are one-line adapters over accessors
  * that already have their own fixture, and a test asserting `useQuery` calls

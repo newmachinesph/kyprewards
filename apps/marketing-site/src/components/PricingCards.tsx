@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { SiteButton } from "@/components/MarketingUi";
-import { foundingOffer, paymentMethods, plans } from "@kypstamping/ui/plans";
+import { foundingOffer, paymentMethods, plans } from "@kyprewards/ui/plans";
 
 export function PricingCards() {
   const [annual, setAnnual] = useState(true);

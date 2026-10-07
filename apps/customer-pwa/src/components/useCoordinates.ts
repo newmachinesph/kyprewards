@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Coordinates } from "@kypstamping/api";
+import type { Coordinates } from "@kyprewards/api";
 
 /**
  * Where the customer is, once they allow it.

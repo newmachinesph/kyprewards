@@ -8,11 +8,11 @@ import {
   PreviewBadge,
   StampDots,
   StatCard,
-} from "@kypstamping/ui";
-import { Segmented, Switch } from "@kypstamping/ui/form";
+} from "@kyprewards/ui";
+import { Segmented, Switch } from "@kyprewards/ui/form";
 import { cardTerms, DEFAULT_RULES } from "@/components/views/ProgramRules";
-import { greeting, todayLabel } from "@kypstamping/ui/shell";
-import { pesoCompactFromCentavos } from "@kypstamping/ui/format";
+import { greeting, todayLabel } from "@kyprewards/ui/shell";
+import { pesoCompactFromCentavos } from "@kyprewards/ui/format";
 import {
   ArrowRight,
   BadgePercent,
@@ -46,9 +46,9 @@ import {
   WifiOff,
   X,
 } from "lucide-react";
-import type { NotifyIntent } from "@kypstamping/ui/shell";
+import type { NotifyIntent } from "@kyprewards/ui/shell";
 import { planFor, usePlanGate } from "@/lib/plan";
-import type { Automation } from "@kypstamping/api";
+import type { Automation } from "@kyprewards/api";
 import {
   isPreview,
   useAudience,
@@ -66,7 +66,7 @@ import {
   useVisitTrend,
   useBranding,
   EMPTY_BUSINESS_METRICS,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import {
   useRecordTestStamp,
   useToggleAutomation,

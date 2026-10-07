@@ -7,8 +7,8 @@ import {
   Stamp,
   WalletCards,
 } from "lucide-react-native";
-import type { WalletCard } from "@kypstamping/api";
-import { longDate, timeOfDay } from "@kypstamping/ui/format";
+import type { WalletCard } from "@kyprewards/api";
+import { longDate, timeOfDay } from "@kyprewards/ui/format";
 import {
   balanceLine,
   cardHeadline,

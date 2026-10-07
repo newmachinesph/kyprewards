@@ -8,8 +8,10 @@ import {
   setAuthToken,
   setClientKind,
   type SessionInfo,
-} from "@kypstamping/api";
+  unsubscribePush,
+} from "@kyprewards/api";
 import { API_BASE } from "@/lib/config";
+import { pushToken } from "@/lib/push";
 import { KEYS, forget, recall, remember } from "@/lib/storage";
 
 /**
@@ -59,6 +61,16 @@ export const useAuth = create<AuthState>()((set, get) => ({
   },
 
   async signOut() {
+    // This phone stops getting the account's pushes; other devices keep
+    // theirs. Needs the session, so before logout. Capped, and a failure
+    // is ignored: push must never hold somebody on a wallet they are leaving.
+    const token = await pushToken();
+    if (token) {
+      await Promise.race([
+        unsubscribePush(token).catch(() => undefined),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+    }
     // Revoked server-side first, so a token lifted from a lost phone is dead
     // even if the keychain wipe below never runs. A failure to reach the
     // server still signs the device out: the token is gone from here.
@@ -68,6 +80,8 @@ export const useAuth = create<AuthState>()((set, get) => ({
       forget(KEYS.session),
       forget(KEYS.memberCode),
       forget(KEYS.memberName),
+      forget(KEYS.pushToken),
+      forget(KEYS.pushOff),
     ]);
     // The cache is per app, not per person. On a shared phone the next person
     // to sign in was shown the last one's wallet and member code - and the

@@ -1,6 +1,6 @@
 /**
  * The approved site facts that would regress silently, and the Sentry
- * defaults that keep personal data out. Run with `npm test -w @kypstamping/ui`.
+ * defaults that keep personal data out. Run with `npm test -w @kyprewards/ui`.
  */
 import assert from "node:assert/strict";
 import { test } from "node:test";

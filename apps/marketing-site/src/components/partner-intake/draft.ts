@@ -53,7 +53,7 @@ export const EMPTY_DRAFT: PartnerDraft = Object.freeze({
  * a phone that rings. Losing it to a refresh is the single most expensive
  * thing this form could do, and it is the thing most application forms do.
  */
-const KEY = "kypstamping-partner-draft";
+const KEY = "kyprewards-partner-draft";
 
 let cache: PartnerDraft = EMPTY_DRAFT;
 let cacheRaw: string | null = null;
@@ -62,7 +62,7 @@ const listeners = new Set<() => void>();
 function read(): PartnerDraft {
   let raw: string | null = null;
   try {
-    raw = window.localStorage.getItem(KEY);
+    raw = window.localStorage.getItem(KEY) ?? window.localStorage.getItem("kypstamping-partner-draft");
   } catch {
     // A private window, or storage the browser refuses. The form still works;
     // it just cannot promise to remember.
@@ -156,4 +156,4 @@ export const isEmail = (value: string) =>
 
 // The intake and the dashboard's location editor accept the same four
 // formats; the rule lives with the schemas so it can only be one rule.
-export { isMapsLink } from "@kypstamping/api/maps-link";
+export { isMapsLink } from "@kyprewards/api/maps-link";

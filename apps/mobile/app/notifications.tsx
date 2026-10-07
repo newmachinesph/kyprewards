@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, type Href } from "expo-router";
 import { BadgeCheck, Bell, ChevronRight } from "lucide-react-native";
 import {
   keys,
@@ -7,8 +7,11 @@ import {
   useApiMutation,
   useNotifications,
   usePendingApprovals,
-} from "@kypstamping/api";
-import { relativeTime } from "@kypstamping/ui/format";
+  useWallet,
+  type CustomerNotification,
+  type WalletCard,
+} from "@kyprewards/api";
+import { relativeTime } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import { Button, Eyebrow, Lede, QueryState, Title } from "@/components/ui";
 import { colors } from "@/lib/theme";
@@ -16,11 +19,33 @@ import { colors } from "@/lib/theme";
 /** Campaigns are the promotional kind; everything else is a service message. */
 const isPromotional = (kind: string) => /campaign|promo|offer/i.test(kind);
 
+/**
+ * Where a notice leads, from the kinds the API writes: a reward held at the
+ * counter, a gift, or the shop's card. Null leaves the row as plain text.
+ */
+function destination(
+  notice: CustomerNotification,
+  wallet: WalletCard[],
+): Href | null {
+  if (/redemption/i.test(notice.kind)) return "/approvals";
+  if (/gift/i.test(notice.kind)) return "/gifts";
+  const card = notice.businessId
+    ? wallet.find((item) => item.businessId === notice.businessId)
+    : undefined;
+  return card
+    ? {
+        pathname: "/card/[id]",
+        params: { id: card.id, programId: card.programId },
+      }
+    : null;
+}
+
 export default function Notifications() {
   const router = useRouter();
   const inbox = useNotifications();
   const rows = inbox.data ?? [];
   const { data: approvals = [] } = usePendingApprovals();
+  const { data: wallet = [] } = useWallet();
   const readAll = useApiMutation(markNotificationsRead, {
     invalidates: [keys.customer.notifications()],
   });
@@ -33,7 +58,7 @@ export default function Notifications() {
     },
     {
       title: "Promotions",
-      detail: "Offers from shops you allowed. Off by default.",
+      detail: "Offers from shops you joined, as your notification settings allow.",
       rows: rows.filter((n) => isPromotional(n.kind)),
     },
   ];
@@ -88,43 +113,54 @@ export default function Notifications() {
                 </Text>
               ) : (
                 <View className="mt-3 border-y border-line">
-                  {group.rows.map((notification, index) => (
-                    <View
-                      key={notification.id}
-                      className={`flex-row gap-3 py-5 ${index > 0 ? "border-t border-line" : ""}`}
-                    >
-                      <View
-                        className={`mt-0.5 size-10 items-center justify-center rounded-2xl ${notification.read ? "bg-surface-2" : "bg-accent"}`}
+                  {group.rows.map((notification, index) => {
+                    const to = destination(notification, wallet);
+                    return (
+                      <Pressable
+                        key={notification.id}
+                        accessibilityRole={to ? "button" : undefined}
+                        disabled={!to}
+                        onPress={() => to && router.push(to)}
+                        className={`flex-row gap-3 py-5 ${index > 0 ? "border-t border-line" : ""}`}
                       >
-                        <Bell size={17} color={colors.ink} />
-                      </View>
-                      <View className="min-w-0 flex-1">
-                        <View className="flex-row items-center justify-between gap-3">
-                          <Text className="flex-1 font-sans-extrabold text-[14px] text-ink">
-                            {notification.title}
-                          </Text>
-                          {!notification.read ? (
-                            <View
-                              accessibilityLabel="Unread"
-                              className="size-2 rounded-full bg-accent-strong"
-                            />
-                          ) : null}
+                        <View
+                          className={`mt-0.5 size-10 items-center justify-center rounded-2xl ${notification.read ? "bg-surface-2" : "bg-accent"}`}
+                        >
+                          <Bell size={17} color={colors.ink} />
                         </View>
-                        <Text className="mt-1 font-sans-extrabold text-[10px] uppercase tracking-[1px] text-accent-strong">
-                          {notification.business
-                            ? `${notification.business} · `
-                            : ""}
-                          {notification.kind}
-                        </Text>
-                        <Text className="mt-2 font-sans text-[12px] leading-[18px] text-muted-strong">
-                          {notification.body}
-                        </Text>
-                        <Text className="mt-2 font-sans text-[10px] text-muted">
-                          {relativeTime(notification.receivedAt)}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
+                        <View className="min-w-0 flex-1">
+                          <View className="flex-row items-center justify-between gap-3">
+                            <Text className="flex-1 font-sans-extrabold text-[14px] text-ink">
+                              {notification.title}
+                            </Text>
+                            {!notification.read ? (
+                              <View
+                                accessibilityLabel="Unread"
+                                className="size-2 rounded-full bg-accent-strong"
+                              />
+                            ) : null}
+                          </View>
+                          <Text className="mt-1 font-sans-extrabold text-[10px] uppercase tracking-[1px] text-accent-strong">
+                            {notification.business
+                              ? `${notification.business} · `
+                              : ""}
+                            {notification.kind}
+                          </Text>
+                          <Text className="mt-2 font-sans text-[12px] leading-[18px] text-muted-strong">
+                            {notification.body}
+                          </Text>
+                          <Text className="mt-2 font-sans text-[10px] text-muted">
+                            {relativeTime(notification.receivedAt)}
+                          </Text>
+                        </View>
+                        {to ? (
+                          <View className="justify-center">
+                            <ChevronRight size={16} color={colors.muted} />
+                          </View>
+                        ) : null}
+                      </Pressable>
+                    );
+                  })}
                 </View>
               )}
             </View>

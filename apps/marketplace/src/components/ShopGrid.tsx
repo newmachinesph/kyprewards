@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { isPreview, usePublicDiscover, type PublicDiscoverQuery } from "@kypstamping/api";
-import { Button, PreviewBadge, QueryBoundary } from "@kypstamping/ui";
+import { isPreview, usePublicDiscover, type PublicDiscoverQuery } from "@kyprewards/api";
+import { Button, PreviewBadge, QueryBoundary } from "@kyprewards/ui";
 import { LocateFixed, X } from "lucide-react";
 import { ShopCard } from "./ShopCard";
 import { useCoordinates } from "./useCoordinates";

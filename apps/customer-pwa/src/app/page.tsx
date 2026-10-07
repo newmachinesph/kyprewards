@@ -1,6 +1,6 @@
 import { CustomerApp } from "@/components/CustomerApp";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
-import { SessionGate } from "@kypstamping/ui/auth";
+import { SessionGate } from "@kyprewards/ui/auth";
 
 export default function CustomerPage() {
   return (

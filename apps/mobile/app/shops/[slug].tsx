@@ -1,7 +1,7 @@
 import { Image, Linking, Pressable, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Clock, MapPin, Navigation, Store } from "lucide-react-native";
-import { usePublicShop } from "@kypstamping/api";
+import { usePublicShop } from "@kyprewards/api";
 import { Screen } from "@/components/Screen";
 import { Button, EmptyState, Panel, QueryState } from "@/components/ui";
 import { colors } from "@/lib/theme";

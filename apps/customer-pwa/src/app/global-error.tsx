@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { captureError } from "@kypstamping/ui/sentry";
+import { captureError } from "@kyprewards/ui/sentry";
 
 export default function GlobalError({
   error,

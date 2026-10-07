@@ -14,14 +14,14 @@ import {
   useLocations,
   usePrograms,
   type QrPayment,
-} from "@kypstamping/api";
-import { brandColor, Button, Eyebrow, Pill, PreviewBadge, StampDots } from "@kypstamping/ui";
-import { longDate, pesoFromCentavos } from "@kypstamping/ui/format";
-import { Textarea } from "@kypstamping/ui/form";
-import { PlanTag } from "@kypstamping/ui/shell";
+} from "@kyprewards/api";
+import { brandColor, Button, Eyebrow, Pill, PreviewBadge, StampDots } from "@kyprewards/ui";
+import { longDate, pesoFromCentavos } from "@kyprewards/ui/format";
+import { Textarea } from "@kyprewards/ui/form";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { Clock3, MapPin, Sparkles } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate } from "@/lib/plan";
-import { addOns } from "@kypstamping/ui/plans";
+import { addOns } from "@kyprewards/ui/plans";
 import { useUpdateProfile } from "@/components/mutations";
 import { PaymentSheet } from "@/components/views/PaymentSheet";
 import { BlockedNote, type Notify } from "@/components/views/shared";

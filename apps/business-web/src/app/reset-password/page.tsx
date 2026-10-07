@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DemoAuthFlow } from "@kypstamping/ui/auth";
+import { DemoAuthFlow } from "@kyprewards/ui/auth";
 
 export const metadata: Metadata = {
   title: "Set a new password · KYP Rewards Business",

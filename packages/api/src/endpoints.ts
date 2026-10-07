@@ -1,7 +1,7 @@
 /**
  * Every read the four apps make, as one function each.
  *
- * This is the file `@kypstamping/demo-data`'s accessor seam was a placeholder
+ * This is the file `@kyprewards/demo-data`'s accessor seam was a placeholder
  * for. The signatures are the same — async, returning the narrowed types —
  * so the hooks in `queries.ts` did not change when they moved across.
  *
@@ -1619,8 +1619,12 @@ export const exchangeHandoff = (code: string): Promise<LoginResult> =>
 export const subscribePush = (subscription: PushSubscriptionJSON): Promise<PushState> =>
   http("/customer/push/subscribe", { method: "POST", body: { subscription } });
 
-export const unsubscribePush = (): Promise<void> =>
-  http("/customer/push/subscribe", { method: "DELETE" });
+/**
+ * Push off. With `endpoint` (a Web Push endpoint or an Expo token), only that
+ * device - what signing out does. Without it, every device on the account.
+ */
+export const unsubscribePush = (endpoint?: string): Promise<void> =>
+  http("/customer/push/subscribe", { method: "DELETE", query: { endpoint } });
 
 /* Founding merchants */
 

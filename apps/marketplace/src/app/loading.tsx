@@ -1,4 +1,4 @@
-import { Skeleton } from "@kypstamping/ui";
+import { Skeleton } from "@kyprewards/ui";
 
 export default function Loading() {
   return (

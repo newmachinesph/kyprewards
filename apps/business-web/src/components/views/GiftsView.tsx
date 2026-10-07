@@ -1,9 +1,9 @@
 "use client";
 
-import { isPreview, useBusinessGifts } from "@kypstamping/api";
-import { Eyebrow, Pill, PreviewNotice, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { relativeTime } from "@kypstamping/ui/format";
-import { PlanTag } from "@kypstamping/ui/shell";
+import { isPreview, useBusinessGifts } from "@kyprewards/api";
+import { Eyebrow, Pill, PreviewNotice, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { relativeTime } from "@kyprewards/ui/format";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { planFor, usePlanGate } from "@/lib/plan";
 
 /** The pasalubong log. Customers send; the shop reads. Nothing to write here. */

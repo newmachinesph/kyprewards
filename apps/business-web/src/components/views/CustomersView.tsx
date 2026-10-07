@@ -9,11 +9,11 @@ import {
   useReferrals,
   useRfm,
   useStoreCredit,
-} from "@kypstamping/api";
-import { Button, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
-import { Field, Input, Select } from "@kypstamping/ui/form";
-import { PlanTag } from "@kypstamping/ui/shell";
+} from "@kyprewards/api";
+import { Button, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { pesoFromCentavos, relativeTime } from "@kyprewards/ui/format";
+import { Field, Input, Select } from "@kyprewards/ui/form";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { ChevronRight, FileDown, Search, Upload, Users } from "lucide-react";
 import {
   useCreateReferral,

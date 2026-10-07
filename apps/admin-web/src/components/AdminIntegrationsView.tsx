@@ -6,13 +6,13 @@ import type {
   AdapterStatus,
   ConnectionHealth,
   TenantConnection,
-} from "@kypstamping/api";
-import { Button, Dialog, Eyebrow, Panel } from "@kypstamping/ui";
-import { Chip, Segmented } from "@kypstamping/ui/form";
+} from "@kyprewards/api";
+import { Button, Dialog, Eyebrow, Panel } from "@kyprewards/ui";
+import { Chip, Segmented } from "@kyprewards/ui/form";
 import {
   useAdapters,
   useTenantConnections,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import { useAdminState } from "@/components/AdminState";
 import {
   Activity,
@@ -32,7 +32,7 @@ import {
   Store,
   Webhook,
 } from "lucide-react";
-import type { NotifyIntent } from "@kypstamping/ui/shell";
+import type { NotifyIntent } from "@kyprewards/ui/shell";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
 

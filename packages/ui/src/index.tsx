@@ -18,7 +18,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { ApiError } from "@kypstamping/api";
+import { ApiError } from "@kyprewards/api";
 import { buttonClass, type ButtonSize, type ButtonTone } from "./button";
 
 /**

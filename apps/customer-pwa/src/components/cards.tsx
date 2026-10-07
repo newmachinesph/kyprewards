@@ -10,10 +10,10 @@ import {
   redeemPromoCode,
   useApiMutation,
   type WalletCard,
-} from "@kypstamping/api";
-import { Button, PreviewBadge } from "@kypstamping/ui";
-import { Field, FormMessage, Input } from "@kypstamping/ui/form";
-import { longDate, peso, pesoFromCentavos, timeOfDay } from "@kypstamping/ui/format";
+} from "@kyprewards/api";
+import { Button, PreviewBadge } from "@kyprewards/ui";
+import { Field, FormMessage, Input } from "@kyprewards/ui/form";
+import { longDate, peso, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
 import { Check, Sparkles, Ticket } from "lucide-react";
 
 /**

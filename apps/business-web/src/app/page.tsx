@@ -1,5 +1,5 @@
 import { BusinessDemo } from "@/components/BusinessDemo";
-import { SessionGate } from "@kypstamping/ui/auth";
+import { SessionGate } from "@kyprewards/ui/auth";
 
 export default function BusinessPage() {
   return (

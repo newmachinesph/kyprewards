@@ -40,7 +40,7 @@ the whole `frontend/` tree. `.vercelignore` lists `apps/mobile` so five
 deploys do not each carry the app.
 
 Escape hatch: the only coupling is the workspace import. If the app ever needs
-its own cadence or team, it moves out and consumes `@kypstamping/api` as a
+its own cadence or team, it moves out and consumes `@kyprewards/api` as a
 published package. Nothing here makes that harder.
 
 ## Shape: a modular app with one web slot, no SDK

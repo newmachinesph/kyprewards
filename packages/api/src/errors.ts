@@ -1,7 +1,7 @@
 /**
  * What a failed call throws.
  *
- * Its own module, and in this package rather than in `@kypstamping/demo-data`
+ * Its own module, and in this package rather than in `@kyprewards/demo-data`
  * where it started, for one concrete reason: `demo-data` imports the fixture
  * JSON, so anything that reaches it can only be loaded by a bundler. Keeping
  * the error here leaves `http.ts` and `endpoints.ts` dependency-free, which is

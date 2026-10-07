@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { BrandMark, IconButton } from "@kypstamping/ui";
+import { BrandMark, IconButton } from "@kyprewards/ui";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { customerAppUrl } from "@/lib/site";
 

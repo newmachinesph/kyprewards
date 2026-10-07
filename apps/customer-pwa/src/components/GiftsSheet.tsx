@@ -11,10 +11,10 @@ import {
   useApiMutation,
   useCustomerGifts,
   type GiftTransfer,
-} from "@kypstamping/api";
-import { Button, Eyebrow, PreviewBadge, QueryBoundary } from "@kypstamping/ui";
-import { Field, FormMessage, Input, Select, Textarea } from "@kypstamping/ui/form";
-import { formatMemberCode, looksLikeMemberCode, relativeTime } from "@kypstamping/ui/format";
+} from "@kyprewards/api";
+import { Button, Eyebrow, PreviewBadge, QueryBoundary } from "@kyprewards/ui";
+import { Field, FormMessage, Input, Select, Textarea } from "@kyprewards/ui/form";
+import { formatMemberCode, looksLikeMemberCode, relativeTime } from "@kyprewards/ui/format";
 import { ArrowDownLeft, ArrowUpRight, Gift } from "lucide-react";
 import { SheetFrame } from "@/components/Sheet";
 import { useCustomerState } from "@/components/CustomerState";

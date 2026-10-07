@@ -1,7 +1,7 @@
 import Link from "next/link";
-import type { PublicShop } from "@kypstamping/api";
-import { Pill } from "@kypstamping/ui";
-import { formatDistance } from "@kypstamping/ui/format";
+import type { PublicShop } from "@kyprewards/api";
+import { Pill } from "@kyprewards/ui";
+import { formatDistance } from "@kyprewards/ui/format";
 import { shopPath } from "@/lib/routes";
 
 /** The one line every card ends with; "1.2 km away" means it. */

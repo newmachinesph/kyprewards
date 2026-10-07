@@ -37,7 +37,7 @@ import {
   SiteEyebrow,
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
-import { paymentMethodsText } from "@kypstamping/ui/plans";
+import { paymentMethodsText } from "@kyprewards/ui/plans";
 import { breadcrumb, webPage } from "@/lib/schema";
 
 export const metadata: Metadata = {

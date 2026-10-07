@@ -1,8 +1,8 @@
 "use client";
 
-import { isPreview, useAddOns, type AddOnSubscription } from "@kypstamping/api";
-import { Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { longDate, pesoFromCentavos } from "@kypstamping/ui/format";
+import { isPreview, useAddOns, type AddOnSubscription } from "@kyprewards/api";
+import { Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { longDate, pesoFromCentavos } from "@kyprewards/ui/format";
 import { ADD_ONS, SMS_RATES } from "@/lib/catalog";
 
 /**

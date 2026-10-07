@@ -12,13 +12,13 @@ import {
   useMessagingPolicy,
   useSettings,
   type MessagingPolicy,
-} from "@kypstamping/api";
-import { Button, Eyebrow, ViewFrame } from "@kypstamping/ui";
-import { Field, Input, PasswordInput, Select, Switch, Textarea } from "@kypstamping/ui/form";
-import { longDate } from "@kypstamping/ui/format";
-import { PlanTag } from "@kypstamping/ui/shell";
-import { pesoFromCentavos } from "@kypstamping/ui/format";
-import { signOut } from "@kypstamping/ui/auth";
+} from "@kyprewards/api";
+import { Button, Eyebrow, ViewFrame } from "@kyprewards/ui";
+import { Field, Input, PasswordInput, Select, Switch, Textarea } from "@kyprewards/ui/form";
+import { longDate } from "@kyprewards/ui/format";
+import { PlanTag } from "@kyprewards/ui/shell";
+import { pesoFromCentavos } from "@kyprewards/ui/format";
+import { signOut } from "@kyprewards/ui/auth";
 import { FileDown, KeyRound, LifeBuoy, PlugZap, ShieldCheck } from "lucide-react";
 import {
   useAddCustomField,

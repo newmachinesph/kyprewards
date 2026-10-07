@@ -7,7 +7,7 @@ import {
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb } from "@/lib/schema";
-import { paymentMethodsText } from "@kypstamping/ui/plans";
+import { paymentMethodsText } from "@kyprewards/ui/plans";
 
 const groups = [
   {

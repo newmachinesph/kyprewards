@@ -3,7 +3,7 @@
 /**
  * What every view file shares: the notify signature, the export helper and
  * the small "why is this disabled" line. Form controls come from
- * @kypstamping/ui/form.
+ * @kyprewards/ui/form.
  */
 
 import { useState, type ReactNode } from "react";
@@ -15,8 +15,8 @@ import {
   keys,
   type ExportKind,
   type PlanName,
-} from "@kypstamping/api";
-import { PlanTag, type NotifyIntent } from "@kypstamping/ui/shell";
+} from "@kyprewards/api";
+import { PlanTag, type NotifyIntent } from "@kyprewards/ui/shell";
 
 export type Notify = (message: string, intent?: NotifyIntent) => void;
 

@@ -22,7 +22,7 @@ import {
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb } from "@/lib/schema";
-import { channelRates } from "@kypstamping/ui/plans";
+import { channelRates } from "@kyprewards/ui/plans";
 
 export const metadata: Metadata = {
   title: "POS Integration, API and Webhooks",

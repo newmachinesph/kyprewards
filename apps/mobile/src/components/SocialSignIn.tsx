@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Linking, Platform, Text, View } from "react-native";
 import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as AppleAuthentication from "expo-apple-authentication";
-import { ApiError, socialSignIn } from "@kypstamping/api";
+import { ApiError, socialSignIn } from "@kyprewards/api";
 import { useAuth } from "@/lib/auth";
 import {
   GOOGLE_IOS_CLIENT_ID,

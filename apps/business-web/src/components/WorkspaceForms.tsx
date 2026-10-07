@@ -30,7 +30,7 @@ import {
   type LocationInput,
   type ProfileInput,
   type ProgramInput,
-} from "@kypstamping/api/forms";
+} from "@kyprewards/api/forms";
 import {
   createLocation,
   keys,
@@ -42,11 +42,11 @@ import {
   type OpeningHours,
   type BusinessProfile,
   type StaffMember,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import { ImageIcon } from "lucide-react";
-import { splitRange, toDisplayTime } from "@kypstamping/ui/format";
-import { BRAND_COLORS, Button, Dialog, FieldLabel, STAMP_ICONS, StampMark } from "@kypstamping/ui";
-import { Field, Input, Select } from "@kypstamping/ui/form";
+import { splitRange, toDisplayTime } from "@kyprewards/ui/format";
+import { BRAND_COLORS, Button, Dialog, FieldLabel, STAMP_ICONS, StampMark } from "@kyprewards/ui";
+import { Field, Input, Select } from "@kyprewards/ui/form";
 import {
   useCreateProgram,
   useSetBrandingColor,

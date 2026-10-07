@@ -1,5 +1,5 @@
-import type { WalletCard } from "@kypstamping/api";
-import { longDate, pesoFromCentavos, timeOfDay } from "@kypstamping/ui/format";
+import type { WalletCard } from "@kyprewards/api";
+import { longDate, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
 
 /**
  * Everything a stamp card says about its own state and terms.

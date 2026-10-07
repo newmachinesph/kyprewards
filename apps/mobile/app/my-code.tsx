@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { Pressable, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import * as Brightness from "expo-brightness";
-import { X } from "lucide-react-native";
+import { WifiOff, X } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MemberQr, useMemberCode } from "@/components/MemberQr";
 import { BrandMark } from "@/components/Brand";
-import { Eyebrow } from "@/components/ui";
+import { Eyebrow, Notice } from "@/components/ui";
 import { colors } from "@/lib/theme";
 
 /**
@@ -17,7 +17,7 @@ import { colors } from "@/lib/theme";
 export default function MyCodeSheet() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { name } = useMemberCode();
+  const { name, offline } = useMemberCode();
 
   useEffect(() => {
     let previous: number | null = null;
@@ -64,6 +64,15 @@ export default function MyCodeSheet() {
           Staff scan this to add a stamp, and to hand over a reward once you
           have earned one.
         </Text>
+        {offline ? (
+          <View className="mt-5">
+            <Notice>
+              <WifiOff size={14} color={colors.success} /> You are offline. This
+              is the code we saved on your phone; it works exactly the same at
+              the counter.
+            </Notice>
+          </View>
+        ) : null}
       </View>
     </View>
   );

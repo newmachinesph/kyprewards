@@ -8,7 +8,7 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
-import { SealMark } from "@kypstamping/ui";
+import { SealMark } from "@kyprewards/ui";
 
 export function ProductPreview() {
   return (

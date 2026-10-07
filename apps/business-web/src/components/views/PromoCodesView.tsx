@@ -9,11 +9,11 @@ import {
   useApiMutation,
   usePromoCodes,
   type PromoCode,
-} from "@kypstamping/api";
-import { Button, Eyebrow, Pill, PreviewNotice, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { Checkbox, Field, Input, Select } from "@kypstamping/ui/form";
-import { longDate } from "@kypstamping/ui/format";
-import { PlanTag } from "@kypstamping/ui/shell";
+} from "@kyprewards/api";
+import { Button, Eyebrow, Pill, PreviewNotice, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { Checkbox, Field, Input, Select } from "@kyprewards/ui/form";
+import { longDate } from "@kyprewards/ui/format";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { Plus } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
 import {

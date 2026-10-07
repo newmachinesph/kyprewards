@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { BrandMark, Button, IconButton } from "@kypstamping/ui";
-import { Input } from "@kypstamping/ui/form";
-import { signOut } from "@kypstamping/ui/auth";
-import { relativeTime } from "@kypstamping/ui/format";
+import { BrandMark, Button, IconButton } from "@kyprewards/ui";
+import { Input } from "@kyprewards/ui/form";
+import { signOut } from "@kyprewards/ui/auth";
+import { relativeTime } from "@kyprewards/ui/format";
 import {
   useAuditLedger,
   useSession,
   useSupportQueue,
   useTenants,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import { useAdminState } from "@/components/AdminState";
 import {
   Activity,

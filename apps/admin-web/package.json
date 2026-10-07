@@ -1,5 +1,5 @@
 {
-  "name": "@kypstamping/admin-web",
+  "name": "@kyprewards/admin-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
-    "@kypstamping/api": "*",
-    "@kypstamping/demo-data": "*",
-    "@kypstamping/ui": "*",
+    "@kyprewards/api": "*",
+    "@kyprewards/demo-data": "*",
+    "@kyprewards/ui": "*",
     "@sentry/nextjs": "^11.4.0",
     "@tanstack/react-query": "^5.102.8",
     "geist": "latest",

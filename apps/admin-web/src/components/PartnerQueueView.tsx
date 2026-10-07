@@ -9,10 +9,10 @@ import {
   setApplicationNotes,
   keys,
   type PartnerApplication,
-} from "@kypstamping/api";
-import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { Checkbox, Chip, Field, FormMessage, Input, Textarea } from "@kypstamping/ui/form";
-import { longDate, relativeTime } from "@kypstamping/ui/format";
+} from "@kyprewards/api";
+import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { Checkbox, Chip, Field, FormMessage, Input, Textarea } from "@kyprewards/ui/form";
+import { longDate, relativeTime } from "@kyprewards/ui/format";
 import { useAdminState } from "@/components/AdminState";
 import { FOUNDING, foundingWindowOpen } from "@/lib/catalog";
 

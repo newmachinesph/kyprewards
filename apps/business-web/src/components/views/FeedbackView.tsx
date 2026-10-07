@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useFeedback } from "@kypstamping/api";
-import { Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { Chip } from "@kypstamping/ui/form";
-import { relativeTime } from "@kypstamping/ui/format";
-import { PlanTag } from "@kypstamping/ui/shell";
+import { useFeedback } from "@kyprewards/api";
+import { Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { Chip } from "@kyprewards/ui/form";
+import { relativeTime } from "@kyprewards/ui/format";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { planFor, usePlanGate } from "@/lib/plan";
 
 const NEEDS = planFor("Private feedback and review requests");

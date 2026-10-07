@@ -1,5 +1,5 @@
-import { BrandMark } from "@kypstamping/ui";
-import { buttonClass } from "@kypstamping/ui/button";
+import { BrandMark } from "@kyprewards/ui";
+import { buttonClass } from "@kyprewards/ui/button";
 import Link from "next/link";
 
 export default function NotFound() {

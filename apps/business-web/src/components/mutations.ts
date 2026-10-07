@@ -65,8 +65,8 @@ import {
   type ProgramDraft,
   type StaffInvite,
   type ToggleResult,
-} from "@kypstamping/api";
-import type { Program } from "@kypstamping/api";
+} from "@kyprewards/api";
+import type { Program } from "@kyprewards/api";
 
 export const useToggleAutomation = () =>
   useApiMutation<ToggleResult, string>(toggleAutomation, {

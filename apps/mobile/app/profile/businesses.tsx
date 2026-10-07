@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import { Building2, ShieldCheck } from "lucide-react-native";
-import { useChannelPreferences, useWallet } from "@kypstamping/api";
+import { useChannelPreferences, useWallet } from "@kyprewards/api";
 import { Screen } from "@/components/Screen";
 import { Eyebrow, Panel, Title } from "@/components/ui";
 import { colors } from "@/lib/theme";

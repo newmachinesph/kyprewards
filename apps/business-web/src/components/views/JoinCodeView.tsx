@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useBusinessProfile, useLocations, usePrograms } from "@kypstamping/api";
-import { Button, Eyebrow, Skeleton, ViewFrame } from "@kypstamping/ui";
-import { Field, Select } from "@kypstamping/ui/form";
-import { PlanTag } from "@kypstamping/ui/shell";
+import { useBusinessProfile, useLocations, usePrograms } from "@kyprewards/api";
+import { Button, Eyebrow, Skeleton, ViewFrame } from "@kyprewards/ui";
+import { Field, Select } from "@kyprewards/ui/form";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { Copy, CreditCard, Eye, Link2, Nfc, Printer, Send, ShieldCheck, Smartphone, WalletCards, WifiOff } from "lucide-react";
 import { useRaiseSupportRequest } from "@/components/mutations";
 import type { Notify } from "@/components/views/shared";

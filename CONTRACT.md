@@ -190,4 +190,4 @@ with no frontend change.
 3. Add a case to `contract.test.ts` that asserts on the real body, including
    every member of any string-literal union.
 4. Name the narrowest invalidation prefix that is still correct.
-5. Run `npm test -w @kypstamping/api` with the backend up.
+5. Run `npm test -w @kyprewards/api` with the backend up.

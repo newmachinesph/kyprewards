@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "@kypstamping/api";
-import { DemoActionDialog } from "@kypstamping/ui";
-import { Toast, useHashView, useToast } from "@kypstamping/ui/shell";
-import type { NotifyIntent } from "@kypstamping/ui/shell";
+import { useSession } from "@kyprewards/api";
+import { DemoActionDialog } from "@kyprewards/ui";
+import { Toast, useHashView, useToast } from "@kyprewards/ui/shell";
+import type { NotifyIntent } from "@kyprewards/ui/shell";
 import { AdminDashboard } from "@/components/AdminDashboard";
 import { AdminShell, ADMIN_VIEWS, MANAGER_VIEWS } from "@/components/AdminShell";
 import { AdminStateProvider } from "@/components/AdminState";

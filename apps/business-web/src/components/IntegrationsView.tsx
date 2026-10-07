@@ -2,7 +2,7 @@
 
 import { NothingYet } from "@/components/views/shared";
 import { useState } from "react";
-import type { Environment } from "@kypstamping/api";
+import type { Environment } from "@kyprewards/api";
 import {
   Button,
   Dialog,
@@ -11,10 +11,10 @@ import {
   IconButton,
   Panel,
   Skeleton,
-} from "@kypstamping/ui";
-import { Checkbox, Chip, Field, Input, Select } from "@kypstamping/ui/form";
-import { PlanTag } from "@kypstamping/ui/shell";
-import type { NotifyIntent } from "@kypstamping/ui/shell";
+} from "@kyprewards/ui";
+import { Checkbox, Chip, Field, Input, Select } from "@kyprewards/ui/form";
+import { PlanTag } from "@kyprewards/ui/shell";
+import type { NotifyIntent } from "@kyprewards/ui/shell";
 import {
   ArrowRight,
   BadgeCheck,
@@ -63,8 +63,8 @@ import {
   type CredentialCreated,
   type Delivery,
   type WebhookEndpoint,
-} from "@kypstamping/api";
-import { relativeTime } from "@kypstamping/ui/format";
+} from "@kyprewards/api";
+import { relativeTime } from "@kyprewards/ui/format";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;
 type CredentialStatus = Credential["status"];
@@ -1046,7 +1046,7 @@ export function IntegrationsView({
               <Input
                 type="url"
                 value={webhookUrl}
-                placeholder="https://your-system.example/webhooks/kypstamping"
+                placeholder="https://your-system.example/webhooks/kyprewards"
                 onChange={(event) => setDraftUrl(event.target.value)}
               />
             </Field>

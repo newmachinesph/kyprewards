@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AnalyticsPreference } from "@kypstamping/ui/analytics";
+import { AnalyticsPreference } from "@kyprewards/ui/analytics";
 import { LegalPage } from "@/components/LegalPage";
 import { SiteEyebrow } from "@/components/MarketingUi";
 
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
  * template: one session cookie, a small set of named browser-storage keys,
  * and one analytics tool on the two public sites, kyprewards.com and kyp.ph,
  * that does not load until the visitor allows it. The gate is one shared
- * component, `@kypstamping/ui/analytics`. The signed-in apps and the shopper
+ * component, `@kyprewards/ui/analytics`. The signed-in apps and the shopper
  * wallet carry no analytics at all.
  */
 const sections = [

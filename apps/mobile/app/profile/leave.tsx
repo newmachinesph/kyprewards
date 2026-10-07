@@ -8,7 +8,7 @@ import {
   useApiMutation,
   useDataRequests,
   useWallet,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import { Screen } from "@/components/Screen";
 import { Button, Eyebrow, Title } from "@/components/ui";
 import { notify } from "@/components/Toast";

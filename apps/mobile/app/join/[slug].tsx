@@ -11,7 +11,7 @@ import {
   useQueryClient,
   useWallet,
   type FirstStampOffer,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import { Screen } from "@/components/Screen";
 import { StampDots } from "@/components/StampDots";
 import { Button, Panel } from "@/components/ui";

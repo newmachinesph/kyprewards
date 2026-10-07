@@ -29,8 +29,8 @@ import {
   useDiscover,
   useNotifications,
   useWalletWithPreview,
-} from "@kypstamping/api";
-import type { CustomerProfile, WalletCard } from "@kypstamping/api";
+} from "@kyprewards/api";
+import type { CustomerProfile, WalletCard } from "@kyprewards/api";
 import { useCoordinates } from "@/components/useCoordinates";
 import { forgetClaim, readClaim } from "@/components/FirstStamp";
 
@@ -66,11 +66,11 @@ export const CHANNELS: {
   { key: "promoPush", label: "Promotional push", detail: "Offers from businesses you joined" },
   { key: "promoEmail", label: "Email promotions", detail: "Longer news and birthday offers" },
   { key: "promoSms", label: "SMS promotions", detail: "Paid channel, used sparingly" },
-  { key: "nearby", label: "Nearby reminders", detail: "Uses location only while enabled" },
+  { key: "nearby", label: "Nearby reminders", detail: "A reward waiting at a shop you are near. Location is never stored" },
 ];
 
 /** The name the sign-up flow captured, if the customer came through it. */
-const SIGNUP_NAME_KEY = "kypstamping-customer-signup-name";
+const SIGNUP_NAME_KEY = "kyprewards-customer-signup-name";
 let signupNameCache: string | null | undefined;
 
 const subscribeToSignupName = () => () => {};
@@ -100,10 +100,17 @@ function initials(name: string) {
  *  "turned off" or "you left" before the server agreed. */
 type Outcome<T = undefined> = { onDone?: (value: T) => void; onFailed?: (message: string) => void };
 
+/** The profile fields, plus the birthday as the API takes it: `birthday` is
+ *  the "5 March" the screen shows, the two numbers are what is sent. */
+export type ProfilePatch = Partial<CustomerProfile> & {
+  birthdayDay?: number;
+  birthdayMonth?: number;
+};
+
 type CustomerState = {
   /** The profile as edited, not the fixture. Every screen reads this one. */
   profile: CustomerProfile;
-  updateProfile: (patch: Partial<CustomerProfile>) => void;
+  updateProfile: (patch: ProfilePatch) => void;
 
   channels: Record<ChannelKey, boolean>;
   toggleChannel: (key: ChannelKey, outcome?: Outcome<boolean>) => void;
@@ -157,7 +164,9 @@ const EMPTY_PROFILE: CustomerProfile = {
   city: "",
   memberSince: "",
   memberCode: "",
-  birthday: "",
+  // Null, as the API says it: "" read as given-but-blank, so
+  // `birthday ?? "Not given"` showed nothing at all.
+  birthday: null,
   email: "",
   mobile: "",
 };
@@ -287,9 +296,10 @@ export function CustomerStateProvider({ children }: { children: ReactNode }) {
     invalidates: [keys.customer.profile()],
   });
   const updateProfile = useCallback(
-    (patch: Partial<CustomerProfile>) => {
-      setEdits((current) => ({ ...current, ...patch }));
-      save.mutate(patch);
+    (patch: ProfilePatch) => {
+      const { birthday, birthdayDay, birthdayMonth, ...fields } = patch;
+      setEdits((current) => ({ ...current, ...fields, ...(birthday ? { birthday } : {}) }));
+      save.mutate({ ...fields, birthdayDay, birthdayMonth });
     },
     [save],
   );

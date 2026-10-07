@@ -8,11 +8,11 @@ import {
   useTiers,
   type Program,
   type ProgramDraft,
-} from "@kypstamping/api";
-import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { Chip, Field, Input } from "@kypstamping/ui/form";
-import { pesoFromCentavos } from "@kypstamping/ui/format";
-import { PlanTag } from "@kypstamping/ui/shell";
+} from "@kyprewards/api";
+import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { Chip, Field, Input } from "@kyprewards/ui/form";
+import { pesoFromCentavos } from "@kyprewards/ui/format";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { BadgeCheck, Coins, CreditCard, Gift, Plus, ShieldCheck, Stamp, TicketCheck, WalletCards } from "lucide-react";
 import { NewProgramDialog } from "@/components/WorkspaceForms";
 import {

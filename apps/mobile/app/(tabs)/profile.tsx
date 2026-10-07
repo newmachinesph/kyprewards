@@ -13,8 +13,8 @@ import {
   Trash2,
   UserRound,
 } from "lucide-react-native";
-import { useCustomerProfile, useWallet } from "@kypstamping/api";
-import { longDate } from "@kypstamping/ui/format";
+import { useCustomerProfile, useWallet } from "@kyprewards/api";
+import { longDate } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import { Eyebrow, Row, Switch, Title } from "@/components/ui";
 import { notify } from "@/components/Toast";

@@ -1,7 +1,7 @@
 /**
  * Server-side reads for metadata, the sitemap and the shop page's 404.
  *
- * The screens themselves render through the hooks in `@kypstamping/api`;
+ * The screens themselves render through the hooks in `@kyprewards/api`;
  * these run where a hook cannot (`generateMetadata`, `sitemap.ts`) and hand
  * the static pages their first data, so a visitor's browser does not repeat
  * the call the server already made.
@@ -23,7 +23,7 @@ import {
   type DiscoverFacet,
   type Page,
   type PublicShop,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 
 type ShopLookup =
   | { status: "found"; shop: PublicShop }

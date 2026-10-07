@@ -9,10 +9,10 @@ import {
   useSukiTiers,
   type SukiTier,
   type SukiTierProgram,
-} from "@kypstamping/api";
-import { Button, Eyebrow, IconButton, PreviewNotice, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { Chip, Field, Input } from "@kypstamping/ui/form";
-import { PlanTag } from "@kypstamping/ui/shell";
+} from "@kyprewards/api";
+import { Button, Eyebrow, IconButton, PreviewNotice, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { Chip, Field, Input } from "@kyprewards/ui/form";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { Crown, Plus, Trash2 } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
 import { BlockedNote, onlyDigits, type Notify } from "@/components/views/shared";

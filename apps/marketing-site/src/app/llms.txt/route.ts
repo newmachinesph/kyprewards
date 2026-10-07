@@ -1,4 +1,4 @@
-import { addOns, channelRates, featureMatrix, foundingOffer, paymentMethodsText, plans } from "@kypstamping/ui/plans";
+import { addOns, channelRates, featureMatrix, foundingOffer, paymentMethodsText, plans } from "@kyprewards/ui/plans";
 import { comparisons } from "@/lib/comparisons";
 import { siteUrl } from "@/lib/site";
 

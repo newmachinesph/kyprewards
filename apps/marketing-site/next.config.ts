@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@kypstamping/api", "@kypstamping/ui"],
+  transpilePackages: ["@kyprewards/api", "@kyprewards/ui"],
   // Indexed on its own domain only; the *.vercel.app alias is a duplicate.
   async headers() {
     return [

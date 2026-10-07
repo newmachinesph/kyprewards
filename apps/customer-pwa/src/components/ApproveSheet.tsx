@@ -9,10 +9,10 @@ import {
   useApiMutation,
   usePendingApprovals,
   type PendingApproval,
-} from "@kypstamping/api";
-import { Button, Eyebrow, PreviewBadge, QueryBoundary } from "@kypstamping/ui";
-import { FormMessage } from "@kypstamping/ui/form";
-import { pesoFromCentavos, relativeTime, timeOfDay } from "@kypstamping/ui/format";
+} from "@kyprewards/api";
+import { Button, Eyebrow, PreviewBadge, QueryBoundary } from "@kyprewards/ui";
+import { FormMessage } from "@kyprewards/ui/form";
+import { pesoFromCentavos, relativeTime, timeOfDay } from "@kyprewards/ui/format";
 import { Gift } from "lucide-react";
 import { SheetFrame } from "@/components/Sheet";
 

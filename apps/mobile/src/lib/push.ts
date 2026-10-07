@@ -2,7 +2,8 @@ import { Platform } from "react-native";
 import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as Device from "expo-device";
 import type * as NotificationsModule from "expo-notifications";
-import { registerExpoPush } from "@kypstamping/api";
+import { registerExpoPush, unsubscribePush } from "@kyprewards/api";
+import { KEYS, forget, recall, remember } from "@/lib/storage";
 
 /**
  * Real push, for the one moment it matters: a reward waiting for approval.
@@ -82,7 +83,24 @@ export async function registerForPush(): Promise<
   }
   const { data: token } = await api.getExpoPushTokenAsync({ projectId });
   await registerExpoPush(token);
+  await remember(KEYS.pushToken, token);
+  await forget(KEYS.pushOff);
   return "registered";
+}
+
+/** This phone's Expo push token, once it has been registered from here. */
+export const pushToken = (): Promise<string | null> => recall(KEYS.pushToken);
+
+/** True once push was turned off on this phone, so a launch does not turn it back on. */
+export const pushTurnedOff = async (): Promise<boolean> =>
+  (await recall(KEYS.pushOff)) === "1";
+
+/** Push off for this phone only; the account's other devices keep theirs. */
+export async function turnOffPush(): Promise<void> {
+  const token = await pushToken();
+  if (token) await unsubscribePush(token);
+  await forget(KEYS.pushToken);
+  await remember(KEYS.pushOff, "1");
 }
 
 /**

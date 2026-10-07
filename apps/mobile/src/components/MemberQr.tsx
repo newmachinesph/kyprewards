@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import QRCode from "react-native-qrcode-svg";
-import { useCustomerProfile } from "@kypstamping/api";
-import { formatMemberCode } from "@kypstamping/ui/format";
+import { useCustomerProfile } from "@kyprewards/api";
+import { formatMemberCode } from "@kyprewards/ui/format";
 import { KEYS, recall, remember } from "@/lib/storage";
 import { useAuth } from "@/lib/auth";
+import { Barcode } from "@/components/Barcode";
 import { colors } from "@/lib/theme";
 
 /**
@@ -75,7 +76,10 @@ export function MemberQr({ size }: { size: number }) {
         backgroundColor="#ffffff"
         ecl="M"
       />
-      <Text className="mt-3 font-mono text-[13px] tracking-[1.2px] text-ink">
+      <View className="mt-3">
+        <Barcode code={code} width={size} />
+      </View>
+      <Text className="mt-2 font-mono text-[13px] tracking-[1.2px] text-ink">
         {formatMemberCode(code)}
       </Text>
     </View>

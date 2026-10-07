@@ -44,7 +44,7 @@ export const useSessionStore = create<SessionStore>()(
       clearWorkspace: () => set({ merchantId: null }),
     }),
     {
-      name: "kypstamping.session",
+      name: "kyprewards.session",
       // sessionStorage, not local: a shared counter tablet should not still
       // be in the last user's workspace tomorrow morning.
       storage: createJSONStorage(() => sessionStorage),
@@ -145,7 +145,7 @@ export const useUiStore = create<UiStore>()(
       clearAnnouncement: () => set({ announcement: "" }),
     }),
     {
-      name: "kypstamping.ui",
+      name: "kyprewards.ui",
       // Nothing to persist to outside a browser: the mobile app imports this
       // module and has no localStorage, and a bare reference threw at load.
       // The sidebar preference this keeps is a merchant-app concern anyway.

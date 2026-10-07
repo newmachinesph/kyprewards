@@ -27,7 +27,7 @@ import { LoyaltyLoop } from "@/components/LoyaltyLoop";
 import { ProductPreview } from "@/components/ProductPreview";
 import { VirtualCard } from "@/components/VirtualCard";
 import { industries, resources } from "@/lib/content";
-import { paymentMethodsText } from "@kypstamping/ui/plans";
+import { paymentMethodsText } from "@kyprewards/ui/plans";
 
 export const metadata: Metadata = {
   // `absolute` so the root layout's "%s | KYP Rewards" template does not

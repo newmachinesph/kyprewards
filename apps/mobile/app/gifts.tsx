@@ -9,8 +9,8 @@ import {
   useCustomerGifts,
   useWallet,
   type GiftTransfer,
-} from "@kypstamping/api";
-import { looksLikeMemberCode, relativeTime } from "@kypstamping/ui/format";
+} from "@kyprewards/api";
+import { looksLikeMemberCode, relativeTime } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import {
   Button,

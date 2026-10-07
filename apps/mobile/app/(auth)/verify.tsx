@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Text } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ApiError, requestOtp, verifyOtp } from "@kypstamping/api";
+import { ApiError, requestOtp, verifyOtp } from "@kyprewards/api";
 import { AuthShell, Field } from "@/components/AuthShell";
 import { Button } from "@/components/ui";
 import { useAuth } from "@/lib/auth";

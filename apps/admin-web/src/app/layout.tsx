@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
-import { ApiProvider } from "@kypstamping/api";
+import { ApiProvider } from "@kyprewards/api";
 
 import "./globals.css";
 

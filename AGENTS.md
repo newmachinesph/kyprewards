@@ -15,7 +15,7 @@ what the other apps must do. Its data files are canonical:
 
 | File | Owns |
 |---|---|
-| `packages/ui/src/plans.ts` (`@kypstamping/ui/plans`) | plans, prices, the feature matrix, plan limits, add-ons, channel rates, payment methods, founding offer. The site's data; it lives in `packages/ui` so business-web reads the same file instead of a copy |
+| `packages/ui/src/plans.ts` (`@kyprewards/ui/plans`) | plans, prices, the feature matrix, plan limits, add-ons, channel rates, payment methods, founding offer. The site's data; it lives in `packages/ui` so business-web reads the same file instead of a copy |
 | `apps/marketing-site/src/lib/content.ts` | industries, resources, business categories, the short FAQ |
 | `apps/marketing-site/src/app/llms.txt/route.ts` | the whole product in prose, generated from the two files above |
 | `/product`, `/features`, `/pricing`, `/integrations`, `/roadmap`, `/faq` | the surfaces, the stamp-card rules, what is live, next and later |
@@ -118,9 +118,9 @@ the three `overrides` in the root `package.json` that keep it that way).
    through `formatDistance`. No display strings from the API, ever.
 5. **No analytics or marketing scripts** in the signed-in apps or the
    wallet. GA4 runs only on kyprewards.com and kyp.ph, and only through the
-   shared consent gate `AnalyticsConsent` (`@kypstamping/ui/analytics`), each
+   shared consent gate `AnalyticsConsent` (`@kyprewards/ui/analytics`), each
    site with its own `/cookies` page. Error monitoring with personal data
-   scrubbed (Sentry, `@kypstamping/ui/sentry`) is allowed in every app.
+   scrubbed (Sentry, `@kyprewards/ui/sentry`) is allowed in every app.
 6. **Brand names:** "KYP Rewards" (two words) in merchant-facing copy; the
    wordmark is `KYP` + `Stamping` set tight; "KYP" alone on kyp.ph and in the
    wallet. See `docs/BRAND.md`.
@@ -136,9 +136,9 @@ the three `overrides` in the root `package.json` that keep it that way).
     Reuse what is in `packages/*` before writing anything new.
 11. **Controls come from the shared layer.** Fields, selects, textareas,
     checkboxes, switches, chips and segmented toggles are
-    `@kypstamping/ui/form`; buttons are `Button`/`IconButton` from
-    `@kypstamping/ui`, and a link styled as a button uses `buttonClass` from
-    `@kypstamping/ui/button` (safe in server components). Every control is
+    `@kyprewards/ui/form`; buttons are `Button`/`IconButton` from
+    `@kyprewards/ui`, and a link styled as a button uses `buttonClass` from
+    `@kyprewards/ui/button` (safe in server components). Every control is
     48px tall with 16px text, so iOS never zooms. Do not hand-style a raw
     `<input>`, and do not add global CSS that restyles controls: an unlayered
     rule beats every Tailwind class. The marketing site keeps its own intake
@@ -152,7 +152,7 @@ npm.cmd run lint
 npm.cmd run build
 npm.cmd run audit:controls
 npm.cmd run test:format
-npm.cmd test -w @kypstamping/api     # backend must be up
+npm.cmd test -w @kyprewards/api     # backend must be up
 ```
 
 The QA suites (`qa:*`) drive real browsers against the real API. Run them one

@@ -219,7 +219,7 @@ not an app decision.
 ## Analytics and error monitoring (2026-10-06)
 
 GA4 runs on kyprewards.com and kyp.ph only, behind one shared consent gate
-(`@kypstamping/ui/analytics`), each site with its own `/cookies` page. The
+(`@kyprewards/ui/analytics`), each site with its own `/cookies` page. The
 wallet and the signed-in apps never load it. All five Next apps report
 errors to Sentry with personal data scrubbed, only when
 `NEXT_PUBLIC_SENTRY_DSN` is set: the kyp.ph DSN for the wallet and kyp.ph,

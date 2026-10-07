@@ -19,13 +19,13 @@ import {
   useRecoveryQueue,
   useSession,
   useSupportQueue,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import type {
   Environment,
   RecoveryItem,
   SupportTicket,
   ToggleResult,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 
 /**
  * The control room's state, above the view switch.

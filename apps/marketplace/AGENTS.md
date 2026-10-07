@@ -27,7 +27,7 @@ ships the public Discover routes.
 - `src/lib/site.ts` holds `customerAppUrl` (app.kyp.ph), `merchantSiteUrl`
   (kyprewards.com) and `siteUrl` (kyp.ph). Read hosts from there and from
   `NEXT_PUBLIC_*`, never literals.
-- Uses `@kypstamping/api` for public reads only, wrapped in `ApiProvider`
+- Uses `@kyprewards/api` for public reads only, wrapped in `ApiProvider`
   for the query client. No session is ever sent or read.
 
 ## Routes
@@ -56,7 +56,7 @@ fetch it again; a read that failed on the server is left to the browser.
 ## Data
 
 `usePublicDiscover`, `usePublicShop`, `usePublicCategories`,
-`usePublicNeighborhoods` from `@kypstamping/api`, over the API's
+`usePublicNeighborhoods` from `@kyprewards/api`, over the API's
 `/public/discover` and `/public/shops/{slug}` routes (`../../../backend/CONTRACT.md`,
 "Discover, for the marketplace"). Geolocation is asked for only when the visitor taps "Use my
 location"; the position never enters the URL.
@@ -69,7 +69,7 @@ location"; the position never enters the URL.
   "I run a shop" to `kyprewards.com/partners`. Legal links go to the merchant
   site. The footer says "© 2026 KYP." and nothing more specific: there is no
   registered entity yet, so no page names an operator, an address or a DPO.
-- GA4 only through `AnalyticsConsent` from `@kypstamping/ui/analytics`, the
+- GA4 only through `AnalyticsConsent` from `@kyprewards/ui/analytics`, the
   same gate as kyprewards.com, rendered by the root layout when
   `NEXT_PUBLIC_GA_MEASUREMENT_ID` is set (kyp.ph's own id). Nothing loads
   before the visitor says yes; `/cookies` explains it and changes the answer.
@@ -87,7 +87,7 @@ location"; the position never enters the URL.
 
 ## Verify
 
-`npm run typecheck -w @kypstamping/marketplace`, `npm run lint`,
+`npm run typecheck -w @kyprewards/marketplace`, `npm run lint`,
 `npm run audit:controls`, `npm run build`, and `npm run qa:marketplace`
 against a running server: every route renders, no console or page errors,
 every internal link resolves, the two doors point at the right hosts, and

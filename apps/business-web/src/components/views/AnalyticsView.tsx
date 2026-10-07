@@ -21,11 +21,11 @@ import {
   useStaffPerformance,
   useTimeToSecondVisit,
   type QrPayment,
-} from "@kypstamping/api";
-import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { FormMessage } from "@kypstamping/ui/form";
-import { longDate, pesoCompactFromCentavos, pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
-import { PlanTag } from "@kypstamping/ui/shell";
+} from "@kyprewards/api";
+import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { FormMessage } from "@kyprewards/ui/form";
+import { longDate, pesoCompactFromCentavos, pesoFromCentavos, relativeTime } from "@kyprewards/ui/format";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { branchAllowance, planFor, refusal, retryOnce, usePlanGate, type Gate } from "@/lib/plan";
 import { PaymentSheet } from "@/components/views/PaymentSheet";
 

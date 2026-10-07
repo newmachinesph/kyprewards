@@ -8,7 +8,7 @@ import {
   SiteEyebrow,
 } from "@/components/MarketingUi";
 import { StructuredData } from "@/components/StructuredData";
-import { featureMatrix, plans } from "@kypstamping/ui/plans";
+import { featureMatrix, plans } from "@kyprewards/ui/plans";
 import { breadcrumb, webPage } from "@/lib/schema";
 
 export const metadata: Metadata = {

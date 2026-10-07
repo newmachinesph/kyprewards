@@ -15,12 +15,12 @@ import {
   useSettings,
   type CreditBundle,
   type QrPayment,
-} from "@kypstamping/api";
-import { Button, Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { Field, Input, Switch } from "@kypstamping/ui/form";
-import { longDate, peso, pesoFromCentavos } from "@kypstamping/ui/format";
+} from "@kyprewards/api";
+import { Button, Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { Field, Input, Switch } from "@kyprewards/ui/form";
+import { longDate, peso, pesoFromCentavos } from "@kyprewards/ui/format";
 import { Check, CreditCard, QrCode, Sparkles } from "lucide-react";
-import { addOns, foundingOffer, plans } from "@kypstamping/ui/plans";
+import { addOns, foundingOffer, plans } from "@kyprewards/ui/plans";
 import { refusal, retryOnce } from "@/lib/plan";
 import { useRaiseSupportRequest, useSetSetting } from "@/components/mutations";
 import { PaymentSheet } from "@/components/views/PaymentSheet";

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Toast, useHashView, useToast } from "@kypstamping/ui/shell";
-import type { NotifyIntent } from "@kypstamping/ui/shell";
+import { Toast, useHashView, useToast } from "@kyprewards/ui/shell";
+import type { NotifyIntent } from "@kyprewards/ui/shell";
 import { BusinessShell, type BusinessView } from "@/components/BusinessShell";
 import { BusinessDashboard } from "@/components/BusinessDashboard";
 import { BusinessViewContent } from "@/components/BusinessViews";

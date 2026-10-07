@@ -22,10 +22,10 @@ import {
   type PlanName,
   type Tenant,
   type TenantRisk,
-} from "@kypstamping/api";
-import { Button, buttonClass, Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { Checkbox, Chip, FormMessage, Input, Select } from "@kypstamping/ui/form";
-import { longDate, pesoFromCentavos, relativeTime, timeOfDay } from "@kypstamping/ui/format";
+} from "@kyprewards/api";
+import { Button, buttonClass, Eyebrow, Pill, PreviewBadge, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { Checkbox, Chip, FormMessage, Input, Select } from "@kyprewards/ui/form";
+import { longDate, pesoFromCentavos, relativeTime, timeOfDay } from "@kyprewards/ui/format";
 import { Building2, ExternalLink, Search, ShieldCheck } from "lucide-react";
 import { useAdminState } from "@/components/AdminState";
 import { ADD_ONS, merchantIdOf } from "@/lib/catalog";

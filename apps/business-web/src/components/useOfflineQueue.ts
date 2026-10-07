@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
-import { ApiError, recordVisit } from "@kypstamping/api";
+import { ApiError, recordVisit } from "@kyprewards/api";
 
 /**
  * A stamp taken while the till had no signal.
@@ -32,7 +32,7 @@ export type SyncOutcome = {
  * same evening, and a queue a refresh empties is worse than no queue - it
  * looks like the sale was recorded.
  */
-const QUEUE_KEY = "kypstamping-offline-queue";
+const QUEUE_KEY = "kyprewards-offline-queue";
 
 let cache: HeldVisit[] = [];
 let cacheRaw: string | null = null;
@@ -41,7 +41,7 @@ const listeners = new Set<() => void>();
 function readQueue(): HeldVisit[] {
   let raw: string | null = null;
   try {
-    raw = window.localStorage.getItem(QUEUE_KEY);
+    raw = window.localStorage.getItem(QUEUE_KEY) ?? window.localStorage.getItem("kypstamping-offline-queue");
   } catch {
     // A private window, or storage the browser refuses. The counter still
     // works online; it just cannot promise to remember.

@@ -40,7 +40,7 @@ cannot survive the redirect:
 Once signed in, the in-app hash routes (`#scan`, `#integrations`, `#discover`)
 are linkable and the browser back button works.
 
-`@kypstamping/api` is the whole data layer: `endpoints.ts` is one function
+`@kyprewards/api` is the whole data layer: `endpoints.ts` is one function
 per call, `queries.ts` and `mutations.ts` are the hooks, `keys.ts` is what
 invalidation targets, and `contract.test.ts` runs all of it against the live
 service. What remains of `packages/demo-data` is one narrated scenario used
@@ -76,7 +76,7 @@ npm.cmd run dev:business
 npm.cmd run dev:admin
 npm.cmd run dev:customer
 npm.cmd run dev:marketing
-npm.cmd run dev --workspace @kypstamping/marketplace
+npm.cmd run dev --workspace @kyprewards/marketplace
 ```
 
 Or with Docker: `docker compose -f compose.frontend.yaml up`.
@@ -96,7 +96,7 @@ npm.cmd run lint
 npm.cmd run build
 npm.cmd run audit:controls
 npm.cmd run test:format
-npm.cmd test -w @kypstamping/api
+npm.cmd test -w @kyprewards/api
 ```
 
 The QA suites below drive real browsers against the real API. Run them one

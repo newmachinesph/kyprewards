@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
-import { ApiProvider } from "@kypstamping/api";
-import { AnalyticsConsent } from "@kypstamping/ui/analytics";
+import { ApiProvider } from "@kyprewards/api";
+import { AnalyticsConsent } from "@kyprewards/ui/analytics";
 import { siteUrl } from "@/lib/site";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";

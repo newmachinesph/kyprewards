@@ -38,7 +38,7 @@ leave or delete).
 
 `/join/[slug]` is where the counter poster lands (`FirstStamp.tsx`). The
 first-stamp claim is held in `localStorage` under
-`kypstamping-pending-first-stamp` until sign-in, then claimed against the
+`kyprewards-pending-first-stamp` until sign-in, then claimed against the
 API. The member code is a thirteen-digit EAN-13 rendered as a real QR and
 barcode, savable and printable. Discover reads the device position
 (`useCoordinates.ts`); nearby nudges depend on the `nearby` consent toggle.

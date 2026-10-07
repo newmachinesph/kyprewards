@@ -13,9 +13,9 @@ import {
   PREVIEW_WRITE_REASON,
   useBusinessProfile,
   type PlanName,
-} from "@kypstamping/api";
-import { PLAN_RANK } from "@kypstamping/api/forms";
-import { featureMatrix, planLimits, plans } from "@kypstamping/ui/plans";
+} from "@kyprewards/api";
+import { PLAN_RANK } from "@kyprewards/api/forms";
+import { featureMatrix, planLimits, plans } from "@kyprewards/ui/plans";
 
 export const PLAN_NAMES = plans.map((plan) => plan.name) as PlanName[];
 

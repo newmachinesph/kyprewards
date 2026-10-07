@@ -17,13 +17,13 @@ import {
   useNotifications,
   usePendingApprovals,
   useWallet,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import {
   formatDistance,
   greeting,
   relativeTime,
   todayLabel,
-} from "@kypstamping/ui/format";
+} from "@kyprewards/ui/format";
 import { CategoryIcon } from "@/components/PlaceThumb";
 import { Screen } from "@/components/Screen";
 import { LoyaltyCard } from "@/components/LoyaltyCard";
@@ -35,7 +35,7 @@ import {
   Panel,
   QueryState,
 } from "@/components/ui";
-import { closestReward } from "@/lib/cards";
+import { balanceLine, closestReward, earnedStamps } from "@/lib/cards";
 import { useCoordinates } from "@/lib/location";
 import { colors } from "@/lib/theme";
 
@@ -109,11 +109,13 @@ export default function Home() {
               {profile?.name ? `${profile.name.split(" ")[0]}.` : " "}
             </Text>
           </View>
-          {best && best.progress > 0 ? (
+          {best && earnedStamps(best) > 0 ? (
             <View className="mb-1 flex-row items-center gap-1.5 rounded-full bg-success/10 px-3 py-1.5">
               <Sparkles size={13} color={colors.success} />
               <Text className="font-sans-extrabold text-[11px] text-success">
-                {best.progress}-stamp streak
+                {best.target > 0
+                  ? `${earnedStamps(best)} of ${best.target} stamps`
+                  : balanceLine(best)}
               </Text>
             </View>
           ) : null}

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Pressable, Text } from "react-native";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import { ApiError, customerLogin, requestOtp } from "@kypstamping/api";
-import { isCompleteMobile, normalizeMobile } from "@kypstamping/ui/format";
+import { ApiError, customerLogin, requestOtp } from "@kyprewards/api";
+import { isCompleteMobile, normalizeMobile } from "@kyprewards/ui/format";
 import {
   AuthShell,
   ChannelSwitch,

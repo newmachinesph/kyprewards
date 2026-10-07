@@ -10,11 +10,11 @@ import {
   useBusinessCustomers,
   useStoreCredit,
   type StoreCreditEntry,
-} from "@kypstamping/api";
-import { Button, Eyebrow, PreviewNotice, QueryBoundary, ViewFrame } from "@kypstamping/ui";
-import { pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
-import { Field, Input, Select } from "@kypstamping/ui/form";
-import { PlanTag } from "@kypstamping/ui/shell";
+} from "@kyprewards/api";
+import { Button, Eyebrow, PreviewNotice, QueryBoundary, ViewFrame } from "@kyprewards/ui";
+import { pesoFromCentavos, relativeTime } from "@kyprewards/ui/format";
+import { Field, Input, Select } from "@kyprewards/ui/form";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { HandCoins } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
 import {

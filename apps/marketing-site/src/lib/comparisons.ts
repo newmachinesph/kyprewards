@@ -25,7 +25,7 @@ export type Comparison = {
   bestFor: string;
   /** When the competitor's public pages were last read, for the source note. */
   observed: string;
-  facts: Array<{ label: string; competitor: string; kypstamping: string }>;
+  facts: Array<{ label: string; competitor: string; kyprewards: string }>;
   sources: Array<{ label: string; href: string }>;
 };
 
@@ -44,30 +44,30 @@ export const comparisons: Comparison[] = [
       {
         label: "Entry price",
         competitor: "Free Express tier",
-        kypstamping: "Free Launch plan, unlimited customers, no card",
+        kyprewards: "Free Launch plan, unlimited customers, no card",
       },
       {
         label: "Step up",
         competitor: "₱4,800/month to Premium — one jump from free",
-        kypstamping:
+        kyprewards:
           "₱499, ₱1,290 and ₱3,490 — three steps, so the bill grows with the shop",
       },
       {
         label: "Campaigns",
         competitor: "SMS, email, coupons and automated marketing listed",
-        kypstamping:
+        kyprewards:
           "In-app, push, email and SMS, with eligible reach, estimated spend and break-even shown before every send",
       },
       {
         label: "Message pricing",
         competitor: "Bundled into the plan; per-message cost not published",
-        kypstamping:
+        kyprewards:
           "Published per channel: ₱0.95 per SMS segment, ₱25 per 1,000 emails, ₱8 per 1,000 push",
       },
       {
         label: "Customer pricing",
         competitor: "No per-member fee advertised",
-        kypstamping: "Unlimited members on every tier, including the free one",
+        kyprewards: "Unlimited members on every tier, including the free one",
       },
     ],
     sources: [
@@ -89,31 +89,31 @@ export const comparisons: Comparison[] = [
         label: "What you have to buy",
         competitor:
           "Treats ₱590/month plus a Qashier POS plan — Essential ₱1,790 or Growth ₱2,790",
-        kypstamping:
+        kyprewards:
           "The loyalty program only. Free on Launch, ₱499 on Core, and no POS purchase at any tier",
       },
       {
         label: "Checkout",
         competitor: "Requires Qashier POS; loyalty is tied to that terminal",
-        kypstamping:
+        kyprewards:
           "POS-agnostic. Runs beside any register from a phone, tablet or browser, and connects by API or webhook later",
       },
       {
         label: "Program formats",
         competitor: "Points-based earning with redemption as a discount",
-        kypstamping:
+        kyprewards:
           "Eight formats from one engine: stamps, points and cashback, discounts, coupons, memberships, reward catalog, multipass and gift cards",
       },
       {
         label: "Discovery",
         competitor: "Treats Explorer map listing for Qashier merchants",
-        kypstamping:
+        kyprewards:
           "Listed in Discover on every plan including the free one, with featured placement on Grow and Scale",
       },
       {
         label: "Customer privacy controls",
         competitor: "Not detailed on the cited pages",
-        kypstamping:
+        kyprewards:
           "Consent ledger, per-channel withdrawal, export and deletion requests on every plan",
       },
     ],
@@ -140,31 +140,31 @@ export const comparisons: Comparison[] = [
         label: "What you are buying",
         competitor:
           "A POS platform, with loyalty and membership as included features",
-        kypstamping:
+        kyprewards:
           "A loyalty platform. Nothing about your checkout, inventory or payments has to change",
       },
       {
         label: "Entry cost",
         competitor: "₱2,249/month on the Starter plan, billed annually",
-        kypstamping: "₱0 on Launch with unlimited customers, then ₱499",
+        kyprewards: "₱0 on Launch with unlimited customers, then ₱499",
       },
       {
         label: "Switching cost",
         competitor:
           "Loyalty arrives with a new register, so adopting it means retraining the counter",
-        kypstamping:
+        kyprewards:
           "Staff keep the register they know and add one scan beside it",
       },
       {
         label: "If you leave",
         competitor: "Loyalty data sits inside the POS you would be replacing",
-        kypstamping:
+        kyprewards:
           "Customer export on every plan, including the free one",
       },
       {
         label: "Message pricing",
         competitor: "SMS marketing described as included; rate not published",
-        kypstamping:
+        kyprewards:
           "₱0.95 per SMS segment, bought as credits, with the cost shown before each send",
       },
     ],
@@ -189,30 +189,30 @@ export const comparisons: Comparison[] = [
       {
         label: "Customer experience",
         competitor: "Apple and Google Wallet passes",
-        kypstamping:
+        kyprewards:
           "Installable web app with one private code across every joined shop; wallet passes on Grow and Scale",
       },
       {
         label: "Program formats",
         competitor: "Eight card types publicly listed",
-        kypstamping: "The same eight formats from one program engine",
+        kyprewards: "The same eight formats from one program engine",
       },
       {
         label: "Separate branch reporting",
         competitor: "1, 3 or 10 by plan",
-        kypstamping:
+        kyprewards:
           "Unlimited branches on every plan; 3, 5 and 10 reported separately by tier",
       },
       {
         label: "Messaging",
         competitor: "Unlimited push notifications advertised",
-        kypstamping:
+        kyprewards:
           "In-app and push included; campaign email by plan; SMS bought as credits with the cost shown before sending",
       },
       {
         label: "Counter operations",
         competitor: "Not detailed on the cited pages",
-        kypstamping:
+        kyprewards:
           "Role-based staff permissions, reversals and a full staff activity ledger",
       },
     ],
@@ -241,30 +241,30 @@ export const comparisons: Comparison[] = [
       {
         label: "Entry price",
         competitor: "₱399/month on Starter — no free tier advertised",
-        kypstamping: "₱0 on Launch, unlimited customers, no card",
+        kyprewards: "₱0 on Launch, unlimited customers, no card",
       },
       {
         label: "Program formats",
         competitor: "Digital stamp card",
-        kypstamping:
+        kyprewards:
           "Stamp cards free; eight formats from Core, including points, memberships, multipass and gift cards",
       },
       {
         label: "Customer access",
         competitor: "QR-based; no customer app or account advertised",
-        kypstamping:
+        kyprewards:
           "Installable web app with one private code that works across every shop the customer joins",
       },
       {
         label: "Campaigns",
         competitor: "Not detailed on the cited pricing page",
-        kypstamping:
+        kyprewards:
           "In-app, push, email and SMS with consent, quiet hours, frequency caps and a spend ceiling per campaign",
       },
       {
         label: "Customer privacy controls",
         competitor: "Not detailed on the cited pricing page",
-        kypstamping:
+        kyprewards:
           "Consent ledger, per-channel withdrawal, export and deletion requests on every plan",
       },
     ],

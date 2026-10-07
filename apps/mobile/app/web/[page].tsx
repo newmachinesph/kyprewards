@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { WebView } from "react-native-webview";
-import { createHandoff } from "@kypstamping/api";
+import { createHandoff } from "@kyprewards/api";
 import { Screen } from "@/components/Screen";
 import { useAuth } from "@/lib/auth";
 import { MARKETPLACE_URL } from "@/lib/config";

@@ -15,8 +15,8 @@ import {
   Sparkles,
   WalletCards,
 } from "lucide-react-native";
-import { useDiscover, useWallet } from "@kypstamping/api";
-import { longDate } from "@kypstamping/ui/format";
+import { useDiscover, useWallet } from "@kyprewards/api";
+import { longDate } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import { LoyaltyCard, walletIcons } from "@/components/LoyaltyCard";
 import {

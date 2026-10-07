@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AnalyticsPreference } from "@kypstamping/ui/analytics";
+import { AnalyticsPreference } from "@kyprewards/ui/analytics";
 import { LegalPage, type LegalSection } from "@/components/LegalPage";
 import { Eyebrow } from "@/components/Ui";
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
  *
  * The consent banner on this site points here, so this is where the answer
  * can be changed. Every entry was read out of the code: the analytics gate
- * shared with kyprewards.com (`@kypstamping/ui/analytics`), the position kept
+ * shared with kyprewards.com (`@kyprewards/ui/analytics`), the position kept
  * by `useCoordinates`, and the wallet's session cookie. The wallet itself
  * never loads analytics.
  */

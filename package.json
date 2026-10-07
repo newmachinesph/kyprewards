@@ -1,5 +1,5 @@
 {
-  "name": "kypstamping-frontends",
+  "name": "kyprewards-frontends",
   "version": "0.1.0",
   "private": true,
   "workspaces": [
@@ -7,12 +7,12 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:business": "npm run dev --workspace @kypstamping/business-web",
-    "dev:admin": "npm run dev --workspace @kypstamping/admin-web",
-    "dev:customer": "npm run dev --workspace @kypstamping/customer-pwa",
-    "dev:marketing": "npm run dev --workspace @kypstamping/marketing-site",
-    "dev:marketplace": "npm run dev --workspace @kypstamping/marketplace",
-    "dev:mobile": "npm run start --workspace @kypstamping/mobile",
+    "dev:business": "npm run dev --workspace @kyprewards/business-web",
+    "dev:admin": "npm run dev --workspace @kyprewards/admin-web",
+    "dev:customer": "npm run dev --workspace @kyprewards/customer-pwa",
+    "dev:marketing": "npm run dev --workspace @kyprewards/marketing-site",
+    "dev:marketplace": "npm run dev --workspace @kyprewards/marketplace",
+    "dev:mobile": "npm run start --workspace @kyprewards/mobile",
     "build": "npm run build --workspaces --if-present",
     "audit:controls": "node scripts/audit-controls.mjs",
     "test:format": "node scripts/test-format.mjs",
@@ -33,7 +33,7 @@
     "qa:journey": "node scripts/qa-journey.mjs",
     "qa:fuzz": "node scripts/qa-fuzz.mjs",
     "qa:all": "node scripts/qa-all.mjs",
-    "lint:mobile": "npm run lint --workspace @kypstamping/mobile"
+    "lint:mobile": "npm run lint --workspace @kyprewards/mobile"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",

@@ -10,7 +10,7 @@ import {
   Phone,
   Send,
 } from "lucide-react";
-import { overageRates, planLimits, plans as sourcePlans } from "@kypstamping/ui/plans";
+import { overageRates, planLimits, plans as sourcePlans } from "@kyprewards/ui/plans";
 
 // Single source: the published plan table. A second hand-typed copy here is how
 // the calculator previously came to quote allowances the pricing page denied.

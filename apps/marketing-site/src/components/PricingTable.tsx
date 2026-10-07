@@ -6,7 +6,7 @@ import {
   featureMatrix,
   plans,
   type Cell,
-} from "@kypstamping/ui/plans";
+} from "@kyprewards/ui/plans";
 
 function CellValue({ value }: { value: Cell }) {
   if (value === true) {

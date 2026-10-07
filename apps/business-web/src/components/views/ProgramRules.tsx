@@ -14,11 +14,11 @@ import {
   type Program,
   type StampRules,
   useBranding,
-} from "@kypstamping/api";
-import { Button, Eyebrow, IconButton, PreviewBadge, StampDots } from "@kypstamping/ui";
-import { Checkbox, Chip, Field, Input, Select } from "@kypstamping/ui/form";
-import { longDate, pesoFromCentavos, timeOfDay } from "@kypstamping/ui/format";
-import { PlanTag } from "@kypstamping/ui/shell";
+} from "@kyprewards/api";
+import { Button, Eyebrow, IconButton, PreviewBadge, StampDots } from "@kyprewards/ui";
+import { Checkbox, Chip, Field, Input, Select } from "@kyprewards/ui/form";
+import { longDate, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { Plus, Trash2 } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
 import {

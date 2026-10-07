@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Check, Star } from "lucide-react-native";
-import { ApiError, answerFeedback } from "@kypstamping/api";
+import { ApiError, answerFeedback } from "@kyprewards/api";
 import { Screen } from "@/components/Screen";
 import { Button, Eyebrow, Lede, Panel, Title } from "@/components/ui";
 import { colors } from "@/lib/theme";

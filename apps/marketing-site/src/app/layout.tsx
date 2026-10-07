@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
-import { AnalyticsConsent } from "@kypstamping/ui/analytics";
+import { AnalyticsConsent } from "@kyprewards/ui/analytics";
 import { MarketingFooter } from "@/components/MarketingFooter";
 import { MarketingHeader } from "@/components/MarketingHeader";
 import { StructuredData } from "@/components/StructuredData";

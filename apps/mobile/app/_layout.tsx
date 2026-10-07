@@ -20,11 +20,15 @@ import {
   claimFirstStamp,
   keys,
   useQueryClient,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import { useAuth } from "@/lib/auth";
 import { forgetClaim, readClaim } from "@/lib/claim";
 import { useLock } from "@/lib/lock";
-import { onNotificationOpened, registerForPush } from "@/lib/push";
+import {
+  onNotificationOpened,
+  pushTurnedOff,
+  registerForPush,
+} from "@/lib/push";
 import { colors } from "@/lib/theme";
 import { LockScreen } from "@/components/LockScreen";
 import { ToastHost } from "@/components/Toast";
@@ -129,7 +133,9 @@ function SignedInEffects() {
 
   useEffect(() => {
     if (status !== "signed-in") return;
-    void registerForPush().catch(() => undefined);
+    void pushTurnedOff()
+      .then((off) => (off ? undefined : registerForPush()))
+      .catch(() => undefined);
   }, [status]);
 
   // A stamp claimed from a poster before sign-up, settled on the first render

@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, Eyebrow, QueryBoundary } from "@kypstamping/ui";
-import { pesoCompactFromCentavos, relativeTime } from "@kypstamping/ui/format";
+import { Button, Eyebrow, QueryBoundary } from "@kyprewards/ui";
+import { pesoCompactFromCentavos, relativeTime } from "@kyprewards/ui/format";
 import {
   usePlatformMetrics,
   EMPTY_PLATFORM_METRICS,
@@ -9,7 +9,7 @@ import {
   usePartnerApplications,
   useServices,
   useTenants,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import { useAdminState } from "@/components/AdminState";
 import {
   ArrowRight,
@@ -24,7 +24,7 @@ import {
   Users,
   Webhook,
 } from "lucide-react";
-import type { NotifyIntent } from "@kypstamping/ui/shell";
+import type { NotifyIntent } from "@kyprewards/ui/shell";
 import type { AdminView } from "@/components/AdminShell";
 
 /**

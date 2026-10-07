@@ -12,7 +12,7 @@ import { PricingEstimator } from "@/components/PricingEstimator";
 import { AddOns, ChannelRates, PricingTable } from "@/components/PricingTable";
 import { StructuredData } from "@/components/StructuredData";
 import { faqs } from "@/lib/content";
-import { plans } from "@kypstamping/ui/plans";
+import { plans } from "@kyprewards/ui/plans";
 import { breadcrumb, webPage } from "@/lib/schema";
 
 export const metadata: Metadata = {

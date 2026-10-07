@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { isPreview, keys, usePayment, type QrPayment } from "@kypstamping/api";
-import { Button, Dialog, PreviewBadge } from "@kypstamping/ui";
-import { pesoFromCentavos } from "@kypstamping/ui/format";
+import { isPreview, keys, usePayment, type QrPayment } from "@kyprewards/api";
+import { Button, Dialog, PreviewBadge } from "@kyprewards/ui";
+import { pesoFromCentavos } from "@kyprewards/ui/format";
 import { Check, TriangleAlert } from "lucide-react";
 
 /** `mm:ss` left until an instant; never negative. */

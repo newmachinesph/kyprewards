@@ -9,12 +9,12 @@ import {
   useActivity,
   useApiMutation,
   useWallet,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import {
   longDate,
   pesoFromCentavos,
   relativeTime,
-} from "@kypstamping/ui/format";
+} from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import { LoyaltyCard } from "@/components/LoyaltyCard";
 import { Button, EmptyState, Panel, Term } from "@/components/ui";

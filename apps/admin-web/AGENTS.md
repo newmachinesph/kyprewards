@@ -30,7 +30,7 @@ private apps to the spec.
 Views, in nav order (`src/components/AdminShell.tsx`): Overview, Businesses,
 Applications (the partner queue from `/partners`), People, Operations,
 Integrations, Support queue, Audit ledger, Revenue & margin, Add-ons,
-Platform settings. All server state comes from `@kypstamping/api`; `AdminState.tsx`
+Platform settings. All server state comes from `@kyprewards/api`; `AdminState.tsx`
 holds view state that must survive navigation.
 
 Controls with nothing behind them say so on screen rather than toasting:

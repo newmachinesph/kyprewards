@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { endSupportAccess, useApiMutation, useBusinessProfile, useWorkspaces } from "@kypstamping/api";
-import { BrandMark, Button, IconButton } from "@kypstamping/ui";
-import { signOut } from "@kypstamping/ui/auth";
-import { timeOfDay } from "@kypstamping/ui/format";
+import { endSupportAccess, useApiMutation, useBusinessProfile, useWorkspaces } from "@kyprewards/api";
+import { BrandMark, Button, IconButton } from "@kyprewards/ui";
+import { signOut } from "@kyprewards/ui/auth";
+import { timeOfDay } from "@kyprewards/ui/format";
 import { useSessionInfo } from "@/components/views/shared";
 import { planFor, usePlanGate } from "@/lib/plan";
 import {

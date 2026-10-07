@@ -20,8 +20,8 @@ import {
   useApiMutation,
   useCustomerProfile,
   useDiscover,
-} from "@kypstamping/api";
-import { formatDistance } from "@kypstamping/ui/format";
+} from "@kyprewards/api";
+import { formatDistance } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import { Button, EmptyState, Panel } from "@/components/ui";
 import { notify } from "@/components/Toast";
@@ -32,8 +32,8 @@ import { colors } from "@/lib/theme";
  * A shop from Discover, and the one action: join it.
  *
  * Joining shares the loyalty ID and the profile fields the dialog lists, and
- * nothing else; promotional channels stay off until the customer turns them
- * on. The shop's welcome stamp lands pending, the same as from the poster.
+ * nothing else; the shop's promotions follow the customer's own notification
+ * settings (the API copies them on join). The shop's welcome stamp lands pending, the same as from the poster.
  */
 export default function Place() {
   const router = useRouter();
@@ -191,8 +191,8 @@ export default function Place() {
           <ShieldCheck size={17} color={colors.success} />
           <Text className="flex-1 font-sans text-[12px] leading-[18px] text-muted-strong">
             Joining shares your loyalty ID and chosen profile fields with{" "}
-            {place.name}. Promotional permissions stay off until you turn them
-            on.
+            {place.name}. Its offers follow your notification settings, which
+            you can change anytime.
           </Text>
         </View>
 
@@ -259,7 +259,8 @@ function JoinConsent({
         </Text>
         <Text className="mt-2 font-sans text-[12px] leading-[18px] text-muted-strong">
           Joining shares the details below so {businessName} can run your
-          rewards. Promotional messages stay off until you turn them on.
+          rewards. Its offers follow your notification settings, which you can
+          change anytime.
         </Text>
         <View className="mt-4 rounded-xl border border-line">
           {shared.map(([label, value, Icon], index) => (

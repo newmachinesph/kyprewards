@@ -8,7 +8,7 @@ import {
   PreviewBadge,
   QueryBoundary,
   ViewFrame as SharedViewFrame,
-} from "@kypstamping/ui";
+} from "@kyprewards/ui";
 import {
   Checkbox,
   Field,
@@ -18,7 +18,7 @@ import {
   Select,
   Switch,
   Textarea,
-} from "@kypstamping/ui/form";
+} from "@kyprewards/ui/form";
 import {
   Activity,
   ArrowRight,
@@ -40,7 +40,7 @@ import {
   Users,
   Webhook,
 } from "lucide-react";
-import type { NotifyIntent } from "@kypstamping/ui/shell";
+import type { NotifyIntent } from "@kyprewards/ui/shell";
 import { PartnerQueueView } from "@/components/PartnerQueueView";
 import type { AdminView } from "@/components/AdminShell";
 import { AdminAddOnsView } from "@/components/AdminAddOnsView";
@@ -77,9 +77,9 @@ import {
   type PlatformRole,
   type ProviderPolicy,
   type ServiceHealth,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import { useAdminState } from "@/components/AdminState";
-import { pesoFromCentavos, relativeTime } from "@kypstamping/ui/format";
+import { pesoFromCentavos, relativeTime } from "@kyprewards/ui/format";
 import { FOUNDING } from "@/lib/catalog";
 
 type Notify = (message: string, intent?: NotifyIntent) => void;

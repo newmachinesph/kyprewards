@@ -2,11 +2,11 @@
  * The add-ons, credit rates and founding offer as the pricing page sells them.
  *
  * `packages/ui/src/plans.ts` is the spec and this mirrors its numbers in
- * centavos. That file is now importable as `@kypstamping/ui/plans`, so the
+ * centavos. That file is now importable as `@kyprewards/ui/plans`, so the
  * next change here should derive from it instead of mirroring it.
  */
 
-import type { AddOnSubscription } from "@kypstamping/api";
+import type { AddOnSubscription } from "@kyprewards/api";
 
 export type AddOnKey = AddOnSubscription["addOn"] | "email_topup";
 

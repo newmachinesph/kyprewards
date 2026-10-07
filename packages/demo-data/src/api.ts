@@ -2,7 +2,7 @@
  * The one visit all four apps narrate.
  *
  * Everything else this package exported has moved. The accessors are
- * `endpoints.ts` in `@kypstamping/api`, calling the real service; the types
+ * `endpoints.ts` in `@kyprewards/api`, calling the real service; the types
  * are beside them; the synchronous mirrors the components used to read are
  * gone with the components that read them.
  *
@@ -12,7 +12,7 @@
  * API has no route for it and should not - it is the story, not the record.
  */
 
-import demoData from "./kypstamping-demo.json";
-import type { SharedScenario } from "@kypstamping/api/types";
+import demoData from "./kyprewards-demo.json";
+import type { SharedScenario } from "@kyprewards/api/types";
 
 export const sharedScenario = demoData.sharedScenario as SharedScenario;

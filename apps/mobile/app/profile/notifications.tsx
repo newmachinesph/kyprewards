@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Linking, Text, View } from "react-native";
 import {
   keys,
@@ -6,11 +6,11 @@ import {
   useApiMutation,
   useChannelPreferences,
   usePushState,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import { Screen } from "@/components/Screen";
 import { Button, Eyebrow, Panel, Switch, Title } from "@/components/ui";
 import { notify } from "@/components/Toast";
-import { registerForPush } from "@/lib/push";
+import { pushToken, registerForPush, turnOffPush } from "@/lib/push";
 
 type ChannelKey = "promoPush" | "promoEmail" | "promoSms" | "nearby";
 
@@ -33,7 +33,7 @@ const CHANNELS: { key: ChannelKey; label: string; detail: string }[] = [
   {
     key: "nearby",
     label: "Nearby reminders",
-    detail: "Uses location only while enabled",
+    detail: "A reward waiting at a shop you are near. Location is never stored",
   },
 ];
 
@@ -62,6 +62,13 @@ export default function NotificationSettings() {
   );
   const push = usePushState();
   const [pushBusy, setPushBusy] = useState(false);
+  // The account's `subscribed` counts every device; this phone is on when it
+  // holds the token it registered.
+  const [token, setToken] = useState<string | null>(null);
+  useEffect(() => {
+    void pushToken().then(setToken);
+  }, []);
+  const onHere = Boolean(token && push.data?.subscribed);
 
   function toggle(key: ChannelKey, label: string) {
     const next = !channels[key];
@@ -139,7 +146,7 @@ export default function NotificationSettings() {
         <Text className="mt-1 font-sans text-[12px] leading-[18px] text-muted-strong">
           A reward waiting for your approval is the one message worth a buzz.
           Everything else stays in the inbox.
-          {push.data?.subscribed ? " This phone is registered." : ""}
+          {onHere ? " This phone is registered." : ""}
         </Text>
         <Button
           tone="quiet"
@@ -157,13 +164,39 @@ export default function NotificationSettings() {
               void Linking.openSettings();
             } else
               notify("Push needs a real phone and a linked build.", "error");
+            setToken(await pushToken());
             void push.refetch();
           }}
         >
-          {push.data?.subscribed
-            ? "Register this phone again"
-            : "Turn on push for this phone"}
+          {onHere ? "Register this phone again" : "Turn on push for this phone"}
         </Button>
+        {onHere ? (
+          <Button
+            tone="quiet"
+            className="mt-3"
+            busy={pushBusy}
+            onPress={async () => {
+              setPushBusy(true);
+              try {
+                await turnOffPush();
+                setToken(null);
+                notify("Push is off for this phone.");
+              } catch (failure) {
+                notify(
+                  failure instanceof Error
+                    ? failure.message
+                    : "Push could not be turned off.",
+                  "error",
+                );
+              } finally {
+                setPushBusy(false);
+                void push.refetch();
+              }
+            }}
+          >
+            Turn off push for this phone
+          </Button>
+        ) : null}
       </Panel>
     </Screen>
   );

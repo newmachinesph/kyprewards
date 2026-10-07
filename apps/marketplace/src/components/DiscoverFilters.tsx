@@ -3,9 +3,9 @@
 import type { ChangeEvent } from "react";
 import Form from "next/form";
 import Link from "next/link";
-import { usePublicCategories, usePublicNeighborhoods, type DiscoverFacet } from "@kypstamping/api";
-import { Button, buttonClass } from "@kypstamping/ui";
-import { Input, Select } from "@kypstamping/ui/form";
+import { usePublicCategories, usePublicNeighborhoods, type DiscoverFacet } from "@kyprewards/api";
+import { Button, buttonClass } from "@kyprewards/ui";
+import { Input, Select } from "@kyprewards/ui/form";
 import { Search } from "lucide-react";
 
 export type Filters = { category?: string; neighborhood?: string; search?: string };

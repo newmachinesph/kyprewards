@@ -27,7 +27,7 @@ import {
   User,
   WalletCards,
 } from "lucide-react";
-import { BRAND_COLORS } from "@kypstamping/ui";
+import { BRAND_COLORS } from "@kyprewards/ui";
 import { SiteEyebrow } from "./MarketingUi";
 
 /**

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { History, ShieldCheck } from "lucide-react-native";
-import { useActivity } from "@kypstamping/api";
-import { relativeTime } from "@kypstamping/ui/format";
+import { useActivity } from "@kyprewards/api";
+import { relativeTime } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import {
   Chip,

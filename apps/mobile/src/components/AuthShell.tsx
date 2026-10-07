@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Croissant, Mail, Smartphone } from "lucide-react-native";
-import { displayMobile, normalizeMobile, toE164 } from "@kypstamping/ui/format";
+import { displayMobile, normalizeMobile, toE164 } from "@kyprewards/ui/format";
 import { BrandMark } from "@/components/Brand";
 import { Eyebrow } from "@/components/ui";
 import { StampDots } from "@/components/StampDots";

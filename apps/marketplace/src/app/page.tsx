@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Form from "next/form";
 import { Search, ShieldCheck, Stamp, UserRoundCheck } from "lucide-react";
-import { Button } from "@kypstamping/ui";
-import { Input } from "@kypstamping/ui/form";
+import { Button } from "@kyprewards/ui";
+import { Input } from "@kyprewards/ui/form";
 import { customerAppUrl, merchantSiteUrl } from "@/lib/site";
 import { ActionLink, Eyebrow, Section } from "@/components/Ui";
 import { CategoryChips, FeaturedRow, LocationButton } from "@/components/HomeSections";

@@ -10,14 +10,25 @@ import {
   useApiMutation,
   useCustomerProfile,
   type CustomerProfile,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import { Field } from "@/components/AuthShell";
+import { BirthdayInput, MONTHS } from "@/components/Birthday";
 import { Screen } from "@/components/Screen";
 import { Button, Eyebrow, QueryState, Title } from "@/components/ui";
 import { notify } from "@/components/Toast";
 
+/** "12 March", as the API writes it, back into its two halves. */
+function birthdayParts(birthday: string | null): {
+  day: string;
+  month: number | null;
+} {
+  const [day = "", name = ""] = (birthday ?? "").split(" ");
+  const month = MONTHS.indexOf(name) + 1;
+  return month ? { day, month } : { day: "", month: null };
+}
+
 /**
- * Name, email, mobile. Saved on the button, not on every keystroke: a phone
+ * Name, email, mobile, birthday. Saved on the button, not on every keystroke: a phone
  * keyboard produces a request per character, and the web wallet's
  * save-as-you-type sent a half-typed mobile number to the API.
  */
@@ -45,6 +56,8 @@ export default function Personal() {
 function PersonalForm({ profile }: { profile: CustomerProfile }) {
   const [name, setName] = useState(profile.name);
   const [email, setEmail] = useState(profile.email ?? "");
+  const given = birthdayParts(profile.birthday);
+  const [birthday, setBirthday] = useState(given);
   const save = useApiMutation(updateCustomerProfile, {
     invalidates: [keys.customer.profile()],
     onSuccess: () =>
@@ -56,7 +69,15 @@ function PersonalForm({ profile }: { profile: CustomerProfile }) {
   });
   const nameChanged = name !== profile.name;
   const emailChanged = email !== (profile.email ?? "");
-  const changed = nameChanged || emailChanged;
+  // Both halves or neither, as at sign-up. The API keeps a birthday once
+  // given, so clearing both is no change.
+  const birthdayHalf = Boolean(birthday.day) !== Boolean(birthday.month);
+  const birthdayChanged =
+    Boolean(birthday.day && birthday.month) &&
+    (Number(birthday.day) !== Number(given.day) ||
+      birthday.month !== given.month);
+  const changed =
+    nameChanged || emailChanged || birthdayHalf || birthdayChanged;
 
   return (
     <View className="mt-6 gap-4">
@@ -84,19 +105,37 @@ function PersonalForm({ profile }: { profile: CustomerProfile }) {
       ) : null}
       <MobileNumber current={profile.mobile ?? ""} />
       <PasswordSection hasPassword={Boolean(profile.hasPassword)} />
-      <Text className="font-sans text-[12px] leading-[18px] text-muted-strong">
-        Birthday: {profile.birthday ?? "not given"}. Shops you join can send you
-        something on your birthday; we hold the day and month only.
-      </Text>
+      <View className="gap-2">
+        <BirthdayInput
+          day={birthday.day}
+          month={birthday.month}
+          onChange={setBirthday}
+        />
+        <Text className="font-sans text-[12px] leading-[18px] text-muted-strong">
+          Shops you join can send you something on your birthday; we hold the
+          day and month only.
+        </Text>
+      </View>
       <Button
         busy={save.isPending}
         disabled={!changed}
-        onPress={() =>
+        onPress={() => {
+          if (birthdayHalf)
+            return notify(
+              "Give both the day and the month, or neither.",
+              "error",
+            );
           save.mutate({
             ...(nameChanged ? { name } : {}),
             ...(emailChanged ? { email } : {}),
-          })
-        }
+            ...(birthdayChanged
+              ? {
+                  birthdayDay: Number(birthday.day),
+                  birthdayMonth: birthday.month ?? undefined,
+                }
+              : {}),
+          });
+        }}
       >
         Save changes
       </Button>

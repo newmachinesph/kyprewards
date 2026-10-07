@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { PreviewBadge, QueryBoundary, Skeleton } from "@kypstamping/ui";
+import { PreviewBadge, QueryBoundary, Skeleton } from "@kyprewards/ui";
 import {
   useBilling,
   useBusinessCustomers,
@@ -45,8 +45,8 @@ import {
   EMPTY_BUSINESS_METRICS,
   type MessageRecord,
   type VisitResult,
-} from "@kypstamping/api";
-import { useCounterStore } from "@kypstamping/api/stores";
+} from "@kyprewards/api";
+import { useCounterStore } from "@kyprewards/api/stores";
 import {
   EditProfileDialog,
   EditLocationDialog,
@@ -83,8 +83,8 @@ import {
   Pill,
   StampDots,
   ViewFrame,
-} from "@kypstamping/ui";
-import { Chip, Field, Input, Select, Textarea } from "@kypstamping/ui/form";
+} from "@kyprewards/ui";
+import { Chip, Field, Input, Select, Textarea } from "@kyprewards/ui/form";
 import {
   daysUntilBirthday,
   longDate,
@@ -94,8 +94,8 @@ import {
   pesoFromCentavos,
   relativeTime,
   timeOfDay,
-} from "@kypstamping/ui/format";
-import { PlanTag } from "@kypstamping/ui/shell";
+} from "@kyprewards/ui/format";
+import { PlanTag } from "@kyprewards/ui/shell";
 import {
   Ban,
   BadgeCheck,
@@ -128,7 +128,7 @@ import {
 } from "lucide-react";
 import type { BusinessView } from "@/components/BusinessShell";
 import { IntegrationsView } from "@/components/IntegrationsView";
-import { overageRates, channelRates } from "@kypstamping/ui/plans";
+import { overageRates, channelRates } from "@kyprewards/ui/plans";
 import { planFor, refusal, usePlanGate, writeBlock } from "@/lib/plan";
 import {
   BlockedNote,
@@ -724,7 +724,7 @@ function ScanView({
     if (tillBranch || locations.length === 0) return;
     let stored = "";
     try {
-      stored = window.localStorage.getItem(TILL_BRANCH_KEY) ?? "";
+      stored = window.localStorage.getItem(TILL_BRANCH_KEY) ?? window.localStorage.getItem("kypstamping-till-branch") ?? "";
     } catch {
       stored = "";
     }
@@ -1482,7 +1482,7 @@ function ScanView({
  * exists to remove.
  */
 /** The branch this till is standing in, remembered per device. */
-const TILL_BRANCH_KEY = "kypstamping-till-branch";
+const TILL_BRANCH_KEY = "kyprewards-till-branch";
 function BusinessProfileView({ notify }: { notify: Notify }) {
   const gate = usePlanGate();
   const brandingPlan = planFor("Your own branding on the card");

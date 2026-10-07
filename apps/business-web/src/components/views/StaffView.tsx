@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useLocations, useStaff, type StaffMember } from "@kypstamping/api";
-import { Button, Eyebrow, IconButton, Pill, ViewFrame } from "@kypstamping/ui";
-import { Field, Input, Select } from "@kypstamping/ui/form";
-import { relativeTime } from "@kypstamping/ui/format";
-import { PlanTag } from "@kypstamping/ui/shell";
+import { useLocations, useStaff, type StaffMember } from "@kyprewards/api";
+import { Button, Eyebrow, IconButton, Pill, ViewFrame } from "@kyprewards/ui";
+import { Field, Input, Select } from "@kyprewards/ui/form";
+import { relativeTime } from "@kyprewards/ui/format";
+import { PlanTag } from "@kyprewards/ui/shell";
 import { ChevronRight, Send, UserPlus } from "lucide-react";
 import { EditStaffDialog } from "@/components/WorkspaceForms";
 import { useInviteStaff } from "@/components/mutations";

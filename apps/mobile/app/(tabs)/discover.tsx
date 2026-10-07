@@ -18,8 +18,8 @@ import {
   Search,
   SlidersHorizontal,
 } from "lucide-react-native";
-import { useCustomerProfile, useDiscover } from "@kypstamping/api";
-import { formatDistance } from "@kypstamping/ui/format";
+import { useCustomerProfile, useDiscover } from "@kyprewards/api";
+import { formatDistance } from "@kyprewards/ui/format";
 import { PlaceThumb } from "@/components/PlaceThumb";
 import { Screen } from "@/components/Screen";
 import {

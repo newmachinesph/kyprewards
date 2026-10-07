@@ -38,4 +38,6 @@ export const KEYS = {
   claimAt: "pending-claim-at",
   otpIdentifier: "otp-identifier",
   biometricLock: "biometric-lock",
+  pushToken: "push-token",
+  pushOff: "push-off",
 } as const;

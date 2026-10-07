@@ -9,8 +9,8 @@ import {
   type DiscoverFacet,
   type Page,
   type PublicShop,
-} from "@kypstamping/api";
-import { PreviewBadge, QueryBoundary } from "@kypstamping/ui";
+} from "@kyprewards/api";
+import { PreviewBadge, QueryBoundary } from "@kyprewards/ui";
 import { ArrowRight, LocateFixed } from "lucide-react";
 import { categoryPath } from "@/lib/routes";
 import { ActionLink, EmptyState } from "./Ui";

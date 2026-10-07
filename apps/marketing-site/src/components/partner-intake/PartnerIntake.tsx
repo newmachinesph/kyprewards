@@ -11,8 +11,8 @@ import {
   ShieldCheck,
   Stamp,
 } from "lucide-react";
-import { answerHeardFrom, submitPartnerApplication } from "@kypstamping/api/endpoints";
-import { ApiError, fieldErrors } from "@kypstamping/api/http";
+import { answerHeardFrom, submitPartnerApplication } from "@kyprewards/api/endpoints";
+import { ApiError, fieldErrors } from "@kyprewards/api/http";
 import {
   displayMobile,
   isCompleteMobile,

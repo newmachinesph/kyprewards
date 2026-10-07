@@ -42,19 +42,19 @@ Every view lives in its own file under `src/components/views/`;
 `BusinessViews.tsx` keeps the counter, business profile, favorite orders,
 birthday, redemptions, campaigns and message log, and the `views` record.
 Plan gating is `src/lib/plan.ts` (`usePlanGate`, `writeBlock`, `refusal`,
-`planFor`) over `@kypstamping/ui/plans`, the same file the marketing site
+`planFor`) over `@kyprewards/ui/plans`, the same file the marketing site
 renders its pricing from; there is no copy to keep in step. Every tier's feature renders
 its full screen; a feature above the plan is tagged with `PlanTag` and its
 writes are disabled with "Opens with <Plan>". A route the API does not serve
 yet renders preview samples under `PreviewBadge` with its writes disabled
 by `PREVIEW_WRITE_REASON`.
 
-All server state comes from `@kypstamping/api`. Client-only state lives in
+All server state comes from `@kyprewards/api`. Client-only state lives in
 `DemoState.tsx` (webhook draft, setup ledger, scan handoff, wizard answers),
 `useCounterStore` (a scanned-but-unsubmitted transaction), and
 `useOfflineQueue.ts` (visits queued in `localStorage` and replayed through
 `recordVisit` with the visit's own idempotency key). The till's branch is
-remembered under `kypstamping-till-branch`.
+remembered under `kyprewards-till-branch`.
 
 ## What the site promises for this surface
 

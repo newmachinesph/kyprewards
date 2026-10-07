@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import { Check, ShieldCheck, X } from "lucide-react-native";
-import { useChannelPreferences, useCustomerProfile } from "@kypstamping/api";
+import { useChannelPreferences, useCustomerProfile } from "@kyprewards/api";
 import { Screen } from "@/components/Screen";
 import { Eyebrow, Notice, Panel, Title } from "@/components/ui";
 import { colors } from "@/lib/theme";
@@ -35,8 +35,8 @@ export default function Privacy() {
     [
       "Location",
       channels?.nearby
-        ? "Used for nearby reminders while that is on"
-        : "Never shared. Discovery matches by city only",
+        ? "Sorts shops near you and tells you about a reward waiting close by. Never stored"
+        : "Only sorts shops near you. Never stored",
       Boolean(channels?.nearby),
     ],
   ];

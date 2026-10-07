@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Check, Star } from "lucide-react";
-import { ApiError, answerFeedback } from "@kypstamping/api";
-import { BrandMark, Button } from "@kypstamping/ui";
-import { Field, FormMessage, Textarea } from "@kypstamping/ui/form";
+import { ApiError, answerFeedback } from "@kyprewards/api";
+import { BrandMark, Button } from "@kyprewards/ui";
+import { Field, FormMessage, Textarea } from "@kyprewards/ui/form";
 
 /**
  * A rating and, if they want, a sentence.

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { captureError } from "@kypstamping/ui/sentry";
-import { Button } from "@kypstamping/ui";
+import { captureError } from "@kyprewards/ui/sentry";
+import { Button } from "@kyprewards/ui";
 import { PageIntro } from "@/components/Ui";
 
 export default function ErrorPage({

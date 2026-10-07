@@ -37,13 +37,14 @@ import {
   customerLogin,
   socialSignIn,
   getWorkspaces,
+  unsubscribePush,
   useSession,
   verifyMfa,
   verifyOtp,
   walletExists,
   type InvitePreview,
   type Workspace,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import Link from "next/link";
 import { BrandMark, Button, StampDots } from "./index";
 import { Checkbox, Field as FormField, Input, MobileInput, PasswordInput, Segmented, Select } from "./form";
@@ -68,7 +69,7 @@ import { toE164 } from "./format";
  * the destination as well as the code. Session storage rather than the URL:
  * a phone number in a query string ends up in browser history and logs.
  */
-const OTP_IDENTIFIER_KEY = "kypstamping-otp-identifier";
+const OTP_IDENTIFIER_KEY = "kyprewards-otp-identifier";
 
 /** Session storage does not change under us within a render, and there is no
  *  event to subscribe to, so the subscribe is a no-op and the server snapshot
@@ -95,7 +96,7 @@ const noOtpIdentifierOnServer = () => null;
  * sign-in with the same identifier and toggle. Session storage for the same
  * reason as the code's destination - not in the URL.
  */
-const SIGN_IN_PREFILL_KEY = "kypstamping-sign-in-prefill";
+const SIGN_IN_PREFILL_KEY = "kyprewards-sign-in-prefill";
 
 function readSignInPrefill(): string {
   try {
@@ -110,7 +111,7 @@ const noSignInPrefillOnServer = () => "";
 /** The shop whose first stamp is waiting to be claimed, written by the poster
  *  flow before it sends somebody here to register. Read the same way as the
  *  OTP destination: a client-only value with a server snapshot. */
-const PENDING_CLAIM_SHOP_KEY = "kypstamping-pending-first-stamp-shop";
+const PENDING_CLAIM_SHOP_KEY = "kyprewards-pending-first-stamp-shop";
 const subscribeToPendingShop = () => () => {};
 
 function readPendingShop(): string {
@@ -345,12 +346,43 @@ function CustomerAuthShell({
   );
 }
 
+/** How long sign-out waits on the push service before leaving anyway. */
+const PUSH_DROP_TIMEOUT_MS = 2000;
+
+/**
+ * Stops this browser's web push: the API forgets its endpoint, and the
+ * browser drops the subscription. Only this browser - the endpoint is passed,
+ * so the account's other devices keep theirs. Never throws: a push service
+ * that is down must not keep anybody signed in.
+ */
+async function dropThisBrowserPush() {
+  try {
+    const registration = await navigator.serviceWorker?.getRegistration();
+    const subscription = await registration?.pushManager.getSubscription();
+    if (!subscription) return;
+    await Promise.allSettled([unsubscribePush(subscription.endpoint), subscription.unsubscribe()]);
+  } catch {
+    // No service worker, or the browser refused. Nothing more to stop here.
+  }
+}
+
 /** Ends the session server-side, then leaves.
  *
  * Takes no role: the cookie identifies the session, and the API ends whichever
  * one the caller holds. The old sessionStorage flag was per role, which is
- * why it used to need one. */
-export async function signOut() {
+ * why it used to need one.
+ *
+ * `dropPush` is the wallet's: a shared phone must stop receiving the last
+ * person's alerts. It runs before logout because the API call needs the
+ * session, and is capped so it never holds sign-out up. Staff apps have no
+ * customer push and leave it off. */
+export async function signOut({ dropPush = false }: { dropPush?: boolean } = {}) {
+  if (dropPush) {
+    await Promise.race([
+      dropThisBrowserPush(),
+      new Promise((resolve) => window.setTimeout(resolve, PUSH_DROP_TIMEOUT_MS)),
+    ]);
+  }
   try {
     await logout();
   } catch {
@@ -1542,7 +1574,7 @@ export function DemoAuthFlow({
                 setBusy(false);
                 return;
               }
-              window.sessionStorage.setItem("kypstamping-customer-signup-name", name);
+              window.sessionStorage.setItem("kyprewards-customer-signup-name", name);
               window.sessionStorage.setItem(OTP_IDENTIFIER_KEY, identifier.trim());
               go("/verify");
             } catch (failure) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
-import type { Coordinates } from "@kypstamping/api";
+import type { Coordinates } from "@kyprewards/api";
 
 /**
  * Where the customer is, once they allow it.

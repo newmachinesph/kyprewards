@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { StampDots } from "@kypstamping/ui";
+import { StampDots } from "@kyprewards/ui";
 import { customerAppUrl } from "@/lib/site";
 import { ActionLink, Eyebrow, PageIntro, Section } from "@/components/Ui";
 

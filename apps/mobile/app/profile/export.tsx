@@ -6,8 +6,8 @@ import {
   requestData,
   useApiMutation,
   useDataRequests,
-} from "@kypstamping/api";
-import { longDate, relativeTime } from "@kypstamping/ui/format";
+} from "@kyprewards/api";
+import { longDate, relativeTime } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import { Button, Eyebrow, Panel, Title } from "@/components/ui";
 import { notify } from "@/components/Toast";

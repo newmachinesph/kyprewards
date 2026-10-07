@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BrandMark } from "@kypstamping/ui";
+import { BrandMark } from "@kyprewards/ui";
 import { customerAppUrl, merchantSiteUrl } from "@/lib/site";
 
 const groups = [

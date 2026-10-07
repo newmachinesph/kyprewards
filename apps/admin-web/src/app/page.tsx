@@ -1,5 +1,5 @@
 import { AdminDemo } from "@/components/AdminDemo";
-import { SessionGate } from "@kypstamping/ui/auth";
+import { SessionGate } from "@kyprewards/ui/auth";
 
 export default function AdminPage() {
   return (

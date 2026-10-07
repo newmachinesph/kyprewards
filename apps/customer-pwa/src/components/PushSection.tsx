@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import {
   PREVIEW_WRITE_REASON,
   isPreview,
@@ -9,9 +9,9 @@ import {
   unsubscribePush,
   useApiMutation,
   usePushState,
-} from "@kypstamping/api";
-import { Button, PreviewBadge, QueryBoundary } from "@kypstamping/ui";
-import { FormMessage } from "@kypstamping/ui/form";
+} from "@kyprewards/api";
+import { Button, PreviewBadge, QueryBoundary } from "@kyprewards/ui";
+import { FormMessage } from "@kyprewards/ui/form";
 import { BellRing } from "lucide-react";
 
 /**
@@ -58,11 +58,31 @@ export function PushSection() {
     return subscribePush(subscription.toJSON());
   }, { invalidates });
 
+  // This browser only. Without an endpoint the API drops every device on the
+  // account - the phone app and other browsers too - so no subscription here
+  // means there is nothing on this phone to remove.
   const unsubscribe = useApiMutation(async () => {
     const registration = await navigator.serviceWorker.ready;
-    await (await registration.pushManager.getSubscription())?.unsubscribe();
-    return unsubscribePush();
+    const subscription = await registration.pushManager.getSubscription();
+    if (!subscription) return;
+    await unsubscribePush(subscription.endpoint);
+    await subscription.unsubscribe();
   }, { invalidates });
+
+  // The API's flag is per account: true when any device has push, the phone
+  // app included. "On for this phone" needs this browser's own subscription.
+  const [here, setHere] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (support !== "ready") return;
+    let live = true;
+    void navigator.serviceWorker.ready
+      .then((registration) => registration.pushManager.getSubscription())
+      .then((subscription) => live && setHere(subscription !== null))
+      .catch(() => live && setHere(false));
+    return () => {
+      live = false;
+    };
+  }, [support, state?.subscribed, subscribe.isSuccess, unsubscribe.isSuccess]);
 
   const busy = subscribe.isPending || unsubscribe.isPending;
   const failure = subscribe.error ?? unsubscribe.error;
@@ -96,7 +116,7 @@ export function PushSection() {
             <p className="text-xs text-[var(--muted-strong)]">
               Notifications are blocked for this site in your browser settings. Turn them on there first.
             </p>
-          ) : state?.subscribed ? (
+          ) : state?.subscribed && (here ?? preview) ? (
             <>
               <p className="text-xs font-bold text-[var(--success)]">Notifications are on for this phone.</p>
               <Button

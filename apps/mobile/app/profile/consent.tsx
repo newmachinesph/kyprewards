@@ -1,7 +1,7 @@
 import { Text, View } from "react-native";
 import { History } from "lucide-react-native";
-import { useConsentHistory } from "@kypstamping/api";
-import { relativeTime } from "@kypstamping/ui/format";
+import { useConsentHistory } from "@kyprewards/api";
+import { relativeTime } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import { EmptyState, Eyebrow, Panel, QueryState, Title } from "@/components/ui";
 import { colors } from "@/lib/theme";

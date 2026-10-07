@@ -22,7 +22,7 @@ async function latestOtp() {
   assert.ok(code, "no OTP reached the dev sink");
   return code;
 }
-const artifactDirectory = join(tmpdir(), "kypstamping-customer-auth-qa");
+const artifactDirectory = join(tmpdir(), "kyprewards-customer-auth-qa");
 await mkdir(artifactDirectory, { recursive: true });
 
 const browser = await chromium.launch({ headless: true });

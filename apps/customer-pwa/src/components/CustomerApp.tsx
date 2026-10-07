@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import type { CustomerProfile, DiscoverPlace, WalletCard } from "@kypstamping/api";
+import type { CustomerProfile, DiscoverPlace, WalletCard } from "@kyprewards/api";
 import {
   ApiError,
   PREVIEW_WRITE_REASON,
@@ -23,7 +23,7 @@ import {
   useNearby,
   useNotifications,
   usePendingApprovals,
-} from "@kypstamping/api";
+} from "@kyprewards/api";
 import {
   brandColor,
   BrandMark,
@@ -34,8 +34,8 @@ import {
   QueryBoundary,
   Skeleton,
   StampDots,
-} from "@kypstamping/ui";
-import { signOut } from "@kypstamping/ui/auth";
+} from "@kyprewards/ui";
+import { signOut } from "@kyprewards/ui/auth";
 import {
   Chip,
   Field,
@@ -44,9 +44,10 @@ import {
   MobileInput,
   PasswordInput,
   Segmented,
+  Select,
   Switch,
-} from "@kypstamping/ui/form";
-import { Toast, useToast } from "@kypstamping/ui/shell";
+} from "@kyprewards/ui/form";
+import { Toast, useToast } from "@kyprewards/ui/shell";
 import {
   formatDistance,
   formatMemberCode,
@@ -55,18 +56,21 @@ import {
   relativeTime,
   toE164,
   todayLabel,
-} from "@kypstamping/ui/format";
+} from "@kyprewards/ui/format";
 
 /** A place is "nearby" within a 1.5 km walk. */
 const NEARBY_METRES = 1500;
-/** Where the legal pages and the merchant door live. */
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+/** Where the shopper's legal pages live: kyp.ph, as on sign-up
+ *  (packages/ui auth.tsx). kyprewards.com's are written for merchants. */
+const SHOPPER_SITE_URL = process.env.NEXT_PUBLIC_MARKETPLACE_URL ?? "https://kyp.ph";
+/** Where the merchant door lives. */
 const MARKETPLACE_URL = process.env.NEXT_PUBLIC_MARKETPLACE_URL ?? "";
 import { useCoordinates } from "@/components/useCoordinates";
 import {
   CHANNELS,
   CustomerStateProvider,
   useCustomerState,
+  type ProfilePatch,
 } from "@/components/CustomerState";
 import { SheetHeader } from "@/components/Sheet";
 import { ApproveSheet } from "@/components/ApproveSheet";
@@ -202,7 +206,7 @@ async function saveQrImage(memberCode: string) {
   try {
     const url = await renderQrDataUrl(memberCode, 720, true);
     const link = document.createElement("a");
-    link.download = `kypstamping-${memberCode}.png`;
+    link.download = `kyp-${memberCode}.png`;
     link.href = url;
     link.click();
     return true;
@@ -684,7 +688,9 @@ function HomeView({
   const where = useCoordinates(channels.nearby);
   const { data: discover = [] } = useDiscover(where);
   const { data: approvals = [] } = usePendingApprovals();
-  const { data: nudges = [] } = useNearby(where);
+  // Gated here as well as in useCoordinates: a position taken while the
+  // switch was on outlives it, and turning reminders off must stop the asking.
+  const { data: nudges = [] } = useNearby(channels.nearby ? where : undefined);
   // "Fresh from your places" showed a hardcoded Sweet Crumbs promotion - the
   // same afternoon batch, 18 minutes ago, to every customer of every shop,
   // including customers who had never heard of Sweet Crumbs. This is the
@@ -733,9 +739,12 @@ function HomeView({
             <Skeleton className="mt-1 h-8 w-32 rounded-lg" />
           )}
         </div>
-        {best && best.progress > 0 && (
+        {/* Progress on the closest card, not a streak: nothing counts
+            consecutive visits, so "5-stamp streak" claimed what it never knew. */}
+        {best && earnedStamps(best) > 0 && (
           <span className="mb-1 flex items-center gap-2 rounded-full bg-[rgb(15_118_85/12%)] px-3 py-1.5 text-[11px] font-extrabold text-[var(--success)]">
-            <Sparkles size={13} /> {best.progress}-stamp streak
+            <Sparkles size={13} />{" "}
+            {best.target > 0 ? `${earnedStamps(best)} of ${best.target} stamps` : best.balance}
           </span>
         )}
       </div>
@@ -1308,15 +1317,15 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
         </span>
       </div>
       <div className="mt-3 space-y-3">
-        {visibleBusinesses.map((business, index) => {
+        {visibleBusinesses.map((business) => {
           const Icon = categoryIcons[business.category] ?? Store;
           const joined = joinedIds.includes(business.id) || business.joined;
           return (
             <button
               type="button"
               onClick={() => onBusiness(business.id)}
-              key={business.name}
-              className={`group flex w-full items-center gap-4 rounded-2xl p-3.5 text-left transition hover:-translate-y-0.5 ${index === 0 ? "bg-[var(--accent)]" : "border border-[var(--line)] bg-[var(--surface)]"}`}
+              key={business.id}
+              className={`group flex w-full items-center gap-4 rounded-2xl p-3.5 text-left transition hover:-translate-y-0.5 ${business.featured ? "bg-[var(--accent)]" : "border border-[var(--line)] bg-[var(--surface)]"}`}
             >
               <span className="relative grid size-13 shrink-0 place-items-center overflow-hidden rounded-xl bg-[var(--surface)]">
                 {business.image ? (
@@ -1352,7 +1361,7 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
                   )}
                 </span>
                 <span
-                  className={`mt-1 block text-[11px] ${index === 0 ? "text-[var(--ink)]/80" : "text-[var(--muted)]"}`}
+                  className={`mt-1 block text-[11px] ${business.featured ? "text-[var(--ink)]/80" : "text-[var(--muted)]"}`}
                 >
                   {business.category}
                   {business.distanceMetres === null
@@ -1556,16 +1565,12 @@ function ProfileView({
       </section>
       <DataRequests />
       <nav aria-label="Legal" className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] font-bold text-[var(--muted-strong)]">
-        {SITE_URL && (
-          <>
-            <a href={`${SITE_URL}/privacy`} className="underline-offset-2 hover:underline">
-              Privacy
-            </a>
-            <a href={`${SITE_URL}/terms`} className="underline-offset-2 hover:underline">
-              Terms
-            </a>
-          </>
-        )}
+        <a href={`${SHOPPER_SITE_URL}/privacy`} className="underline-offset-2 hover:underline">
+          Privacy
+        </a>
+        <a href={`${SHOPPER_SITE_URL}/terms`} className="underline-offset-2 hover:underline">
+          Terms
+        </a>
         {MARKETPLACE_URL && (
           <a href={`${MARKETPLACE_URL}/for-shops`} className="underline-offset-2 hover:underline">
             I run a shop
@@ -1575,7 +1580,7 @@ function ProfileView({
       <Button
         tone="danger"
         size="lg"
-        onClick={() => signOut()}
+        onClick={() => signOut({ dropPush: true })}
         icon={<LogOut size={16} />}
         className="mt-3 w-full"
       >
@@ -1686,15 +1691,44 @@ function QrModal({
 /** Campaigns are the promotional kind; everything else is a service message. */
 const isPromotional = (kind: string) => /campaign|promo|offer/i.test(kind);
 
-function NotificationSheet({ close, onApprove }: { close: () => void; onApprove: () => void }) {
+/**
+ * Where an inbox row leads, from what the API writes: "Redemption" asks for
+ * an approval, "Gift" is a pasalubong, and anything from a shop opens that
+ * shop's card. Null leaves the row as text - a shop the customer has left
+ * has no card to open, and "Privacy" has no shop.
+ */
+function notificationTarget(
+  notification: { kind: string; businessId: string | null },
+  cards: WalletCard[],
+): Sheet {
+  if (/redemption|approv/i.test(notification.kind)) return { kind: "approve" };
+  if (/gift/i.test(notification.kind)) return { kind: "gifts" };
+  const card = notification.businessId
+    ? cards.find((item) => item.businessId === notification.businessId)
+    : undefined;
+  return card ? { kind: "wallet", id: card.id, programId: card.programId } : null;
+}
+
+function NotificationSheet({
+  close,
+  onApprove,
+  onOpen,
+}: {
+  close: () => void;
+  onApprove: () => void;
+  onOpen: (sheet: Sheet) => void;
+}) {
   const notificationsQuery = useNotifications();
   const notifications = notificationsQuery.data ?? [];
   const { data: approvals = [] } = usePendingApprovals();
-  const { notificationsRead: allRead, markNotificationsRead: onMarkRead } =
-    useCustomerState();
+  const {
+    notificationsRead: allRead,
+    markNotificationsRead: onMarkRead,
+    wallet: cards,
+  } = useCustomerState();
   const groups = [
     { title: "Service updates", detail: "Rewards, visits and your account. Always on.", rows: notifications.filter((n) => !isPromotional(n.kind)) },
-    { title: "Promotions", detail: "Offers from shops you allowed. Off by default.", rows: notifications.filter((n) => isPromotional(n.kind)) },
+    { title: "Promotions", detail: "Offers from shops you joined, as your notification settings allow.", rows: notifications.filter((n) => isPromotional(n.kind)) },
   ];
   return (
     <div
@@ -1752,27 +1786,49 @@ function NotificationSheet({ close, onApprove }: { close: () => void; onApprove:
                   <div className="mt-3 divide-y divide-[var(--line)] border-y border-[var(--line)]">
                     {group.rows.map((notification) => {
                       const isRead = allRead || notification.read;
-                      return (
-                        <article key={notification.id} className="grid grid-cols-[auto_1fr] gap-3 py-5">
+                      const target = notificationTarget(notification, cards);
+                      // Spans, not divs: the same body sits inside a button
+                      // when the row leads somewhere.
+                      const body = (
+                        <>
                           <span
                             className={`mt-0.5 grid size-10 place-items-center rounded-2xl ${isRead ? "bg-[var(--surface-2)]" : "bg-[var(--accent)]"}`}
                           >
                             <Bell size={17} aria-hidden="true" />
                           </span>
-                          <div>
-                            <div className="flex items-center justify-between gap-3">
-                              <p className="text-sm font-extrabold">{notification.title}</p>
+                          <span className="block min-w-0">
+                            <span className="flex items-center justify-between gap-3">
+                              <span className="block text-sm font-extrabold">{notification.title}</span>
                               {!isRead && (
                                 <span className="size-2 shrink-0 rounded-full bg-[var(--accent-strong)]" aria-label="Unread" />
                               )}
-                            </div>
-                            <p className="mt-1 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
+                            </span>
+                            <span className="mt-1 block text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-strong)]">
                               {notification.business ? `${notification.business} · ` : ""}
                               {notification.kind}
-                            </p>
-                            <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">{notification.body}</p>
-                            <p className="mt-2 text-[10px] text-[var(--muted)]">{relativeTime(notification.receivedAt)}</p>
-                          </div>
+                            </span>
+                            <span className="mt-2 block text-xs leading-relaxed text-[var(--muted-strong)]">{notification.body}</span>
+                            <span className="mt-2 block text-[10px] text-[var(--muted)]">{relativeTime(notification.receivedAt)}</span>
+                          </span>
+                        </>
+                      );
+                      return target ? (
+                        <button
+                          key={notification.id}
+                          type="button"
+                          onClick={() => onOpen(target)}
+                          className="group grid w-full grid-cols-[auto_1fr_auto] items-start gap-3 py-5 text-left"
+                        >
+                          {body}
+                          <ChevronRight
+                            size={16}
+                            aria-hidden="true"
+                            className="mt-3 text-[var(--muted)] transition group-hover:translate-x-0.5"
+                          />
+                        </button>
+                      ) : (
+                        <article key={notification.id} className="grid grid-cols-[auto_1fr] gap-3 py-5">
+                          {body}
                         </article>
                       );
                     })}
@@ -2564,7 +2620,7 @@ function ProfileSheet({
               ))}
             </div>
             <p className="rounded-2xl border border-dashed border-[var(--line-strong)] p-4 text-[11px] leading-relaxed text-[var(--muted-strong)]">
-              You can withdraw any permission from Consent history, or leave a
+              You can withdraw any permission under Notifications, or leave a
               program entirely from Leave or delete.
             </p>
           </div>
@@ -2835,7 +2891,11 @@ function CustomerWallet() {
 
       {qrOpen && <QrModal close={() => setQrOpen(false)} notify={notify} />}
       {sheet?.kind === "notifications" && (
-        <NotificationSheet close={() => setSheet(null)} onApprove={() => setSheet({ kind: "approve" })} />
+        <NotificationSheet
+          close={() => setSheet(null)}
+          onApprove={() => setSheet({ kind: "approve" })}
+          onOpen={setSheet}
+        />
       )}
       {sheet?.kind === "activity" && (
         <ActivitySheet close={() => setSheet(null)} />
@@ -2859,8 +2919,8 @@ function CustomerWallet() {
           close={() => setSheet(null)}
           onJoin={(businessId) =>
             joinBusiness(sheet.id, businessId, {
-              onJoined: () => setToast("Business added to your wallet."),
-              onFailed: (message) => setToast(message),
+              onJoined: () => notify("Business added to your wallet."),
+              onFailed: (message) => notify(message, "error"),
             })
           }
         />
@@ -2881,6 +2941,23 @@ function CustomerWallet() {
   );
 }
 
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+]; // fmt: skip
+
+/** Days that exist in a given month, ignoring leap years - as sign-up. */
+function daysIn(month: number): number {
+  return [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1] ?? 31;
+}
+
+/** "5 March", as the API spells it, back into the two select values. */
+function parseBirthday(birthday: string | null): { day: string; month: string } {
+  const [day = "", name = ""] = (birthday ?? "").split(" ");
+  const month = MONTHS.indexOf(name) + 1;
+  return month > 0 && Number(day) > 0 ? { day, month: String(month) } : { day: "", month: "" };
+}
+
 /**
  * Name, email and mobile, saved with a button.
  *
@@ -2890,8 +2967,10 @@ function CustomerWallet() {
  * land out of order - so the sign-in identifier could end up truncated. Only
  * the fields that changed are sent.
  *
- * Birthday is shown, not edited here: the API takes a day and a month, and a
- * free-text box was accepted, answered "Saved", and silently dropped.
+ * Birthday is two selects, day and month, saved with the rest: sign-up
+ * promises it can be added or changed later. A free-text box used to be
+ * accepted, answered "Saved", and silently dropped. There is no clearing it -
+ * the API keeps both halves or neither, and an omitted pair changes nothing.
  */
 function PersonalDetails({
   profile,
@@ -2899,17 +2978,24 @@ function PersonalDetails({
   profileSave,
 }: {
   profile: CustomerProfile;
-  updateProfile: (patch: Partial<CustomerProfile>) => void;
+  updateProfile: (patch: ProfilePatch) => void;
   profileSave: { isPending: boolean; error: Error | null; isSuccess: boolean };
 }) {
   const [draft, setDraft] = useState({
     name: profile.name ?? "",
     email: profile.email ?? "",
   });
+  const [birthday, setBirthday] = useState(() => parseBirthday(profile.birthday));
   const resend = useApiMutation(resendEmailConfirmation);
   const changed = (Object.keys(draft) as (keyof typeof draft)[]).filter(
     (field) => draft[field].trim() !== (profile[field] ?? ""),
   );
+  // The API's own spelling, "5 March", so an unchanged pick is not a change.
+  const birthdayLabel =
+    birthday.day && birthday.month ? `${birthday.day} ${MONTHS[Number(birthday.month) - 1]}` : "";
+  const birthdayChanged = birthdayLabel !== "" && birthdayLabel !== (profile.birthday ?? "");
+  const dirty = changed.length > 0 || birthdayChanged;
+  const dayLimit = birthday.month ? daysIn(Number(birthday.month)) : 31;
   const fields = [
     ["Name", "name", UserRound, "text", "name"],
     ["Email", "email", Mail, "email", "email"],
@@ -2919,8 +3005,17 @@ function PersonalDetails({
       className="mt-6 space-y-4"
       onSubmit={(event) => {
         event.preventDefault();
-        if (changed.length === 0 || profileSave.isPending) return;
-        updateProfile(Object.fromEntries(changed.map((field) => [field, draft[field].trim()])));
+        if (!dirty || profileSave.isPending) return;
+        updateProfile({
+          ...Object.fromEntries(changed.map((field) => [field, draft[field].trim()])),
+          ...(birthdayChanged
+            ? {
+                birthday: birthdayLabel,
+                birthdayDay: Number(birthday.day),
+                birthdayMonth: Number(birthday.month),
+              }
+            : {}),
+        });
       }}
     >
       {fields.map(([label, field, Icon, type, autoComplete]) => (
@@ -2949,20 +3044,53 @@ function PersonalDetails({
       )}
       <MobileNumber current={profile.mobile} />
       <PasswordSection hasPassword={Boolean(profile.hasPassword)} />
-      <div className="grid gap-2 text-xs font-bold">
-        Birthday
-        <span className="flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] px-4 text-sm font-normal text-[var(--muted-strong)]">
-          <CakeSlice size={16} className="text-[var(--muted)]" />
-          {profile.birthday ?? "Not given"}
-        </span>
-      </div>
-      <Button type="submit" size="lg" disabled={changed.length === 0 || profileSave.isPending} className="w-full">
+      <fieldset className="grid gap-2">
+        <legend className="mb-2 flex items-center gap-2 text-xs font-bold">
+          <CakeSlice size={14} aria-hidden="true" className="text-[var(--muted)]" />
+          Birthday{profile.birthday ? "" : ": Not given"}
+        </legend>
+        <div className="grid grid-cols-2 gap-3">
+          <Select
+            aria-label="Birthday month"
+            value={birthday.month}
+            onChange={(event) => {
+              const month = event.target.value;
+              // Same rule as sign-up: a day the new month does not have is
+              // cleared rather than left for the API to refuse.
+              setBirthday((current) => ({
+                month,
+                day: month && Number(current.day) > daysIn(Number(month)) ? "" : current.day,
+              }));
+            }}
+          >
+            <option value="">Month</option>
+            {MONTHS.map((name, index) => (
+              <option key={name} value={index + 1}>
+                {name}
+              </option>
+            ))}
+          </Select>
+          <Select
+            aria-label="Birthday day"
+            value={birthday.day}
+            onChange={(event) => setBirthday((current) => ({ ...current, day: event.target.value }))}
+          >
+            <option value="">Day</option>
+            {Array.from({ length: dayLimit }, (_, index) => index + 1).map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </Select>
+        </div>
+      </fieldset>
+      <Button type="submit" size="lg" disabled={!dirty || profileSave.isPending} className="w-full">
         {profileSave.isPending ? "Saving…" : "Save changes"}
       </Button>
       <FormMessage tone={profileSave.error ? "error" : "success"}>
         {profileSave.error
           ? profileSave.error.message
-          : profileSave.isSuccess && changed.length === 0
+          : profileSave.isSuccess && !dirty
             ? "Saved. Your details are updated across the wallet."
             : ""}
       </FormMessage>

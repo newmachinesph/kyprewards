@@ -25,14 +25,14 @@ gap lists in the other apps' `AGENTS.md` in the same change.
   `POST /public/playbook`, `POST /public/partner-applications`. Each takes
   `category` as a free string, so changing the category list needs no
   backend change.
-- GA4 loads only through `AnalyticsConsent` from `@kypstamping/ui/analytics`
+- GA4 loads only through `AnalyticsConsent` from `@kyprewards/ui/analytics`
   after the consent banner; kyp.ph uses the same component. Any new tag goes
   through the same gate and updates `/cookies` and `/subprocessors` in the
   same change. The signed-in apps and the wallet carry no analytics. Sentry
   (`src/instrumentation.ts`, `src/instrumentation-client.ts`) loads only when
   `NEXT_PUBLIC_SENTRY_DSN` is set.
 - The contact forms call `submitContact`, `submitPartnerApplication` and
-  `answerHeardFrom` from `@kypstamping/api/endpoints` directly. There is no
+  `answerHeardFrom` from `@kyprewards/api/endpoints` directly. There is no
   `ApiProvider` here: nothing on this site needs the query client, and it
   cost every page react-query and the whole hooks module.
 
@@ -40,7 +40,7 @@ gap lists in the other apps' `AGENTS.md` in the same change.
 
 | File | Owns |
 |---|---|
-| `packages/ui/src/plans.ts`, imported as `@kypstamping/ui/plans` | plans, prices, `featureMatrix`, `planLimits`, `overageRates`, add-ons, channel rates, payment methods, founding offer. The pricing page, estimator, table, `/roadmap` and `llms.txt` all render from it. Never hand-type a price or allowance anywhere else. |
+| `packages/ui/src/plans.ts`, imported as `@kyprewards/ui/plans` | plans, prices, `featureMatrix`, `planLimits`, `overageRates`, add-ons, channel rates, payment methods, founding offer. The pricing page, estimator, table, `/roadmap` and `llms.txt` all render from it. Never hand-type a price or allowance anywhere else. |
 | `src/lib/content.ts` | six industries, five resources, the business-category list shared by the partner form and the contact form, the short FAQ |
 | `src/lib/comparisons.ts` | peso-priced competitors only (ZAP, Qashier, StoreHub, Suki Cards, GoBalik), each with a source URL and the date read |
 | `src/lib/site.ts` | `businessAppUrl`, `adminAppUrl`, `siteUrl`. There is no `customerAppUrl`: this site never links to the wallet. |

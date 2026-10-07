@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { isPreview, usePublicShop, type PublicBranch, type PublicShop } from "@kypstamping/api";
-import { Pill, PreviewBadge, QueryBoundary, StampDots } from "@kypstamping/ui";
+import { isPreview, usePublicShop, type PublicBranch, type PublicShop } from "@kyprewards/api";
+import { Pill, PreviewBadge, QueryBoundary, StampDots } from "@kyprewards/ui";
 import { ArrowUpRight, Clock, MapPin, Navigation } from "lucide-react";
 import { customerAppUrl, siteUrl } from "@/lib/site";
 import { categoryPath, neighborhoodPath, shopPath } from "@/lib/routes";
