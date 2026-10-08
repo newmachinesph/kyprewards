@@ -67,8 +67,8 @@ export default function ContactPage() {
                 {
                   icon: MessageCircle,
                   title: "Prefer Messenger?",
-                  text: "facebook.com/kypstamping",
-                  href: "https://www.facebook.com/kypstamping",
+                  text: "facebook.com/kyprewards",
+                  href: "https://www.facebook.com/kyprewards",
                 },
               ].map((item) => {
                 const Icon = item.icon;

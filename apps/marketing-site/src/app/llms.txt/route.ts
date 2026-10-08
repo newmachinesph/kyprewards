@@ -59,7 +59,7 @@ export function GET() {
 - Industry solutions: ${siteUrl}/solutions
 - Comparisons (peso-priced competitors only): ${comparisons.map((c) => `${siteUrl}/compare/${c.slug}`).join(", ")}
 - Privacy notice: ${siteUrl}/privacy
-- Facebook page: https://www.facebook.com/kypstamping
+- Facebook page: https://www.facebook.com/kyprewards
 
 ## Plans
 

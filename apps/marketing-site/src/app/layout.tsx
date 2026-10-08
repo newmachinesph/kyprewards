@@ -120,7 +120,7 @@ export default function RootLayout({
                 addressCountry: "PH",
               },
               email: "support@kyprewards.com",
-              sameAs: ["https://www.facebook.com/kypstamping"],
+              sameAs: ["https://www.facebook.com/kyprewards"],
               knowsLanguage: ["en-PH", "fil"],
               knowsAbout: [
                 "Customer loyalty programs",

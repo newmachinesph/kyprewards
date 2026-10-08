@@ -52,7 +52,7 @@ const groups = [
       ["About", "/about"],
       ["Resources", "/resources"],
       ["Contact", "/contact"],
-      ["Facebook page", "https://www.facebook.com/kypstamping"],
+      ["Facebook page", "https://www.facebook.com/kyprewards"],
     ],
   },
   // Its own column rather than two links at the end of Company. A merchant
