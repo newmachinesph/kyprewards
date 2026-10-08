@@ -1,5 +1,5 @@
 import type { WalletCard } from "@kyprewards/api";
-import { longDate, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
+import { earningLine, longDate, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
 
 /**
  * Everything a stamp card says about its own state and terms.
@@ -107,6 +107,8 @@ export function cardTerms(card: WalletCard): [string, string][] {
   const rows: [string, string][] = [];
   if (card.target > 0) rows.push(["Target", `${card.target} stamps`]);
   rows.push(["Reward", card.reward]);
+  const earns = earningLine(card.earning);
+  if (earns) rows.push(["Earning", earns]);
   if (!rules) return rows;
   rows.push(["Cooldown", cooldownLabel(rules.cooldownMinutes)]);
   rows.push([

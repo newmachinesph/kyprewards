@@ -298,3 +298,31 @@ export function splitRange(time: string): { open: string; close: string } {
   const [open = "", close = ""] = time.split(/\s*[–-]\s*/);
   return { open: toInputTime(open), close: toInputTime(close) };
 }
+
+/**
+ * A points program's earn rule as a shopper reads it: "1 point for every
+ * ₱100", "2 points every visit", "2% back". `rateBps` is in ten-thousandths
+ * (see `Earning` in @kyprewards/api); null when there is no rule to show.
+ */
+export function earningLine(
+  earning: { mode: "visit" | "peso" | "item" | "cashback"; rateBps: number } | null | undefined,
+): string | null {
+  if (!earning || earning.rateBps <= 0) return null;
+  const { mode, rateBps } = earning;
+  const points = (n: number) => `${trimNumber(n)} ${n === 1 ? "point" : "points"}`;
+  if (mode === "cashback") return `${trimNumber(rateBps / 100)}% back`;
+  if (mode === "visit") return `${points(rateBps / 10_000)} every visit`;
+  if (mode === "item") return `${points(rateBps / 10_000)} per item`;
+  // Per peso: one point for every ₱N when that is a whole number of pesos,
+  // otherwise the points a ₱100 spend earns.
+  const pesosPerPoint = 10_000 / rateBps;
+  if (Number.isInteger(pesosPerPoint)) {
+    return pesosPerPoint === 1 ? "1 point per ₱1" : `1 point for every ₱${peso(pesosPerPoint).replace("₱", "")}`;
+  }
+  if (rateBps > 10_000) return `${points(rateBps / 10_000)} per ₱1`;
+  return `${points(rateBps / 100)} for every ₱100`;
+}
+
+function trimNumber(n: number): string {
+  return Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+}

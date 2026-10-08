@@ -56,6 +56,7 @@ import type {
   CustomerNotification,
   CustomerProfile,
   DiscoverPlace,
+  Earning,
   FavoriteOrder,
   Integration,
   MessageRecord,
@@ -669,6 +670,8 @@ export type ProgramDraft = {
   rewardName?: string;
   rewardValueCentavos?: number;
   expiryDays?: number;
+  /** Points programs only. */
+  earning?: Earning;
 };
 
 export const createProgram = (body: ProgramDraft): Promise<Program> =>

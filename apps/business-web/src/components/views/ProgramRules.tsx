@@ -11,16 +11,19 @@ import {
   useClosePreview,
   usePrograms,
   type CategoryRate,
+  type EarnMode,
+  type Earning,
   type Program,
   type StampRules,
   useBranding,
 } from "@kyprewards/api";
 import { Button, Eyebrow, IconButton, PreviewBadge, StampDots } from "@kyprewards/ui";
-import { Checkbox, Chip, Field, Input, Select } from "@kyprewards/ui/form";
-import { longDate, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
+import { Checkbox, Chip, Field, Input, Segmented, Select } from "@kyprewards/ui/form";
+import { earningLine, longDate, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
 import { PlanTag } from "@kyprewards/ui/shell";
 import { Plus, Trash2 } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
+import { useUpdateProgram } from "@/components/mutations";
 import {
   BlockedNote,
   onlyDigits,
@@ -452,6 +455,124 @@ export function CategoryRatesEditor({ programId, notify }: { programId: string; 
           }
         >
           {save.isPending ? "Saving…" : "Save rates"}
+        </Button>
+        <BlockedNote reason={blocked} />
+      </div>
+    </section>
+  );
+}
+
+type EarnDraft = { mode: EarnMode; points: string; pesos: string; percent: string };
+
+const EARN_MODES = [
+  { value: "peso", label: "Per peso spent" },
+  { value: "visit", label: "Per visit" },
+  { value: "item", label: "Per item" },
+  { value: "cashback", label: "Cashback" },
+] as const satisfies readonly { value: EarnMode; label: string }[];
+
+/** The stored rule as the owner reads it: "1 point for every ₱100", "2% back". */
+function draftFrom(earning: Earning | null | undefined): EarnDraft {
+  const { mode, rateBps } = earning ?? { mode: "visit" as const, rateBps: 10_000 };
+  const draft: EarnDraft = { mode, points: "1", pesos: "100", percent: "2" };
+  if (mode === "cashback") return { ...draft, percent: String(rateBps / 100) };
+  if (mode === "peso") {
+    const pesosPerPoint = 10_000 / rateBps;
+    return Number.isInteger(pesosPerPoint)
+      ? { ...draft, points: "1", pesos: String(pesosPerPoint) }
+      : { ...draft, points: String(rateBps / 100), pesos: "100" };
+  }
+  return { ...draft, points: String(rateBps / 10_000) };
+}
+
+/** Back to the API's unit, ten-thousandths; null while a field is not a number. */
+function earningFrom(draft: EarnDraft): Earning | null {
+  const points = Number.parseFloat(draft.points);
+  if (draft.mode === "cashback") {
+    const percent = Number.parseFloat(draft.percent);
+    return percent > 0 ? { mode: "cashback", rateBps: Math.round(percent * 100) } : null;
+  }
+  if (!(points > 0)) return null;
+  if (draft.mode === "peso") {
+    const pesos = Number.parseFloat(draft.pesos);
+    return pesos > 0 ? { mode: "peso", rateBps: Math.round((points * 10_000) / pesos) } : null;
+  }
+  return { mode: draft.mode, rateBps: Math.round(points * 10_000) };
+}
+
+/** How a points program earns: per peso, per visit, per item or as cashback. */
+export function PointsEarningEditor({ program, notify }: { program: Program; notify: Notify }) {
+  const gate = usePlanGate();
+  const preview = isPreview(program);
+  const [draft, setDraft] = useState<EarnDraft | null>(null);
+  const [draftFor, setDraftFor] = useState(program.id);
+  if (draftFor !== program.id) {
+    setDraftFor(program.id);
+    setDraft(null);
+  }
+  const shown = draft ?? draftFrom(program.earning);
+  const earning = earningFrom(shown);
+  const needed = planFor(shown.mode === "item" ? "Earn by category or item" : "Points and cashback");
+  const blocked = writeBlock(gate, needed, preview);
+  const save = useUpdateProgram();
+  const edit = (patch: Partial<EarnDraft>) => setDraft({ ...shown, ...patch });
+
+  return (
+    <section className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <Eyebrow>Points and cashback</Eyebrow>
+          <h2 className="mt-1 text-lg font-extrabold">How points are earned</h2>
+        </div>
+        <span className="flex items-center gap-2">
+          {preview && <PreviewBadge />}
+          <PlanTag plan={needed} included={gate.covers(needed)} />
+        </span>
+      </div>
+      <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+        Applies to the next sale. Points already earned stay as they are.
+      </p>
+      <Segmented label="Earn" className="mt-4 sm:max-w-xl" options={EARN_MODES} value={shown.mode} onChange={(mode) => edit({ mode })} />
+      <div className="mt-4 grid gap-3 sm:max-w-md sm:grid-cols-2">
+        {shown.mode === "cashback" ? (
+          <Field label="Percent of the sale back">
+            <Input inputMode="decimal" value={shown.percent} onChange={(event) => edit({ percent: event.target.value })} />
+          </Field>
+        ) : (
+          <Field label={shown.mode === "visit" ? "Points per visit" : shown.mode === "item" ? "Points per item" : "Points"}>
+            <Input inputMode="decimal" value={shown.points} onChange={(event) => edit({ points: event.target.value })} />
+          </Field>
+        )}
+        {shown.mode === "peso" && (
+          <Field label="For every ₱">
+            <Input inputMode="decimal" value={shown.pesos} onChange={(event) => edit({ pesos: event.target.value })} />
+          </Field>
+        )}
+      </div>
+      <p className="mt-3 text-sm font-bold">
+        {earning ? `Shoppers see: ${earningLine(earning)}` : "Enter a number above zero."}
+      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <Button
+          disabled={Boolean(blocked) || !draft || !earning || save.isPending}
+          title={blocked ?? undefined}
+          onClick={() =>
+            earning &&
+            save.mutate(
+              { id: program.id, patch: { earning } },
+              {
+                onSuccess: () => {
+                  setDraft(null);
+                  notify("Earning rule saved.");
+                },
+                // The API names the problem: a visit below one point, more
+                // cashback than the sale, or per item before Grow.
+                onError: (failure) => notify(refusal(failure, needed), "error"),
+              },
+            )
+          }
+        >
+          {save.isPending ? "Saving…" : "Save earning rule"}
         </Button>
         <BlockedNote reason={blocked} />
       </div>

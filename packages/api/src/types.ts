@@ -257,6 +257,15 @@ export type BusinessCustomer = {
   tier?: string | null;
 };
 
+/**
+ * How a points program earns. `rateBps` is in ten-thousandths: for `visit` and
+ * `item`, points per visit or item (10000 is one point); for `peso`, points per
+ * peso (100 is one point for every ₱100); for `cashback`, the share of the
+ * sale returned as money (200 is 2%). Format it with `earningLine`.
+ */
+export type EarnMode = "visit" | "peso" | "item" | "cashback";
+export type Earning = { mode: EarnMode; rateBps: number };
+
 export type Program = {
   id: string;
   type: ProgramType;
@@ -272,6 +281,8 @@ export type Program = {
   rewardValueCentavos: number;
   /** The stamp-card rules, once the API carries them. Absent today. */
   rules?: StampRules;
+  /** How points are earned, on points programs only. */
+  earning?: Earning | null;
   preview?: boolean;
 };
 
@@ -466,6 +477,8 @@ export type WalletCard = {
   state?: CardState;
   pendingStamp?: PendingStamp | null;
   rules?: StampRules;
+  /** How a points card earns; null on every other kind. */
+  earning?: Earning | null;
   nextStampAt?: string | null;
   /** After a run closes: when a held reward must be redeemed by. */
   redeemBy?: string | null;

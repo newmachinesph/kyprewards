@@ -24,7 +24,7 @@ import {
   useUpdateProgram,
 } from "@/components/mutations";
 import { programCap, refusal, usePlanGate } from "@/lib/plan";
-import { CategoryRatesEditor, ProgramRulesEditor } from "@/components/views/ProgramRules";
+import { CategoryRatesEditor, PointsEarningEditor, ProgramRulesEditor } from "@/components/views/ProgramRules";
 import type { Notify } from "@/components/views/shared";
 
 const programIcons: Record<string, typeof Stamp> = {
@@ -592,6 +592,7 @@ export function ProgramsView({ notify }: { notify: Notify }) {
         </aside>
       </div>
       {selected.type === "Stamps" && <ProgramRulesEditor program={selected} notify={notify} />}
+      {selected.type === "Points" && <PointsEarningEditor program={selected} notify={notify} />}
       {selected.type === "Points" && <CategoryRatesEditor programId={selected.id} notify={notify} />}
       {creating && (
         <NewProgramDialog onClose={() => setCreating(false)} notify={notify} />

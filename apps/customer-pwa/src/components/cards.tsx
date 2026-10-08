@@ -13,7 +13,7 @@ import {
 } from "@kyprewards/api";
 import { Button, PreviewBadge } from "@kyprewards/ui";
 import { Field, FormMessage, Input } from "@kyprewards/ui/form";
-import { longDate, peso, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
+import { earningLine, longDate, peso, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
 import { Check, Sparkles, Ticket } from "lucide-react";
 
 /**
@@ -201,6 +201,8 @@ export function CardTerms({ card }: { card: WalletCard }) {
   const rows: [string, string][] = [];
   if (card.target > 0) rows.push(["Target", `${card.target} stamps`]);
   rows.push(["Reward", card.reward]);
+  const earns = earningLine(card.earning);
+  if (earns) rows.push(["Earning", earns]);
   if (rules) {
     rows.push(["Cooldown", cooldownLabel(rules.cooldownMinutes)]);
     rows.push([
