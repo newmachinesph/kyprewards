@@ -71,7 +71,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-[var(--line)] px-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-[1200px] flex-col gap-2 py-5 text-[11px] font-semibold text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 KYP.</span>
+          <span>© 2026 KYP Rewards.</span>
           <span>Shops across the Philippines.</span>
         </div>
       </div>
