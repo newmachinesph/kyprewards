@@ -23,10 +23,14 @@ import type {
   AuditEvent,
   Automation,
   ApprovalRequest,
+  AppliedDiscount,
   Benefit,
   Billing,
   Branding,
+  CashbackSpendResult,
+  CatalogChoice,
   CatalogItem,
+  CatalogKind,
   CounterTransaction,
   Coupon,
   CustomField,
@@ -40,6 +44,7 @@ import type {
   GiftCard,
   GiftCardEntry,
   HeldProgram,
+  HeldShop,
   MemberSubscription,
   InvitePreview,
   MessagingPolicy,
@@ -493,6 +498,23 @@ export const claimFirstStamp = (claimToken: string): Promise<WalletCard> =>
 
 export const getActivity = (): Promise<ActivityEntry[]> => http("/customer/activity");
 
+/** What the shopper holds at each shop: coupons, passes, gift cards, a
+ *  membership, a discount rate, cashback, and the catalog their balance buys. */
+export const getHeld = (): Promise<HeldShop[]> => http("/customer/held");
+
+/** Spends points on a catalog item from the wallet. The points leave now and
+ *  a reward is held; staff hand it over with the usual approval. */
+/** A retried tap with the same key replays the first choice: no second debit. */
+export const chooseCatalogItem = (
+  membershipId: string,
+  itemId: string,
+  idempotencyKey?: string,
+): Promise<CatalogChoice> =>
+  http(
+    `/customer/cards/${encodeURIComponent(membershipId)}/catalog/${encodeURIComponent(itemId)}/choose`,
+    { method: "POST", idempotencyKey },
+  );
+
 export const getConsentHistory = (): Promise<ConsentEntry[]> => http("/customer/consent");
 
 export const getChannelPreferences = (): Promise<ChannelPreferences> =>
@@ -666,12 +688,24 @@ export type ProgramDraft = {
   type: string;
   name: string;
   status?: string;
+  /** Stamps only (1-30, default 1). Leave it out for every other type: the
+   *  API stores 0 whatever is sent. */
   target?: number;
   rewardName?: string;
   rewardValueCentavos?: number;
   expiryDays?: number;
   /** Points programs only. */
   earning?: Earning;
+  /* The per-type settings. Sent for a type that does not read one, the API
+     refuses it by name. */
+  /** Discount and Membership: basis points off, 0-10000. */
+  discountBps?: number;
+  /** Membership and Multipass. */
+  priceCentavos?: number;
+  /** Membership: uses a month, zero is unlimited. */
+  benefitLimit?: number;
+  /** Multipass: passes per bundle, 1-1000. Needed before it can go Live. */
+  bundleSize?: number;
 };
 
 export const createProgram = (body: ProgramDraft): Promise<Program> =>
@@ -786,6 +820,16 @@ export type CustomerBalance = {
    *  finish, which reads as the reward vanishing mid-handover. */
   heldRedemptionId: string | null;
   heldRewardName: string;
+  /** Every live program: units held and, for cashback points, the cashback. */
+  programs?: ProgramBalance[];
+};
+
+export type ProgramBalance = {
+  programId: string;
+  programName: string;
+  type: string;
+  balance: number;
+  cashbackCentavos: number;
 };
 
 /** What the counter shows before it stamps: where this card stands now. */
@@ -812,6 +856,15 @@ export type VisitResult = {
   // sale that earned nothing.
 } & VisitOutcome;
 
+/** What `POST /transactions` answers: the visit, plus the discount to take
+ *  and the cashback earned, so a till needs no second call. Null when the
+ *  shop runs neither. */
+export type SaleResult = VisitResult & {
+  discount?: AppliedDiscount | null;
+  cashbackEarnedCentavos?: number | null;
+  cashbackBalanceCentavos?: number | null;
+};
+
 export const recordVisit = (
   body: {
     customerId?: string;
@@ -819,9 +872,15 @@ export const recordVisit = (
     branchId?: string;
     amountCentavos?: number;
     externalReference?: string;
+    /** The number the customer signs in with: the counter's third way in. */
+    mobile?: string;
+    /** Only read by programs earning per item; the API defaults to 1. */
+    items?: number;
+    /** What was bought, by name, for category rates and item missions. */
+    itemNames?: string[];
   },
   idempotencyKey: string,
-): Promise<VisitResult> =>
+): Promise<SaleResult> =>
   http("/transactions", { method: "POST", body, idempotencyKey } satisfies HttpOptions);
 
 /**
@@ -955,10 +1014,22 @@ export const quoteDiscount = (
 export const getHeldPrograms = (customerId: string): Promise<HeldProgram[]> =>
   http("/memberships", { query: { customerId } });
 
-export const subscribeMembership = (body: {
-  customerId: string;
-  programId: string;
-}): Promise<MemberSubscription> => http("/memberships/subscribe", { method: "POST", body });
+export const subscribeMembership = (
+  body: { customerId: string; programId: string },
+  idempotencyKey?: string,
+): Promise<MemberSubscription> =>
+  http("/memberships/subscribe", { method: "POST", body, idempotencyKey });
+
+/**
+ * Records this period's payment at the till and pushes `renewsOn` thirty days
+ * on. The key is required: a renewal is money taken, and a second tap on a
+ * slow connection must not charge the member twice.
+ */
+export const renewMembership = (
+  subscriptionId: string,
+  idempotencyKey: string,
+): Promise<MemberSubscription> =>
+  http(`/memberships/${subscriptionId}/renew`, { method: "POST", idempotencyKey });
 
 export const cancelMembership = (subscriptionId: string): Promise<MemberSubscription> =>
   http(`/memberships/${subscriptionId}/cancel`, { method: "POST" });
@@ -968,47 +1039,94 @@ export const useMembershipBenefit = (subscriptionId: string): Promise<Benefit> =
   http(`/memberships/${subscriptionId}/use-benefit`, { method: "POST" });
 
 /** `remaining` is what is left on the bundle, in passes. */
-export const purchaseMultipass = (body: {
-  customerId: string;
-  programId: string;
-}): Promise<Benefit> => http("/multipass/purchase", { method: "POST", body });
+export const purchaseMultipass = (
+  body: { customerId: string; programId: string },
+  idempotencyKey?: string,
+): Promise<Benefit> => http("/multipass/purchase", { method: "POST", body, idempotencyKey });
 
 /** Draws one pass. Takes the same body as the purchase: a pass belongs to a
  *  customer-and-program pair, not to a subscription of its own. */
-export const useMultipass = (body: {
-  customerId: string;
-  programId: string;
-}): Promise<Benefit> => http("/multipass/use", { method: "POST", body });
+export const useMultipass = (
+  body: { customerId: string; programId: string },
+  idempotencyKey?: string,
+): Promise<Benefit> => http("/multipass/use", { method: "POST", body, idempotencyKey });
 
-export const issueCoupon = (body: {
-  name: string;
-  valueCentavos?: number;
-  percentBps?: number;
-  programId?: string;
-  /** Leave unset to issue one anybody can claim. */
-  customerId?: string;
-  validFrom?: string;
-  validUntil?: string;
-}): Promise<Coupon> => http("/coupons", { method: "POST", body });
+/** Undo a multipass sale or use by the `entryId` it answered with. Void is
+ *  for a mistake at the till, refund for money handed back. */
+export const voidMultipassEntry = (entryId: string): Promise<Benefit> =>
+  http(`/multipass/entries/${entryId}/void`, { method: "POST" });
 
-export const getCoupons = (): Promise<Coupon[]> => http("/coupons");
+export const refundMultipassEntry = (entryId: string): Promise<Benefit> =>
+  http(`/multipass/entries/${entryId}/refund`, { method: "POST" });
 
+/** Spend cashback at the till. Keyed, because it spends money. */
+export const spendCashback = (
+  body: { customerId: string; programId: string; amountCentavos: number },
+  idempotencyKey: string,
+): Promise<CashbackSpendResult> =>
+  http("/cashback/spend", { method: "POST", body, idempotencyKey });
+
+/** `environment` defaults to production on the API. */
+export const issueCoupon = (
+  body: {
+    name: string;
+    valueCentavos?: number;
+    /** 0-10000. */
+    percentBps?: number;
+    programId?: string;
+    /** Leave unset to issue one anybody can claim. */
+    customerId?: string;
+    validFrom?: string;
+    validUntil?: string;
+  },
+  environment?: Environment,
+): Promise<Coupon> => http("/coupons", { method: "POST", body, query: { environment } });
+
+export const getCoupons = (environment?: Environment): Promise<Coupon[]> =>
+  http("/coupons", { query: { environment } });
+
+/** A page of coupons; pass the previous page's `nextCursor`. */
+export const getCouponPage = (
+  query: { environment?: Environment; limit?: number; cursor?: string } = {},
+): Promise<Page<Coupon>> => httpPage("/coupons", { query });
+
+/** A member-bound coupon answers with `redemptionId` and `redemptionStatus`:
+ *  commit that redemption once the customer approves. */
 export const redeemCoupon = (body: { code: string; customerId: string }): Promise<Coupon> =>
   http("/coupons/redeem", { method: "POST", body });
 
-export const getCatalog = (programId: string): Promise<CatalogItem[]> =>
-  http(`/business/programs/${programId}/catalog`);
+/** Cheapest first. Retired items only with `includeRetired`. */
+export const getCatalog = (programId: string, includeRetired?: boolean): Promise<CatalogItem[]> =>
+  http(`/business/programs/${programId}/catalog`, {
+    query: { includeRetired: includeRetired || undefined },
+  });
 
 export const addCatalogItem = (
   programId: string,
-  body: { name: string; kind?: string; costUnits: number; valueCentavos?: number },
+  body: { name: string; kind?: CatalogKind; costUnits: number; valueCentavos?: number },
 ): Promise<CatalogItem> =>
   http(`/business/programs/${programId}/catalog`, { method: "POST", body });
 
-export const redeemCatalogItem = (body: {
-  itemId: string;
-  customerId: string;
-}): Promise<CatalogItem> => http("/catalog/redeem", { method: "POST", body });
+/** `active: false` retires the item. */
+export const updateCatalogItem = (
+  programId: string,
+  itemId: string,
+  body: {
+    name?: string;
+    kind?: CatalogKind;
+    costUnits?: number;
+    valueCentavos?: number;
+    active?: boolean;
+  },
+): Promise<CatalogItem> =>
+  http(`/business/programs/${programId}/catalog/${itemId}`, { method: "PATCH", body });
+
+/** Spends the units and holds a reward, handed over by reserve -> commit.
+ *  Pass a key: a second tap must not spend the units twice. */
+export const redeemCatalogItem = (
+  body: { itemId: string; customerId: string },
+  idempotencyKey?: string,
+): Promise<CatalogChoice> => http("/catalog/redeem", { method: "POST", body, idempotencyKey });
 
 export const getTiers = (programId: string): Promise<ProgramTier[]> =>
   http(`/business/programs/${programId}/tiers`);
@@ -1020,13 +1138,44 @@ export const addTier = (
 ): Promise<ProgramTier> =>
   http(`/business/programs/${programId}/tiers`, { method: "POST", body });
 
+export const updateTier = (
+  programId: string,
+  tierId: string,
+  body: { name?: string; threshold?: number; rateBps?: number },
+): Promise<ProgramTier> =>
+  http(`/business/programs/${programId}/tiers/${tierId}`, { method: "PATCH", body });
+
+export const deleteTier = (programId: string, tierId: string): Promise<void> =>
+  http(`/business/programs/${programId}/tiers/${tierId}`, { method: "DELETE" });
+
 export const issueGiftCard = (body: {
+  /** What the buyer pays, or a promotional voucher's face value. */
   amountCentavos: number;
+  /** Loaded on top of what was paid: "load 500, get 550" is 5000. */
+  bonusCentavos?: number;
+  /** A free voucher. Only a promotional card may carry `expiresOn`. */
+  promotional?: boolean;
   issuedToName?: string;
   holderAccountId?: string;
   programId?: string;
   expiresOn?: string;
 }): Promise<GiftCard> => http("/gift-cards", { method: "POST", body });
+
+/** The shop's cards. `status: "active"` (the API's default) is the ones
+ *  still carrying a spendable balance; `"all"` includes the rest. */
+export const getGiftCards = (
+  query: { status?: "active" | "all"; limit?: number; cursor?: string } = {},
+): Promise<Page<GiftCard>> => httpPage("/gift-cards", { query });
+
+/** Money from a returned purchase goes back onto the card. */
+export const refundGiftCard = (
+  code: string,
+  body: { amountCentavos: number; reason?: string },
+): Promise<GiftCard> =>
+  http(`/gift-cards/${encodeURIComponent(code)}/refund`, { method: "POST", body });
+
+export const voidGiftCard = (code: string, body: { reason?: string } = {}): Promise<GiftCard> =>
+  http(`/gift-cards/${encodeURIComponent(code)}/void`, { method: "POST", body });
 
 export const getGiftCard = (code: string): Promise<GiftCard> =>
   http(`/gift-cards/${encodeURIComponent(code)}`);
@@ -1038,8 +1187,9 @@ export const getGiftCardEntries = (code: string): Promise<GiftCardEntry[]> =>
 export const redeemGiftCard = (
   code: string,
   body: { amountCentavos: number; reason?: string },
+  idempotencyKey?: string,
 ): Promise<GiftCard> =>
-  http(`/gift-cards/${encodeURIComponent(code)}/redeem`, { method: "POST", body });
+  http(`/gift-cards/${encodeURIComponent(code)}/redeem`, { method: "POST", body, idempotencyKey });
 
 export const transferGiftCard = (
   code: string,
@@ -1442,6 +1592,7 @@ import type {
   Mission,
   PendingApproval,
   PromoCode,
+  PromoRedeemResult,
   PublicDiscoverQuery,
   PublicShop,
   PushState,
@@ -1497,7 +1648,10 @@ export const updatePromoCode = (id: string, body: Partial<PromoCode>): Promise<P
   http(`/business/promo-codes/${id}`, { method: "PATCH", body });
 
 /** The customer types a public code into their wallet. */
-export const redeemPromoCode = (body: { businessId: string; code: string }): Promise<WalletCard> =>
+export const redeemPromoCode = (body: {
+  businessId: string;
+  code: string;
+}): Promise<PromoRedeemResult> =>
   http("/customer/promo-codes/redeem", { method: "POST", body });
 
 export const getStoreCredit = (customerId?: string): Promise<StoreCreditEntry[]> =>

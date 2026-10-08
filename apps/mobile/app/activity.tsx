@@ -1,6 +1,17 @@
 import { useState } from "react";
 import { Text, View } from "react-native";
-import { History, ShieldCheck } from "lucide-react-native";
+import {
+  Coins,
+  CreditCard,
+  Crown,
+  History,
+  Percent,
+  ShieldCheck,
+  Stamp,
+  Ticket,
+  TicketPercent,
+  Wallet,
+} from "lucide-react-native";
 import { useActivity } from "@kyprewards/api";
 import { relativeTime } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
@@ -12,7 +23,20 @@ import {
   QueryState,
   Title,
 } from "@/components/ui";
+import { activityValue, isGain } from "@/lib/held";
 import { colors } from "@/lib/theme";
+
+/** The program an entry moved, at a glance; cashback reads as money. */
+const typeIcons: Record<string, typeof History> = {
+  Stamps: Stamp,
+  Points: Coins,
+  Rewards: Coins,
+  Multipass: Ticket,
+  Coupon: TicketPercent,
+  "Gift card": CreditCard,
+  Membership: Crown,
+  Discount: Percent,
+};
 
 export default function Activity() {
   const activity = useActivity();
@@ -22,8 +46,8 @@ export default function Activity() {
     filter === "All"
       ? true
       : filter === "Earned"
-        ? entry.value.startsWith("+")
-        : !entry.value.startsWith("+"),
+        ? isGain(entry)
+        : !isGain(entry),
   );
 
   return (
@@ -60,41 +84,48 @@ export default function Activity() {
               }
               detail={
                 filter === "All"
-                  ? "Your first stamp will appear here."
+                  ? "Your first visit will appear here."
                   : undefined
               }
             />
           ) : (
             <View className="border-y border-line">
-              {visible.map((entry, index) => (
-                <View
-                  key={entry.id}
-                  className={`flex-row items-center gap-3 py-5 ${index > 0 ? "border-t border-line" : ""}`}
-                >
-                  <View className="size-11 items-center justify-center rounded-2xl bg-surface-2">
-                    <History size={18} color={colors.ink} />
-                  </View>
-                  <View className="min-w-0 flex-1">
-                    <Text className="font-sans-extrabold text-[14px] text-ink">
-                      {entry.action}
-                    </Text>
-                    <Text className="mt-1 font-sans-bold text-[10px] uppercase tracking-[0.8px] text-accent-strong">
-                      {entry.business} · {relativeTime(entry.occurredAt)}
-                    </Text>
-                    <Text className="mt-1 font-sans text-[11px] text-muted">
-                      {entry.detail}
-                    </Text>
-                    <Text className="mt-2 font-mono text-[9px] text-muted-strong">
-                      {entry.reference}
-                    </Text>
-                  </View>
-                  <Text
-                    className={`font-sans-extrabold text-[12px] ${entry.value.startsWith("+") ? "text-success" : "text-ink"}`}
+              {visible.map((entry, index) => {
+                const Icon =
+                  entry.kind === "cashback" || entry.kind === "redeem_cashback"
+                    ? Wallet
+                    : (typeIcons[entry.programType ?? ""] ?? History);
+                const gain = isGain(entry);
+                return (
+                  <View
+                    key={entry.id}
+                    className={`flex-row items-center gap-3 py-5 ${index > 0 ? "border-t border-line" : ""}`}
                   >
-                    {entry.value}
-                  </Text>
-                </View>
-              ))}
+                    <View className="size-11 items-center justify-center rounded-2xl bg-surface-2">
+                      <Icon size={18} color={colors.ink} />
+                    </View>
+                    <View className="min-w-0 flex-1">
+                      <Text className="font-sans-extrabold text-[14px] text-ink">
+                        {entry.action}
+                      </Text>
+                      <Text className="mt-1 font-sans-bold text-[10px] uppercase tracking-[0.8px] text-accent-strong">
+                        {entry.business} · {relativeTime(entry.occurredAt)}
+                      </Text>
+                      <Text className="mt-1 font-sans text-[11px] text-muted">
+                        {entry.detail}
+                      </Text>
+                      <Text className="mt-2 font-mono text-[9px] text-muted-strong">
+                        {entry.reference}
+                      </Text>
+                    </View>
+                    <Text
+                      className={`font-sans-extrabold text-[12px] ${gain ? "text-success" : "text-ink"}`}
+                    >
+                      {activityValue(entry)}
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
           )}
         </QueryState>

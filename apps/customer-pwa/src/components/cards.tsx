@@ -15,6 +15,7 @@ import { Button, PreviewBadge } from "@kyprewards/ui";
 import { Field, FormMessage, Input } from "@kyprewards/ui/form";
 import { earningLine, longDate, peso, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
 import { Check, Sparkles, Ticket } from "lucide-react";
+import { couponValue } from "@/components/held";
 
 /**
  * Everything a stamp card says about its own state and terms.
@@ -78,10 +79,11 @@ export function cardStateLine(card: WalletCard): string | null {
 }
 
 /** State, held reward deadline, tier, bonus window and badge, as small lines
- *  under a card. `onCard` sets the ink for the ticket ground. */
+ *  under a card. `onCard` sets the ink for the ticket ground; the card sets
+ *  `--card-soft` to 100% over a photo so these lines keep AA there. */
 export function CardStatus({ card, onCard = false }: { card: WalletCard; onCard?: boolean }) {
   const line = cardStateLine(card);
-  const soft = onCard ? { color: "color-mix(in oklab, var(--card-ink) 72%, transparent)" } : undefined;
+  const soft = onCard ? { color: "color-mix(in oklab, var(--card-ink) var(--card-soft, 72%), transparent)" } : undefined;
   const softClass = onCard ? "" : "text-[var(--muted-strong)]";
   return (
     <div className="mt-3 space-y-1.5 text-[11px] font-semibold">
@@ -128,7 +130,7 @@ export function TierChip({ card, onCard = false }: { card: WalletCard; onCard?: 
       </span>
       <span
         className={onCard ? "" : "text-[var(--muted-strong)]"}
-        style={onCard ? { color: "color-mix(in oklab, var(--card-ink) 72%, transparent)" } : undefined}
+        style={onCard ? { color: "color-mix(in oklab, var(--card-ink) var(--card-soft, 72%), transparent)" } : undefined}
       >
         {next}
       </span>
@@ -141,8 +143,9 @@ export function KypBadge({ onCard = false }: { onCard?: boolean }) {
   return (
     <span
       className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-[0.12em] ${
-        onCard ? "border-current opacity-60" : "border-[var(--line-strong)] text-[var(--muted)]"
+        onCard ? "border-current" : "border-[var(--line-strong)] text-[var(--muted)]"
       }`}
+      style={onCard ? { color: "color-mix(in oklab, var(--card-ink) var(--card-soft, 60%), transparent)" } : undefined}
       title="This shop is on the free Launch plan."
     >
       KYP Rewards
@@ -170,7 +173,9 @@ export function MissionList({ card }: { card: WalletCard }) {
                       <Check size={12} strokeWidth={3} aria-hidden="true" /> Done
                     </span>
                   ) : (
-                    `${mission.progress} of ${mission.target}`
+                    mission.goal === "spend"
+                      ? `${peso(mission.progress)} of ${peso(mission.target)}`
+                      : `${mission.progress} of ${mission.target}`
                   )}
                 </span>
               </div>
@@ -203,6 +208,11 @@ export function CardTerms({ card }: { card: WalletCard }) {
   rows.push(["Reward", card.reward]);
   const earns = earningLine(card.earning);
   if (earns) rows.push(["Earning", earns]);
+  if (!rules && (card.expiryDays ?? 0) > 0) {
+    if (card.kind === "Points" || card.kind === "Rewards")
+      rows.push(["Expiry", `${card.expiryDays} days after earning, oldest first`]);
+    else if (card.kind === "Multipass") rows.push(["Expiry", `${card.expiryDays} days after purchase`]);
+  }
   if (rules) {
     rows.push(["Cooldown", cooldownLabel(rules.cooldownMinutes)]);
     rows.push([
@@ -274,8 +284,9 @@ export function PromoCodeEntry({ card }: { card: WalletCard }) {
   const [code, setCode] = useState("");
   const preview = isPreview(card);
   const redeem = useApiMutation(redeemPromoCode, {
-    invalidates: [keys.customer.wallet(), keys.customer.activity()],
+    invalidates: [keys.customer.wallet(), keys.customer.activity(), keys.customer.held()],
   });
+  const coupon = redeem.data?.coupon;
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -324,7 +335,16 @@ export function PromoCodeEntry({ card }: { card: WalletCard }) {
       ) : (
         <FormMessage tone={redeem.isSuccess ? "success" : "error"} className="mt-2">
           {redeem.isSuccess ? (
-            "Code applied. Your card is updated."
+            coupon ? (
+              <>
+                {coupon.name}
+                {couponValue(coupon) ? `, ${couponValue(coupon)}` : ""}, is yours until{" "}
+                {longDate(coupon.validUntil)}. Show this code at the counter:{" "}
+                <span className="font-mono font-bold tracking-[0.08em]">{coupon.code}</span>
+              </>
+            ) : (
+              "Code applied. Your card is updated."
+            )
           ) : failure ? (
             <>
               {failure.message}

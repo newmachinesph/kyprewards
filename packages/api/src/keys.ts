@@ -27,12 +27,25 @@ export const keys = {
     settings: () => [...keys.business.all, "settings"] as const,
     messagingPolicy: () => [...keys.business.all, "messaging-policy"] as const,
     coupons: () => [...keys.business.all, "coupons"] as const,
+    /** Under `coupons()`, so issuing or redeeming refreshes every environment. */
+    couponList: (environment = "production") => [...keys.business.coupons(), environment] as const,
     giftCards: () => [...keys.business.all, "gift-cards"] as const,
     giftCard: (code: string) => [...keys.business.giftCards(), code] as const,
     giftCardEntries: (code: string) =>
       [...keys.business.giftCard(code), "entries"] as const,
+    /** The paged list, under `giftCards()` with its filters in the key. */
+    giftCardList: (filters: { status?: string; limit?: number; cursor?: string } = {}) =>
+      [...keys.business.giftCards(), "list", filters] as const,
     catalog: (programId: string) => [...keys.business.program(programId), "catalog"] as const,
+    /** The editor's view, retired items included. Under `catalog()`. */
+    catalogWithRetired: (programId: string) =>
+      [...keys.business.catalog(programId), "with-retired"] as const,
     tiers: (programId: string) => [...keys.business.program(programId), "tiers"] as const,
+    discountQuote: (customerId: string, amountCentavos: number) =>
+      [...keys.business.all, "discount-quote", customerId, amountCentavos] as const,
+    /** Every customer's held programs: what a renew or cancel by
+     *  subscription id invalidates when the customer is not to hand. */
+    heldAll: () => [...keys.business.all, "held"] as const,
     referrals: () => [...keys.business.all, "referrals"] as const,
     feedback: () => [...keys.business.all, "feedback"] as const,
     customFields: () => [...keys.business.all, "custom-fields"] as const,
@@ -95,6 +108,10 @@ export const keys = {
      *  coordinates and `discover()` alone only matches the position-less one. */
     discoverAll: () => [...keys.customer.all, "discover"] as const,
     nearby: (near?: Coordinates) => [...keys.customer.all, "nearby", near ?? null] as const,
+    held: () => [...keys.customer.all, "held"] as const,
+    /** What choosing a catalog item changes: the held catalog, the card's
+     *  balance and the activity line. Pass as `invalidates`. */
+    afterCatalogChoice: () => [keys.customer.held(), keys.customer.wallet(), keys.customer.activity()],
   },
 
   counter: {

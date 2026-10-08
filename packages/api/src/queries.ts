@@ -35,6 +35,7 @@ import type {
   GiftCard,
   GiftCardEntry,
   HeldProgram,
+  HeldShop,
   MessagingPolicy,
   NearbyNudge,
   Referral,
@@ -144,7 +145,7 @@ export const useMessagingPolicy = (options?: Options<MessagingPolicy>): Query<Me
  */
 export const useDiscountQuote = (customerId: string, amountCentavos: number) =>
   useQuery({
-    queryKey: [...keys.business.all, "discount-quote", customerId, amountCentavos],
+    queryKey: keys.business.discountQuote(customerId, amountCentavos),
     queryFn: () => api.quoteDiscount(customerId, amountCentavos),
     enabled: Boolean(customerId) && amountCentavos > 0,
     retry: false,
@@ -177,14 +178,38 @@ export const useTransactions = (
     ...options,
   });
 
-export const useCoupons = (options?: Options<Coupon[]>): Query<Coupon[]> =>
-  useQuery({ queryKey: keys.business.coupons(), queryFn: api.getCoupons, ...options });
-
-export const useCatalog = (programId: string, options?: Options<CatalogItem[]>): Query<CatalogItem[]> =>
+/** `environment` second, so the existing `useCoupons(options)` calls stand. */
+export const useCoupons = (options?: Options<Coupon[]>, environment?: Environment): Query<Coupon[]> =>
   useQuery({
-    queryKey: keys.business.catalog(programId),
-    queryFn: () => api.getCatalog(programId),
+    queryKey: keys.business.couponList(environment),
+    queryFn: () => api.getCoupons(environment),
+    ...options,
+  });
+
+/** `includeRetired` for the editor; the till wants only what can be chosen. */
+export const useCatalog = (
+  programId: string,
+  options?: Options<CatalogItem[]>,
+  includeRetired = false,
+): Query<CatalogItem[]> =>
+  useQuery({
+    queryKey: includeRetired
+      ? keys.business.catalogWithRetired(programId)
+      : keys.business.catalog(programId),
+    queryFn: () => api.getCatalog(programId, includeRetired),
     enabled: Boolean(programId),
+    ...options,
+  });
+
+/** A page of the shop's gift cards; pass the previous page's `nextCursor`. */
+export const useGiftCards = (
+  filters: { status?: "active" | "all"; limit?: number; cursor?: string } = {},
+  options?: Options<Page<GiftCard>>,
+): Query<Page<GiftCard>> =>
+  useQuery({
+    queryKey: keys.business.giftCardList(filters),
+    queryFn: () => api.getGiftCards(filters),
+    placeholderData: (previous) => previous,
     ...options,
   });
 
@@ -477,6 +502,9 @@ export const useNotifications = (
 
 export const useActivity = (options?: Options<ActivityEntry[]>): Query<ActivityEntry[]> =>
   useQuery({ queryKey: keys.customer.activity(), queryFn: api.getActivity, ...options });
+
+export const useHeld = (options?: Options<HeldShop[]>): Query<HeldShop[]> =>
+  useQuery({ queryKey: keys.customer.held(), queryFn: api.getHeld, ...options });
 
 export const useChannelPreferences = (
   options?: Options<ChannelPreferences>,

@@ -10,12 +10,13 @@ import {
 import { useRouter } from "expo-router";
 import {
   ChevronRight,
+  CreditCard,
   Gift,
   Search,
   Sparkles,
   WalletCards,
 } from "lucide-react-native";
-import { useDiscover, useWallet } from "@kyprewards/api";
+import { useDiscover, useHeld, useWallet } from "@kyprewards/api";
 import { longDate } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import { LoyaltyCard, walletIcons } from "@/components/LoyaltyCard";
@@ -34,6 +35,7 @@ import {
   categoriesFrom,
   percentOf,
 } from "@/lib/cards";
+import { heldSummary } from "@/lib/held";
 import { colors } from "@/lib/theme";
 
 /**
@@ -46,6 +48,7 @@ export default function Wallet() {
   const wallet = useWallet();
   const cards = wallet.data ?? [];
   const { data: discover = [] } = useDiscover();
+  const { data: held = [] } = useHeld();
   const categories = categoriesFrom([
     ...cards.map((c) => c.category),
     ...discover.map((p) => p.category),
@@ -59,6 +62,18 @@ export default function Wallet() {
       card.business.toLowerCase().includes(term),
   );
   const walletBusinessIds = new Set(cards.map((card) => card.businessId));
+  const heldAt = new Map(held.map((shop) => [shop.businessId, shop]));
+  // Something held at a shop with no wallet card (a gift card at a shop never
+  // joined, or a joined shop whose programs are all things held): still
+  // theirs, so it lists here and opens to what they hold. Spent gift cards
+  // alone summarise to nothing and stay out.
+  const heldOnly = held.filter(
+    (shop) =>
+      !walletBusinessIds.has(shop.businessId) &&
+      heldSummary(shop) !== null &&
+      category === "All" &&
+      shop.business.toLowerCase().includes(term),
+  );
   const newlyJoined = discover.filter(
     (place) =>
       place.joined &&
@@ -128,6 +143,8 @@ export default function Wallet() {
             const pct = percentOf(card);
             const feature = index === 0 && !query && category === "All";
             const state = cardStateLine(card);
+            const holds = heldSummary(heldAt.get(card.businessId));
+            const line = balanceLine(card);
             const open = () =>
               router.push({
                 pathname: "/card/[id]",
@@ -141,6 +158,11 @@ export default function Wallet() {
                   onPress={open}
                 >
                   <LoyaltyCard card={card} compact />
+                  {holds ? (
+                    <Text className="mt-2 px-1 font-sans-semibold text-[11px] text-muted-strong">
+                      You hold: {holds}
+                    </Text>
+                  ) : null}
                 </Pressable>
               );
             }
@@ -170,8 +192,16 @@ export default function Wallet() {
                     className="mt-1 font-sans text-[11px] text-muted"
                     numberOfLines={1}
                   >
-                    {card.program} · {balanceLine(card)}
+                    {line ? `${card.program} · ${line}` : card.program}
                   </Text>
+                  {holds ? (
+                    <Text
+                      className="mt-1 font-sans-semibold text-[11px] text-ink"
+                      numberOfLines={2}
+                    >
+                      {holds}
+                    </Text>
+                  ) : null}
                   {state ? (
                     <Text className="mt-1 font-sans-semibold text-[11px] text-muted-strong">
                       {state}
@@ -200,6 +230,38 @@ export default function Wallet() {
               </Pressable>
             );
           })}
+          {heldOnly.map((shop) => (
+            <Pressable
+              key={`held:${shop.businessId}`}
+              accessibilityRole="button"
+              onPress={() =>
+                router.push({
+                  pathname: "/card/[id]",
+                  params: { id: shop.businessId },
+                })
+              }
+              className="flex-row items-center gap-4 rounded-2xl border border-line bg-surface p-4 active:opacity-90"
+            >
+              <View className="size-12 items-center justify-center rounded-2xl bg-surface-2">
+                <CreditCard size={19} color={colors.ink} />
+              </View>
+              <View className="min-w-0 flex-1">
+                <Text
+                  className="font-sans-extrabold text-[14px] text-ink"
+                  numberOfLines={1}
+                >
+                  {shop.business}
+                </Text>
+                <Text
+                  className="mt-1 font-sans text-[11px] text-muted"
+                  numberOfLines={2}
+                >
+                  {heldSummary(shop) ?? "Nothing held right now"}
+                </Text>
+              </View>
+              <ChevronRight size={16} color={colors.muted} />
+            </Pressable>
+          ))}
           {newlyJoined.map((place) => (
             <Pressable
               key={place.id}
@@ -237,7 +299,7 @@ export default function Wallet() {
               <ChevronRight size={16} color={colors.muted} />
             </Pressable>
           ))}
-          {visible.length + newlyJoined.length === 0 ? (
+          {visible.length + heldOnly.length + newlyJoined.length === 0 ? (
             <EmptyState
               icon={<Search size={22} color={colors.muted} />}
               title={

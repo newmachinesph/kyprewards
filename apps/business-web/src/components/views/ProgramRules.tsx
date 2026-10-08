@@ -2,14 +2,18 @@
 
 import { useState } from "react";
 import {
+  fieldErrors,
   isPreview,
   keys,
   setCategoryRates,
   setStampRules,
   useApiMutation,
+  useCatalog,
   useCategoryRates,
   useClosePreview,
   usePrograms,
+  useTiers,
+  type CatalogKind,
   type CategoryRate,
   type EarnMode,
   type Earning,
@@ -17,13 +21,19 @@ import {
   type StampRules,
   useBranding,
 } from "@kyprewards/api";
-import { Button, Eyebrow, IconButton, PreviewBadge, StampDots } from "@kyprewards/ui";
-import { Checkbox, Chip, Field, Input, Segmented, Select } from "@kyprewards/ui/form";
+import { Button, Eyebrow, IconButton, Pill, PreviewBadge, StampDots } from "@kyprewards/ui";
+import { Checkbox, Chip, Field, Input, Segmented, Select, Switch } from "@kyprewards/ui/form";
 import { earningLine, longDate, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
 import { PlanTag } from "@kyprewards/ui/shell";
 import { Plus, Trash2 } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
-import { useUpdateProgram } from "@/components/mutations";
+import { useAddTier, useUpdateProgram } from "@/components/mutations";
+import {
+  useAddCatalogItem,
+  useDeleteTier,
+  useUpdateCatalogItem,
+  useUpdateTier,
+} from "@/components/mutations-programs";
 import {
   BlockedNote,
   onlyDigits,
@@ -52,10 +62,12 @@ const PENDING_STAMP_DAYS = 30;
 const COOLDOWNS = [
   { minutes: 1440, label: "Once a day" },
   { minutes: 720, label: "Twice a day" },
-  { minutes: 0, label: "Custom" },
+  // -1 marks the Custom chip; 0 is a real value the API accepts (no cooldown).
+  { minutes: -1, label: "Custom" },
 ] as const;
 
 const cooldownWords = (minutes: number) => {
+  if (minutes <= 0) return "a stamp on every visit";
   if (minutes === 1440) return "one stamp a day";
   if (minutes === 720) return "two stamps a day, twelve hours apart";
   if (minutes % 60 === 0) return `one stamp every ${minutes / 60} hour${minutes === 60 ? "" : "s"}`;
@@ -102,7 +114,9 @@ function staffMessages(program: Program, rules: StampRules) {
     ? longDate(new Date(new Date(rules.endsAt).getTime() + rules.rewardGraceDays * 86_400_000).toISOString())
     : null;
   return [
-    ["Cooldown refusal", `No stamp yet: ${cooldownWords(rules.cooldownMinutes)}. Next stamp ${timeOfDay(next)}${rules.cooldownMinutes >= 1440 ? " tomorrow" : ""}. The visit is recorded.`],
+    ...(rules.cooldownMinutes > 0
+      ? [["Cooldown refusal", `No stamp yet: ${cooldownWords(rules.cooldownMinutes)}. Next stamp ${timeOfDay(next)}${rules.cooldownMinutes >= 1440 ? " tomorrow" : ""}. The visit is recorded.`]]
+      : []),
     ...(rules.minSpendCentavos > 0
       ? [["Minimum spend not met", `Below the ${pesoFromCentavos(rules.minSpendCentavos)} minimum for a stamp. The visit is recorded; no stamp.`]]
       : []),
@@ -126,8 +140,10 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
   // The API sends rules on every stamp program; if one ever arrives without
   // them, the editor starts from the product defaults and saving writes them.
   const carried = Boolean(program.rules);
+  // Any other stamp card, live or not yet: on Launch only one program runs
+  // at once, so the next card is a Draft or Ready while this one is Live.
   const successors = programs.filter(
-    (candidate) => candidate.id !== program.id && candidate.type === "Stamps" && candidate.status === "Live",
+    (candidate) => candidate.id !== program.id && candidate.type === "Stamps",
   );
   const successorName = successors.find((candidate) => candidate.id === rules.successorProgramId)?.name;
   const { data: closePreview } = useClosePreview(program.id, rules.onClose);
@@ -184,13 +200,13 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
             <legend className="text-xs font-bold">Cooldown between stamps</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {COOLDOWNS.map((option) => {
-                const on = option.minutes === 0 ? customCooldown : rules.cooldownMinutes === option.minutes;
+                const on = option.minutes < 0 ? customCooldown : rules.cooldownMinutes === option.minutes;
                 return (
                   <Chip
                     key={option.label}
                     pressed={on}
                     onClick={() => {
-                      if (option.minutes === 0) {
+                      if (option.minutes < 0) {
                         setCustomPicked(true);
                         // Whatever is in the box, or an hour to start from -
                         // never 0, which would mean no cooldown at all.
@@ -261,11 +277,13 @@ export function ProgramRulesEditor({ program, notify }: { program: Program; noti
             </div>
             {rules.onClose === "carryOver" && (
               <div className="mt-3">
-                <Field label="Successor card" hint="Only live stamp cards can receive them.">
+                <Field label="Successor card" hint="Any other stamp card, live or not yet. It takes the stamps whatever its status.">
                   <Select value={rules.successorProgramId ?? ""} onChange={(event) => edit({ successorProgramId: event.target.value || null })}>
                     <option value="">Choose a card</option>
                     {successors.map((candidate) => (
-                      <option key={candidate.id} value={candidate.id}>{candidate.name}</option>
+                      <option key={candidate.id} value={candidate.id}>
+                        {candidate.status === "Live" ? candidate.name : `${candidate.name} (${candidate.status})`}
+                      </option>
                     ))}
                   </Select>
                 </Field>
@@ -512,7 +530,9 @@ export function PointsEarningEditor({ program, notify }: { program: Program; not
   }
   const shown = draft ?? draftFrom(program.earning);
   const earning = earningFrom(shown);
-  const needed = planFor(shown.mode === "item" ? "Earn by category or item" : "Points and cashback");
+  // Per item is Core with the rest of points ("Earn by visit, item or
+  // peso"); only different rates by category are Grow, set further down.
+  const needed = planFor("Points and cashback");
   const blocked = writeBlock(gate, needed, preview);
   const save = useUpdateProgram();
   const edit = (patch: Partial<EarnDraft>) => setDraft({ ...shown, ...patch });
@@ -565,8 +585,8 @@ export function PointsEarningEditor({ program, notify }: { program: Program; not
                   setDraft(null);
                   notify("Earning rule saved.");
                 },
-                // The API names the problem: a visit below one point, more
-                // cashback than the sale, or per item before Grow.
+                // The API names the problem: a visit below one point, or
+                // more cashback than the sale.
                 onError: (failure) => notify(refusal(failure, needed), "error"),
               },
             )
@@ -575,6 +595,408 @@ export function PointsEarningEditor({ program, notify }: { program: Program; not
           {save.isPending ? "Saving…" : "Save earning rule"}
         </Button>
         <BlockedNote reason={blocked} />
+      </div>
+    </section>
+  );
+}
+
+/**
+ * The API's per-field refusals, for the inputs a form has. Whatever no input
+ * owns goes to the toast, so a refusal is never dropped.
+ */
+export function placeErrors(failure: unknown, fields: readonly string[], notify: Notify) {
+  const placed: Record<string, string> = {};
+  const rest: string[] = [];
+  for (const item of fieldErrors(failure)) {
+    if (fields.includes(item.field)) placed[item.field] = item.message;
+    else rest.push(item.message);
+  }
+  if (rest.length || Object.keys(placed).length === 0) {
+    notify(rest.length ? rest.join(". ") : refusal(failure), "error");
+  }
+  return placed;
+}
+
+/* ── Tiers: Points and Discount ───────────────────────────────────────── */
+
+type TierText = { name: string; threshold: string; rate: string };
+const NO_TIER: TierText = { name: "", threshold: "", rate: "" };
+const TIER_FIELDS = ["name", "threshold", "rateBps"] as const;
+
+function TierForm({
+  isPoints,
+  initial,
+  submitLabel,
+  save,
+  onDone,
+  onCancel,
+  notify,
+}: {
+  isPoints: boolean;
+  initial: TierText;
+  submitLabel: string;
+  save: (body: { name: string; threshold: number; rateBps: number }) => Promise<unknown>;
+  onDone: () => void;
+  onCancel?: () => void;
+  notify: Notify;
+}) {
+  const [text, setText] = useState(initial);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  // Basis points either way: 10000 is one multiplier or 100%.
+  const rateBps = Math.round((Number.parseFloat(text.rate) || 0) * (isPoints ? 10_000 : 100));
+  const ready = Boolean(text.name.trim()) && text.threshold !== "" && rateBps > 0;
+
+  return (
+    <form
+      className="grid gap-2 sm:grid-cols-[1fr_150px_160px_auto] sm:items-start"
+      onSubmit={async (event) => {
+        event.preventDefault();
+        if (!ready) return;
+        setBusy(true);
+        setErrors({});
+        try {
+          await save({ name: text.name.trim(), threshold: Number(text.threshold), rateBps });
+          setText(initial);
+          onDone();
+        } catch (failure) {
+          setErrors(placeErrors(failure, TIER_FIELDS, notify));
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <Field label="Tier name" error={errors.name}>
+        <Input value={text.name} onChange={(event) => setText({ ...text, name: event.target.value })} placeholder="Gold" />
+      </Field>
+      <Field label="From how many visits" error={errors.threshold}>
+        <Input
+          value={text.threshold}
+          onChange={(event) => setText({ ...text, threshold: onlyDigits(event.target.value) })}
+          inputMode="numeric"
+        />
+      </Field>
+      <Field label={isPoints ? "Multiplier, like 1.5" : "Percent off"} error={errors.rateBps}>
+        <Input
+          value={text.rate}
+          onChange={(event) => setText({ ...text, rate: onlyMoney(event.target.value) })}
+          inputMode="decimal"
+        />
+      </Field>
+      <span className="flex gap-2 sm:mt-6">
+        <Button type="submit" disabled={!ready || busy}>
+          {busy ? "Saving…" : submitLabel}
+        </Button>
+        {onCancel && (
+          <Button tone="quiet" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
+      </span>
+    </form>
+  );
+}
+
+/** The ladder: a member who clears a tier earns or saves at its rate. */
+export function TierEditor({ program, notify }: { program: Program; notify: Notify }) {
+  const isPoints = program.type === "Points";
+  const { data: tiers = [] } = useTiers(program.id);
+  const add = useAddTier();
+  const update = useUpdateTier();
+  const remove = useDeleteTier();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const rateText = (bps: number) => String(bps / (isPoints ? 10_000 : 100));
+
+  return (
+    <section className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+      <Eyebrow>Tiers</Eyebrow>
+      <h2 className="mt-1 text-lg font-extrabold">
+        {isPoints ? "Earn faster the more they visit" : "Save more the more they visit"}
+      </h2>
+      <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+        {isPoints
+          ? "A member who has cleared a tier earns at its multiplier instead of the base rate."
+          : "A member who has cleared a tier gets its percent off instead of the base discount."}{" "}
+        Tiers unlock on lifetime visits, and the highest one cleared applies.
+      </p>
+      {tiers.length > 0 && (
+        <ul className="mt-4 divide-y divide-[var(--line)] rounded-xl border border-[var(--line)]">
+          {tiers.map((tier) =>
+            editingId === tier.id ? (
+              <li key={tier.id} className="p-3">
+                <TierForm
+                  isPoints={isPoints}
+                  initial={{ name: tier.name, threshold: String(tier.threshold), rate: rateText(tier.rateBps) }}
+                  submitLabel="Save"
+                  save={(body) => update.mutateAsync({ programId: program.id, tierId: tier.id, ...body })}
+                  onDone={() => {
+                    setEditingId(null);
+                    notify("Tier saved.");
+                  }}
+                  onCancel={() => setEditingId(null)}
+                  notify={notify}
+                />
+              </li>
+            ) : (
+              <li key={tier.id} className="flex flex-wrap items-center justify-between gap-3 p-3 text-sm">
+                <span>
+                  <strong>{tier.name}</strong>
+                  <span className="text-[var(--muted-strong)]"> · from {tier.threshold} visits</span>
+                </span>
+                <span className="flex items-center gap-2">
+                  <strong>{isPoints ? `${rateText(tier.rateBps)}×` : `${rateText(tier.rateBps)}% off`}</strong>
+                  <Button tone="quiet" size="sm" onClick={() => setEditingId(tier.id)}>
+                    Edit
+                  </Button>
+                  <IconButton
+                    label={`Delete ${tier.name}`}
+                    className="text-[var(--danger)]"
+                    disabled={remove.isPending}
+                    onClick={() => {
+                      if (!window.confirm(`Delete the ${tier.name} tier? Members in it move to the next tier down.`)) return;
+                      remove.mutate(
+                        { programId: program.id, tierId: tier.id },
+                        {
+                          onSuccess: () => notify(`${tier.name} deleted.`),
+                          onError: (failure) => notify(refusal(failure), "error"),
+                        },
+                      );
+                    }}
+                  >
+                    <Trash2 size={14} />
+                  </IconButton>
+                </span>
+              </li>
+            ),
+          )}
+        </ul>
+      )}
+      <div className="mt-4">
+        <TierForm
+          isPoints={isPoints}
+          initial={NO_TIER}
+          submitLabel="Add a tier"
+          save={(body) => add.mutateAsync({ programId: program.id, ...body })}
+          onDone={() => notify("Tier added.")}
+          notify={notify}
+        />
+      </div>
+    </section>
+  );
+}
+
+/* ── The reward catalog: Points and Rewards ───────────────────────────── */
+
+const KINDS: { value: CatalogKind; label: string }[] = [
+  { value: "perk", label: "Perk" },
+  { value: "product", label: "Product" },
+  { value: "service", label: "Service" },
+  { value: "milestone", label: "Milestone" },
+  { value: "discount", label: "Money off at the counter" },
+];
+const kindLabel = (kind: string) => KINDS.find((option) => option.value === kind)?.label ?? kind;
+
+type ItemText = { name: string; kind: CatalogKind; cost: string; value: string };
+const NO_ITEM: ItemText = { name: "", kind: "perk", cost: "", value: "" };
+const ITEM_FIELDS = ["name", "kind", "costUnits", "valueCentavos"] as const;
+type ItemBody = { name: string; kind: CatalogKind; costUnits: number; valueCentavos: number };
+
+function CatalogItemForm({
+  initial,
+  submitLabel,
+  save,
+  onDone,
+  onCancel,
+  notify,
+}: {
+  initial: ItemText;
+  submitLabel: string;
+  save: (body: ItemBody) => Promise<unknown>;
+  onDone: () => void;
+  onCancel?: () => void;
+  notify: Notify;
+}) {
+  const [text, setText] = useState(initial);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const valueCentavos = pesosToCentavos(text.value);
+  const ready = Boolean(text.name.trim()) && text.cost !== "";
+  const isDiscount = text.kind === "discount";
+
+  return (
+    <form
+      className="grid gap-3 sm:grid-cols-2"
+      onSubmit={async (event) => {
+        event.preventDefault();
+        if (!ready) return;
+        if (isDiscount && valueCentavos <= 0) {
+          setErrors({ valueCentavos: "Money off needs its peso value, like ₱50." });
+          return;
+        }
+        setBusy(true);
+        setErrors({});
+        try {
+          await save({ name: text.name.trim(), kind: text.kind, costUnits: Number(text.cost), valueCentavos });
+          setText(initial);
+          onDone();
+        } catch (failure) {
+          setErrors(placeErrors(failure, ITEM_FIELDS, notify));
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <Field label="Name" error={errors.name}>
+        <Input
+          value={text.name}
+          onChange={(event) => setText({ ...text, name: event.target.value })}
+          placeholder={isDiscount ? "₱50 off" : "Free iced coffee"}
+        />
+      </Field>
+      <Field label="Kind" error={errors.kind}>
+        <Select value={text.kind} onChange={(event) => setText({ ...text, kind: event.target.value as CatalogKind })}>
+          {KINDS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </Select>
+      </Field>
+      <Field label="Cost in points" error={errors.costUnits}>
+        <Input
+          value={text.cost}
+          onChange={(event) => setText({ ...text, cost: onlyDigits(event.target.value) })}
+          inputMode="numeric"
+        />
+      </Field>
+      <Field
+        label={isDiscount ? "Peso value, required" : "Peso value, optional"}
+        hint={isDiscount ? "Taken off the bill at the counter." : "What it costs you, so the amount you owe is right."}
+        error={errors.valueCentavos}
+      >
+        <Input
+          value={text.value}
+          onChange={(event) => setText({ ...text, value: onlyMoney(event.target.value) })}
+          inputMode="decimal"
+        />
+      </Field>
+      <span className="flex gap-2 sm:col-span-2">
+        <Button type="submit" disabled={!ready || busy}>
+          {busy ? "Saving…" : submitLabel}
+        </Button>
+        {onCancel && (
+          <Button tone="quiet" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
+      </span>
+    </form>
+  );
+}
+
+/** What points buy. Choosing an item spends the points and holds a reward. */
+export function CatalogEditor({ program, notify }: { program: Program; notify: Notify }) {
+  const [showRetired, setShowRetired] = useState(false);
+  const { data: items = [] } = useCatalog(program.id, undefined, showRetired);
+  const add = useAddCatalogItem();
+  const update = useUpdateCatalogItem();
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  return (
+    <section className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <Eyebrow>Reward catalog</Eyebrow>
+          <h2 className="mt-1 text-lg font-extrabold">What points buy</h2>
+        </div>
+        <span className="flex items-center gap-2 text-xs font-bold">
+          <span id={`retired-${program.id}`}>Show retired</span>
+          <Switch aria-labelledby={`retired-${program.id}`} checked={showRetired} onCheckedChange={setShowRetired} />
+        </span>
+      </div>
+      <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+        The customer picks an item in their wallet, or staff pick it at the counter. The points are spent and the reward is held until the customer approves it. Retiring an item takes it out of the catalog and keeps its history.
+      </p>
+      {items.length === 0 ? (
+        <p className="mt-4 text-xs text-[var(--muted-strong)]">
+          Nothing in the catalog yet. Without an item, points have nowhere to go.
+        </p>
+      ) : (
+        <ul className="mt-4 divide-y divide-[var(--line)] rounded-xl border border-[var(--line)]">
+          {items.map((item) =>
+            editingId === item.id ? (
+              <li key={item.id} className="p-3">
+                <CatalogItemForm
+                  initial={{
+                    name: item.name,
+                    kind: item.kind,
+                    cost: String(item.costUnits),
+                    value: item.valueCentavos ? String(item.valueCentavos / 100) : "",
+                  }}
+                  submitLabel="Save"
+                  save={(body) => update.mutateAsync({ programId: program.id, itemId: item.id, ...body })}
+                  onDone={() => {
+                    setEditingId(null);
+                    notify(`${item.name} saved.`);
+                  }}
+                  onCancel={() => setEditingId(null)}
+                  notify={notify}
+                />
+              </li>
+            ) : (
+              <li
+                key={item.id}
+                className="flex flex-wrap items-center justify-between gap-3 p-3 text-sm"
+              >
+                <span className={`min-w-0 ${item.active ? "" : "text-[var(--muted-strong)]"}`}>
+                  <strong>{item.name}</strong>
+                  <span className="text-[var(--muted-strong)]">
+                    {" "}
+                    · {kindLabel(item.kind)}
+                    {item.valueCentavos > 0 && ` · worth ${pesoFromCentavos(item.valueCentavos)}`}
+                  </span>
+                  {!item.active && (
+                    <span className="ml-2">
+                      <Pill>Retired</Pill>
+                    </span>
+                  )}
+                </span>
+                <span className="flex items-center gap-2">
+                  <strong>{item.costUnits.toLocaleString()} pts</strong>
+                  <Button tone="quiet" size="sm" onClick={() => setEditingId(item.id)}>
+                    Edit
+                  </Button>
+                  <Button
+                    tone={item.active ? "danger" : "quiet"}
+                    size="sm"
+                    disabled={update.isPending}
+                    onClick={() =>
+                      update.mutate(
+                        { programId: program.id, itemId: item.id, active: !item.active },
+                        {
+                          onSuccess: () =>
+                            notify(item.active ? `${item.name} retired.` : `${item.name} is back in the catalog.`),
+                          onError: (failure) => notify(refusal(failure), "error"),
+                        },
+                      )
+                    }
+                  >
+                    {item.active ? "Retire" : "Restore"}
+                  </Button>
+                </span>
+              </li>
+            ),
+          )}
+        </ul>
+      )}
+      <div className="mt-5 border-t border-[var(--line)] pt-5">
+        <CatalogItemForm
+          initial={NO_ITEM}
+          submitLabel="Add to catalog"
+          save={(body) => add.mutateAsync({ programId: program.id, ...body })}
+          onDone={() => notify("Added to the catalog.")}
+          notify={notify}
+        />
       </div>
     </section>
   );

@@ -283,6 +283,17 @@ export type Program = {
   rules?: StampRules;
   /** How points are earned, on points programs only. */
   earning?: Earning | null;
+  /** Lifetime in days of what the program hands out; zero is never. */
+  expiryDays: number;
+  /** The per-type settings, each null on the types that do not read it.
+   *  Basis points off, on Discount and Membership. */
+  discountBps: number | null;
+  /** Membership and Multipass. */
+  priceCentavos: number | null;
+  /** Membership: uses a month, zero is unlimited. */
+  benefitLimit: number | null;
+  /** Multipass: passes per bundle. */
+  bundleSize: number | null;
   preview?: boolean;
 };
 
@@ -324,6 +335,8 @@ export type MessageRecord = {
 export type Redemption = {
   id: string;
   customer: string;
+  /** The account; match on this, not the name. */
+  customerId?: string;
   reward: string;
   branch: string;
   staff: string;
@@ -479,6 +492,8 @@ export type WalletCard = {
   rules?: StampRules;
   /** How a points card earns; null on every other kind. */
   earning?: Earning | null;
+  /** Days until points or passes lapse, oldest first; 0 is never. */
+  expiryDays?: number;
   nextStampAt?: string | null;
   /** After a run closes: when a held reward must be redeemed by. */
   redeemBy?: string | null;
@@ -494,6 +509,8 @@ export type WalletCard = {
   bonusWindow?: CardBonusWindow | null;
   missions?: MissionProgress[];
   storeCreditCentavos?: number;
+  /** Spendable cashback on a points card in cashback mode; 0 on the rest. */
+  cashbackCentavos?: number;
   preview?: boolean;
 };
 
@@ -540,6 +557,12 @@ export type ActivityEntry = {
   occurredAt: string;
   value: string;
   reference: string;
+  /** The numbers behind `action` and `value`: the ledger kind, the program's
+   *  type ("" when the entry names none), units moved, money in centavos. */
+  kind?: string;
+  programType?: string;
+  delta?: number;
+  amountCentavos?: number;
 };
 
 /** The customer's own switches. `service` covers the messages a merchant
@@ -808,6 +831,22 @@ export type DiscountQuote = {
   grossCentavos: number;
   discountCentavos: number;
   netCentavos: number;
+  /** Which rate won: the Discount program's tier, an active membership's
+   *  rate, or neither. `sourceName` names the tier, program or membership. */
+  source: DiscountSource;
+  sourceName: string;
+};
+
+export type DiscountSource = "tier" | "membership" | "none";
+
+/** The discount `POST /transactions` applied, so a POS needs no second call. */
+export type AppliedDiscount = {
+  rateBps: number;
+  source: DiscountSource;
+  sourceName: string;
+  programId: string;
+  discountCentavos: number;
+  payableCentavos: number;
 };
 
 export type MemberSubscription = {
@@ -828,6 +867,9 @@ export type Benefit = {
   used: number;
   included: number;
   remaining: number;
+  /** The ledger entry a multipass sale or use wrote, for its void or refund.
+   *  Empty for a membership benefit. */
+  entryId: string;
 };
 
 export type Coupon = {
@@ -841,15 +883,50 @@ export type Coupon = {
   validFrom: string;
   validUntil: string;
   redeemedAt: string | null;
+  programId: string | null;
+  /** The member it was issued to; null for a bearer code anyone can use. */
+  customerId: string | null;
+  customerName: string;
+  /** A member-bound coupon is handed over through the customer's approval:
+   *  the redemption to commit once they approve. */
+  redemptionId: string | null;
+  redemptionStatus: string | null;
 };
+
+/** "discount" is money off at the counter, worth `valueCentavos`. */
+export type CatalogKind = "milestone" | "perk" | "product" | "service" | "discount";
 
 export type CatalogItem = {
   id: string;
   name: string;
-  kind: "milestone" | "perk" | "product" | "service";
+  kind: CatalogKind;
   costUnits: number;
   valueCentavos: number;
+  /** False once retired: out of the catalog, history kept. */
   active: boolean;
+};
+
+/**
+ * A catalog item chosen at the counter: the units are spent and a reward is
+ * held, handed over through the usual reserve -> approve -> commit. Carries
+ * the item's own fields too, so a till reading it as a `CatalogItem` works.
+ */
+export type CatalogChoice = CatalogItem & {
+  rewardId: string;
+  rewardName: string;
+  itemId: string;
+  programId: string;
+  customerId: string;
+  /** Units left after the spend. */
+  balanceUnits: number;
+};
+
+export type CashbackSpendResult = {
+  entryId: string;
+  customerId: string;
+  programId: string;
+  spentCentavos: number;
+  balanceCentavos: number;
 };
 
 /**
@@ -896,6 +973,12 @@ export type GiftCard = {
   issuedToName: string;
   holderAccountId: string | null;
   expiresOn: string | null;
+  /** What the buyer paid; less than `initialCentavos` when a bonus was
+   *  loaded, zero on a promotional voucher. */
+  paidCentavos: number;
+  promotional: boolean;
+  programId: string | null;
+  issuedAt: string | null;
 };
 
 export type GiftCardEntry = {
@@ -977,6 +1060,12 @@ export type HeldProgram = {
   included: number;
   remaining: number;
   renewsOn: string | null;
+  /** Memberships only; empty for a bundle. `due` is past `renewsOn` but
+   *  inside the grace days, which end on `graceEndsOn`. */
+  dueState: "current" | "due" | "lapsed" | "cancelled" | "";
+  graceEndsOn: string | null;
+  discountBps: number;
+  priceCentavos: number;
 };
 
 /**
@@ -994,6 +1083,88 @@ export type NearbyNudge = {
   open: boolean;
   reward: string;
 };
+
+/* What a shopper holds at each shop: GET /customer/held. A card is something
+   a customer fills; these are things they hold. Numbers only; apps word them. */
+
+export type HeldCoupon = {
+  code: string;
+  name: string;
+  valueCentavos: number;
+  percentBps: number;
+  validUntil: string;
+  state: "active" | "scheduled" | "redeemed" | "expired";
+};
+
+export type HeldPass = {
+  programId: string;
+  program: string;
+  remaining: number;
+  /** Every pass bought, less refunded sales. */
+  included: number;
+  /** When the oldest remaining pass lapses; null when passes never expire. */
+  expiresOn: string | null;
+};
+
+export type HeldGiftCard = {
+  code: string;
+  balanceCentavos: number;
+  /** What the buyer paid; zero on a free promotional voucher. */
+  paidCentavos: number;
+  issuedAt: string;
+  /** Null for a card someone paid for: those never expire. */
+  expiresOn: string | null;
+  status: string;
+};
+
+export type HeldMembership = {
+  subscriptionId: string;
+  programId: string;
+  program: string;
+  status: string;
+  renewsOn: string | null;
+  benefitsUsed: number;
+  /** Zero is unlimited. */
+  benefitsIncluded: number;
+  discountBps: number;
+};
+
+export type HeldDiscount = {
+  programId: string;
+  rateBps: number;
+  /** Empty when the member is on the base rate. */
+  tier: string;
+};
+
+export type HeldCatalogItem = {
+  id: string;
+  programId: string;
+  program: string;
+  name: string;
+  kind: string;
+  cost: number;
+  valueCentavos: number;
+  /** Whether the member's balance on that program covers the cost now. */
+  affordable: boolean;
+};
+
+export type HeldShop = {
+  /** Null for a shop the customer holds a gift card at without having joined. */
+  membershipId: string | null;
+  businessId: string;
+  business: string;
+  coupons: HeldCoupon[];
+  passes: HeldPass[];
+  giftCards: HeldGiftCard[];
+  memberships: HeldMembership[];
+  discount: HeldDiscount | null;
+  cashbackCentavos: number;
+  catalog: HeldCatalogItem[];
+};
+
+/** POST /customer/promo-codes/redeem: the card the code landed on and, for a
+ *  code that grants a coupon, the coupon - its code is shown at the counter. */
+export type PromoRedeemResult = WalletCard & { coupon?: HeldCoupon | null };
 
 /** An access, correction, export or deletion request under the DPA. */
 export type DataRequest = {
@@ -1179,6 +1350,8 @@ export type CardBonusWindow = {
 export type MissionProgress = {
   missionId: string;
   name: string;
+  /** Spend counts whole pesos. */
+  goal: "visits" | "items" | "spend";
   progress: number;
   target: number;
   endsOn: string;
@@ -1237,6 +1410,10 @@ export type PromoCode = {
   grants: "stamp" | "points" | "coupon";
   amount: number;
   couponName: string | null;
+  /** What a granted coupon is worth: pesos off, a percentage off, or both.
+   *  A coupon grant needs one of them; other grants ignore them. */
+  couponValueCentavos?: number;
+  couponPercentBps?: number;
   startsOn: string;
   endsOn: string | null;
   redemptions: number;

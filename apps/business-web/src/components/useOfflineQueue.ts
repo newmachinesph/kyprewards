@@ -18,6 +18,9 @@ export type HeldVisit = {
   occurredAt: string;
   /** The till's branch, so a replayed sale lands where it was rung up. */
   branchId?: string;
+  /** What was bought, for points earned per item or by category. */
+  items?: number;
+  itemNames?: string[];
 };
 
 /** What a drain did: sales recorded, and held visits the API turned away. */
@@ -136,6 +139,8 @@ export function useOfflineQueue(onSynced: (outcome: SyncOutcome) => void) {
             customerId: visit.customerId,
             amountCentavos: visit.amountCentavos,
             branchId: visit.branchId,
+            items: visit.items,
+            itemNames: visit.itemNames,
           },
           visit.idempotencyKey,
         );

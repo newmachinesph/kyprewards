@@ -8,17 +8,29 @@ import {
   redeemPromoCode,
   useActivity,
   useApiMutation,
+  useHeld,
   useWallet,
 } from "@kyprewards/api";
 import {
   longDate,
+  peso,
   pesoFromCentavos,
   relativeTime,
 } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
 import { LoyaltyCard } from "@/components/LoyaltyCard";
-import { Button, EmptyState, Panel, Term } from "@/components/ui";
+import { HeldAtShop } from "@/components/Held";
+import {
+  Button,
+  EmptyState,
+  Eyebrow,
+  Panel,
+  QueryState,
+  Term,
+  Title,
+} from "@/components/ui";
 import { cardTerms } from "@/lib/cards";
+import { activityValue, couponValue, isGain } from "@/lib/held";
 import { colors } from "@/lib/theme";
 
 /**
@@ -31,13 +43,69 @@ export default function CardScreen() {
     id: string;
     programId?: string;
   }>();
-  const { data: wallet = [] } = useWallet();
+  const walletQuery = useWallet();
+  const wallet = walletQuery.data ?? [];
   const { data: activity = [] } = useActivity();
+  const heldQuery = useHeld();
+  const held = heldQuery.data ?? [];
+  // A failed /customer/held says so with a retry, rather than showing nothing.
+  const heldError =
+    !heldQuery.data && heldQuery.error ? (
+      <View className="mt-4">
+        <QueryState
+          isPending={false}
+          error={heldQuery.error}
+          onRetry={() => void heldQuery.refetch()}
+          label="what you hold here"
+        >
+          {null}
+        </QueryState>
+      </View>
+    ) : null;
   // By the pair: a shop running stamps beside points has two cards on one
   // membership id, and matching the id alone opened whichever came first.
   const card = wallet.find(
     (item) => item.id === id && (!programId || item.programId === programId),
   );
+  // A shop the shopper holds a gift card at without having joined has no
+  // card; the wallet opens it by business id instead.
+  const shop = held.find((s) => s.businessId === (card?.businessId ?? id));
+
+  if (!card && shop) {
+    return (
+      <Screen title={shop.business} back>
+        <Eyebrow>What you hold</Eyebrow>
+        <Title>{shop.business}</Title>
+        <HeldAtShop shop={shop} cards={[]} />
+        <Button
+          className="mt-5"
+          icon={<QrCode size={16} color={colors.paper} />}
+          onPress={() => router.push("/my-code")}
+        >
+          Show my code for this place
+        </Button>
+      </Screen>
+    );
+  }
+
+  // Not "not in your wallet" while the lists that would hold it are loading,
+  // or when the held list failed.
+  if (!card && (walletQuery.isPending || heldQuery.isPending || heldError)) {
+    return (
+      <Screen title="Wallet card" back>
+        {heldError ?? (
+          <QueryState
+            isPending
+            error={null}
+            onRetry={() => undefined}
+            label="this card"
+          >
+            {null}
+          </QueryState>
+        )}
+      </Screen>
+    );
+  }
 
   if (!card) {
     return (
@@ -50,7 +118,10 @@ export default function CardScreen() {
     );
   }
 
-  const mine = activity.filter((entry) => entry.business === card.business);
+  // By shop id: two shops can share a short name.
+  const mine = activity.filter(
+    (entry) => entry.businessId === card.businessId,
+  );
   const terms = cardTerms(card);
 
   return (
@@ -63,9 +134,11 @@ export default function CardScreen() {
             Held for you
           </Text>
           <Text className="mt-2 font-sans-extrabold text-[14px] text-ink">
-            {card.rewardsAvailable === 1
-              ? `1 ${card.reward}`
-              : `${card.rewardsAvailable} × ${card.reward}`}
+            {card.kind !== "Stamps"
+              ? `${card.rewardsAvailable} ${card.rewardsAvailable === 1 ? "reward" : "rewards"} from the catalog`
+              : card.rewardsAvailable === 1
+                ? `1 ${card.reward}`
+                : `${card.rewardsAvailable} × ${card.reward}`}
           </Text>
           <Text className="mt-1 font-sans text-[12px] leading-[18px] text-muted-strong">
             Show your code at the counter. Staff reserve it, you approve it
@@ -85,6 +158,15 @@ export default function CardScreen() {
           </Text>
         </View>
       ) : null}
+
+      {shop ? (
+        <HeldAtShop
+          shop={shop}
+          cards={wallet.filter((item) => item.businessId === card.businessId)}
+        />
+      ) : (
+        heldError
+      )}
 
       {card.missions && card.missions.length > 0 ? (
         <Panel className="mt-4">
@@ -110,7 +192,9 @@ export default function CardScreen() {
                   >
                     {mission.completed
                       ? "Done"
-                      : `${mission.progress} of ${mission.target}`}
+                      : mission.goal === "spend"
+                        ? `${peso(mission.progress)} of ${peso(mission.target)}`
+                        : `${mission.progress} of ${mission.target}`}
                   </Text>
                 </View>
                 <View className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
@@ -151,9 +235,9 @@ export default function CardScreen() {
                 </Text>
               </View>
               <Text
-                className={`font-sans-extrabold text-[12px] ${entry.value.startsWith("+") ? "text-success" : "text-ink"}`}
+                className={`font-sans-extrabold text-[12px] ${isGain(entry) ? "text-success" : "text-ink"}`}
               >
-                {entry.value}
+                {activityValue(entry)}
               </Text>
             </View>
           ))
@@ -201,8 +285,13 @@ function PromoCodeEntry({
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
   const redeem = useApiMutation(redeemPromoCode, {
-    invalidates: [keys.customer.wallet(), keys.customer.activity()],
+    invalidates: [
+      keys.customer.wallet(),
+      keys.customer.activity(),
+      keys.customer.held(),
+    ],
   });
+  const coupon = redeem.data?.coupon;
 
   if (!open) {
     return (
@@ -241,7 +330,23 @@ function PromoCodeEntry({
           Redeem
         </Button>
       </View>
-      {redeem.isSuccess ? (
+      {coupon ? (
+        <View className="mt-3 rounded-2xl bg-success/10 p-4">
+          <Text className="font-sans-extrabold text-[12px] text-success">
+            {[coupon.name, couponValue(coupon)].filter(Boolean).join(" · ")}
+          </Text>
+          <Text
+            selectable
+            className="mt-2 self-start rounded-xl border border-dashed border-line-strong bg-surface px-3 py-2 font-mono text-[16px] tracking-[2px] text-ink"
+          >
+            {coupon.code}
+          </Text>
+          <Text className="mt-2 font-sans text-[11px] leading-[17px] text-muted-strong">
+            Show this code at the counter. Valid until{" "}
+            {longDate(coupon.validUntil)}.
+          </Text>
+        </View>
+      ) : redeem.isSuccess ? (
         <Text className="mt-2 font-sans-bold text-[11px] text-success">
           Code applied. Your card is updated.
         </Text>

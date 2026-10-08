@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import type { CustomerProfile, DiscoverPlace, WalletCard } from "@kyprewards/api";
+import type { ActivityEntry, CustomerProfile, DiscoverPlace, HeldShop, WalletCard } from "@kyprewards/api";
 import {
   ApiError,
   PREVIEW_WRITE_REASON,
@@ -20,6 +20,7 @@ import {
   useCustomerProfile,
   useDataRequests,
   useDiscover,
+  useHeld,
   useNearby,
   useNotifications,
   usePendingApprovals,
@@ -50,9 +51,11 @@ import {
 import { Toast, useToast } from "@kyprewards/ui/shell";
 import {
   formatDistance,
+  earningLine,
   formatMemberCode,
   greeting,
   longDate,
+  pesoFromCentavos,
   relativeTime,
   toE164,
   todayLabel,
@@ -86,6 +89,7 @@ import {
   cardStateLine,
   earnedStamps,
 } from "@/components/cards";
+import { CatalogSection, HeldSection, balanceLine, heldSummary } from "@/components/held";
 import {
   ArrowLeft,
   ArrowRight,
@@ -114,6 +118,7 @@ import {
   MapPin,
   Navigation,
   Megaphone,
+  Percent,
   Phone,
   Printer,
   QrCode,
@@ -123,6 +128,7 @@ import {
   SlidersHorizontal,
   Sparkles,
   Store,
+  Ticket,
   Trash2,
   UserRound,
   WalletCards,
@@ -146,6 +152,7 @@ type Sheet =
   | { kind: "gifts" }
   | { kind: "business"; id: string }
   | { kind: "wallet"; id: string; programId: string }
+  | { kind: "held"; businessId: string }
   | { kind: "profile"; title: string; screen: ProfileScreen }
   | null;
 
@@ -370,12 +377,19 @@ function percentOf(card: WalletCard): number | null {
 const walletIcons: Record<string, typeof Coins> = {
   Stamps: Croissant,
   Points: Coins,
+  Rewards: Gift,
   Membership: Crown,
   "Gift card": Gift,
+  Multipass: Ticket,
+  Coupon: Ticket,
+  Discount: Percent,
 };
 
 const cardInk = (percent: number) =>
   `color-mix(in oklab, var(--card-ink) ${percent}%, transparent)`;
+/** The card's own brand ground at a strength: the shade over its photo. */
+const ground = (percent: number) =>
+  `color-mix(in oklab, var(--card-brand) ${percent}%, transparent)`;
 
 /**
  * One shop's card, with both sides of it.
@@ -393,6 +407,7 @@ function LoyaltyCard({
   compact?: boolean;
 }) {
   const { data: profile } = useCustomerProfile();
+  const { data: held = [] } = useHeld();
   const [flipped, setFlipped] = useState(false);
   // The QR codec is a dynamic import and a card that is never turned over
   // never needs it. A wallet of eight cards would otherwise render eight
@@ -404,6 +419,21 @@ function LoyaltyCard({
   // subtraction produced for a points balance before this.
   const remaining = card.target > 0 ? Math.max(0, card.target - card.progress) : null;
   const Icon = walletIcons[card.kind] ?? WalletCards;
+  // No finish line: a points or cashback balance, or (balance "") a shop
+  // whose programs are all things held rather than filled.
+  const running =
+    balanceLine(card) ||
+    heldSummary(held.find((shop) => shop.businessId === card.businessId)) ||
+    card.program;
+  const photo = Boolean(card.imageUrl);
+  // Over a photo every small line is full-strength ink. The shade under it
+  // (97% beside the words, 94% under the bottom rows) lets at most ~5% of the
+  // photo through, which keeps 11px text at AA 4.5:1 for all four brand
+  // colours against a white or a black photo; the headline stays above 3:1
+  // where its tail reaches the lighter shade. Without a photo the soft lines
+  // are 62% ink on a flat ground - except green, where 62% paper is ~3:1 and
+  // only full-strength ink clears 4.5:1.
+  const soft = photo || card.color === "green" ? 100 : 62;
 
   const surface = (
     <article
@@ -412,21 +442,33 @@ function LoyaltyCard({
         {
           "--card-brand": brand.background,
           "--card-ink": brand.foreground,
+          // CardStatus reads this for its soft lines.
+          "--card-soft": photo ? "100%" : undefined,
           color: "var(--card-ink)",
         } as CSSProperties
       }
     >
-      {/* The shop's own storefront, if they gave one. Low enough that the
-          card stays a card rather than a photo with text on it, and absent
-          entirely rather than a placeholder when they have not. */}
+      {/* The shop's own storefront, as kyprewards.com shows it: the photo
+          full strength on the right, the card's own ground shading it dark
+          where the words sit. Absent entirely, not a placeholder, when the
+          shop has not given one. */}
       {card.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element -- a presigned URL that changes on every sign, not an optimisable asset
-        <img
-          src={card.imageUrl}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 size-full object-cover opacity-[0.18]"
-        />
+        <div aria-hidden="true" className="loyalty-ticket-skin pointer-events-none absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element -- a presigned URL that changes on every sign, not an optimisable asset */}
+          <img src={card.imageUrl} alt="" className="size-full object-cover object-[72%_45%]" />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(100deg, ${ground(97)} 0%, ${ground(97)} 45%, ${ground(40)} 72%, ${ground(12)} 100%)`,
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(to top, ${ground(97)}, ${ground(94)} 35%, ${ground(72)} 70%, transparent)`,
+            }}
+          />
+        </div>
       )}
       <div className="relative">
         <div className="flex items-start justify-between">
@@ -439,20 +481,26 @@ function LoyaltyCard({
             </span>
             <div>
               <p className="text-base font-extrabold tracking-[-0.025em]">{card.business}</p>
-              <p className="mt-0.5 text-[11px]" style={{ color: cardInk(62) }}>
+              <p className="mt-0.5 text-[11px]" style={{ color: cardInk(soft) }}>
                 {card.category}
               </p>
             </div>
           </div>
           <span
             className="rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em]"
-            style={{ border: `1px solid ${cardInk(24)}`, color: cardInk(72) }}
+            style={{
+              border: `1px solid ${cardInk(24)}`,
+              color: cardInk(photo ? 100 : 72),
+              background: photo ? ground(94) : undefined,
+            }}
           >
             {card.state ?? card.status}
           </span>
         </div>
         {!compact && (
-          <p className="mt-7 max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em]">
+          <p
+            className={`mt-7 max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em] ${photo ? "[text-shadow:0_2px_12px_rgb(0_0_0/45%)]" : ""}`}
+          >
             {/* "Ready" means a reward exists, not that the bar looks full.
                 Rewards are minted when they are earned, so a shop that lowers
                 its target below what people already hold leaves them all
@@ -464,7 +512,7 @@ function LoyaltyCard({
                   ? `${card.reward} is held for you.`
                   : "This run has closed."
                 : remaining === null
-                  ? card.balance
+                  ? running
                   : card.rewardsAvailable > 0
                     ? `${card.reward} is ready.`
                     : remaining === 0
@@ -484,11 +532,17 @@ function LoyaltyCard({
               />
             </div>
           )}
-          <div className="mt-3 flex items-center justify-between text-[11px] font-semibold">
-            <span style={{ color: cardInk(62) }}>
-              {card.state === "pending" ? `${earnedStamps(card)} of ${card.target} · 1 pending` : card.balance}
+          <div className="mt-3 flex items-center justify-between gap-3 text-[11px] font-semibold">
+            <span style={{ color: cardInk(soft) }}>
+              {card.state === "pending"
+                ? `${earnedStamps(card)} of ${card.target} · 1 pending`
+                : card.target > 0
+                  ? card.balance
+                  : compact
+                    ? running
+                    : (earningLine(card.earning) ?? "")}
             </span>
-            <span>{card.reward}</span>
+            <span className="text-right">{card.reward}</span>
           </div>
           <CardStatus card={card} onCard />
         </div>
@@ -744,7 +798,7 @@ function HomeView({
         {best && earnedStamps(best) > 0 && (
           <span className="mb-1 flex items-center gap-2 rounded-full bg-[rgb(15_118_85/12%)] px-3 py-1.5 text-[11px] font-extrabold text-[var(--success)]">
             <Sparkles size={13} />{" "}
-            {best.target > 0 ? `${earnedStamps(best)} of ${best.target} stamps` : best.balance}
+            {best.target > 0 ? `${earnedStamps(best)} of ${best.target} stamps` : balanceLine(best)}
           </span>
         )}
       </div>
@@ -996,13 +1050,16 @@ const walletCategoriesFrom = (cards: WalletCard[], places: DiscoverPlace[]) => {
 function WalletView({
   onCard,
   onBusiness,
+  onHeld,
   onGifts,
 }: {
   onCard: (id: string, programId: string) => void;
   onBusiness: (id: string) => void;
+  onHeld: (businessId: string) => void;
   onGifts: () => void;
 }) {
   const { data: discover = [] } = useDiscover();
+  const { data: held = [] } = useHeld();
   const { wallet, joinedIds, walletQuery } = useCustomerState();
   const walletCategories = walletCategoriesFrom(wallet, discover);
   const [query, setQuery] = useState("");
@@ -1023,7 +1080,24 @@ function WalletView({
       !walletBusinessIds.has(place.businessId) &&
       matches(place.name, place.category),
   );
-  const visibleCount = visibleCards.length + newlyJoined.length;
+  // A gift card bought for somebody who never joined that shop: still theirs,
+  // so it is still in the wallet.
+  const heldOnly = held.filter(
+    (shop) =>
+      !walletBusinessIds.has(shop.businessId) &&
+      heldSummary(shop) !== "" &&
+      category === "All" &&
+      shop.business.toLowerCase().includes(term),
+  );
+  const visibleCount = visibleCards.length + newlyJoined.length + heldOnly.length;
+  // The held line once per shop, on its first card: a shop running stamps
+  // beside points is two cards and one set of things held.
+  const summarised = new Set<string>();
+  const summaryFor = (card: WalletCard) => {
+    if (summarised.has(card.businessId)) return "";
+    summarised.add(card.businessId);
+    return heldSummary(held.find((shop) => shop.businessId === card.businessId));
+  };
 
   return (
     <div className="px-5 pb-32 pt-5">
@@ -1081,6 +1155,7 @@ function WalletView({
           const pct = percentOf(card);
           const isFeature = index === 0 && !query && category === "All";
           const stateLine = cardStateLine(card);
+          const holds = summaryFor(card);
           return (
             <button
               // A shop running stamps beside points puts two cards here under
@@ -1091,7 +1166,14 @@ function WalletView({
               className="block w-full text-left transition active:scale-[0.99]"
             >
               {isFeature ? (
-                <LoyaltyCard card={card} compact />
+                <>
+                  <LoyaltyCard card={card} compact />
+                  {holds && (
+                    <span className="mt-2 block px-1 text-[11px] font-semibold text-[var(--muted-strong)]">
+                      Also here: {holds}
+                    </span>
+                  )}
+                </>
               ) : (
                 <span className="flex items-center gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
                   <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)]">
@@ -1107,8 +1189,18 @@ function WalletView({
                       </span>
                     </span>
                     <span className="mt-1 block truncate text-[11px] text-[var(--muted)]">
-                      {card.program} · {card.state === "pending" ? `${earnedStamps(card)} of ${card.target} · 1 pending` : card.balance}
+                      {card.program}
+                      {card.state === "pending"
+                        ? ` · ${earnedStamps(card)} of ${card.target} · 1 pending`
+                        : balanceLine(card)
+                          ? ` · ${balanceLine(card)}`
+                          : ""}
                     </span>
+                    {holds && (
+                      <span className="mt-1 block truncate text-[11px] font-semibold text-[var(--muted-strong)]">
+                        {holds}
+                      </span>
+                    )}
                     {stateLine && (
                       <span className="mt-1 block text-[11px] font-semibold text-[var(--muted-strong)]">
                         {stateLine}
@@ -1167,6 +1259,25 @@ function WalletView({
               {business.reward}
             </p>
           </div>
+          <ChevronRight size={16} className="shrink-0 text-[var(--muted)]" aria-hidden="true" />
+        </button>
+      ))}
+      {heldOnly.map((shop) => (
+        <button
+          key={shop.businessId}
+          type="button"
+          onClick={() => onHeld(shop.businessId)}
+          className="mt-3 flex w-full items-center gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition active:scale-[0.99]"
+        >
+          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)]">
+            <Gift size={19} aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-extrabold">{shop.business}</span>
+            <span className="mt-1 block truncate text-[11px] font-semibold text-[var(--muted-strong)]">
+              {heldSummary(shop)}
+            </span>
+          </span>
           <ChevronRight size={16} className="shrink-0 text-[var(--muted)]" aria-hidden="true" />
         </button>
       ))}
@@ -1851,14 +1962,65 @@ function NotificationSheet({
   );
 }
 
+/**
+ * Whether a ledger line added to what the shopper has: units in, or cashback
+ * in. A membership payment is money they paid, so it is not.
+ */
+function gained(entry: ActivityEntry): boolean {
+  if (entry.kind === undefined) return entry.value.startsWith("+");
+  if (entry.kind === "membership_payment") return false;
+  const delta = entry.delta ?? 0;
+  return delta !== 0 ? delta > 0 : (entry.amountCentavos ?? 0) > 0;
+}
+
+/** The API's value, or the money behind it when it sent none. */
+function activityValue(entry: ActivityEntry): string {
+  if (entry.value) return entry.value;
+  return entry.amountCentavos ? pesoFromCentavos(Math.abs(entry.amountCentavos)) : "";
+}
+
+function activityIcon(entry: ActivityEntry): typeof History {
+  if (entry.kind === "cashback" || entry.kind === "redeem_cashback") return Coins;
+  return (entry.programType && walletIcons[entry.programType]) || History;
+}
+
+/**
+ * A shop the shopper holds something at without a card there: a gift card
+ * somebody bought them at a shop they never joined.
+ */
+function HeldSheet({ businessId, close }: { businessId: string; close: () => void }) {
+  const heldQuery = useHeld();
+  const shop: HeldShop | undefined = (heldQuery.data ?? []).find((item) => item.businessId === businessId);
+  return (
+    <div
+      className="absolute inset-0 z-[55] overflow-y-auto bg-[var(--paper)]"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="held-title"
+    >
+      <SheetHeader title="What you hold" close={close} />
+      <div className="px-5 pb-[max(3rem,env(safe-area-inset-bottom))] pt-6">
+        <h2 id="held-title" className="text-2xl font-extrabold tracking-[-0.02em]">
+          {shop?.business ?? "This shop"}
+        </h2>
+        {shop || heldQuery.error ? (
+          <HeldSection shop={shop} />
+        ) : (
+          <p className="mt-3 text-sm text-[var(--muted-strong)]">Nothing held here any more.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ActivitySheet({ close }: { close: () => void }) {
   const activityQuery = useActivity();
   const activity = activityQuery.data ?? [];
   const [filter, setFilter] = useState<"All" | "Earned" | "Used">("All");
   const visibleActivity = activity.filter((activity) => {
     if (filter === "All") return true;
-    if (filter === "Earned") return activity.value.startsWith("+");
-    return !activity.value.startsWith("+");
+    if (filter === "Earned") return gained(activity);
+    return !gained(activity);
   });
 
   return (
@@ -1903,10 +2065,12 @@ function ActivitySheet({ close }: { close: () => void }) {
           </QueryBoundary>
         </div>
         <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
-          {visibleActivity.map((activity) => (
+          {visibleActivity.map((activity) => {
+            const EntryIcon = activityIcon(activity);
+            return (
             <article key={activity.id} className="flex items-center gap-3 py-5">
               <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)]">
-                <History size={18} />
+                <EntryIcon size={18} aria-hidden="true" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-extrabold">{activity.action}</p>
@@ -1922,15 +2086,16 @@ function ActivitySheet({ close }: { close: () => void }) {
               </div>
               <strong
                 className={`text-xs ${
-                  activity.value.startsWith("+")
+                  gained(activity)
                     ? "text-[var(--success)]"
                     : "text-[var(--ink)]"
                 }`}
               >
-                {activity.value}
+                {activityValue(activity)}
               </strong>
             </article>
-          ))}
+            );
+          })}
         </div>
         <div className="mt-5 flex items-start gap-3 rounded-2xl bg-[rgb(15_118_85/9%)] p-4">
           <ShieldCheck
@@ -2232,7 +2397,8 @@ function WalletSheet({
   close: () => void;
   onShowQr: () => void;
 }) {
-  const { data: activity = [] } = useActivity();
+  const { data: allActivity = [] } = useActivity();
+  const { data: held = [] } = useHeld();
   const { wallet } = useCustomerState();
   // By the pair. Matching on the membership alone returned whichever card of
   // that shop came first, so tapping Points opened the stamp card.
@@ -2242,6 +2408,11 @@ function WalletSheet({
   // Leaving the shop while its sheet is open empties the wallet under it.
   if (!card) return null;
   const progress = percentOf(card);
+  const shop = held.find((item) => item.businessId === card.businessId);
+  // By shop id: two shops can share a short name.
+  const activity = allActivity.filter((entry) => entry.businessId === card.businessId);
+  const running =
+    card.target > 0 ? card.balance : balanceLine(card) || heldSummary(shop) || card.program;
   return (
     <div
       className="absolute inset-0 z-[55] overflow-y-auto bg-[var(--paper)]"
@@ -2267,8 +2438,8 @@ function WalletSheet({
             {card.business}
           </h2>
           <p className="mt-1 text-[11px] text-white/55">{card.program}</p>
-          <p className="mt-2 text-sm text-white/60">
-            {card.state === "pending" ? `${earnedStamps(card)} of ${card.target} · 1 pending` : card.balance}
+          <p className={card.target > 0 ? "mt-2 text-sm text-white/60" : "mt-3 text-xl font-extrabold"}>
+            {card.state === "pending" ? `${earnedStamps(card)} of ${card.target} · 1 pending` : running}
           </p>
           {progress !== null && (
             <div className="mt-7 h-2 overflow-hidden rounded-full bg-white/10">
@@ -2281,7 +2452,7 @@ function WalletSheet({
           <div className="mt-3 flex justify-between text-[10px]">
             {/* A running balance has no percentage to report. */}
             <span className="text-white/55">
-              {progress === null ? "Running balance" : `${progress}% progress`}
+              {progress === null ? (earningLine(card.earning) ?? "") : `${progress}% progress`}
             </span>
             <strong className="text-[var(--accent)]">{card.reward}</strong>
           </div>
@@ -2295,7 +2466,15 @@ function WalletSheet({
               Held for you
             </p>
             <p className="mt-2 text-sm font-extrabold">
-              {card.rewardsAvailable === 1 ? `1 ${card.reward}` : `${card.rewardsAvailable} × ${card.reward}`}
+              {/* A points card's rewards are whatever was chosen from its
+                  catalog, not one named reward. */}
+              {card.target === 0
+                ? card.rewardsAvailable === 1
+                  ? "1 reward ready"
+                  : `${card.rewardsAvailable} rewards ready`
+                : card.rewardsAvailable === 1
+                  ? `1 ${card.reward}`
+                  : `${card.rewardsAvailable} × ${card.reward}`}
             </p>
             <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
               Show your code at the counter. Staff reserve it, you approve it here, and it is handed over.
@@ -2303,35 +2482,38 @@ function WalletSheet({
             </p>
           </section>
         )}
+        <CatalogSection card={card} shop={shop} />
+        <HeldSection shop={shop} />
         <StoreCreditLine card={card} />
         <MissionList card={card} />
         <section className="mt-4 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
-          {activity.filter(
-            (activity) => activity.business === card.business,
-          ).length === 0 && (
+          {activity.length === 0 && (
             <p className="p-4 text-xs text-[var(--muted)]">
               No activity recorded yet. Your first visit will appear here.
             </p>
           )}
-          {activity
-            .filter((activity) => activity.business === card.business)
-            .map((activity) => (
+          {activity.map((entry) => {
+            const EntryIcon = activityIcon(entry);
+            return (
               <div
-                key={activity.id}
+                key={entry.id}
                 className="flex items-center gap-3 border-b border-[var(--line)] p-4 last:border-0"
               >
                 <span className="grid size-10 place-items-center rounded-2xl bg-[var(--surface-2)]">
-                  <History size={17} />
+                  <EntryIcon size={17} aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-extrabold">{activity.action}</p>
+                  <p className="text-sm font-extrabold">{entry.action}</p>
                   <p className="mt-0.5 text-[10px] text-[var(--muted)]">
-                    {activity.detail} · {relativeTime(activity.occurredAt)}
+                    {entry.detail} · {relativeTime(entry.occurredAt)}
                   </p>
                 </div>
-                <span className="text-xs font-extrabold">{activity.value}</span>
+                <span className={`text-xs font-extrabold ${gained(entry) ? "text-[var(--success)]" : ""}`}>
+                  {activityValue(entry)}
+                </span>
               </div>
-            ))}
+            );
+          })}
         </section>
         <CardTerms card={card} />
         <PromoCodeEntry card={card} />
@@ -2786,6 +2968,7 @@ function CustomerWallet() {
       <WalletView
         onCard={(id, programId) => setSheet({ kind: "wallet", id, programId })}
         onBusiness={(id) => setSheet({ kind: "business", id })}
+        onHeld={(businessId) => setSheet({ kind: "held", businessId })}
         onGifts={() => setSheet({ kind: "gifts" })}
       />
     ),
@@ -2912,6 +3095,9 @@ function CustomerWallet() {
             setQrOpen(true);
           }}
         />
+      )}
+      {sheet?.kind === "held" && (
+        <HeldSheet businessId={sheet.businessId} close={() => setSheet(null)} />
       )}
       {sheet?.kind === "business" && (
         <BusinessSheet

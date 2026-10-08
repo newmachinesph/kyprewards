@@ -11,8 +11,8 @@ import {
   type PromoCode,
 } from "@kyprewards/api";
 import { Button, Eyebrow, Pill, PreviewNotice, QueryBoundary, ViewFrame } from "@kyprewards/ui";
-import { Checkbox, Field, Input, Select } from "@kyprewards/ui/form";
-import { longDate } from "@kyprewards/ui/format";
+import { Checkbox, Field, Input, Segmented, Select } from "@kyprewards/ui/form";
+import { longDate, pesoFromCentavos } from "@kyprewards/ui/format";
 import { PlanTag } from "@kyprewards/ui/shell";
 import { Plus } from "lucide-react";
 import { planFor, refusal, retryOnce, usePlanGate, writeBlock } from "@/lib/plan";
@@ -20,6 +20,8 @@ import {
   BlockedNote,
   isoDay,
   onlyDigits,
+  onlyMoney,
+  pesosToCentavos,
   type Notify,
 } from "@/components/views/shared";
 
@@ -29,9 +31,19 @@ const GRANTS: { value: PromoCode["grants"]; label: string }[] = [
   { value: "coupon", label: "A coupon" },
 ];
 
+/** What a coupon grant is worth. The API sends both; the shared type predates them. */
+type CouponWorth = { couponValueCentavos?: number; couponPercentBps?: number };
+
+const couponWorth = (code: PromoCode & CouponWorth) =>
+  code.couponValueCentavos
+    ? pesoFromCentavos(code.couponValueCentavos)
+    : code.couponPercentBps
+      ? `${code.couponPercentBps / 100}% off`
+      : "";
+
 const grantLabel = (code: PromoCode) =>
   code.grants === "coupon"
-    ? code.couponName ?? "A coupon"
+    ? [code.couponName ?? "A coupon", couponWorth(code)].filter(Boolean).join(" · ")
     : `${code.amount} ${code.grants === "stamp" ? (code.amount === 1 ? "stamp" : "stamps") : "points"}`;
 
 export function PromoCodesView({ notify }: { notify: Notify }) {
@@ -55,13 +67,17 @@ export function PromoCodesView({ notify }: { notify: Notify }) {
   const [grants, setGrants] = useState<PromoCode["grants"]>("stamp");
   const [amount, setAmount] = useState("1");
   const [couponName, setCouponName] = useState("");
+  const [worthMode, setWorthMode] = useState<"pesos" | "percent">("pesos");
+  const [worth, setWorth] = useState("");
   const [startsOn, setStartsOn] = useState(isoDay(new Date()));
   const [endsOn, setEndsOn] = useState("");
   const [oncePerMember, setOncePerMember] = useState(true);
 
   const ready =
     /^[A-Z0-9]{3,20}$/.test(code) &&
-    (grants === "coupon" ? couponName.trim().length > 1 : Number(amount) > 0);
+    (grants === "coupon"
+      ? couponName.trim().length > 1 && Number.parseFloat(worth) > 0
+      : Number(amount) > 0);
 
   return (
     <ViewFrame
@@ -171,21 +187,27 @@ export function PromoCodesView({ notify }: { notify: Notify }) {
             onSubmit={(event) => {
               event.preventDefault();
               if (blocked || !ready) return;
+              const body: Parameters<typeof createPromoCode>[0] & CouponWorth = {
+                code,
+                grants,
+                amount: grants === "coupon" ? 1 : Number(amount),
+                couponName: grants === "coupon" ? couponName.trim() : null,
+                startsOn,
+                endsOn: endsOn || null,
+                limitPerMember: oncePerMember ? 1 : 0,
+                ...(grants === "coupon" &&
+                  (worthMode === "pesos"
+                    ? { couponValueCentavos: pesosToCentavos(worth) }
+                    : { couponPercentBps: Math.round(Number.parseFloat(worth) * 100) })),
+              };
               create.mutate(
-                {
-                  code,
-                  grants,
-                  amount: grants === "coupon" ? 1 : Number(amount),
-                  couponName: grants === "coupon" ? couponName.trim() : null,
-                  startsOn,
-                  endsOn: endsOn || null,
-                  limitPerMember: oncePerMember ? 1 : 0,
-                },
+                body,
                 {
                   onSuccess: (saved) => {
                     notify(`${saved.code} is live.`);
                     setCode("");
                     setCouponName("");
+                    setWorth("");
                   },
                   onError: (failure) => notify(refusal(failure, needed), "error"),
                 },
@@ -208,9 +230,28 @@ export function PromoCodesView({ notify }: { notify: Notify }) {
               </Select>
             </Field>
             {grants === "coupon" ? (
-              <Field label="Coupon name">
-                <Input value={couponName} onChange={(event) => setCouponName(event.target.value)} placeholder="₱50 off any cake" />
-              </Field>
+              <>
+                <Field label="Coupon name">
+                  <Input value={couponName} onChange={(event) => setCouponName(event.target.value)} placeholder="₱50 off any cake" />
+                </Field>
+                <Segmented
+                  label="Coupon worth"
+                  options={[
+                    { value: "pesos", label: "Pesos off" },
+                    { value: "percent", label: "Percent off" },
+                  ]}
+                  value={worthMode}
+                  onChange={setWorthMode}
+                />
+                <Field label={worthMode === "pesos" ? "Pesos off" : "Percent off"}>
+                  <Input
+                    value={worth}
+                    onChange={(event) => setWorth(onlyMoney(event.target.value))}
+                    inputMode="decimal"
+                    placeholder={worthMode === "pesos" ? "50" : "10"}
+                  />
+                </Field>
+              </>
             ) : (
               <Field label={grants === "stamp" ? "Stamps" : "Points"}>
                 <Input value={amount} onChange={(event) => setAmount(onlyDigits(event.target.value))} inputMode="numeric" />

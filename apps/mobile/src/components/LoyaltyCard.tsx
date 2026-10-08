@@ -1,4 +1,5 @@
-import { Image, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
+import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 import {
   Coins,
   Crown,
@@ -8,7 +9,7 @@ import {
   WalletCards,
 } from "lucide-react-native";
 import type { WalletCard } from "@kyprewards/api";
-import { longDate, timeOfDay } from "@kyprewards/ui/format";
+import { earningLine, longDate, timeOfDay } from "@kyprewards/ui/format";
 import {
   balanceLine,
   cardHeadline,
@@ -40,21 +41,34 @@ export function LoyaltyCard({
 }) {
   const brand = brandColor(card.color);
   const Icon = walletIcons[card.kind] ?? WalletCards;
-  const soft = withAlpha(brand.foreground, 0.62);
+  // Over a photo every small line is full-strength ink: the shade under it
+  // lets at most ~5% of the photo through, which keeps 11px text at AA 4.5:1
+  // for all four brand colours against a white or a black photo. Without a
+  // photo the quiet lines keep their softer ink on the flat ground.
+  // Green is the exception without a photo too: 62% paper on it is ~3:1.
+  const ink = (alpha: number) =>
+    withAlpha(brand.foreground, card.imageUrl || card.color === "green" ? 1 : alpha);
+  const soft = ink(0.62);
   const state = cardStateLine(card);
+  const balance = balanceLine(card);
+  const earns = earningLine(card.earning);
   return (
     <View
       className="overflow-hidden rounded-2xl px-5 py-5"
       style={{ backgroundColor: brand.background }}
-      accessibilityLabel={`${card.business}, ${balanceLine(card)}`}
+      accessibilityLabel={`${card.business}, ${balance || card.reward}`}
     >
       {card.imageUrl ? (
-        <Image
-          source={{ uri: card.imageUrl }}
-          accessibilityElementsHidden
-          style={{ position: "absolute", inset: 0, opacity: 0.18 }}
-          resizeMode="cover"
-        />
+        <>
+          <Image
+            source={{ uri: card.imageUrl }}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            style={StyleSheet.absoluteFill}
+            resizeMode="cover"
+          />
+          <BrandShade color={brand.background} />
+        </>
       ) : null}
       <View className="flex-row items-start justify-between">
         <View className="flex-row items-center gap-3">
@@ -84,7 +98,12 @@ export function LoyaltyCard({
           style={{
             borderWidth: 1,
             borderColor: withAlpha(brand.foreground, 0.24),
-            color: withAlpha(brand.foreground, 0.72),
+            // Top right is where the photo shows most; the pill carries its
+            // own ground there so the label keeps its contrast.
+            backgroundColor: card.imageUrl
+              ? withAlpha(brand.background, 0.94)
+              : undefined,
+            color: ink(0.72),
           }}
         >
           {card.state ?? card.status}
@@ -94,7 +113,14 @@ export function LoyaltyCard({
       {!compact ? (
         <Text
           className="mt-7 max-w-[19ch] font-sans-extrabold text-[23px] leading-[26px] tracking-[-0.5px]"
-          style={{ color: brand.foreground }}
+          style={{
+            color: brand.foreground,
+            // Over a photo the headline's tail reaches the lighter shade;
+            // a soft halo in the brand colour keeps it readable there.
+            ...(card.imageUrl
+              ? { textShadowColor: brand.background, textShadowRadius: 8 }
+              : null),
+          }}
         >
           {cardHeadline(card)}
         </Text>
@@ -115,7 +141,7 @@ export function LoyaltyCard({
             className="font-sans-semibold text-[11px]"
             style={{ color: soft }}
           >
-            {balanceLine(card)}
+            {balance}
           </Text>
           <Text
             className="font-sans-semibold text-[11px]"
@@ -124,10 +150,18 @@ export function LoyaltyCard({
             {card.reward}
           </Text>
         </View>
+        {earns ? (
+          <Text
+            className="mt-1 font-sans-semibold text-[11px]"
+            style={{ color: soft }}
+          >
+            Earn {earns}
+          </Text>
+        ) : null}
         {state ? (
           <Text
             className="mt-3 font-sans-semibold text-[11px]"
-            style={{ color: withAlpha(brand.foreground, 0.72) }}
+            style={{ color: ink(0.72) }}
           >
             {state}
           </Text>
@@ -135,7 +169,7 @@ export function LoyaltyCard({
         {card.redeemBy && card.rewardsAvailable > 0 ? (
           <Text
             className="mt-1 font-sans-semibold text-[11px]"
-            style={{ color: withAlpha(brand.foreground, 0.72) }}
+            style={{ color: ink(0.72) }}
           >
             Redeem by {longDate(card.redeemBy)}
           </Text>
@@ -147,7 +181,8 @@ export function LoyaltyCard({
               className="font-sans-extrabold text-[11px]"
               style={{ color: brand.foreground }}
             >
-              {card.bonusWindow.multiplier}× stamps until{" "}
+              {card.bonusWindow.multiplier}×{" "}
+              {card.kind === "Stamps" ? "stamps" : "points"} until{" "}
               {timeOfDay(card.bonusWindow.endsAt)}
             </Text>
           </View>
@@ -165,7 +200,7 @@ export function LoyaltyCard({
             </Text>
             <Text
               className="font-sans-semibold text-[11px]"
-              style={{ color: withAlpha(brand.foreground, 0.72) }}
+              style={{ color: ink(0.72) }}
             >
               {card.tier.nextName && card.tier.nextIn !== null
                 ? `${card.tier.basis === "visits" ? `${card.tier.nextIn} visits` : `₱${card.tier.nextIn}`} to ${card.tier.nextName}`
@@ -179,7 +214,7 @@ export function LoyaltyCard({
             style={{
               borderWidth: 1,
               borderColor: withAlpha(brand.foreground, 0.4),
-              color: withAlpha(brand.foreground, 0.6),
+              color: ink(0.6),
             }}
           >
             KYP Rewards
@@ -187,5 +222,40 @@ export function LoyaltyCard({
         ) : null}
       </View>
     </View>
+  );
+}
+
+/**
+ * The legibility shade over a storefront photo, mirroring the web card: the
+ * brand colour at 97% across the first 45% where the words sit, falling to
+ * 40% and 12% toward the right, plus a shade rising from the bottom that
+ * holds 94%+ under the text rows and 72% under the headline. Drawn with
+ * react-native-svg, already a dependency for the member code.
+ */
+function BrandShade({ color }: { color: string }) {
+  return (
+    <Svg
+      style={StyleSheet.absoluteFill}
+      pointerEvents="none"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      <Defs>
+        <LinearGradient id="across" x1="0" y1="0" x2="1" y2="0">
+          <Stop offset="0" stopColor={color} stopOpacity={0.97} />
+          <Stop offset="0.45" stopColor={color} stopOpacity={0.97} />
+          <Stop offset="0.72" stopColor={color} stopOpacity={0.4} />
+          <Stop offset="1" stopColor={color} stopOpacity={0.12} />
+        </LinearGradient>
+        <LinearGradient id="rise" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={color} stopOpacity={0} />
+          <Stop offset="0.3" stopColor={color} stopOpacity={0.72} />
+          <Stop offset="0.65" stopColor={color} stopOpacity={0.94} />
+          <Stop offset="1" stopColor={color} stopOpacity={0.97} />
+        </LinearGradient>
+      </Defs>
+      <Rect width="100%" height="100%" fill="url(#across)" />
+      <Rect width="100%" height="100%" fill="url(#rise)" />
+    </Svg>
   );
 }

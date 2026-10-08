@@ -182,14 +182,30 @@ export const PROGRAM_TYPE_MIN_PLAN: Record<(typeof PROGRAM_TYPES)[number], strin
 
 export const PLAN_RANK = ["Launch", "Core", "Grow", "Scale"];
 
-export const programSchema = z.object({
-  type: z.enum(PROGRAM_TYPES, { error: "Pick a program type" }),
-  name: z.string().trim().min(2, "Name this program"),
-  rewardName: z.string().trim().min(2, "Say what the customer earns"),
-  // The published range on the pricing page. A 40-stamp card is a card
-  // nobody finishes.
-  target: z.number().int("Whole stamps only").min(1, "At least 1").max(30, "At most 30"),
-});
+const wholeNumber = z.number().int("Whole numbers only");
+
+export const programSchema = z
+  .object({
+    type: z.enum(PROGRAM_TYPES, { error: "Pick a program type" }),
+    name: z.string().trim().min(2, "Name this program"),
+    rewardName: z.string().trim().min(2, "Say what the customer earns"),
+    // The published range on the pricing page. A 40-stamp card is a card
+    // nobody finishes. Stamps only: every other type stores 0, so a form for
+    // one leaves it out.
+    target: wholeNumber.min(1, "At least 1").max(30, "At most 30").optional(),
+    // The per-type settings, in the API's ranges (ProgramTypeFields).
+    discountBps: wholeNumber.min(0, "Not below 0%").max(10_000, "At most 100%").optional(),
+    priceCentavos: wholeNumber.min(0, "Not below ₱0").max(100_000_000, "Too large").optional(),
+    benefitLimit: wholeNumber.min(0, "0 is unlimited").max(10_000, "At most 10,000").optional(),
+    bundleSize: wholeNumber.min(1, "At least 1 pass").max(1_000, "At most 1,000").optional(),
+    // Points and passes; 0 is never. Matches the API's 0 to 3,650.
+    expiryDays: wholeNumber.min(0).max(3_650, "At most 3,650 days").optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.type === "Stamps" && value.target === undefined) {
+      ctx.addIssue({ code: "custom", path: ["target"], message: "Say how many visits earn it" });
+    }
+  });
 export type ProgramInput = z.infer<typeof programSchema>;
 
 /** The two a branch can be in. "Setup" hides it from customer discovery. */

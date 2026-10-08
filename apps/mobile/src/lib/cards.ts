@@ -88,17 +88,27 @@ export function cardHeadline(card: WalletCard): string {
       ? `${card.reward} is held for you.`
       : "This run has closed.";
   }
-  if (remaining === null) return card.balance;
+  // No finish line: a points card leads with its balance, a cashback card
+  // with its pesos, and a shop holding only coupons or passes with its offer.
+  if (remaining === null) return balanceLine(card) || card.reward;
   if (card.rewardsAvailable > 0) return `${card.reward} is ready.`;
   if (remaining === 0) return `${card.reward} on your next visit.`;
   return `${remaining} more ${remaining === 1 ? "visit" : "visits"}, then ${card.reward.toLowerCase()}.`;
 }
 
-/** "5 of 8 · 1 pending" or the balance the API wrote. */
+/** A points card in cashback mode: its balance is money, not units. */
+export function isCashback(card: WalletCard): boolean {
+  return card.earning?.mode === "cashback";
+}
+
+/** "5 of 8 · 1 pending", "₱42.50 cashback", or the balance the API wrote
+ *  ("120 points"; "" for a shop with nothing to fill). */
 export function balanceLine(card: WalletCard): string {
-  return card.state === "pending"
-    ? `${earnedStamps(card)} of ${card.target} · 1 pending`
-    : card.balance;
+  if (card.state === "pending")
+    return `${earnedStamps(card)} of ${card.target} · 1 pending`;
+  if (isCashback(card))
+    return `${pesoFromCentavos(card.cashbackCentavos ?? 0)} cashback`;
+  return card.balance;
 }
 
 /** The merchant's settings in plain language. Only the fields the card carries. */
@@ -109,6 +119,15 @@ export function cardTerms(card: WalletCard): [string, string][] {
   rows.push(["Reward", card.reward]);
   const earns = earningLine(card.earning);
   if (earns) rows.push(["Earning", earns]);
+  if (!rules && (card.expiryDays ?? 0) > 0) {
+    if (card.kind === "Points" || card.kind === "Rewards")
+      rows.push([
+        "Expiry",
+        `${card.expiryDays} days after earning, oldest first`,
+      ]);
+    else if (card.kind === "Multipass")
+      rows.push(["Expiry", `${card.expiryDays} days after purchase`]);
+  }
   if (!rules) return rows;
   rows.push(["Cooldown", cooldownLabel(rules.cooldownMinutes)]);
   rows.push([

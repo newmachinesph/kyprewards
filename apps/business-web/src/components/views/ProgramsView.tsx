@@ -1,31 +1,44 @@
 "use client";
 
 import { useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import {
-  useCatalog,
-  useCoupons,
+  getCouponPage,
+  getGiftCards,
+  keys,
+  useBusinessCustomers,
   usePrograms,
-  useTiers,
+  type Coupon,
+  type GiftCard,
   type Program,
-  type ProgramDraft,
+  type ProgramType,
 } from "@kyprewards/api";
 import { Button, Eyebrow, Pill, QueryBoundary, ViewFrame } from "@kyprewards/ui";
-import { Chip, Field, Input } from "@kyprewards/ui/form";
-import { pesoFromCentavos } from "@kyprewards/ui/format";
+import { Chip, Field, Input, Segmented, Select, Switch } from "@kyprewards/ui/form";
+import { longDate, pesoFromCentavos } from "@kyprewards/ui/format";
 import { PlanTag } from "@kyprewards/ui/shell";
 import { BadgeCheck, Coins, CreditCard, Gift, Plus, ShieldCheck, Stamp, TicketCheck, WalletCards } from "lucide-react";
-import { NewProgramDialog } from "@/components/WorkspaceForms";
 import {
-  useAddCatalogItem,
-  useAddTier,
-  useDuplicateProgram,
-  useIssueCoupon,
-  useIssueGiftCard,
-  useUpdateProgram,
-} from "@/components/mutations";
+  NewProgramDialog,
+  REWARD_PLACEHOLDER,
+  settingFromText,
+  settingsFor,
+  settingToText,
+  typeSettingsBody,
+  type SettingName,
+} from "@/components/WorkspaceForms";
+import { useDuplicateProgram, useIssueCoupon, useUpdateProgram } from "@/components/mutations";
+import { useIssueGiftCard, useRefundGiftCard, useVoidGiftCard } from "@/components/mutations-programs";
 import { programCap, refusal, usePlanGate } from "@/lib/plan";
-import { CategoryRatesEditor, PointsEarningEditor, ProgramRulesEditor } from "@/components/views/ProgramRules";
-import type { Notify } from "@/components/views/shared";
+import {
+  CatalogEditor,
+  CategoryRatesEditor,
+  PointsEarningEditor,
+  ProgramRulesEditor,
+  TierEditor,
+  placeErrors,
+} from "@/components/views/ProgramRules";
+import { isoDay, onlyMoney, pesosToCentavos, type Notify } from "@/components/views/shared";
 
 const programIcons: Record<string, typeof Stamp> = {
   Stamps: Stamp,
@@ -38,303 +51,552 @@ const programIcons: Record<string, typeof Stamp> = {
   "Gift card": CreditCard,
 };
 const PROGRAM_STATUSES = ["Live", "Ready", "Draft"] as const;
+
+/** What the "owed to customers" figure counts, per type. */
+const OWED: Partial<Record<ProgramType, string>> = {
+  "Gift card": "Balances left on the gift cards you have issued.",
+  Multipass: "Passes sold and not yet used, at the price paid.",
+  Points: "Rewards held for customers, plus cashback not yet spent.",
+};
+const owedWords = (type: ProgramType) => OWED[type] ?? "Rewards earned and held, not yet handed over.";
+
+/** `"2026-10-08"` to the start or the end of that day, local time. */
+const dayStart = (day: string) => new Date(`${day}T00:00`).toISOString();
+const dayEnd = (day: string) => new Date(`${day}T23:59:59`).toISOString();
+
 /**
- * The part of a program that is stock rather than rules.
+ * Name, status, the one-line reward and the settings this type reads.
  *
- * A Coupon program needs coupons, a Gift card program needs cards, and a
- * Rewards program needs a catalog to spend points on. None of that is
- * editable in the rule editor and none of it existed anywhere else, so three
- * of the eight types could be configured and never used.
+ * Keyed by program id where it is used, so switching programs starts a fresh
+ * draft. Only the type's own settings are sent: the API refuses the others by
+ * name, and a Discount never carries a stamp target.
  */
-function ProgramStock({ program, notify }: { program: Program; notify: Notify }) {
-  const issueCouponFor = useIssueCoupon();
-  const issueCard = useIssueGiftCard();
-  const addItem = useAddCatalogItem();
-  const addTierRung = useAddTier();
-  const { data: coupons = [] } = useCoupons({ enabled: program.type === "Coupon" });
-  const { data: catalog = [] } = useCatalog(program.type === "Rewards" ? program.id : "");
-  const hasTiers = program.type === "Points" || program.type === "Discount";
-  const { data: tiers = [] } = useTiers(hasTiers ? program.id : "");
-  const [couponName, setCouponName] = useState("");
-  const [couponValue, setCouponValue] = useState("");
-  const [cardValue, setCardValue] = useState("");
-  const [cardFor, setCardFor] = useState("");
-  const [itemName, setItemName] = useState("");
-  const [itemCost, setItemCost] = useState("");
-  const [tierName, setTierName] = useState("");
-  const [tierThreshold, setTierThreshold] = useState("");
-  const [tierRate, setTierRate] = useState("");
+function ProgramRecordEditor({
+  program,
+  notify,
+  onSaved,
+}: {
+  program: Program;
+  notify: Notify;
+  onSaved: () => void;
+}) {
+  const update = useUpdateProgram();
+  const settings = settingsFor(program.type);
+  const [name, setName] = useState(program.name);
+  const [status, setStatus] = useState(program.status);
+  const [rewardName, setRewardName] = useState(program.rewardName);
+  const [text, setText] = useState<Partial<Record<SettingName, string>>>(() =>
+    Object.fromEntries(settings.map((setting) => [setting.name, settingToText(setting.unit, program[setting.name])])),
+  );
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const pesosToCentavos = (typed: string) => Math.round(Number.parseFloat(typed) * 100);
-  const onlyMoney = (typed: string) => typed.replace(/[^0-9.]/g, "");
-  const onlyDigits = (typed: string) => typed.replace(/[^0-9]/g, "");
+  function save() {
+    const typed: Record<string, string> = {};
+    const patch = {
+      name: name.trim(),
+      status,
+      rewardName: rewardName.trim(),
+      ...typeSettingsBody(program.type, (field) => {
+        const setting = settings.find((candidate) => candidate.name === field)!;
+        const value = settingFromText(setting.unit, text[field] ?? "");
+        // Cleared means none: no discount, no price, unlimited benefits. The
+        // two counts that must be at least 1 are left as they were.
+        if (value === undefined) return field === "target" || field === "bundleSize" ? undefined : 0;
+        if (!Number.isFinite(value)) typed[field] = "Enter a number";
+        return value;
+      }),
+    };
+    setErrors(typed);
+    if (Object.keys(typed).length) return;
+    update.mutate(
+      { id: program.id, patch },
+      {
+        onSuccess: (saved) => {
+          notify(`${saved.name} saved.`);
+          onSaved();
+        },
+        onError: (failure) =>
+          setErrors(placeErrors(failure, ["name", "status", "rewardName", ...settings.map((setting) => setting.name)], notify)),
+      },
+    );
+  }
 
-  if (program.type === "Coupon") {
-    const active = coupons.filter((coupon) => coupon.state === "active");
-    return (
-      <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
-        <Eyebrow>Coupons</Eyebrow>
-        <p className="mt-2 text-xs text-white/55">
-          {active.length} active of {coupons.length} issued. Single use, enforced
-          by the API rather than by the counter.
+  return (
+    <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
+      <Eyebrow>Program settings</Eyebrow>
+      <Field label="Program name" surface="dark" className="mt-4" error={errors.name}>
+        <Input value={name} onChange={(event) => setName(event.target.value)} />
+      </Field>
+      <fieldset className="mt-4">
+        <legend className="text-xs font-bold">Status</legend>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {PROGRAM_STATUSES.map((option) => (
+            <Chip key={option} surface="dark" pressed={status === option} onClick={() => setStatus(option)}>
+              {option}
+            </Chip>
+          ))}
+        </div>
+        {errors.status && <p className="mt-1 text-xs font-bold text-[var(--danger-on-dark)]">{errors.status}</p>}
+      </fieldset>
+      <Field label="What the customer gets, in one line" surface="dark" className="mt-4" error={errors.rewardName}>
+        <Input
+          value={rewardName}
+          placeholder={REWARD_PLACEHOLDER[program.type]}
+          onChange={(event) => setRewardName(event.target.value)}
+        />
+      </Field>
+      {settings.map((setting) => (
+        <Field
+          key={setting.name}
+          label={setting.label}
+          hint={setting.hint}
+          surface="dark"
+          className="mt-4"
+          error={errors[setting.name]}
+        >
+          <Input
+            value={text[setting.name] ?? ""}
+            placeholder={setting.placeholder}
+            inputMode={setting.unit === "count" ? "numeric" : "decimal"}
+            onChange={(event) => setText((current) => ({ ...current, [setting.name]: event.target.value }))}
+          />
+        </Field>
+      ))}
+      <Button tone="accent" className="mt-5 w-full" disabled={update.isPending || !name.trim()} onClick={save}>
+        {update.isPending ? "Saving…" : "Publish new version"}
+      </Button>
+    </div>
+  );
+}
+
+const couponWorth = (coupon: Coupon) =>
+  coupon.valueCentavos > 0 ? pesoFromCentavos(coupon.valueCentavos) : `${coupon.percentBps / 100}% off`;
+
+const COUPON_FIELDS = ["name", "valueCentavos", "percentBps", "customerId", "validFrom", "validUntil"];
+
+/** The API's page cap. Both lists page by id, which is random, so whatever
+ *  is loaded is sorted newest first here and the rest is a "Show more". */
+const PAGE = 200;
+
+function ShowMore({ more, busy }: { more: () => void; busy: boolean }) {
+  return (
+    <div className="border-t border-[var(--line)] p-4 text-center">
+      <Button tone="quiet" size="sm" disabled={busy} onClick={more}>
+        {busy ? "Loading…" : "Show more"}
+      </Button>
+    </div>
+  );
+}
+
+/** Issue coupons for one Coupon program, and see where each one stands. */
+function CouponDesk({ program, notify }: { program: Program; notify: Notify }) {
+  const issue = useIssueCoupon();
+  const couponPages = useInfiniteQuery({
+    // Under `couponList()`, so issuing or redeeming a coupon refetches it.
+    queryKey: [...keys.business.couponList(), "pages", PAGE],
+    queryFn: ({ pageParam }) => getCouponPage({ limit: PAGE, cursor: pageParam || undefined }),
+    initialPageParam: "",
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+  const coupons = (couponPages.data?.pages.flatMap((page) => page.items) ?? []).sort((a, b) =>
+    b.validFrom.localeCompare(a.validFrom),
+  );
+  const { data: customers = [] } = useBusinessCustomers();
+  const [name, setName] = useState("");
+  const [mode, setMode] = useState<"pesos" | "percent">("pesos");
+  const [amount, setAmount] = useState("");
+  const [from, setFrom] = useState(isoDay(new Date()));
+  const [until, setUntil] = useState("");
+  const [customerId, setCustomerId] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const amountField = mode === "pesos" ? "valueCentavos" : "percentBps";
+  const ours = coupons.filter((coupon) => !coupon.programId || coupon.programId === program.id);
+  const active = ours.filter((coupon) => coupon.state === "active").length;
+
+  return (
+    <section className="mt-3 grid gap-3 xl:grid-cols-[minmax(340px,0.8fr)_minmax(0,1.2fr)]">
+      <form
+        className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (until && from && until < from) {
+            setErrors({ validUntil: "Pick an end date on or after the start." });
+            return;
+          }
+          setErrors({});
+          issue.mutate(
+            {
+              name: name.trim(),
+              programId: program.id,
+              ...(mode === "pesos"
+                ? { valueCentavos: pesosToCentavos(amount) }
+                : { percentBps: Math.round(Number.parseFloat(amount) * 100) }),
+              ...(from && { validFrom: dayStart(from) }),
+              ...(until && { validUntil: dayEnd(until) }),
+              ...(customerId && { customerId }),
+            },
+            {
+              onSuccess: (issued) => {
+                setName("");
+                setAmount("");
+                setCustomerId("");
+                notify(`Coupon ${issued.code} issued.`);
+              },
+              onError: (failure) => setErrors(placeErrors(failure, COUPON_FIELDS, notify)),
+            },
+          );
+        }}
+      >
+        <Eyebrow>Issue a coupon</Eyebrow>
+        <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+          Single use. A coupon for one customer is handed over after they approve it on their phone; one for anyone works for whoever shows the code.
         </p>
-        <div className="mt-4 grid gap-2">
-          <Input
-            value={couponName}
-            onChange={(event) => setCouponName(event.target.value)}
-            surface="dark"
-            aria-label="What it is for"
-            placeholder="What it is for"
+        <div className="mt-4 grid gap-4">
+          <Field label="What it is for" error={errors.name}>
+            <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="₱50 off any cake" />
+          </Field>
+          <Segmented
+            label="Coupon worth"
+            options={[
+              { value: "pesos", label: "Pesos off" },
+              { value: "percent", label: "Percent off" },
+            ]}
+            value={mode}
+            onChange={setMode}
           />
-          <Input
-            value={couponValue}
-            onChange={(event) => setCouponValue(onlyMoney(event.target.value))}
-            inputMode="decimal"
-            surface="dark"
-            aria-label="Value in pesos"
-            placeholder="Value in pesos"
-          />
-          <Button
-            tone="accent"
-            disabled={!couponName.trim() || !couponValue || issueCouponFor.isPending}
-            onClick={() =>
-              issueCouponFor.mutate(
-                {
-                  name: couponName.trim(),
-                  valueCentavos: pesosToCentavos(couponValue),
-                  programId: program.id,
-                },
-                {
-                  onSuccess: (issued) => {
-                    setCouponName("");
-                    setCouponValue("");
-                    notify(`Coupon ${issued.code} issued.`);
-                  },
-                  onError: (failure) => notify(refusal(failure), "error"),
-                },
-              )
-            }
-          >
-            Issue a coupon
+          <Field label={mode === "pesos" ? "Pesos off" : "Percent off"} error={errors[amountField]}>
+            <Input
+              value={amount}
+              onChange={(event) => setAmount(onlyMoney(event.target.value))}
+              inputMode="decimal"
+              placeholder={mode === "pesos" ? "50" : "10"}
+            />
+          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Valid from" error={errors.validFrom}>
+              <Input type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
+            </Field>
+            <Field label="Valid until" hint="Empty is 30 days." error={errors.validUntil}>
+              <Input type="date" value={until} min={from} onChange={(event) => setUntil(event.target.value)} />
+            </Field>
+          </div>
+          <Field label="For" hint="Optional. Pick a customer to issue it to them alone." error={errors.customerId}>
+            <Select value={customerId} onChange={(event) => setCustomerId(event.target.value)}>
+              <option value="">Anyone with the code</option>
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.id}>
+                  {customer.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Button type="submit" disabled={!name.trim() || !(Number.parseFloat(amount) > 0) || issue.isPending}>
+            {issue.isPending ? "Issuing…" : "Issue the coupon"}
           </Button>
         </div>
-        {active.length > 0 && (
-          <ul className="mt-4 space-y-1.5">
-            {active.slice(0, 6).map((coupon) => (
-              <li key={coupon.id} className="flex justify-between gap-3 text-xs">
-                <span className="truncate font-mono text-white/70">{coupon.code}</span>
-                <span className="shrink-0 font-bold">
-                  {pesoFromCentavos(coupon.valueCentavos)}
-                </span>
-              </li>
-            ))}
-          </ul>
+      </form>
+      <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+        <div className="border-b border-[var(--line)] p-5">
+          <Eyebrow>Coupons</Eyebrow>
+          <p className="mt-1 text-xs text-[var(--muted-strong)]">
+            {active} active of {ours.length} issued.
+          </p>
+        </div>
+        {ours.length === 0 ? (
+          <p className="p-5 text-sm text-[var(--muted-strong)]">None issued yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[620px] text-left">
+              <thead>
+                <tr className="border-b border-[var(--line)] text-[10px] uppercase tracking-[0.12em] text-[var(--muted)]">
+                  <th className="px-5 py-3">Code</th>
+                  <th className="px-4 py-3">For</th>
+                  <th className="px-4 py-3">Worth</th>
+                  <th className="px-4 py-3">Valid until</th>
+                  <th className="px-4 py-3">State</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ours.map((coupon) => (
+                  <tr key={coupon.id} className="border-b border-[var(--line)] last:border-0">
+                    <td className="px-5 py-3">
+                      <span className="font-mono text-sm font-extrabold">{coupon.code}</span>
+                      <span className="block text-xs text-[var(--muted-strong)]">{coupon.name}</span>
+                    </td>
+                    <td className="px-4 py-3 text-sm">{coupon.customerId ? coupon.customerName : "Anyone with the code"}</td>
+                    <td className="px-4 py-3 text-sm font-bold">{couponWorth(coupon)}</td>
+                    <td className="px-4 py-3 text-xs text-[var(--muted-strong)]">{longDate(coupon.validUntil)}</td>
+                    <td className="px-4 py-3">
+                      <Pill tone={coupon.state === "active" ? "success" : coupon.state === "scheduled" ? "warning" : "neutral"}>
+                        {coupon.state}
+                      </Pill>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {couponPages.hasNextPage && (
+          <ShowMore more={() => void couponPages.fetchNextPage()} busy={couponPages.isFetchingNextPage} />
         )}
       </div>
-    );
-  }
+    </section>
+  );
+}
 
-  if (program.type === "Gift card") {
-    return (
-      <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
-        <Eyebrow>Gift cards</Eyebrow>
-        <p className="mt-2 text-xs text-white/55">
-          Sold at the counter and spent down in parts. The code is what the
-          holder presents.
+const GIFT_FIELDS = ["amountCentavos", "bonusCentavos", "issuedToName", "expiresOn"];
+
+/**
+ * Sell or give gift cards, and look after the ones out there.
+ *
+ * A card someone paid for never expires (RA 10962), so the expiry date only
+ * appears for a promotional voucher. Refund and void are the API's to allow:
+ * it asks for the roles that run the shop and says so when the caller is not.
+ */
+function GiftCardDesk({ program, notify }: { program: Program; notify: Notify }) {
+  const issue = useIssueGiftCard();
+  const refund = useRefundGiftCard();
+  const voidCard = useVoidGiftCard();
+  const [show, setShow] = useState<"active" | "all">("active");
+  const cardPages = useInfiniteQuery({
+    // Under `giftCards()`, so issuing, refunding or voiding refetches it.
+    queryKey: [...keys.business.giftCardList({ status: show, limit: PAGE }), "pages"],
+    queryFn: ({ pageParam }) => getGiftCards({ status: show, limit: PAGE, cursor: pageParam || undefined }),
+    initialPageParam: "",
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+  const cards = (cardPages.data?.pages.flatMap((page) => page.items) ?? [])
+    .filter((card) => !card.programId || card.programId === program.id)
+    .sort((a, b) => (b.issuedAt ?? "").localeCompare(a.issuedAt ?? ""));
+  const [amount, setAmount] = useState("");
+  const [bonus, setBonus] = useState("");
+  const [forName, setForName] = useState("");
+  const [promotional, setPromotional] = useState(false);
+  const [expiresOn, setExpiresOn] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [refunding, setRefunding] = useState<{ code: string; amount: string } | null>(null);
+  const paid = pesosToCentavos(amount);
+  const extra = promotional ? 0 : pesosToCentavos(bonus);
+
+  const doRefund = (card: GiftCard, amountCentavos: number) => {
+    if (!window.confirm(`Put ${pesoFromCentavos(amountCentavos)} back on ${card.code}?`)) return;
+    refund.mutate(
+      { code: card.code, amountCentavos },
+      {
+        onSuccess: (saved) => {
+          setRefunding(null);
+          notify(`${saved.code} now holds ${pesoFromCentavos(saved.balanceCentavos)}.`);
+        },
+        onError: (failure) => notify(refusal(failure), "error"),
+      },
+    );
+  };
+
+  return (
+    <section className="mt-3 grid gap-3 xl:grid-cols-[minmax(340px,0.8fr)_minmax(0,1.2fr)]">
+      <form
+        className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 sm:p-6"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setErrors({});
+          issue.mutate(
+            {
+              amountCentavos: paid,
+              ...(extra > 0 && { bonusCentavos: extra }),
+              issuedToName: forName.trim(),
+              programId: program.id,
+              promotional,
+              ...(promotional && expiresOn && { expiresOn }),
+            },
+            {
+              onSuccess: (card) => {
+                setAmount("");
+                setBonus("");
+                setForName("");
+                setExpiresOn("");
+                notify(`Gift card ${card.code} issued with ${pesoFromCentavos(card.balanceCentavos)}.`);
+              },
+              onError: (failure) => setErrors(placeErrors(failure, GIFT_FIELDS, notify)),
+            },
+          );
+        }}
+      >
+        <Eyebrow>Issue a gift card</Eyebrow>
+        <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
+          Spent down in parts at the counter. The code is what the holder shows. A card someone paid for never expires.
         </p>
-        <div className="mt-4 grid gap-2">
-          <Input
-            value={cardFor}
-            onChange={(event) => setCardFor(event.target.value)}
-            surface="dark"
-            aria-label="Who it is for, optional"
-            placeholder="Who it is for, optional"
-          />
-          <Input
-            value={cardValue}
-            onChange={(event) => setCardValue(onlyMoney(event.target.value))}
-            inputMode="decimal"
-            surface="dark"
-            aria-label="Amount in pesos"
-            placeholder="Amount in pesos"
-          />
-          <Button
-            tone="accent"
-            disabled={!cardValue || issueCard.isPending}
-            onClick={() =>
-              issueCard.mutate(
-                {
-                  amountCentavos: pesosToCentavos(cardValue),
-                  issuedToName: cardFor.trim(),
-                  programId: program.id,
-                },
-                {
-                  onSuccess: (card) => {
-                    setCardValue("");
-                    setCardFor("");
-                    notify(`Gift card ${card.code} issued.`);
-                  },
-                  onError: (failure) => notify(refusal(failure), "error"),
-                },
-              )
-            }
-          >
-            Issue a gift card
+        <div className="mt-4 grid gap-4">
+          <span className="flex items-start justify-between gap-3 rounded-xl border border-[var(--line)] bg-[var(--paper)] p-3 text-xs font-bold">
+            <span id={`promo-${program.id}`}>
+              Promotional voucher
+              <span className="mt-1 block font-normal text-[var(--muted-strong)]">
+                Given away, not sold. Only a voucher can carry an expiry date.
+              </span>
+            </span>
+            <Switch
+              aria-labelledby={`promo-${program.id}`}
+              checked={promotional}
+              onCheckedChange={(next) => {
+                setPromotional(next);
+                if (!next) setExpiresOn("");
+              }}
+            />
+          </span>
+          <Field label={promotional ? "Voucher value, pesos" : "Amount paid, pesos"} error={errors.amountCentavos}>
+            <Input value={amount} onChange={(event) => setAmount(onlyMoney(event.target.value))} inputMode="decimal" placeholder="500" />
+          </Field>
+          {!promotional && (
+            <Field label="Bonus, pesos" hint="Optional. Loaded on top of what was paid." error={errors.bonusCentavos}>
+              <Input value={bonus} onChange={(event) => setBonus(onlyMoney(event.target.value))} inputMode="decimal" placeholder="50" />
+            </Field>
+          )}
+          {promotional && (
+            <Field label="Expires on" hint="Optional." error={errors.expiresOn}>
+              <Input type="date" value={expiresOn} min={isoDay(new Date())} onChange={(event) => setExpiresOn(event.target.value)} />
+            </Field>
+          )}
+          <Field label="Who it is for" hint="Optional." error={errors.issuedToName}>
+            <Input value={forName} onChange={(event) => setForName(event.target.value)} />
+          </Field>
+          {paid > 0 && extra > 0 && (
+            <p className="text-sm font-bold">
+              Load {pesoFromCentavos(paid)}, get {pesoFromCentavos(paid + extra)}.
+            </p>
+          )}
+          <Button type="submit" disabled={paid < 100 || issue.isPending}>
+            {issue.isPending ? "Issuing…" : "Issue the card"}
           </Button>
         </div>
-      </div>
-    );
-  }
-
-  if (program.type === "Rewards") {
-    return (
-      <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
-        <Eyebrow>Reward catalog</Eyebrow>
-        <p className="mt-2 text-xs text-white/55">
-          What points buy. Without at least one item a points balance has
-          nowhere to go.
-        </p>
-        {catalog.length > 0 && (
-          <ul className="mt-4 space-y-1.5">
-            {catalog.map((item) => (
-              <li key={item.id} className="flex justify-between gap-3 text-xs">
-                <span className="truncate">{item.name}</span>
-                <span className="shrink-0 font-bold">{item.costUnits} pts</span>
-              </li>
-            ))}
-          </ul>
+      </form>
+      <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--line)] p-5">
+          <div>
+            <Eyebrow>Issued cards</Eyebrow>
+            <p className="mt-1 text-xs text-[var(--muted-strong)]">
+              {show === "active" ? "Cards with a balance left to spend." : "Every card, spent and void included."}
+            </p>
+          </div>
+          <Segmented
+            label="Which cards"
+            className="min-w-48"
+            options={[
+              { value: "active", label: "Active" },
+              { value: "all", label: "All" },
+            ]}
+            value={show}
+            onChange={setShow}
+          />
+        </div>
+        {cards.length === 0 ? (
+          <p className="p-5 text-sm text-[var(--muted-strong)]">No cards here yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] text-left">
+              <thead>
+                <tr className="border-b border-[var(--line)] text-[10px] uppercase tracking-[0.12em] text-[var(--muted)]">
+                  <th className="px-5 py-3">Card</th>
+                  <th className="px-4 py-3">Balance</th>
+                  <th className="px-4 py-3">Paid</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3" />
+                </tr>
+              </thead>
+              <tbody>
+                {cards.map((card) => (
+                  <tr key={card.id} className="border-b border-[var(--line)] align-top last:border-0">
+                    <td className="px-5 py-3">
+                      <span className="font-mono text-sm font-extrabold">{card.code}</span>
+                      <span className="block text-xs text-[var(--muted-strong)]">
+                        {card.issuedToName || "No name"}
+                        {card.issuedAt && ` · ${longDate(card.issuedAt)}`}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm font-bold">
+                      {pesoFromCentavos(card.balanceCentavos)}
+                      <span className="block text-xs font-normal text-[var(--muted-strong)]">
+                        of {pesoFromCentavos(card.initialCentavos)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {card.promotional ? "Voucher" : pesoFromCentavos(card.paidCentavos)}
+                      {card.expiresOn && (
+                        <span className="block text-xs text-[var(--muted-strong)]">Expires {longDate(card.expiresOn)}</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Pill tone={card.status === "active" ? "success" : card.status === "void" ? "danger" : "neutral"}>
+                        {card.status}
+                      </Pill>
+                    </td>
+                    <td className="px-4 py-3">
+                      {card.status !== "void" &&
+                        (refunding?.code === card.code ? (
+                          <span className="flex flex-wrap items-center gap-2">
+                            <Input
+                              aria-label={`Refund onto ${card.code}, pesos`}
+                              value={refunding.amount}
+                              onChange={(event) => setRefunding({ code: card.code, amount: onlyMoney(event.target.value) })}
+                              inputMode="decimal"
+                              placeholder="Pesos"
+                              className="max-w-28"
+                            />
+                            <Button
+                              size="sm"
+                              disabled={!(pesosToCentavos(refunding.amount) > 0) || refund.isPending}
+                              onClick={() => doRefund(card, pesosToCentavos(refunding.amount))}
+                            >
+                              Refund
+                            </Button>
+                            <Button tone="quiet" size="sm" onClick={() => setRefunding(null)}>
+                              Cancel
+                            </Button>
+                          </span>
+                        ) : (
+                          <span className="flex gap-2">
+                            <Button tone="quiet" size="sm" onClick={() => setRefunding({ code: card.code, amount: "" })}>
+                              Refund
+                            </Button>
+                            <Button
+                              tone="danger"
+                              size="sm"
+                              disabled={voidCard.isPending}
+                              onClick={() => {
+                                if (
+                                  !window.confirm(
+                                    `Void ${card.code}? The ${pesoFromCentavos(card.balanceCentavos)} left on it is written off and it cannot be used again.`,
+                                  )
+                                )
+                                  return;
+                                voidCard.mutate(
+                                  { code: card.code },
+                                  {
+                                    onSuccess: (saved) => notify(`${saved.code} is void.`),
+                                    onError: (failure) => notify(refusal(failure), "error"),
+                                  },
+                                );
+                              }}
+                            >
+                              Void
+                            </Button>
+                          </span>
+                        ))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-        <div className="mt-4 grid gap-2">
-          <Input
-            value={itemName}
-            onChange={(event) => setItemName(event.target.value)}
-            surface="dark"
-            aria-label="Item name"
-            placeholder="Item name"
-          />
-          <Input
-            value={itemCost}
-            onChange={(event) => setItemCost(onlyDigits(event.target.value))}
-            inputMode="numeric"
-            surface="dark"
-            aria-label="Cost in points"
-            placeholder="Cost in points"
-          />
-          <Button
-            tone="accent"
-            disabled={!itemName.trim() || !itemCost || addItem.isPending}
-            onClick={() =>
-              addItem.mutate(
-                {
-                  programId: program.id,
-                  name: itemName.trim(),
-                  costUnits: Number(itemCost),
-                },
-                {
-                  onSuccess: (item) => {
-                    setItemName("");
-                    setItemCost("");
-                    notify(`${item.name} added to the catalog.`);
-                  },
-                  onError: (failure) => notify(refusal(failure), "error"),
-                },
-              )
-            }
-          >
-            Add to catalog
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (program.type === "Points" || program.type === "Discount") {
-    const isPoints = program.type === "Points";
-    return (
-      <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
-        <Eyebrow>Earning tiers</Eyebrow>
-        <p className="mt-2 text-xs text-white/55">
-          {isPoints
-            ? "A member who has cleared a tier earns at its multiplier instead of the base rate."
-            : "A member who has cleared a tier is charged at its rate instead of the base discount."}{" "}
-          Tiers unlock on lifetime visits, and the API applies the highest one
-          cleared.
-        </p>
-        {tiers.length > 0 && (
-          <ul className="mt-4 space-y-1.5">
-            {tiers.map((tier) => (
-              <li key={tier.id} className="flex justify-between gap-3 text-xs">
-                <span className="truncate">
-                  {tier.name}
-                  <span className="text-white/55"> · from {tier.threshold} visits</span>
-                </span>
-                <span className="shrink-0 font-bold">
-                  {isPoints
-                    ? `${(tier.rateBps / 10000).toFixed(2)}x`
-                    : `${(tier.rateBps / 100).toFixed(1)}%`}
-                </span>
-              </li>
-            ))}
-          </ul>
+        {cardPages.hasNextPage && (
+          <ShowMore more={() => void cardPages.fetchNextPage()} busy={cardPages.isFetchingNextPage} />
         )}
-        <div className="mt-4 grid gap-2">
-          <Input
-            value={tierName}
-            onChange={(event) => setTierName(event.target.value)}
-            surface="dark"
-            aria-label="Tier name, for example Gold"
-            placeholder="Tier name, for example Gold"
-          />
-          <Input
-            value={tierThreshold}
-            onChange={(event) => setTierThreshold(onlyDigits(event.target.value))}
-            inputMode="numeric"
-            surface="dark"
-            aria-label="Unlocks at how many visits"
-            placeholder="Unlocks at how many visits"
-          />
-          <Input
-            value={tierRate}
-            onChange={(event) => setTierRate(onlyMoney(event.target.value))}
-            inputMode="decimal"
-            surface="dark"
-            aria-label={isPoints ? "Multiplier, for example 1.5" : "Percent off, for example 12.5"}
-            placeholder={isPoints ? "Multiplier, for example 1.5" : "Percent off, for example 12.5"}
-          />
-          <Button
-            tone="accent"
-            disabled={!tierName.trim() || !tierThreshold || !tierRate || addTierRung.isPending}
-            onClick={() =>
-              addTierRung.mutate(
-                {
-                  programId: program.id,
-                  name: tierName.trim(),
-                  threshold: Number(tierThreshold),
-                  // Basis points either way: 10000 is one multiplier or 100%.
-                  rateBps: Math.round(
-                    Number.parseFloat(tierRate) * (isPoints ? 10000 : 100),
-                  ),
-                },
-                {
-                  onSuccess: (tier) => {
-                    setTierName("");
-                    setTierThreshold("");
-                    setTierRate("");
-                    notify(`${tier.name} unlocks at ${tier.threshold} visits.`);
-                  },
-                  onError: (failure) => notify(refusal(failure), "error"),
-                },
-              )
-            }
-          >
-            Add a tier
-          </Button>
-        </div>
+        <p className="border-t border-[var(--line)] p-4 text-[11px] leading-relaxed text-[var(--muted-strong)]">
+          Refund puts money from a returned purchase back on the card, never more than was spent from it. Void cancels the card. Both are for owners and managers, and both are kept in the audit log.
+        </p>
       </div>
-    );
-  }
-
-  return null;
+    </section>
+  );
 }
 
 export function ProgramsView({ notify }: { notify: Notify }) {
@@ -343,36 +605,10 @@ export function ProgramsView({ notify }: { notify: Notify }) {
   const cap = programCap(gate.plan);
   const liveCount = programs.filter((program) => program.status === "Live").length;
   const duplicate = useDuplicateProgram();
-  const update = useUpdateProgram();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
-  const selected = programs.find((program) => program.id === selectedId) ?? programs[0];
-
-  /**
-   * The rule editor holds a draft rather than writing through.
-   *
-   * It used to call updateProgramRule on every keystroke, which against a
-   * fixture was free and against the API is one PATCH per character. The
-   * draft is keyed by program id, so changing selection re-seeds it.
-   */
-  const [draft, setDraft] = useState<Partial<ProgramDraft>>({});
-  const [draftFor, setDraftFor] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
-  if (selected && draftFor !== selected.id) {
-    setDraftFor(selected.id);
-    setDraft({
-      name: selected.name,
-      status: selected.status,
-      // A Coupon, Gift card, Membership or Discount carries target 0, and the
-      // API refuses anything below 1. Seeding the draft with that 0 meant
-      // publishing any non-stamp program answered "target: Input should be
-      // greater than or equal to 1" over a field its editor never touched.
-      // The patch field is optional, so an unused target is simply not sent.
-      target: selected.target || undefined,
-      rewardName: selected.rewardName,
-      rewardValueCentavos: selected.rewardValueCentavos,
-    });
-  }
+  const selected = programs.find((program) => program.id === selectedId) ?? programs[0];
 
   if (isPending || error || !selected) {
     return (
@@ -467,7 +703,7 @@ export function ProgramsView({ notify }: { notify: Notify }) {
               ["Members", selected.members.toLocaleString()],
               ["Completion", `${selected.completion}%`],
               ["Redemption", `${selected.redemption}%`],
-              ["Liability", pesoFromCentavos(selected.liabilityCentavos)],
+              ["Owed to customers", pesoFromCentavos(selected.liabilityCentavos)],
             ].map(([label, value]) => (
               <div key={label} className="bg-[var(--ink-soft)] p-4">
                 <p className="text-[10px] text-white/50">{label}</p>
@@ -475,6 +711,10 @@ export function ProgramsView({ notify }: { notify: Notify }) {
               </div>
             ))}
           </div>
+          {/* Derived from the ledger, so it is explained rather than edited. */}
+          <p className="mt-2 text-[11px] leading-relaxed text-white/55">
+            Owed to customers: {owedWords(selected.type)}
+          </p>
           <div className="mt-7 rounded-2xl border border-white/12 p-4">
             <div className="flex items-start gap-3">
               <ShieldCheck
@@ -486,7 +726,6 @@ export function ProgramsView({ notify }: { notify: Notify }) {
               </p>
             </div>
           </div>
-          <ProgramStock program={selected} notify={notify} />
           <div className="mt-6 grid grid-cols-2 gap-2">
             <Button
               tone="ghost"
@@ -510,90 +749,26 @@ export function ProgramsView({ notify }: { notify: Notify }) {
             </Button>
           </div>
           {editing && (
-            <div className="mt-5 rounded-2xl border border-white/12 bg-white/5 p-4">
-              <Eyebrow>Rule editor</Eyebrow>
-              <Field label="Program name" surface="dark" className="mt-4">
-                <Input
-                  value={draft.name ?? ""}
-                  onChange={(event) =>
-                    setDraft((current) => ({ ...current, name: event.target.value }))
-                  }
-                />
-              </Field>
-              <fieldset className="mt-4">
-                <legend className="text-xs font-bold">Status</legend>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {PROGRAM_STATUSES.map((status) => (
-                    <Chip
-                      key={status}
-                      surface="dark"
-                      pressed={draft.status === status}
-                      onClick={() => setDraft((current) => ({ ...current, status }))}
-                    >
-                      {status}
-                    </Chip>
-                  ))}
-                </div>
-              </fieldset>
-              <Field label="Reward" surface="dark" className="mt-4">
-                <Input
-                  value={draft.rewardName ?? ""}
-                  onChange={(event) =>
-                    setDraft((current) => ({ ...current, rewardName: event.target.value }))
-                  }
-                />
-              </Field>
-              <Field label="Visits to earn it" surface="dark" className="mt-4">
-                <Input
-                  type="number"
-                  min={1}
-                  max={30}
-                  value={draft.target ?? 1}
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      target: Number(event.target.value) || 1,
-                    }))
-                  }
-                />
-              </Field>
-              {/* Derived from the ledger, so it is shown rather than edited.
-                  It used to be an input, which could never have saved. */}
-              <p className="mt-4 text-xs text-white/55">
-                Outstanding reward liability{" "}
-                <span className="font-extrabold text-white">
-                  {pesoFromCentavos(selected.liabilityCentavos)}
-                </span>
-              </p>
-              <Button
-                tone="accent"
-                className="mt-5 w-full"
-                disabled={update.isPending}
-                onClick={() =>
-                  update.mutate(
-                    { id: selected.id, patch: draft },
-                    {
-                      onSuccess: (saved) => {
-                        setEditing(false);
-                        notify(`${saved.name} saved.`);
-                      },
-                      // The API refuses a target outside 1-30 and names the
-                      // field. There is one editor on this screen, so the
-                      // message carries enough on its own.
-                      onError: (failure) => notify(refusal(failure), "error"),
-                    },
-                  )
-                }
-              >
-                {update.isPending ? "Saving\u2026" : "Publish new version"}
-              </Button>
-            </div>
+            <ProgramRecordEditor
+              key={selected.id}
+              program={selected}
+              notify={notify}
+              onSaved={() => setEditing(false)}
+            />
           )}
         </aside>
       </div>
       {selected.type === "Stamps" && <ProgramRulesEditor program={selected} notify={notify} />}
       {selected.type === "Points" && <PointsEarningEditor program={selected} notify={notify} />}
+      {(selected.type === "Points" || selected.type === "Discount") && (
+        <TierEditor key={`tiers-${selected.id}`} program={selected} notify={notify} />
+      )}
+      {(selected.type === "Points" || selected.type === "Rewards") && (
+        <CatalogEditor key={`catalog-${selected.id}`} program={selected} notify={notify} />
+      )}
       {selected.type === "Points" && <CategoryRatesEditor programId={selected.id} notify={notify} />}
+      {selected.type === "Coupon" && <CouponDesk key={selected.id} program={selected} notify={notify} />}
+      {selected.type === "Gift card" && <GiftCardDesk key={selected.id} program={selected} notify={notify} />}
       {creating && (
         <NewProgramDialog onClose={() => setCreating(false)} notify={notify} />
       )}

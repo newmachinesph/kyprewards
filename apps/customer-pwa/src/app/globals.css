@@ -108,6 +108,19 @@ button:disabled {
     var(--card-brand, var(--ink));
 }
 
+/* The storefront photo and its shade, cut to the same notches as the ticket
+   so the photo does not paint over them. */
+.loyalty-ticket-skin {
+  -webkit-mask:
+    radial-gradient(circle at -2px 55%, transparent 0 8px, #000 9px),
+    radial-gradient(circle at calc(100% + 2px) 55%, transparent 0 8px, #000 9px);
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(circle at -2px 55%, transparent 0 8px, #000 9px),
+    radial-gradient(circle at calc(100% + 2px) 55%, transparent 0 8px, #000 9px);
+  mask-composite: intersect;
+}
+
 /* Two sides of one card.
 
    The front stays in the flow and is what gives the card its height; the back

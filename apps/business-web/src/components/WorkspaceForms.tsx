@@ -15,7 +15,7 @@
  */
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import {
   applyApiErrors,
   locationSchema,
@@ -41,6 +41,8 @@ import {
   type BusinessLocation,
   type OpeningHours,
   type BusinessProfile,
+  type ProgramDraft,
+  type ProgramType,
   type StaffMember,
 } from "@kyprewards/api";
 import { ImageIcon } from "lucide-react";
@@ -73,6 +75,119 @@ function Banner({ message }: { message: string }) {
   );
 }
 
+/* ── The per-type settings ──────────────────────────────────────────────
+   One list for the new-program dialog and the program record editor, so the
+   two cannot drift. Only Stamps has a target; the API refuses any of these
+   on a type that does not read it, by field name, so a form sends only the
+   ones listed for its type. Money and percentages are typed as people say
+   them and sent the API's way: ₱299 is 29900 centavos, 12.5% is 1250 bps. */
+
+export type SettingName =
+  | "target"
+  | "discountBps"
+  | "priceCentavos"
+  | "benefitLimit"
+  | "bundleSize"
+  | "expiryDays";
+type SettingUnit = "count" | "percent" | "pesos";
+export type TypeSetting = {
+  name: SettingName;
+  label: string;
+  unit: SettingUnit;
+  hint?: string;
+  placeholder?: string;
+};
+
+export const TYPE_SETTINGS: Partial<Record<ProgramType, TypeSetting[]>> = {
+  Stamps: [{ name: "target", label: "Visits to earn it", unit: "count", hint: "1 to 30." }],
+  Points: [
+    {
+      name: "expiryDays",
+      label: "Points expire after, days",
+      unit: "count",
+      hint: "0 means never. Oldest points go first, and the card says so.",
+      placeholder: "0",
+    },
+  ],
+  Discount: [
+    {
+      name: "discountBps",
+      label: "Percent off",
+      unit: "percent",
+      hint: "What every member gets. A tier can raise it for regulars.",
+      placeholder: "10",
+    },
+  ],
+  Membership: [
+    { name: "priceCentavos", label: "Monthly price, pesos", unit: "pesos", placeholder: "299" },
+    {
+      name: "benefitLimit",
+      label: "Benefits per month",
+      unit: "count",
+      hint: "0 means unlimited.",
+      placeholder: "0",
+    },
+    {
+      name: "discountBps",
+      label: "Member discount, percent",
+      unit: "percent",
+      hint: "Optional. Taken off at the counter while the membership is paid up.",
+      placeholder: "None",
+    },
+  ],
+  Multipass: [
+    {
+      name: "bundleSize",
+      label: "Passes per bundle",
+      unit: "count",
+      hint: "Needed before it can go live.",
+      placeholder: "10",
+    },
+    { name: "priceCentavos", label: "Bundle price, pesos", unit: "pesos", placeholder: "1500" },
+    {
+      name: "expiryDays",
+      label: "Passes expire after, days",
+      unit: "count",
+      hint: "0 means never. Counted from the sale.",
+      placeholder: "0",
+    },
+  ],
+};
+
+export const settingsFor = (type: string) => TYPE_SETTINGS[type as ProgramType] ?? [];
+
+/** What was typed, in the API's unit. Empty is "not set"; junk is NaN, refused. */
+export const settingFromText = (unit: SettingUnit, text: string): number | undefined => {
+  if (text.trim() === "") return undefined;
+  const typed = Number(text.trim());
+  return unit === "count" ? typed : Math.round(typed * 100);
+};
+
+export const settingToText = (unit: SettingUnit, value: number | null | undefined) =>
+  value == null ? "" : String(unit === "count" ? value : value / 100);
+
+/** Only the settings this type reads, and only the ones that are set. */
+export function typeSettingsBody(type: string, read: (name: SettingName) => number | undefined) {
+  const body: Pick<ProgramDraft, SettingName> = {};
+  for (const setting of settingsFor(type)) {
+    const value = read(setting.name);
+    if (value !== undefined) body[setting.name] = value;
+  }
+  return body;
+}
+
+/** The one-line reward, worded for each type. */
+export const REWARD_PLACEHOLDER: Record<ProgramType, string> = {
+  Stamps: "Free pastry",
+  Points: "Points toward free drinks",
+  Discount: "10% off every visit",
+  Membership: "A free refill every visit",
+  Coupon: "₱50 off any cake",
+  Rewards: "Pick a reward from the catalog",
+  Multipass: "Ten car washes",
+  "Gift card": "A balance to spend here",
+};
+
 export function NewProgramDialog({
   onClose,
   notify,
@@ -87,7 +202,11 @@ export function NewProgramDialog({
   const form = useForm<ProgramInput>({
     resolver: zodResolver(programSchema),
     defaultValues: { type: "Stamps", name: "", rewardName: "", target: 8 },
+    // A field for another type leaves the values when it leaves the screen,
+    // so switching Stamps to Discount does not carry a target along.
+    shouldUnregister: true,
   });
+  const type = useWatch({ control: form.control, name: "type" });
 
   return (
     <Dialog title="New program" eyebrow="Loyalty engine" onClose={onClose}>
@@ -95,7 +214,13 @@ export function NewProgramDialog({
         className="grid gap-5"
         onSubmit={form.handleSubmit((values) => {
           setBanner("");
-          create.mutate(values, {
+          const body: ProgramDraft = {
+            type: values.type,
+            name: values.name,
+            rewardName: values.rewardName,
+            ...typeSettingsBody(values.type, (name) => values[name]),
+          };
+          create.mutate(body, {
             onSuccess: (program) => {
               notify(`${program.name} created as a draft.`);
               onClose();
@@ -133,17 +258,26 @@ export function NewProgramDialog({
         <Field label="Name" error={form.formState.errors.name?.message}>
           <Input {...form.register("name")} placeholder="Eight visits, pastry on us" />
         </Field>
-        <Field label="What the customer earns" error={form.formState.errors.rewardName?.message}>
-          <Input {...form.register("rewardName")} placeholder="Free pastry" />
+        <Field label="What the customer gets, in one line" error={form.formState.errors.rewardName?.message}>
+          <Input {...form.register("rewardName")} placeholder={REWARD_PLACEHOLDER[type] ?? ""} />
         </Field>
-        <Field label="Visits to earn it" error={form.formState.errors.target?.message}>
-          <Input
-            type="number"
-            min={1}
-            max={30}
-            {...form.register("target", { valueAsNumber: true })}
-          />
-        </Field>
+        {settingsFor(type).map((setting) => (
+          <Field
+            key={`${type}-${setting.name}`}
+            label={setting.label}
+            hint={setting.hint}
+            error={form.formState.errors[setting.name]?.message}
+          >
+            <Input
+              inputMode={setting.unit === "count" ? "numeric" : "decimal"}
+              placeholder={setting.placeholder}
+              {...form.register(setting.name, {
+                setValueAs: (typed: unknown) =>
+                  typeof typed === "string" ? settingFromText(setting.unit, typed) : typed,
+              })}
+            />
+          </Field>
+        ))}
         <div className="grid gap-2 sm:grid-cols-2">
           <Button tone="quiet" type="button" onClick={onClose}>
             Cancel

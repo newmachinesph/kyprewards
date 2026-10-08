@@ -22,7 +22,6 @@ import {
   recordVisit,
   toggleAutomation,
   toggleIntegration,
-  addCatalogItem,
   addTier,
   addCustomField,
   cancelMembership,
@@ -33,9 +32,7 @@ import {
   decideApproval,
   issueCoupon,
   importCustomers,
-  issueGiftCard,
   purchaseMultipass,
-  redeemCatalogItem,
   raiseSupportRequest,
   redeemCoupon,
   refundVisit,
@@ -46,10 +43,10 @@ import {
   requestApproval,
   setBrandingColor,
   setCustomFieldValues,
-  subscribeMembership,
   transferGiftCard,
   useMembershipBenefit,
-  useMultipass,
+  // Aliased: called inside a mutation, a `use` name reads as a hook to lint.
+  useMultipass as drawMultipass,
   commitRedemption,
   reserveRedemption,
   setMessagingPolicy,
@@ -159,18 +156,19 @@ export const useReserveRedemption = () =>
     ({ idempotencyKey, ...body }: Parameters<typeof reserveRedemption>[0] & {
       idempotencyKey: string;
     }) => reserveRedemption(body, idempotencyKey),
-    { invalidates: [keys.business.all] },
+    // The counter's balance carries the hold, so it is refetched with it.
+    { invalidates: [keys.business.all, keys.counter.all] },
   );
 
 export const useCommitRedemption = () =>
   useApiMutation(
     ({ id, idempotencyKey }: { id: string; idempotencyKey: string }) =>
       commitRedemption(id, idempotencyKey),
-    { invalidates: [keys.business.all] },
+    { invalidates: [keys.business.all, keys.counter.all] },
   );
 
 export const useCancelRedemption = () =>
-  useApiMutation(cancelRedemption, { invalidates: [keys.business.all] });
+  useApiMutation(cancelRedemption, { invalidates: [keys.business.all, keys.counter.all] });
 
 /* ── The other program types ──────────────────────────────────────────
    Each settles differently, and all of them move the same three things: the
@@ -202,7 +200,7 @@ export const useRequestFeedback = () =>
   useApiMutation(requestFeedback, { invalidates: [keys.business.feedback()] });
 
 export const useRedeemCoupon = () =>
-  useApiMutation(redeemCoupon, { invalidates: [keys.business.all] });
+  useApiMutation(redeemCoupon, { invalidates: [keys.business.all, keys.counter.all] });
 
 /** Hands a card to a different holder. Balance and history travel with it. */
 export const useTransferGiftCard = () =>
@@ -214,19 +212,24 @@ export const useTransferGiftCard = () =>
 
 export const useRedeemGiftCard = () =>
   useApiMutation(
-    ({ code, ...body }: { code: string; amountCentavos: number; reason?: string }) =>
-      redeemGiftCard(code, body),
+    ({
+      code,
+      idempotencyKey,
+      ...body
+    }: { code: string; amountCentavos: number; reason?: string; idempotencyKey: string }) =>
+      redeemGiftCard(code, body, idempotencyKey),
     { invalidates: [keys.business.all] },
   );
 
 export const useUseMultipass = () =>
-  useApiMutation(useMultipass, { invalidates: [keys.business.all] });
+  useApiMutation(
+    ({ idempotencyKey, ...body }: Parameters<typeof drawMultipass>[0] & { idempotencyKey: string }) =>
+      drawMultipass(body, idempotencyKey),
+    { invalidates: [keys.business.all] },
+  );
 
 export const useUseBenefit = () =>
   useApiMutation(useMembershipBenefit, { invalidates: [keys.business.all] });
-
-export const useSubscribeMembership = () =>
-  useApiMutation(subscribeMembership, { invalidates: [keys.business.all] });
 
 /**
  * End a recurring membership.
@@ -239,20 +242,17 @@ export const useCancelMembership = () =>
   useApiMutation(cancelMembership, { invalidates: [keys.business.all] });
 
 export const usePurchaseMultipass = () =>
-  useApiMutation(purchaseMultipass, { invalidates: [keys.business.all] });
+  useApiMutation(
+    ({
+      idempotencyKey,
+      ...body
+    }: Parameters<typeof purchaseMultipass>[0] & { idempotencyKey: string }) =>
+      purchaseMultipass(body, idempotencyKey),
+    { invalidates: [keys.business.all] },
+  );
 
 export const useIssueCoupon = () =>
   useApiMutation(issueCoupon, { invalidates: [keys.business.coupons()] });
-
-export const useIssueGiftCard = () =>
-  useApiMutation(issueGiftCard, { invalidates: [keys.business.giftCards()] });
-
-export const useAddCatalogItem = () =>
-  useApiMutation(
-    ({ programId, ...body }: { programId: string; name: string; costUnits: number; valueCentavos?: number }) =>
-      addCatalogItem(programId, body),
-    { invalidates: [keys.business.programs()] },
-  );
 
 export const useAddTier = () =>
   useApiMutation(
@@ -262,9 +262,6 @@ export const useAddTier = () =>
     // joins also changes what the program earns, so both want refetching.
     { invalidates: [keys.business.programs()] },
   );
-
-export const useRedeemCatalogItem = () =>
-  useApiMutation(redeemCatalogItem, { invalidates: [keys.business.all] });
 
 export const useCreateReferral = () =>
   useApiMutation(createReferral, { invalidates: [keys.business.referrals()] });

@@ -130,6 +130,7 @@ export const sampleWalletExtras = (): WalletCard[] => [
       {
         missionId: "msn_preview_1",
         name: "Visit three times this month",
+        goal: "visits",
         progress: 2,
         target: 3,
         endsOn: day(12),
