@@ -16,33 +16,16 @@
 
 import { useState } from "react";
 import {
-  Check,
-  Compass,
+  Croissant,
   QrCode,
   RefreshCw,
   ScanLine,
   Smartphone,
-  Sparkles,
   Stamp,
-  User,
-  WalletCards,
 } from "lucide-react";
-import { BRAND_COLORS } from "@kyprewards/ui";
+import Image from "next/image";
+import { BRAND_COLORS, StampDots } from "@kyprewards/ui";
 import { SiteEyebrow } from "./MarketingUi";
-
-/**
- * The customer app's tab bar. Icon above label, which is what the real one
- * does — four words in a row read as a list, not as an app.
- */
-const TABS = [
-  { label: "Wallet", icon: WalletCards },
-  { label: "Discover", icon: Compass },
-  { label: "Code", icon: QrCode },
-  { label: "Profile", icon: User },
-] as const;
-
-/** Which tab the walkthrough step is showing. */
-const TAB_FOR_STEP: Record<number, number> = { 2: 0, 3: 2 };
 
 /** Ink at a strength, against whatever ground the card is on. */
 const ink = (percent: number) =>
@@ -86,71 +69,70 @@ function WalletCardVisual() {
   const [flipped, setFlipped] = useState(false);
   const brand = BRAND_COLORS.ink;
 
+  // The shop's own skin, the way a merchant sets it up: their storefront
+  // photo behind the card, their mark on every stamp. Sweet Crumbs is the
+  // demo bakery the whole product ships with.
+  const shell = {
+    background: brand.background,
+    color: brand.foreground,
+    boxShadow: "0 22px 60px rgb(24 18 12 / 26%)",
+    // Named here so the mixes below read the card's own ink rather than
+    // assuming a dark ground, exactly as the customer app does.
+    ["--card-ink" as string]: brand.foreground,
+  };
+
   const face = (
-    <div
-      className="relative aspect-[85.6/53.98] overflow-hidden rounded-[16px] px-6 py-6"
-      style={{
-        background: brand.background,
-        color: brand.foreground,
-        boxShadow: "0 22px 60px rgb(24 18 12 / 26%)",
-        // Named here so the mixes below read the card's own ink rather than
-        // assuming a dark ground, exactly as the customer app does.
-        ["--card-ink" as string]: brand.foreground,
-      }}
-    >
-      {/* Low and to the right, behind the stamps rather than through the
-          status pill — the ring was cutting the pill in half. */}
+    <div className="relative aspect-[85.6/53.98] overflow-hidden rounded-[16px]" style={shell}>
+      <Image
+        src="/images/cards/sweet-crumbs-storefront.webp"
+        alt=""
+        aria-hidden="true"
+        fill
+        sizes="(min-width: 640px) 420px, 90vw"
+        className="object-cover object-[72%_45%]"
+      />
+      {/* Dark where the words sit, the counter showing through on the right. */}
       <div
         aria-hidden="true"
-        className="absolute -bottom-20 -right-16 size-48 rounded-full border-[26px] border-[var(--accent)] opacity-25"
+        className="absolute inset-0 bg-[linear-gradient(100deg,rgb(24_18_12/96%)_0%,rgb(24_18_12/86%)_40%,rgb(24_18_12/40%)_72%,rgb(24_18_12/12%)_100%)]"
       />
-      <div className="relative flex h-full flex-col justify-between">
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(to_top,rgb(24_18_12/88%),transparent)]"
+      />
+      <div className="relative flex h-full flex-col justify-between px-6 py-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span
-              className="grid size-11 place-items-center rounded-2xl"
-              style={{ background: ink(12) }}
-            >
-              <Stamp size={20} />
+            <span className="grid size-11 place-items-center rounded-2xl bg-[var(--accent)] text-[var(--ink)] shadow-[0_6px_18px_rgb(0_0_0/30%)]">
+              <Croissant size={22} strokeWidth={2.2} aria-hidden="true" />
             </span>
             <div>
               <p className="text-base font-extrabold tracking-[-0.025em]">
                 Sweet Crumbs
               </p>
-              <p className="mt-0.5 text-[11px]" style={{ color: ink(62) }}>
+              <p className="mt-0.5 text-[11px]" style={{ color: ink(70) }}>
                 Bakery
               </p>
             </div>
           </div>
           <span
-            className="shrink-0 rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em]"
-            style={{ border: `1px solid ${ink(24)}`, color: ink(72) }}
+            className="shrink-0 rounded-full px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.12em] backdrop-blur-sm"
+            style={{ border: `1px solid ${ink(30)}`, color: ink(80), background: "rgb(24 18 12 / 35%)" }}
           >
             Regular
           </span>
         </div>
         <div>
-          <p className="max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em]">
+          <p className="max-w-[19ch] text-2xl font-extrabold leading-[1.05] tracking-[-0.02em] [text-shadow:0_2px_12px_rgb(0_0_0/45%)]">
             3 more visits, then free pastry.
           </p>
-          <div
-            className="mt-5 flex gap-1.5"
-            role="img"
-            aria-label="Five of eight stamps collected"
-          >
-            {Array.from({ length: 8 }, (_, index) => (
-              <span
-                key={index}
-                className="grid size-7 shrink-0 place-items-center rounded-full text-[9px] font-extrabold tracking-tight"
-                style={
-                  index < 5
-                    ? { background: "var(--accent)", color: "var(--ink)" }
-                    : { border: `1px dashed ${ink(32)}`, color: ink(40) }
-                }
-              >
-                {index < 5 ? "SC" : ""}
-              </span>
-            ))}
+          <div className="mt-5" aria-label="Five of eight stamps collected" role="img">
+            <StampDots
+              filled={5}
+              total={8}
+              dark
+              mark={<Croissant size={13} strokeWidth={2.4} aria-hidden="true" />}
+            />
           </div>
         </div>
       </div>
@@ -160,14 +142,18 @@ function WalletCardVisual() {
   const back = (
     <div
       className="relative flex h-full flex-col justify-between overflow-hidden rounded-[16px] px-6 py-6"
-      style={{
-        background: brand.background,
-        color: brand.foreground,
-        boxShadow: "0 22px 60px rgb(24 18 12 / 26%)",
-        ["--card-ink" as string]: brand.foreground,
-      }}
+      style={shell}
     >
-      <div className="flex items-start justify-between gap-4">
+      {/* The same storefront, barely there: the back is for scanning. */}
+      <Image
+        src="/images/cards/sweet-crumbs-storefront.webp"
+        alt=""
+        aria-hidden="true"
+        fill
+        sizes="(min-width: 640px) 420px, 90vw"
+        className="object-cover object-[72%_45%] opacity-[0.14]"
+      />
+      <div className="relative flex items-start justify-between gap-4">
         <div>
           <p
             className="text-[10px] font-extrabold uppercase tracking-[0.14em]"
@@ -184,14 +170,36 @@ function WalletCardVisual() {
           </p>
         </div>
         {/* A white plate under the symbol on purpose: a scanner needs the
-            contrast, and no brand ground would give it one. */}
-        <span className="grid size-[76px] shrink-0 place-items-center rounded-xl bg-white p-2">
-          <QrCode size={56} className="text-[var(--ink)]" aria-hidden="true" />
+            contrast, and no brand ground would give it one. The symbol is
+            the real code above, so a phone pointed at the site reads it. */}
+        <span className="grid size-[84px] shrink-0 place-items-center rounded-xl bg-white p-2">
+          <Image
+            src="/images/cards/member-qr.svg"
+            alt="Member QR code"
+            width={68}
+            height={68}
+            unoptimized
+          />
         </span>
       </div>
-      <p className="text-[11px] font-semibold" style={{ color: ink(62) }}>
-        Show this at the counter &middot; no expiry
-      </p>
+      {/* The same code as a barcode, for tills with a laser scanner. */}
+      <span className="relative block h-11 w-[64%] rounded-lg bg-white px-3 py-2">
+        <Image
+          src="/images/cards/member-barcode.svg"
+          alt="Member barcode"
+          fill
+          unoptimized
+          className="!static !h-full !w-full"
+        />
+      </span>
+      <div className="relative flex items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold" style={{ color: ink(62) }}>
+          Show this at the counter &middot; no expiry
+        </p>
+        <span className="grid size-7 place-items-center rounded-full bg-[var(--accent)] text-[var(--ink)]">
+          <Croissant size={14} strokeWidth={2.4} aria-hidden="true" />
+        </span>
+      </div>
     </div>
   );
 
@@ -219,155 +227,31 @@ function WalletCardVisual() {
   );
 }
 
+/**
+ * Screenshots of the real wallet, one per step, taken from the customer app
+ * against the demo shop. Re-shoot them when the wallet changes.
+ */
+const SCREENS = [
+  { src: "/images/wallet/join.webp", alt: "The page the counter code opens: the first stamp, one of eight toward a free pastry, and a button to save it" },
+  { src: "/images/wallet/pending-stamp.webp", alt: "The wallet after joining: the Sweet Crumbs card with one stamp pending until the first visit" },
+  { src: "/images/wallet/wallet-home.webp", alt: "The wallet home: the Sweet Crumbs card in the shop's own photo, five of eight stamps" },
+  { src: "/images/wallet/member-code.webp", alt: "The member code screen: a QR code and barcode to show at the counter" },
+] as const;
+
 /** The phone, showing whichever step the reader has selected. */
 function PhoneMock({ step }: { step: number }) {
+  const screen = SCREENS[step] ?? SCREENS[0];
   return (
     <div className="mx-auto w-[280px] rounded-[38px] border-[10px] border-[var(--ink)] bg-[var(--paper)] shadow-[0_30px_90px_rgb(24_18_12/28%)]">
-      <div className="flex h-[520px] flex-col overflow-hidden rounded-[28px]">
-        <div className="flex items-center justify-between px-5 pb-2 pt-4">
-          <span className="font-mono text-[9px] font-bold text-[var(--muted)]">
-            9:41
-          </span>
-          <span className="h-1.5 w-10 rounded-full bg-[var(--line-strong)]" />
-        </div>
-
-        {step === 0 && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 text-center">
-            <span className="grid size-16 place-items-center rounded-2xl bg-[var(--ink)] text-[var(--accent)]">
-              <ScanLine size={30} />
-            </span>
-            <div className="grid size-36 place-items-center rounded-2xl border-2 border-dashed border-[var(--line-strong)] bg-[var(--surface)]">
-              <QrCode
-                size={78}
-                className="text-[var(--ink)]"
-                aria-hidden="true"
-              />
-            </div>
-            <p className="text-sm font-extrabold">Sweet Crumbs</p>
-            <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
-              Point the camera at the code on the counter.
-            </p>
-          </div>
-        )}
-
-        {step === 1 && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 text-center">
-            <span className="grid size-16 place-items-center rounded-full bg-[var(--accent)] text-[var(--ink)]">
-              <Check size={32} strokeWidth={3} />
-            </span>
-            <p className="text-lg font-extrabold leading-tight">
-              A welcome stamp is waiting for you.
-            </p>
-            <div
-              className="flex gap-1.5"
-              role="img"
-              aria-label="One pending stamp of eight"
-            >
-              {Array.from({ length: 8 }, (_, index) => (
-                <span
-                  key={index}
-                  className={`size-5 rounded-full ${
-                    index === 0
-                      ? "border-2 border-[var(--accent)] bg-[rgb(232_163_61/25%)]"
-                      : "border border-dashed border-[var(--line-strong)]"
-                  }`}
-                />
-              ))}
-            </div>
-            <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
-              Show your code on your first visit and it&rsquo;s yours — plus one
-              for the visit. Valid 30 days.
-            </p>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="flex-1 px-4 pt-3">
-            <p className="px-1 text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--muted)]">
-              My wallet
-            </p>
-            <div className="mt-3 space-y-2.5">
-              {[
-                {
-                  name: "Sweet Crumbs",
-                  meta: "5 of 8 · Free pastry",
-                  tone: "var(--ink)",
-                  fg: "var(--paper)",
-                },
-                {
-                  name: "Brew Point Coffee",
-                  meta: "240 points",
-                  tone: "var(--accent)",
-                  fg: "var(--ink)",
-                },
-                {
-                  name: "Rooted Studio",
-                  meta: "Reward ready",
-                  tone: "var(--success)",
-                  fg: "var(--paper)",
-                },
-              ].map((card) => (
-                <div
-                  key={card.name}
-                  className="rounded-2xl px-4 py-3.5"
-                  style={{ background: card.tone, color: card.fg }}
-                >
-                  <p className="text-sm font-extrabold tracking-[-0.02em]">
-                    {card.name}
-                  </p>
-                  <p className="mt-0.5 text-[11px] opacity-70">{card.meta}</p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-4 px-1 text-[11px] leading-relaxed text-[var(--muted-strong)]">
-              Every shop, one place. Each card in that shop&apos;s own color.
-            </p>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-            <div className="rounded-2xl bg-white p-3 shadow-[0_10px_30px_rgb(24_18_12/16%)]">
-              <QrCode
-                size={120}
-                className="text-[var(--ink)]"
-                aria-hidden="true"
-              />
-            </div>
-            <p className="font-mono text-xs font-bold">2912 4077 0315 7</p>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--success)] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--paper)]">
-              <Sparkles size={12} /> Free pastry ready
-            </span>
-            <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
-              One code, every business they have joined.
-            </p>
-          </div>
-        )}
-
-        <div
-          className="mt-auto flex items-stretch justify-around border-t border-[var(--line)] bg-[var(--surface)] pb-2 pt-2"
-          role="img"
-          aria-label={`Customer app navigation, ${TABS[TAB_FOR_STEP[step] ?? 0].label} tab selected`}
-        >
-          {TABS.map((tab, index) => {
-            const Icon = tab.icon;
-            const active = index === (TAB_FOR_STEP[step] ?? 0);
-            return (
-              <span
-                key={tab.label}
-                aria-hidden="true"
-                className={`flex flex-1 flex-col items-center gap-1 transition-colors duration-200 ${
-                  active ? "text-[var(--accent-strong)]" : "text-[var(--muted)]"
-                }`}
-              >
-                <Icon size={17} strokeWidth={active ? 2.4 : 1.9} />
-                <span className="text-[9px] font-bold leading-none">
-                  {tab.label}
-                </span>
-              </span>
-            );
-          })}
-        </div>
+      <div className="relative aspect-[390/844] overflow-hidden rounded-[28px]">
+        <Image
+          key={screen.src}
+          src={screen.src}
+          alt={screen.alt}
+          fill
+          sizes="260px"
+          className="object-cover object-top"
+        />
       </div>
     </div>
   );
