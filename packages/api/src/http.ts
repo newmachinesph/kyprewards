@@ -10,11 +10,11 @@
  * and a run against the running stack for the parts documents get wrong.
  */
 
-import { ApiError } from "./errors.ts";
+import { ApiError, NetworkError } from "./errors.ts";
 
 import { nextCursorFrom } from "./pagination.ts";
 
-export { ApiError };
+export { ApiError, NetworkError };
 export { nextCursorFrom };
 
 /**
@@ -141,6 +141,22 @@ function withQuery(path: string, query: HttpOptions["query"]): string {
 }
 
 /**
+ * `fetch`, with "no answer at all" turned into a `NetworkError` a screen can
+ * show. A caller's own abort is not a failure to reach anyone, so it passes
+ * through untouched for React Query to recognise.
+ *
+ * Exported for the CSV downloads, like `toApiError`.
+ */
+export async function send(url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, init);
+  } catch (failure) {
+    if (init.signal?.aborted) throw failure;
+    throw new NetworkError(failure);
+  }
+}
+
+/**
  * One request, one place where a non-2xx becomes an `ApiError`.
  *
  * `credentials: "include"` is not optional. The session is an httpOnly
@@ -151,7 +167,7 @@ function withQuery(path: string, query: HttpOptions["query"]): string {
 export async function http<T>(path: string, options: HttpOptions = {}): Promise<T> {
   const { method = "GET", body, raw, idempotencyKey, query, headers, ...rest } = options;
 
-  const response = await fetch(`${apiBase()}${withQuery(path, query)}`, {
+  const response = await send(`${apiBase()}${withQuery(path, query)}`, {
     ...rest,
     method,
     credentials: "include",
@@ -213,7 +229,7 @@ export async function httpPage<T>(path: string, options: HttpOptions = {}): Prom
   // `options` and hoping this module's own fields do not reach `fetch`.
   const { method = "GET", query, headers, signal, cache, mode, redirect } = options;
 
-  const response = await fetch(`${apiBase()}${withQuery(path, query)}`, {
+  const response = await send(`${apiBase()}${withQuery(path, query)}`, {
     method,
     credentials: "include",
     headers: { ...nativeHeaders(), ...headers },

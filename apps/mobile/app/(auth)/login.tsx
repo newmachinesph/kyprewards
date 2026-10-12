@@ -11,7 +11,7 @@ import {
   type Channel,
 } from "@/components/AuthShell";
 import { SocialSignIn } from "@/components/SocialSignIn";
-import { Button } from "@/components/ui";
+import { Button, Notice } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { KEYS, remember } from "@/lib/storage";
 
@@ -30,6 +30,7 @@ export default function Login() {
   const [identifier, setIdentifier] = useState(params.identifier ?? "");
   const [password, setPassword] = useState("");
   const signIn = useAuth((state) => state.signIn);
+  const signedOut = useAuth((state) => state.signedOut);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
 
@@ -101,6 +102,9 @@ export default function Login() {
       title="Open your wallet."
       description="Use your mobile number or email and your password."
     >
+      {/* Without it a sign-out that worked looked like one that had not
+          happened yet: the same screen, no word either way. */}
+      {signedOut ? <Notice>You are signed out.</Notice> : null}
       <ChannelSwitch
         value={channel}
         onChange={(key) => {

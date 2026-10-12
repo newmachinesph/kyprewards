@@ -11,7 +11,7 @@ import {
 } from "lucide-react-native";
 import {
   useActivity,
-  useCustomerProfile,
+  useChannelPreferences,
   useDiscover,
   useNearby,
   useNotifications,
@@ -27,6 +27,7 @@ import {
 import { CategoryIcon } from "@/components/PlaceThumb";
 import { Screen } from "@/components/Screen";
 import { LoyaltyCard } from "@/components/LoyaltyCard";
+import { useMemberCode } from "@/components/MemberQr";
 import { BrandMark } from "@/components/Brand";
 import {
   Button,
@@ -36,6 +37,7 @@ import {
   QueryState,
 } from "@/components/ui";
 import { balanceLine, closestReward, earnedStamps } from "@/lib/cards";
+import { useClaimSettling } from "@/lib/claim";
 import { useCoordinates } from "@/lib/location";
 import { colors } from "@/lib/theme";
 
@@ -46,13 +48,18 @@ import { colors } from "@/lib/theme";
  */
 export default function Home() {
   const router = useRouter();
-  const { data: profile } = useCustomerProfile();
+  // The profile's name, or the keychain's copy of it while offline.
+  const { name } = useMemberCode();
   const wallet = useWallet();
   const cards = wallet.data ?? [];
   const where = useCoordinates("granted-only");
   const { data: discover = [] } = useDiscover(where);
   const { data: approvals = [] } = usePendingApprovals();
-  const { data: nudges = [] } = useNearby(where);
+  const { data: prefs } = useChannelPreferences();
+  // Only for somebody who turned Nearby reminders on: a position allowed for
+  // Discover is not consent to be told which shops are close.
+  const { data: nudges = [] } = useNearby(prefs?.nearby ? where : undefined);
+  const claimSettling = useClaimSettling((state) => state.settling);
   const { data: activity = [] } = useActivity();
   const { data: notifications = [] } = useNotifications();
   const unread = notifications.some((n) => !n.read);
@@ -106,7 +113,7 @@ export default function Home() {
               {greeting()},
             </Text>
             <Text className="font-display text-[30px] leading-[34px] tracking-[-0.9px] text-ink">
-              {profile?.name ? `${profile.name.split(" ")[0]}.` : " "}
+              {name ? `${name.split(" ")[0]}.` : " "}
             </Text>
           </View>
           {best && earnedStamps(best) > 0 ? (
@@ -185,7 +192,7 @@ export default function Home() {
           </Pressable>
         </View>
         <QueryState
-          isPending={wallet.isPending}
+          isPending={wallet.isPending || (claimSettling && !best)}
           error={wallet.error}
           onRetry={() => void wallet.refetch()}
           label="your cards"

@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { nextCursorFrom } from "./pagination.ts";
-import { http } from "./http.ts";
+import { ApiError, NetworkError, http } from "./http.ts";
 import { applyApiErrors } from "./forms.ts";
 import { email, otpCode, password, pesosAsCentavos, phone, programSchema } from "./schemas.ts";
 
@@ -195,6 +195,30 @@ test("an error with no field list places nothing", async () => {
 
   assert.deepEqual(marked, []);
   assert.deepEqual(unplaced, []);
+});
+
+test("a request that reaches nobody throws a readable NetworkError, not an ApiError", async () => {
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async () => {
+    throw new TypeError("java.net.ConnectException: Failed to connect to localhost/127.0.0.1:8000");
+  }) as typeof fetch;
+  try {
+    await assert.rejects(http("/customer/wallet"), (failure: unknown) => {
+      // Not an ApiError: every caller reads that as "the server answered",
+      // and a network failure must never pass for a 401.
+      assert.ok(failure instanceof NetworkError);
+      assert.ok(!(failure instanceof ApiError));
+      assert.equal(failure.message, "Can't reach KYP right now. Check your connection and try again.");
+      return true;
+    });
+
+    // The caller's own abort is not a network failure and keeps its identity.
+    const aborted = new AbortController();
+    aborted.abort();
+    await assert.rejects(http("/customer/wallet", { signal: aborted.signal }), TypeError);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 });
 
 /** An ApiError as `http()` builds one, so the field list rides along with it. */

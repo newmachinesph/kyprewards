@@ -1,5 +1,5 @@
 import type { WalletCard } from "@kyprewards/api";
-import { earningLine, longDate, pesoFromCentavos, timeOfDay } from "@kyprewards/ui/format";
+import { earningLine, longDate, pesoFromCentavos, pesoShortFromCentavos, timeOfDay } from "@kyprewards/ui/format";
 
 /**
  * Everything a stamp card says about its own state and terms.
@@ -77,8 +77,10 @@ export function cardStateLine(card: WalletCard): string | null {
   }
 }
 
-/** The headline a card leads with. */
-export function cardHeadline(card: WalletCard): string {
+/** The headline a card leads with. `running` is what a card with no finish
+ *  line shows: its balance, else what the shopper holds there (the web's
+ *  `balanceLine || heldSummary || program`). */
+export function cardHeadline(card: WalletCard, running?: string): string {
   const remaining =
     card.target > 0 ? Math.max(0, card.target - card.progress) : null;
   if (card.state === "pending")
@@ -90,7 +92,7 @@ export function cardHeadline(card: WalletCard): string {
   }
   // No finish line: a points card leads with its balance, a cashback card
   // with its pesos, and a shop holding only coupons or passes with its offer.
-  if (remaining === null) return balanceLine(card) || card.reward;
+  if (remaining === null) return running || balanceLine(card) || card.reward;
   if (card.rewardsAvailable > 0) return `${card.reward} is ready.`;
   if (remaining === 0) return `${card.reward} on your next visit.`;
   return `${remaining} more ${remaining === 1 ? "visit" : "visits"}, then ${card.reward.toLowerCase()}.`;
@@ -107,7 +109,7 @@ export function balanceLine(card: WalletCard): string {
   if (card.state === "pending")
     return `${earnedStamps(card)} of ${card.target} · 1 pending`;
   if (isCashback(card))
-    return `${pesoFromCentavos(card.cashbackCentavos ?? 0)} cashback`;
+    return `${pesoShortFromCentavos(card.cashbackCentavos ?? 0)} cashback`;
   return card.balance;
 }
 
@@ -116,7 +118,10 @@ export function cardTerms(card: WalletCard): [string, string][] {
   const rules = card.rules;
   const rows: [string, string][] = [];
   if (card.target > 0) rows.push(["Target", `${card.target} stamps`]);
-  rows.push(["Reward", card.reward]);
+  // A card without a named reward gets its program's name back from the API
+  // as `reward`; a row repeating it says nothing.
+  if (card.kind === "Stamps" || card.reward !== card.program)
+    rows.push(["Reward", card.reward]);
   const earns = earningLine(card.earning);
   if (earns) rows.push(["Earning", earns]);
   if (!rules && (card.expiryDays ?? 0) > 0) {

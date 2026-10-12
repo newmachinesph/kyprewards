@@ -27,6 +27,8 @@ type Status = "booting" | "signed-out" | "signed-in";
 type AuthState = {
   status: Status;
   session: SessionInfo | null;
+  /** Set by signOut, so sign-in can say so; a dead session is not a sign-out. */
+  signedOut: boolean;
   /** Read the keychain and ask the API who that token belongs to. */
   bootstrap: () => Promise<void>;
   /** After any sign-in (password, code, Google or Apple): keep the token, load the session. */
@@ -43,6 +45,7 @@ setClientKind("mobile");
 export const useAuth = create<AuthState>()((set, get) => ({
   status: "booting",
   session: null,
+  signedOut: false,
 
   async bootstrap() {
     const token = await recall(KEYS.session);
@@ -57,6 +60,7 @@ export const useAuth = create<AuthState>()((set, get) => ({
   async signIn(token) {
     await remember(KEYS.session, token);
     setAuthToken(token);
+    set({ signedOut: false });
     await get().refresh();
   },
 
@@ -88,7 +92,7 @@ export const useAuth = create<AuthState>()((set, get) => ({
     // QR screen then saved that code to their keychain, so their stamps went
     // to someone else.
     getQueryClient().clear();
-    set({ status: "signed-out", session: null });
+    set({ status: "signed-out", session: null, signedOut: true });
   },
 
   async refresh() {
@@ -114,8 +118,11 @@ export const useAuth = create<AuthState>()((set, get) => ({
         return;
       }
       // Offline. The token may well be fine; keep it and let the screens
-      // show what they have cached rather than bouncing to sign-in.
-      set((state) => ({ status: state.session ? "signed-in" : "signed-out" }));
+      // show what they have cached rather than bouncing to sign-in. Signed
+      // in even at launch with no session loaded yet: a shopper opening the
+      // app at a counter with no signal needs the member code the keychain
+      // holds, and only the server's 401 above can say the token is dead.
+      set({ status: "signed-in" });
     }
   },
 }));

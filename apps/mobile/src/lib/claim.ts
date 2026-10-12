@@ -1,3 +1,4 @@
+import { create } from "zustand";
 import { KEYS, forget, recall, remember } from "@/lib/storage";
 
 /**
@@ -39,6 +40,16 @@ export async function forgetClaim(): Promise<void> {
     forget(KEYS.claimShop),
   ]);
 }
+
+/**
+ * True while a held claim is being sent after sign-in. The wallet can load
+ * empty a moment before the stamp lands, and Home must not say "No cards yet"
+ * to somebody who just scanned a poster. Same as the web wallet's
+ * claimSettling.
+ */
+export const useClaimSettling = create<{ settling: boolean }>()(() => ({
+  settling: false,
+}));
 
 /**
  * The slug inside a scanned poster: `https://app.kyp.ph/join/<slug>`.

@@ -15,7 +15,7 @@ import {
 } from "@kyprewards/api";
 import { Button, QueryBoundary } from "@kyprewards/ui";
 import { FormMessage } from "@kyprewards/ui/form";
-import { longDate, peso, pesoFromCentavos } from "@kyprewards/ui/format";
+import { longDate, pesoShortFromCentavos } from "@kyprewards/ui/format";
 import { BadgeCheck, Coins, Crown, Gift, Percent, Ticket } from "lucide-react";
 
 /**
@@ -24,9 +24,7 @@ import { BadgeCheck, Coins, Crown, Gift, Percent, Ticket } from "lucide-react";
  * The API sends numbers; every sentence is built here.
  */
 
-/** `15000` → `₱150`, `15050` → `₱150.50`. */
-export const money = (centavos: number) =>
-  centavos % 100 === 0 ? peso(centavos / 100) : pesoFromCentavos(centavos);
+const money = pesoShortFromCentavos;
 
 /** `1250` basis points → `12.5%`. */
 export const percent = (bps: number) => `${Number((bps / 100).toFixed(2))}%`;
@@ -158,8 +156,8 @@ export function HeldSection({ shop }: { shop: HeldShop | undefined }) {
               <>
                 <p>
                   {m.benefitsIncluded > 0
-                    ? `${m.benefitsUsed} of ${m.benefitsIncluded} benefits used this month`
-                    : `Unlimited benefits · ${m.benefitsUsed} used this month`}
+                    ? `${m.benefitsUsed} of ${m.benefitsIncluded} benefits used this period`
+                    : `Unlimited benefits · ${m.benefitsUsed} used this period`}
                 </p>
                 {m.discountBps > 0 && <p>{percent(m.discountBps)} member discount</p>}
               </>
@@ -320,8 +318,8 @@ export function CatalogSection({ card, shop }: { card: WalletCard; shop: HeldSho
                     <FormMessage tone="error" className="mt-2">
                       {choose.error.message}
                       {choose.error instanceof ApiError && choose.error.requestId ? (
-                        <span className="ml-1 font-mono font-normal text-[var(--muted)]">
-                          {choose.error.requestId}
+                        <span className="mt-1 block font-mono font-normal text-[var(--muted)]">
+                          Ref {choose.error.requestId}
                         </span>
                       ) : null}
                     </FormMessage>

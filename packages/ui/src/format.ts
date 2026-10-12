@@ -24,6 +24,12 @@ export function pesoFromCentavos(centavos: number) {
   return peso(centavos / 100, { decimals: true });
 }
 
+/** `15000` → `₱150`, `15050` → `₱150.50`. Held balances and offers, where
+ *  ".00" on a whole peso is noise but a real centavo still shows. */
+export function pesoShortFromCentavos(centavos: number) {
+  return centavos % 100 === 0 ? peso(centavos / 100) : pesoFromCentavos(centavos);
+}
+
 /**
  * `482600` → `₱482.6k`. For headline stats where the full number is noise.
  *

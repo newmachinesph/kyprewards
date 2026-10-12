@@ -11,7 +11,12 @@ import {
   useCustomerProfile,
   type CustomerProfile,
 } from "@kyprewards/api";
-import { Field } from "@/components/AuthShell";
+import {
+  isCompleteMobile,
+  normalizeMobile,
+  toE164,
+} from "@kyprewards/ui/format";
+import { Field, MobileField } from "@/components/AuthShell";
 import { BirthdayInput, MONTHS } from "@/components/Birthday";
 import { Screen } from "@/components/Screen";
 import { Button, Eyebrow, QueryState, Title } from "@/components/ui";
@@ -151,8 +156,11 @@ function MobileNumber({ current }: { current: string }) {
   const [mobile, setMobile] = useState("");
   const [code, setCode] = useState("");
   const [sentTo, setSentTo] = useState<string | null>(null);
+  // +63 and ten digits, however it was typed - the same number the sign-in
+  // screens send, so the move and the next sign-in agree on it.
+  const number = toE164(normalizeMobile(mobile));
   const send = useApiMutation(requestMobileChange, {
-    onSuccess: () => setSentTo(mobile.trim()),
+    onSuccess: (_, sent) => setSentTo(sent),
     onError: (failure) => notify(failure.message, "error"),
   });
   const confirm = useApiMutation(confirmMobileChange, {
@@ -173,18 +181,19 @@ function MobileNumber({ current }: { current: string }) {
       </Text>
       {sentTo === null ? (
         <>
-          <Field
+          <MobileField
             label="Move to a new number"
             value={mobile}
             onChange={setMobile}
-            keyboardType="phone-pad"
-            autoComplete="tel"
-            hint="We text a code to the new number. Your wallet moves when you enter it."
           />
+          <Text className="font-sans text-[11px] text-muted">
+            We text a code to the new number. Your wallet moves when you enter
+            it.
+          </Text>
           <Button
             busy={send.isPending}
-            disabled={!mobile.trim()}
-            onPress={() => send.mutate(mobile.trim())}
+            disabled={!isCompleteMobile(normalizeMobile(mobile))}
+            onPress={() => send.mutate(number)}
           >
             Text me a code
           </Button>
@@ -204,6 +213,18 @@ function MobileNumber({ current }: { current: string }) {
             onPress={() => confirm.mutate({ mobile: sentTo, code })}
           >
             Move my wallet
+          </Button>
+          {/* A typo in the number used to leave the code field as the only
+              way forward, waiting on a text that was never coming. */}
+          <Button
+            tone="quiet"
+            disabled={confirm.isPending}
+            onPress={() => {
+              setSentTo(null);
+              setCode("");
+            }}
+          >
+            Use another number
           </Button>
         </>
       )}

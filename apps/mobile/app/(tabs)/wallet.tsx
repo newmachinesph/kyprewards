@@ -56,6 +56,10 @@ export default function Wallet() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const term = query.trim().toLowerCase();
+  // A search or chip that matches nothing in a wallet that has things in it
+  // is "not found", not "empty".
+  const filtered =
+    (term !== "" || category !== "All") && cards.length + held.length > 0;
   const visible = cards.filter(
     (card) =>
       (category === "All" || card.category === category) &&
@@ -78,8 +82,17 @@ export default function Wallet() {
     (place) =>
       place.joined &&
       !walletBusinessIds.has(place.businessId) &&
+      (category === "All" || place.category === category) &&
       place.name.toLowerCase().includes(term),
   );
+  // The held line once per shop, on its first card: a shop running stamps
+  // beside points is two cards and one set of things held.
+  const summarised = new Set<string>();
+  const summaryFor = (businessId: string) => {
+    if (summarised.has(businessId)) return null;
+    summarised.add(businessId);
+    return heldSummary(heldAt.get(businessId));
+  };
 
   return (
     <Screen
@@ -143,7 +156,7 @@ export default function Wallet() {
             const pct = percentOf(card);
             const feature = index === 0 && !query && category === "All";
             const state = cardStateLine(card);
-            const holds = heldSummary(heldAt.get(card.businessId));
+            const holds = summaryFor(card.businessId);
             const line = balanceLine(card);
             const open = () =>
               router.push({
@@ -151,9 +164,12 @@ export default function Wallet() {
                 params: { id: card.id, programId: card.programId },
               });
             if (feature) {
+              // Its own key: when a search or chip demotes this card to a row,
+              // React mounts a fresh row instead of handing NativeWind an
+              // `active:` class it did not have on first render.
               return (
                 <Pressable
-                  key={`${card.id}:${card.programId}`}
+                  key={`feature:${card.id}:${card.programId}`}
                   accessibilityRole="button"
                   onPress={open}
                 >
@@ -224,6 +240,11 @@ export default function Wallet() {
                         style={{ width: `${pct}%` }}
                       />
                     </View>
+                  ) : null}
+                  {card.badge ? (
+                    <Text className="mt-2 self-start rounded-full border border-line-strong px-2 py-0.5 font-mono text-[8px] uppercase tracking-[1px] text-muted">
+                      KYP Rewards
+                    </Text>
                   ) : null}
                 </View>
                 <ChevronRight size={16} color={colors.muted} />
@@ -303,10 +324,10 @@ export default function Wallet() {
             <EmptyState
               icon={<Search size={22} color={colors.muted} />}
               title={
-                query ? "No wallet cards found." : "Nothing in your wallet yet."
+                filtered ? "No wallet cards found." : "Nothing in your wallet yet."
               }
               detail={
-                query
+                filtered
                   ? "Try a different name or card category."
                   : "Scan a counter code or join a shop from Discover to start one."
               }

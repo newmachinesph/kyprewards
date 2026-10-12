@@ -38,6 +38,7 @@ export {
 } from "./mutations";
 export {
   ApiError,
+  NetworkError,
   fieldErrors,
   walletExists,
   http,

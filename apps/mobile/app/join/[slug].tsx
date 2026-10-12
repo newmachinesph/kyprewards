@@ -188,6 +188,9 @@ export default function Join() {
               <Button
                 tone="quiet"
                 className="mt-2"
+                // Off while either button is minting, so a double tap cannot
+                // make two claims.
+                disabled={busy}
                 // Both paths mint, so the returning customer keeps the stamp too.
                 onPress={() => keep("/(auth)/login")}
               >

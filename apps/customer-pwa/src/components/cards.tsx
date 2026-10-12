@@ -134,6 +134,15 @@ export function TierChip({ card, onCard = false }: { card: WalletCard; onCard?: 
       >
         {next}
       </span>
+      {/* What the rung is worth, on one line: the shop writes it. */}
+      {tier.benefit && (
+        <span
+          className={`basis-full truncate ${onCard ? "" : "text-[var(--muted-strong)]"}`}
+          style={onCard ? { color: "color-mix(in oklab, var(--card-ink) var(--card-soft, 72%), transparent)" } : undefined}
+        >
+          {tier.benefit}
+        </span>
+      )}
     </p>
   );
 }
@@ -205,7 +214,9 @@ export function CardTerms({ card }: { card: WalletCard }) {
   const rules = card.rules;
   const rows: [string, string][] = [];
   if (card.target > 0) rows.push(["Target", `${card.target} stamps`]);
-  rows.push(["Reward", card.reward]);
+  // Only a stamp card names a reward. Every other kind sends its own name
+  // back here, and a row repeating the title above it said nothing.
+  if (card.reward && card.reward !== card.program) rows.push(["Reward", card.reward]);
   const earns = earningLine(card.earning);
   if (earns) rows.push(["Earning", earns]);
   if (!rules && (card.expiryDays ?? 0) > 0) {
@@ -255,10 +266,11 @@ export function CardTerms({ card }: { card: WalletCard }) {
           </div>
         ))}
       </dl>
+      {/* The API sends rules with every stamp card, so a card without them
+          is points, cashback or the like: it has no stamp settings coming. */}
       {!rules && (
         <p className="mt-3 text-[11px] leading-relaxed text-[var(--muted)]">
-          Cooldown, minimum spend and expiry appear here once the shop&apos;s
-          settings arrive with the card. Rewards have no cash value.
+          Rewards have no cash value.
         </p>
       )}
     </section>
@@ -349,7 +361,10 @@ export function PromoCodeEntry({ card }: { card: WalletCard }) {
             <>
               {failure.message}
               {failure instanceof ApiError && failure.requestId ? (
-                <span className="ml-1 font-mono font-normal text-[var(--muted)]">{failure.requestId}</span>
+                // Its own line: run into the sentence it read as part of it.
+                <span className="mt-1 block font-mono font-normal text-[var(--muted)]">
+                  Ref {failure.requestId}
+                </span>
               ) : null}
             </>
           ) : null}

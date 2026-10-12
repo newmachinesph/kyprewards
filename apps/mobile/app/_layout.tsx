@@ -2,7 +2,7 @@ import "../global.css";
 
 import { useEffect } from "react";
 import { AppState, View } from "react-native";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
@@ -22,7 +22,7 @@ import {
   useQueryClient,
 } from "@kyprewards/api";
 import { useAuth } from "@/lib/auth";
-import { forgetClaim, readClaim } from "@/lib/claim";
+import { forgetClaim, readClaim, useClaimSettling } from "@/lib/claim";
 import { useLock } from "@/lib/lock";
 import {
   onNotificationOpened,
@@ -34,6 +34,13 @@ import { LockScreen } from "@/components/LockScreen";
 import { ToastHost } from "@/components/Toast";
 
 void SplashScreen.preventAutoHideAsync();
+
+/**
+ * Top-level routes that open without a session: the sign-in screens, a
+ * poster or shop link, a feedback link from an SMS, the legal pages. The
+ * tabs guard themselves. Everything else needs a wallet behind it.
+ */
+const OPEN_ROUTES = new Set(["(auth)", "(tabs)", "join", "shops", "feedback", "web"]);
 
 export default function RootLayout() {
   const [fontsReady] = useFonts({
@@ -48,6 +55,9 @@ export default function RootLayout() {
   const lockReady = useLock((state) => state.ready);
   const engage = useLock((state) => state.engage);
   const locked = useLock((state) => state.locked);
+  const router = useRouter();
+  const segments = useSegments();
+  const route = segments[0] as string | undefined;
 
   useEffect(() => {
     void bootstrap();
@@ -63,6 +73,14 @@ export default function RootLayout() {
     });
     return () => watch.remove();
   }, [engage]);
+
+  // A session that ends on a screen outside the tabs - a 401 on a profile
+  // page, a sign-out from the lock screen over a card - used to leave that
+  // screen standing with nothing behind it. Off to sign-in instead.
+  useEffect(() => {
+    if (!fontsReady || status !== "signed-out") return;
+    if (route && !OPEN_ROUTES.has(route)) router.replace("/(auth)/login");
+  }, [fontsReady, status, route, router]);
 
   useEffect(() => {
     if (fontsReady && status !== "booting") void SplashScreen.hideAsync();
@@ -147,13 +165,17 @@ function SignedInEffects() {
     let live = true;
     readClaim().then((claim) => {
       if (!claim || !live) return;
+      useClaimSettling.setState({ settling: true });
       claimFirstStamp(claim.token)
         .then(() => true)
         .catch((failure) => failure instanceof ApiError)
         .then((answered) => {
           if (answered) void forgetClaim();
-          void queryClient.invalidateQueries({ queryKey: keys.customer.all });
-        });
+          // Settled once the wallet has refetched, so Home goes from loading
+          // straight to the new card.
+          return queryClient.invalidateQueries({ queryKey: keys.customer.all });
+        })
+        .finally(() => useClaimSettling.setState({ settling: false }));
     });
     return () => {
       live = false;

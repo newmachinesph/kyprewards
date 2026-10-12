@@ -64,11 +64,7 @@ export default function Approvals() {
 }
 
 function ApprovalRow({ row }: { row: PendingApproval }) {
-  const invalidates = [
-    keys.wallet.approvals(),
-    keys.customer.wallet(),
-    keys.customer.activity(),
-  ];
+  const invalidates = keys.customer.afterApproval();
   const approve = useApiMutation(approveRedemption, {
     invalidates,
     onSuccess: () =>

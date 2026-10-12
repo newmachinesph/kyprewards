@@ -14,7 +14,7 @@
  * `/api/v1`.
  */
 
-import { apiBase, http, toApiError } from "./http.ts";
+import { apiBase, http, send, toApiError } from "./http.ts";
 import type { HttpOptions } from "./http.ts";
 import type {
   Adapter,
@@ -1394,7 +1394,7 @@ export async function downloadPlatformExport(kind: PlatformExportKind): Promise<
 }
 
 async function download(path: string): Promise<void> {
-  const response = await fetch(`${apiBase()}${path}`, {
+  const response = await send(`${apiBase()}${path}`, {
     credentials: "include",
   });
   if (!response.ok) throw await toApiError(response);

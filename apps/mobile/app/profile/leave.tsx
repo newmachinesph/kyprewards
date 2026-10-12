@@ -9,8 +9,9 @@ import {
   useDataRequests,
   useWallet,
 } from "@kyprewards/api";
+import { relativeTime } from "@kyprewards/ui/format";
 import { Screen } from "@/components/Screen";
-import { Button, Eyebrow, Title } from "@/components/ui";
+import { Button, Eyebrow, Notice, Title } from "@/components/ui";
 import { notify } from "@/components/Toast";
 import { colors } from "@/lib/theme";
 
@@ -30,9 +31,13 @@ export default function Leave() {
     onError: (failure) => notify(failure.message, "error"),
   });
   const { data: requests = [] } = useDataRequests();
-  const deletionRequested = requests.some(
-    (r) => r.kind === "deletion" && r.status !== "completed",
+  const openDeletion = requests.find(
+    (r) =>
+      r.kind === "deletion" &&
+      r.status !== "completed" &&
+      r.status !== "rejected",
   );
+  const deletionRequested = Boolean(openDeletion);
   const deletion = useApiMutation(requestData, {
     invalidates: [keys.customer.dataRequests()],
     onSuccess: () =>
@@ -128,6 +133,18 @@ export default function Leave() {
           ? "Deletion request received"
           : "Request account deletion"}
       </Button>
+      {openDeletion ? (
+        <View className="mt-3">
+          <Notice tone="muted">
+            Account deletion is queued for identity review. You can still use
+            your wallet until it completes. Requested{" "}
+            {relativeTime(openDeletion.requestedAt).replace(/^[JYT]/, (c) =>
+              c.toLowerCase(),
+            )}
+            .
+          </Notice>
+        </View>
+      ) : null}
     </Screen>
   );
 }

@@ -8,14 +8,15 @@ import {
   Stamp,
   WalletCards,
 } from "lucide-react-native";
-import type { WalletCard } from "@kyprewards/api";
-import { earningLine, longDate, timeOfDay } from "@kyprewards/ui/format";
+import { useHeld, type WalletCard } from "@kyprewards/api";
+import { earningLine, longDate, peso, timeOfDay } from "@kyprewards/ui/format";
 import {
   balanceLine,
   cardHeadline,
   cardStateLine,
   earnedStamps,
 } from "@/lib/cards";
+import { heldSummary } from "@/lib/held";
 import { brandColor, withAlpha } from "@/lib/theme";
 import { StampDots } from "@/components/StampDots";
 
@@ -50,8 +51,18 @@ export function LoyaltyCard({
     withAlpha(brand.foreground, card.imageUrl || card.color === "green" ? 1 : alpha);
   const soft = ink(0.62);
   const state = cardStateLine(card);
-  const balance = balanceLine(card);
+  const { data: held = [] } = useHeld();
+  // A card with no balance (a shop whose programs are all things held) says
+  // what is held there, then the program's name.
+  const balance =
+    balanceLine(card) ||
+    heldSummary(held.find((shop) => shop.businessId === card.businessId)) ||
+    card.program;
   const earns = earningLine(card.earning);
+  const headline = cardHeadline(card, balance);
+  // A card with no finish line leads with its balance; the full card does
+  // not say it a second time under the headline.
+  const footnote = !compact && headline === balance ? "" : balance;
   return (
     <View
       className="overflow-hidden rounded-2xl px-5 py-5"
@@ -122,7 +133,7 @@ export function LoyaltyCard({
               : null),
           }}
         >
-          {cardHeadline(card)}
+          {headline}
         </Text>
       ) : null}
 
@@ -141,7 +152,7 @@ export function LoyaltyCard({
             className="font-sans-semibold text-[11px]"
             style={{ color: soft }}
           >
-            {balance}
+            {footnote}
           </Text>
           <Text
             className="font-sans-semibold text-[11px]"
@@ -198,13 +209,17 @@ export function LoyaltyCard({
             >
               {card.tier.name}
             </Text>
+            {/* One line: the perk is what the tier is for, the rung count is
+                what is left, and the card has no room for a second row. */}
             <Text
-              className="font-sans-semibold text-[11px]"
+              numberOfLines={1}
+              className="min-w-0 shrink font-sans-semibold text-[11px]"
               style={{ color: ink(0.72) }}
             >
               {card.tier.nextName && card.tier.nextIn !== null
-                ? `${card.tier.basis === "visits" ? `${card.tier.nextIn} visits` : `₱${card.tier.nextIn}`} to ${card.tier.nextName}`
+                ? `${card.tier.basis === "visits" ? `${card.tier.nextIn} visits` : peso(card.tier.nextIn)} to ${card.tier.nextName}`
                 : "Top suki tier"}
+              {card.tier.benefit?.trim() ? ` · ${card.tier.benefit.trim()}` : ""}
             </Text>
           </View>
         ) : null}

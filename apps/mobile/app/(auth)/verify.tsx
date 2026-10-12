@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Text } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { ApiError, requestOtp, verifyOtp } from "@kyprewards/api";
 import { AuthShell, Field } from "@/components/AuthShell";
 import { Button } from "@/components/ui";
@@ -24,13 +24,22 @@ export default function Verify() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [resent, setResent] = useState(false);
+  // Whether the keychain has been asked. Until then an empty identifier only
+  // means "not read yet", not "nothing was sent".
+  const [looked, setLooked] = useState(Boolean(params.identifier));
 
   useEffect(() => {
-    if (!identifier)
-      recall(KEYS.otpIdentifier).then((saved) => saved && setIdentifier(saved));
+    if (identifier) return;
+    recall(KEYS.otpIdentifier).then((saved) => {
+      if (saved) setIdentifier(saved);
+      setLooked(true);
+    });
   }, [identifier]);
 
   async function submit() {
+    // Never verifyOtp(""): the API's answer is a validation error nobody can
+    // act on.
+    if (!identifier) return;
     const digits = code.replace(/\D/g, "");
     if (digits.length !== 6) {
       setNotice("Enter the six-digit code.");
@@ -64,6 +73,7 @@ export default function Verify() {
   }
 
   async function resend() {
+    if (!identifier) return;
     try {
       await requestOtp(identifier);
       setResent(true);
@@ -75,6 +85,23 @@ export default function Verify() {
           : "Could not resend just now.",
       );
     }
+  }
+
+  // Opened cold - a stale link, a restore after the keychain was wiped - with
+  // no code ever sent. Nothing to check the digits against, so say what to do.
+  if (looked && !identifier) {
+    return (
+      <AuthShell
+        eyebrow="Verify"
+        title="Ask for a fresh code."
+        description="This screen was opened without a code being sent. Start again from sign-in and we will text you one."
+      >
+        <Button onPress={() => router.replace("/(auth)/login")}>
+          Back to sign in
+        </Button>
+        <CreateWalletLink />
+      </AuthShell>
+    );
   }
 
   return (
@@ -126,6 +153,24 @@ export default function Verify() {
       <Button tone="quiet" onPress={() => router.replace("/(auth)/login")}>
         Use a different number
       </Button>
+      <CreateWalletLink />
     </AuthShell>
+  );
+}
+
+/**
+ * A number with no wallet is still told a code was sent - the API does not
+ * say whether an account exists - and then every code is refused. This is
+ * the way out for a mistyped digit or somebody who never had a wallet.
+ */
+function CreateWalletLink() {
+  return (
+    <Link
+      href="/(auth)/create-account"
+      replace
+      className="min-h-[44px] py-3 text-center font-sans-extrabold text-[13px] text-accent-strong"
+    >
+      No code arriving? Create a wallet
+    </Link>
   );
 }

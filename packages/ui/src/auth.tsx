@@ -37,7 +37,9 @@ import {
   customerLogin,
   socialSignIn,
   getWorkspaces,
+  keys,
   unsubscribePush,
+  useQueryClient,
   useSession,
   verifyMfa,
   verifyOtp,
@@ -48,7 +50,7 @@ import {
 import Link from "next/link";
 import { BrandMark, Button, StampDots } from "./index";
 import { Checkbox, Field as FormField, Input, MobileInput, PasswordInput, Segmented, Select } from "./form";
-import { toE164 } from "./format";
+import { isCompleteMobile, normalizeMobile, toE164 } from "./format";
 
 /*
  * The password and verification code that used to live here were checked in
@@ -414,9 +416,13 @@ export async function signOut({ dropPush = false }: { dropPush?: boolean } = {})
 export function SessionGate({
   role,
   children,
+  offline,
 }: {
   role: DemoAuthRole;
   children: ReactNode;
+  /** Shown under "Can't reach KYP": the wallet's member code, kept on the
+   *  device, so the counter still works with no signal. */
+  offline?: ReactNode;
 }) {
   // Through the query cache rather than a bare fetch: the answer is the same
   // row every child reads through `useSession()`, so who is signed in - and
@@ -439,6 +445,36 @@ export function SessionGate({
   const signedOut = error instanceof ApiError && (error.status === 401 || error.status === 403);
   const unreachable = !!error && !signedOut;
 
+  // A wallet session revoked while the page is open - signed out elsewhere,
+  // a lost phone reported, the server's own sweep - answers 401 on the next
+  // request, and every screen showed an error with a Try again that could
+  // never work. Asking the gate again sends the shopper to sign-in; a 401
+  // that was a fluke re-verifies fine. The session's own query is skipped so
+  // a refused re-check does not ask again. Staff apps are left as they were.
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (role !== "customer" || !ready) return;
+    const onError = (failure: unknown) => {
+      if (failure instanceof ApiError && failure.status === 401) void refetch({ cancelRefetch: false });
+    };
+    const unsubscribeQueries = queryClient.getQueryCache().subscribe((event) => {
+      if (
+        event.type === "updated" &&
+        event.action.type === "error" &&
+        event.query.queryKey[0] !== keys.session.all[0]
+      ) {
+        onError(event.action.error);
+      }
+    });
+    const unsubscribeMutations = queryClient.getMutationCache().subscribe((event) => {
+      if (event.type === "updated" && event.action.type === "error") onError(event.action.error);
+    });
+    return () => {
+      unsubscribeQueries();
+      unsubscribeMutations();
+    };
+  }, [role, ready, queryClient, refetch]);
+
   useEffect(() => {
     if (signedOut) {
       window.location.replace("/login");
@@ -457,20 +493,23 @@ export function SessionGate({
 
   if (unreachable) {
     return (
-      <main className="grid min-h-[100dvh] place-items-center bg-[var(--paper)] px-5">
-        <div className="w-full max-w-sm text-center" role="alert">
-          <p className="text-lg font-extrabold">Can&apos;t reach KYP right now.</p>
-          <p className="mt-2 text-sm text-[var(--muted-strong)]">
-            Check the connection, then try again.
-          </p>
-          <button
-            type="button"
-            onClick={() => void refetch()}
-            disabled={isFetching}
-            className="mt-6 min-h-11 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] disabled:opacity-60"
-          >
-            {isFetching ? "Trying…" : "Try again"}
-          </button>
+      <main className="grid min-h-[100dvh] place-items-center bg-[var(--paper)] px-5 py-10">
+        <div className="w-full max-w-sm">
+          <div className="text-center" role="alert">
+            <p className="text-lg font-extrabold">Can&apos;t reach KYP right now.</p>
+            <p className="mt-2 text-sm text-[var(--muted-strong)]">
+              Check the connection, then try again.
+            </p>
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              disabled={isFetching}
+              className="mt-6 min-h-11 rounded-xl bg-[var(--ink)] px-5 text-sm font-extrabold text-[var(--paper)] disabled:opacity-60"
+            >
+              {isFetching ? "Trying…" : "Try again"}
+            </button>
+          </div>
+          {offline}
         </div>
       </main>
     );
@@ -1069,8 +1108,22 @@ export function DemoAuthFlow({
    */
   async function submitLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!identifier.trim()) {
-      setNotice(`Enter your ${config.identifierLabel.toLowerCase()}.`);
+    // A customer's is checked whole before the API is asked: half a number
+    // or "name@" only comes back as an error the form could have given.
+    const identifierReady =
+      role !== "customer"
+        ? Boolean(identifier.trim())
+        : channel === "mobile"
+          ? isCompleteMobile(normalizeMobile(identifier))
+          : /^\S+@\S+\.\S+$/.test(identifier.trim());
+    if (!identifierReady) {
+      setNotice(
+        role !== "customer"
+          ? `Enter your ${config.identifierLabel.toLowerCase()}.`
+          : channel === "mobile"
+            ? "Enter your mobile number."
+            : "Enter your email address.",
+      );
       return;
     }
     if (!password) {
@@ -1544,15 +1597,18 @@ export function DemoAuthFlow({
             if (byEmail) {
               if (!/^\S+@\S+\.\S+$/.test(email.trim())) { setNotice("Enter your email address."); return; }
               if (password.length < 8) { setNotice("Choose a password of at least 8 characters."); return; }
-            } else if (!identifier.trim()) { setNotice("Enter your mobile number."); return; }
+            } else if (!isCompleteMobile(normalizeMobile(identifier))) { setNotice("Enter your mobile number."); return; }
+            // Both or neither: the API refuses a half-filled birthday, and
+            // dropping the half that was picked looked like it had been saved.
+            if (Boolean(birthdayDay) !== Boolean(birthdayMonth)) {
+              setNotice("Give both the day and the month, or neither.");
+              return;
+            }
             if (!accepted) { setNotice("Accept the terms to continue."); return; }
 
             setBusy(true);
             setNotice("");
             setExisting(null);
-            // Both or neither: the API refuses a half-filled birthday, and the
-            // form treats a partly answered optional question as not answered
-            // rather than blocking the sign-up over it.
             const birthday =
               birthdayDay && birthdayMonth
                 ? { birthdayDay: Number(birthdayDay), birthdayMonth: Number(birthdayMonth) }

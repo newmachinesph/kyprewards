@@ -63,11 +63,15 @@ import {
 
 /** A place is "nearby" within a 1.5 km walk. */
 const NEARBY_METRES = 1500;
-/** Where the shopper's legal pages live: kyp.ph, as on sign-up
- *  (packages/ui auth.tsx). kyprewards.com's are written for merchants. */
-const SHOPPER_SITE_URL = process.env.NEXT_PUBLIC_MARKETPLACE_URL ?? "https://kyp.ph";
-/** Where the merchant door lives. */
-const MARKETPLACE_URL = process.env.NEXT_PUBLIC_MARKETPLACE_URL ?? "";
+/** kyp.ph, the shopper-facing web: how it works, discover, and the
+ *  shopper's legal pages, as on sign-up (packages/ui auth.tsx).
+ *  kyprewards.com's are written for merchants. */
+const MARKETPLACE_URL = process.env.NEXT_PUBLIC_MARKETPLACE_URL || "https://kyp.ph";
+/** kyprewards.com, the merchant site, for "I run a shop". */
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://kyprewards.com";
+/** The member code and name, kept on the device for the gate's offline
+ *  screen. Prefixed `kyp-qr-` so sign-out clears it with the QR images. */
+const OFFLINE_CODE_KEY = "kyp-qr-member";
 import { useCoordinates } from "@/components/useCoordinates";
 import {
   CHANNELS,
@@ -281,9 +285,9 @@ function useScreenAwake() {
   }, []);
 }
 
-function QrImage() {
-  const { data: profile } = useCustomerProfile();
-  const memberCode = profile?.memberCode ?? "";
+/** The screen symbol. Given the code rather than reading the profile, so the
+ *  offline screen can draw it from the copy kept on the device. */
+function QrImage({ memberCode }: { memberCode: string }) {
   const [state, setState] = useState<
     { kind: "loading" } | { kind: "ready"; src: string } | { kind: "failed" }
   >({ kind: "loading" });
@@ -344,6 +348,45 @@ function QrImage() {
       height={196}
       className="size-[196px]"
     />
+  );
+}
+
+/**
+ * The member code with no signal, under the gate's "Can't reach KYP".
+ *
+ * A cold start offline never reaches the wallet - the session check fails
+ * first - so "Works without data" needs the code from somewhere other than
+ * the API: the copy the wallet keeps once the profile loads.
+ */
+export function OfflineMemberCode() {
+  const [saved] = useState(() => {
+    try {
+      const parsed: unknown = JSON.parse(window.localStorage.getItem(OFFLINE_CODE_KEY) ?? "null");
+      if (parsed && typeof parsed === "object" && "memberCode" in parsed && typeof parsed.memberCode === "string") {
+        const name = "name" in parsed && typeof parsed.name === "string" ? parsed.name : "";
+        return { memberCode: parsed.memberCode, name };
+      }
+    } catch {
+      // Storage refused or a mangled copy: nothing to show.
+    }
+    return null;
+  });
+  if (!saved?.memberCode) return null;
+  return (
+    <section className="mt-8 flex flex-col items-center text-center">
+      <Eyebrow>Your member code</Eyebrow>
+      {saved.name && <p className="mt-1 text-sm font-extrabold">{saved.name}</p>}
+      <div className="mt-4 rounded-2xl border border-[var(--line)] bg-white p-4">
+        <QrImage memberCode={saved.memberCode} />
+      </div>
+      <div className="mt-3 w-full max-w-[280px] rounded-2xl border border-[var(--line)] bg-white px-3 pb-2 pt-3">
+        <Barcode code={saved.memberCode} height={52} />
+        <p className="mt-2 text-center font-mono text-xs font-bold tracking-[0.08em]">
+          {formatMemberCode(saved.memberCode)}
+        </p>
+      </div>
+      <p className="mt-3 text-xs text-[var(--muted-strong)]">Works without data. Show it at the counter.</p>
+    </section>
   );
 }
 
@@ -657,9 +700,9 @@ function DataRequests() {
   const { data: requests = [] } = useDataRequests();
   const [fetching, setFetching] = useState("");
   const [failed, setFailed] = useState("");
-  const open = requests.filter((request) => request.status !== "completed");
 
-  if (open.length === 0) return null;
+  // Finished ones too, so a request does not simply vanish once it is done.
+  if (requests.length === 0) return null;
 
   async function download(requestId: string) {
     setFetching(requestId);
@@ -685,7 +728,7 @@ function DataRequests() {
         Your requests
       </p>
       <ul className="mt-2 space-y-2.5">
-        {open.map((request) => (
+        {requests.map((request) => (
           <li key={request.id} className="flex items-start gap-2 text-xs leading-relaxed">
             {request.kind === "deletion" ? (
               <Trash2 size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
@@ -693,7 +736,13 @@ function DataRequests() {
               <Download size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
             )}
             <span className="min-w-0 flex-1">
-              {request.kind === "deletion"
+              {request.status === "rejected"
+                ? "This request was declined."
+                : request.status === "completed"
+                  ? request.kind === "deletion"
+                    ? "Account deletion is complete."
+                    : "This export is finished and no longer available."
+                  : request.kind === "deletion"
                 ? "Account deletion is queued for identity review. You can still use your wallet until it completes."
                 : request.status === "ready"
                   ? "Your export is ready."
@@ -704,7 +753,10 @@ function DataRequests() {
                   : "Your export is being prepared. It is usually ready within "
                     + "ten minutes, and we will let you know here."}
               <span className="mt-0.5 block text-[10px] text-[var(--muted-strong)]">
-                Asked for {relativeTime(request.requestedAt)}
+                {/* relativeTime capitalises "Just now" and "Yesterday" to
+                    stand alone; mid-sentence they are lower case. */}
+                Requested {relativeTime(request.requestedAt).replace(/^[A-Z]/, (first) => first.toLowerCase())}
+                {request.completedAt ? ` · done ${longDate(request.completedAt.slice(0, 10))}` : ""}
               </span>
               {request.kind !== "deletion" && request.status === "ready" && (
                 <Button
@@ -729,11 +781,13 @@ function DataRequests() {
 function HomeView({
   onWallet,
   onDiscover,
+  onBusiness,
   onActivity,
   onApprove,
 }: {
   onWallet: () => void;
   onDiscover: () => void;
+  onBusiness: (id: string) => void;
   onActivity: () => void;
   onApprove: () => void;
 }) {
@@ -889,6 +943,11 @@ function HomeView({
         ) : (
           <p className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 text-sm text-[var(--muted-strong)]">
             No cards yet. Scan a counter code to start one.
+            {/* The web has no scanner of its own; the phone's camera is it. */}
+            <span className="mt-1 block text-xs">
+              Use your phone&apos;s own camera: point it at the code on the shop&apos;s poster and
+              open the link it shows.
+            </span>
           </p>
         )}
         {!walletPending && cards.length > 0 && (
@@ -939,10 +998,11 @@ function HomeView({
               // The API's flag, never a position in the list. The second
               // card used to be painted as featured whatever it was.
               const featured = place.featured;
+              const Icon = categoryIcons[place.category] ?? Store;
               return (
                 <button
                   key={place.id}
-                  onClick={onDiscover}
+                  onClick={() => onBusiness(place.id)}
                   className={`group rounded-2xl p-4 text-left transition hover:-translate-y-0.5 ${
                     featured
                       ? "bg-[var(--accent)]"
@@ -957,7 +1017,7 @@ function HomeView({
                           : "bg-[rgb(232_163_61/14%)] text-[var(--accent-strong)]"
                       }`}
                     >
-                      {featured ? <Leaf /> : <Coffee />}
+                      <Icon />
                     </span>
                     {featured ? null : (
                       <ArrowRight
@@ -1090,6 +1150,7 @@ function WalletView({
       shop.business.toLowerCase().includes(term),
   );
   const visibleCount = visibleCards.length + newlyJoined.length + heldOnly.length;
+  const filtering = term !== "" || category !== "All";
   // The held line once per shop, on its first card: a shop running stamps
   // beside points is two cards and one set of things held.
   const summarised = new Set<string>();
@@ -1284,11 +1345,14 @@ function WalletView({
       {visibleCount === 0 && !walletQuery.isPending && !walletQuery.error && (
         <div className="mt-5 rounded-2xl border border-dashed border-[var(--line-strong)] p-7 text-center">
           <Search className="mx-auto text-[var(--muted)]" />
+          {/* A chip filters as much as the search does: "Nothing in your
+              wallet yet" under a Bakery chip told a shopper with cards that
+              they had none. */}
           <p className="mt-3 text-sm font-extrabold">
-            {query ? "No wallet cards found." : "Nothing in your wallet yet."}
+            {filtering ? "No wallet cards found." : "Nothing in your wallet yet."}
           </p>
           <p className="mt-1 text-xs text-[var(--muted)]">
-            {query
+            {filtering
               ? "Try a different name or card category."
               : "Scan a counter code or join a shop from Discover to start one."}
           </p>
@@ -1508,23 +1572,21 @@ function DiscoverView({ onBusiness }: { onBusiness: (id: string) => void }) {
           </div>
         ) : null}
       </div>
-      {MARKETPLACE_URL && (
-        <a
-          href={`${MARKETPLACE_URL}/discover`}
-          className="mt-7 flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition hover:border-[var(--line-strong)]"
-        >
-          <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)] text-[var(--muted-strong)]">
-            <Compass aria-hidden="true" />
+      <a
+        href={`${MARKETPLACE_URL}/discover`}
+        className="mt-7 flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-left transition hover:border-[var(--line-strong)]"
+      >
+        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[var(--surface-2)] text-[var(--muted-strong)]">
+          <Compass aria-hidden="true" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-extrabold">Browse all shops on KYP</span>
+          <span className="mt-0.5 block text-[11px] text-[var(--muted)]">
+            Every shop with a live card, by category and neighborhood.
           </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-sm font-extrabold">Browse all shops on KYP</span>
-            <span className="mt-0.5 block text-[11px] text-[var(--muted)]">
-              Every shop with a live card, by category and neighborhood.
-            </span>
-          </span>
-          <ExternalLink size={16} className="shrink-0 text-[var(--muted)]" aria-hidden="true" />
-        </a>
-      )}
+        </span>
+        <ExternalLink size={16} className="shrink-0 text-[var(--muted)]" aria-hidden="true" />
+      </a>
     </div>
   );
 }
@@ -1537,6 +1599,7 @@ function ProfileView({
   onGifts: () => void;
 }) {
   const { profile, wallet } = useCustomerState();
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
   // Memberships, not cards: a shop running stamps beside points is one shop.
   const realWallet = [...new Set(wallet.filter((card) => !isPreview(card)).map((card) => card.id))];
   return (
@@ -1676,27 +1739,44 @@ function ProfileView({
       </section>
       <DataRequests />
       <nav aria-label="Legal" className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] font-bold text-[var(--muted-strong)]">
-        <a href={`${SHOPPER_SITE_URL}/privacy`} className="underline-offset-2 hover:underline">
+        <a href={`${MARKETPLACE_URL}/how-it-works`} className="underline-offset-2 hover:underline">
+          How it works
+        </a>
+        <a href={`${MARKETPLACE_URL}/privacy`} className="underline-offset-2 hover:underline">
           Privacy
         </a>
-        <a href={`${SHOPPER_SITE_URL}/terms`} className="underline-offset-2 hover:underline">
+        <a href={`${MARKETPLACE_URL}/terms`} className="underline-offset-2 hover:underline">
           Terms
         </a>
-        {MARKETPLACE_URL && (
-          <a href={`${MARKETPLACE_URL}/for-shops`} className="underline-offset-2 hover:underline">
-            I run a shop
-          </a>
-        )}
+        <a href={`${SITE_URL}/partners`} className="underline-offset-2 hover:underline">
+          I run a shop
+        </a>
       </nav>
-      <Button
-        tone="danger"
-        size="lg"
-        onClick={() => signOut({ dropPush: true })}
-        icon={<LogOut size={16} />}
-        className="mt-3 w-full"
-      >
-        Sign out of this device
-      </Button>
+      {/* Asked first: one stray tap at the bottom of the screen used to sign
+          out a shopper who then needed their password at the counter. */}
+      {confirmSignOut ? (
+        <div role="alert" className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4">
+          <p className="text-sm font-extrabold">Sign out of this device?</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Button tone="quiet" size="lg" onClick={() => setConfirmSignOut(false)}>
+              Cancel
+            </Button>
+            <Button tone="danger" size="lg" onClick={() => signOut({ dropPush: true })} icon={<LogOut size={16} />}>
+              Sign out
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <Button
+          tone="danger"
+          size="lg"
+          onClick={() => setConfirmSignOut(true)}
+          icon={<LogOut size={16} />}
+          className="mt-3 w-full"
+        >
+          Sign out of this device
+        </Button>
+      )}
     </div>
   );
 }
@@ -1752,7 +1832,7 @@ function QrModal({
           earned one.
         </p>
         <div className="qr-printable relative mt-8 overflow-hidden rounded-2xl border border-[var(--line)] bg-white p-5 shadow-[0_20px_50px_rgb(24_18_12/12%)]">
-          <QrImage />
+          <QrImage memberCode={memberCode} />
           <span className="scan-pass absolute inset-x-4 top-8 h-px bg-[var(--accent)] shadow-[0_0_10px_var(--accent)]" />
         </div>
         <div className="qr-printable-code mt-4 w-full max-w-[280px] rounded-2xl border border-[var(--line)] bg-white px-3 pb-2 pt-3">
@@ -1804,9 +1884,10 @@ const isPromotional = (kind: string) => /campaign|promo|offer/i.test(kind);
 
 /**
  * Where an inbox row leads, from what the API writes: "Redemption" asks for
- * an approval, "Gift" is a pasalubong, and anything from a shop opens that
- * shop's card. Null leaves the row as text - a shop the customer has left
- * has no card to open, and "Privacy" has no shop.
+ * an approval, "Gift" is a pasalubong, "Privacy" is a finished data export,
+ * and anything from a shop ("Campaign", "Tier", "Mission") opens that shop's
+ * card. Null leaves the row as text - a shop the customer has left has no
+ * card to open.
  */
 function notificationTarget(
   notification: { kind: string; businessId: string | null },
@@ -1814,6 +1895,8 @@ function notificationTarget(
 ): Sheet {
   if (/redemption|approv/i.test(notification.kind)) return { kind: "approve" };
   if (/gift/i.test(notification.kind)) return { kind: "gifts" };
+  if (/privacy/i.test(notification.kind))
+    return { kind: "profile", title: "Download my data", screen: "export" };
   const card = notification.businessId
     ? cards.find((item) => item.businessId === notification.businessId)
     : undefined;
@@ -2121,7 +2204,12 @@ function BusinessSheet({
   close: () => void;
   onJoin: (businessId: string) => void;
 }) {
-  const { data: discover = [] } = useDiscover();
+  // A position, as the Discover tab and the Expo place screen ask for. With
+  // none this was a second, position-less request whose distance was always
+  // empty. The previous answer stays up while the position arrives, so the
+  // shop does not blink to "not listed" when the request key changes.
+  const where = useCoordinates(true);
+  const { data: discover = [] } = useDiscover(where, { placeholderData: (previous) => previous });
   const { joinedIds } = useCustomerState();
   // Above the guard below: every hook runs on every render, or the order
   // shifts the first time a shop goes missing.
@@ -2281,8 +2369,8 @@ function BusinessSheet({
             />
             <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
               Joining shares your loyalty ID and chosen profile fields with{" "}
-              {business.name}. Promotional permissions stay off until you turn
-              them on.
+              {business.name}. Its offers follow your notification settings,
+              which you can change anytime.
             </p>
           </div>
           <button
@@ -2329,7 +2417,7 @@ function JoinConsentDialog({
     { label: "Name", value: profile.name, icon: UserRound },
     { label: "Mobile number", value: profile.mobile, icon: Phone },
     { label: "Email", value: profile.email, icon: Mail },
-    { label: "Birthday", value: profile.birthday, icon: CakeSlice },
+    { label: "Birthday", value: profile.birthday ?? "Not given", icon: CakeSlice },
   ];
   return (
     <div
@@ -2353,7 +2441,8 @@ function JoinConsentDialog({
         </h3>
         <p className="mt-2 text-xs leading-relaxed text-[var(--muted-strong)]">
           Joining shares the details below so {businessName} can run your
-          rewards. Promotional messages stay off until you turn them on.
+          rewards. Its offers follow your notification settings, which you can
+          change anytime.
         </p>
         <ul className="mt-4 divide-y divide-[var(--line)] rounded-xl border border-[var(--line)]">
           {shared.map(({ label, value, icon: ItemIcon }) => (
@@ -2454,7 +2543,11 @@ function WalletSheet({
             <span className="text-white/55">
               {progress === null ? (earningLine(card.earning) ?? "") : `${progress}% progress`}
             </span>
-            <strong className="text-[var(--accent)]">{card.reward}</strong>
+            {/* A card with no finish line sends its own name as the reward;
+                the program line above already says it. */}
+            {card.reward !== card.program && (
+              <strong className="text-[var(--accent)]">{card.reward}</strong>
+            )}
           </div>
           <div style={{ "--card-ink": "var(--paper)" } as CSSProperties}>
             <CardStatus card={card} onCard />
@@ -2538,6 +2631,7 @@ function ProfileSheet({
 }) {
   const consentQuery = useConsentHistory();
   const consentHistory = consentQuery.data ?? [];
+  const profileQuery = useCustomerProfile();
   const {
     profile,
     updateProfile,
@@ -2555,6 +2649,7 @@ function ProfileSheet({
   const isNotifications = screen === "notifications";
   const isDanger = screen === "danger";
   const [leaveOpen, setLeaveOpen] = useState(false);
+  const [leaving, setLeaving] = useState("");
   return (
     <div
       className="absolute inset-0 z-[55] overflow-y-auto bg-[var(--paper)]"
@@ -2571,7 +2666,20 @@ function ProfileSheet({
         >
           {title}
         </h2>
-        {isPersonal ? (
+        {/* Not from the blank placeholder: the form seeds its fields once, so
+            mounted before the profile answered, Save could send them empty. */}
+        {isPersonal && !profileQuery.data ? (
+          <div className="mt-6">
+            <QueryBoundary
+              isPending={profileQuery.isPending}
+              error={profileQuery.error}
+              onRetry={() => void profileQuery.refetch()}
+              label="your details"
+            >
+              {null}
+            </QueryBoundary>
+          </div>
+        ) : isPersonal ? (
           <PersonalDetails
             profile={profile}
             updateProfile={updateProfile}
@@ -2653,21 +2761,41 @@ function ProfileSheet({
                 {/* One row per shop: a shop running two programs is one membership. */}
                 {wallet
                   .filter((card, index, all) => all.findIndex((other) => other.id === card.id) === index)
-                  .map((card) => (
+                  .map((card) =>
+                  // Asked first: leaving drops the card and its stamps.
+                  leaving === card.id ? (
+                    <div key={card.id} role="alert" className="border-b border-[var(--line)] p-4 last:border-0">
+                      <p className="text-xs font-extrabold">
+                        Leave {card.business}? Stamps on it are not kept.
+                      </p>
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        <Button tone="quiet" onClick={() => setLeaving("")}>
+                          Cancel
+                        </Button>
+                        <Button
+                          tone="danger"
+                          onClick={() => {
+                            setLeaving("");
+                            // Removes the card from the wallet, the joined-businesses
+                            // list, and the count on the profile — not just this row.
+                            leaveBusiness(card.id, {
+                              onDone: () =>
+                                notify(`You left ${card.business}. The card is out of your wallet.`),
+                              onFailed: (message) => notify(message, "error"),
+                            });
+                          }}
+                        >
+                          Leave
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
                   <button
                     key={card.id}
                     type="button"
                     disabled={isPreview(card)}
                     title={isPreview(card) ? PREVIEW_WRITE_REASON : undefined}
-                    onClick={() => {
-                      // Removes the card from the wallet, the joined-businesses
-                      // list, and the count on the profile — not just this row.
-                      leaveBusiness(card.id, {
-                        onDone: () =>
-                          notify(`You left ${card.business}. The card is out of your wallet.`),
-                        onFailed: (message) => notify(message, "error"),
-                      });
-                    }}
+                    onClick={() => setLeaving(card.id)}
                     className="flex min-h-12 w-full items-center justify-between gap-2 border-b border-[var(--line)] px-4 text-left text-xs font-bold last:border-0 disabled:opacity-60"
                   >
                     <span className="flex min-w-0 items-center gap-2">
@@ -2676,7 +2804,8 @@ function ProfileSheet({
                     </span>
                     <span className="shrink-0">Leave</span>
                   </button>
-                ))}
+                  ),
+                )}
                 {wallet.length === 0 && (
                   <p className="px-4 py-4 text-xs text-[var(--muted)]">
                     You have left every program.
@@ -2821,6 +2950,9 @@ function ProfileSheet({
                   : "Each of these can see the fields you approved when you joined, and nothing else."}
               </p>
             </div>
+            {/* Where "Your data is ready to download" leads: the file is
+                here, not only at the foot of the profile tab. */}
+            {screen === "export" && <DataRequests />}
             <div className="mt-4 divide-y divide-[var(--line)] border-y border-[var(--line)]">
               {wallet
                 .filter((card, index, all) => all.findIndex((other) => other.id === card.id) === index)
@@ -2907,6 +3039,18 @@ function CustomerWallet() {
   const { data: approvals = [] } = usePendingApprovals();
   // Warm the QR codec and the rendered symbol while there is still a connection.
   usePrefetchQrCodec(profile.memberCode);
+  // Kept for the offline screen once the profile has answered with a code.
+  useEffect(() => {
+    if (!profile.memberCode) return;
+    try {
+      window.localStorage.setItem(
+        OFFLINE_CODE_KEY,
+        JSON.stringify({ memberCode: profile.memberCode, name: profile.name }),
+      );
+    } catch {
+      // A full or private store. The code still shows while online.
+    }
+  }, [profile.memberCode, profile.name]);
   const notify = (message: string, tone: "success" | "error" = "success") => {
     setToastTone(tone);
     setToast(message);
@@ -2960,6 +3104,7 @@ function CustomerWallet() {
       <HomeView
         onWallet={() => navigate("wallet")}
         onDiscover={() => navigate("discover")}
+        onBusiness={(id) => setSheet({ kind: "business", id })}
         onActivity={() => setSheet({ kind: "activity" })}
         onApprove={() => setSheet({ kind: "approve" })}
       />
@@ -3180,7 +3325,11 @@ function PersonalDetails({
   const birthdayLabel =
     birthday.day && birthday.month ? `${birthday.day} ${MONTHS[Number(birthday.month) - 1]}` : "";
   const birthdayChanged = birthdayLabel !== "" && birthdayLabel !== (profile.birthday ?? "");
-  const dirty = changed.length > 0 || birthdayChanged;
+  // Same rule as sign-up: both or neither. Half used to be dropped while the
+  // rest saved, and the screen said "Saved".
+  const birthdayHalf = Boolean(birthday.day) !== Boolean(birthday.month);
+  const [triedHalf, setTriedHalf] = useState(false);
+  const dirty = changed.length > 0 || birthdayChanged || birthdayHalf;
   const dayLimit = birthday.month ? daysIn(Number(birthday.month)) : 31;
   const fields = [
     ["Name", "name", UserRound, "text", "name"],
@@ -3192,6 +3341,10 @@ function PersonalDetails({
       onSubmit={(event) => {
         event.preventDefault();
         if (!dirty || profileSave.isPending) return;
+        if (birthdayHalf) {
+          setTriedHalf(true);
+          return;
+        }
         updateProfile({
           ...Object.fromEntries(changed.map((field) => [field, draft[field].trim()])),
           ...(birthdayChanged
@@ -3269,6 +3422,9 @@ function PersonalDetails({
             ))}
           </Select>
         </div>
+        <FormMessage tone="error">
+          {triedHalf && birthdayHalf ? "Give both the day and the month, or neither." : ""}
+        </FormMessage>
       </fieldset>
       <Button type="submit" size="lg" disabled={!dirty || profileSave.isPending} className="w-full">
         {profileSave.isPending ? "Saving…" : "Save changes"}

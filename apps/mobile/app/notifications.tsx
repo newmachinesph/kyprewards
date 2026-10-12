@@ -21,7 +21,8 @@ const isPromotional = (kind: string) => /campaign|promo|offer/i.test(kind);
 
 /**
  * Where a notice leads, from the kinds the API writes: a reward held at the
- * counter, a gift, or the shop's card. Null leaves the row as plain text.
+ * counter, a gift, a data copy ready to download, or the shop's card (tiers,
+ * missions, campaigns). Null leaves the row as plain text.
  */
 function destination(
   notice: CustomerNotification,
@@ -29,6 +30,7 @@ function destination(
 ): Href | null {
   if (/redemption/i.test(notice.kind)) return "/approvals";
   if (/gift/i.test(notice.kind)) return "/gifts";
+  if (/privacy/i.test(notice.kind)) return "/profile/export";
   const card = notice.businessId
     ? wallet.find((item) => item.businessId === notice.businessId)
     : undefined;

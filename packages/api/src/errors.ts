@@ -41,3 +41,22 @@ export class ApiError extends Error {
     this.body = body;
   }
 }
+
+/**
+ * What a call throws when no answer came back at all: offline, a refused
+ * connection, DNS. `fetch` rejects with the platform's own text for these -
+ * "fetch failed", or on Android "java.net.ConnectException: Failed to connect
+ * to localhost/127.0.0.1:8000" - and screens printed it as it came.
+ *
+ * Deliberately not an `ApiError`. Callers read `instanceof ApiError` as "the
+ * server answered": the session gate, query retries, the till's offline queue
+ * and the first-stamp claim all keep or retry what a non-`ApiError` failed.
+ * A status-0 `ApiError` would have quietly turned each of those into a
+ * refusal - the queue would drop a stamp it should resend.
+ */
+export class NetworkError extends Error {
+  constructor(cause: unknown) {
+    super("Can't reach KYP right now. Check your connection and try again.", { cause });
+    this.name = "NetworkError";
+  }
+}

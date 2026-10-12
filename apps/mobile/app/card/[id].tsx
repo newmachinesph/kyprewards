@@ -123,6 +123,9 @@ export default function CardScreen() {
     (entry) => entry.businessId === card.businessId,
   );
   const terms = cardTerms(card);
+  // Only a stamp card has settings still to come; a points or rewards card
+  // carries everything it has in the rows above.
+  const termsPending = !card.rules && card.kind === "Stamps";
 
   return (
     <Screen title="Wallet card" back>
@@ -244,22 +247,25 @@ export default function CardScreen() {
         )}
       </View>
 
-      <Panel className="mt-4">
-        <Text className="font-sans-extrabold text-[14px] text-ink">
-          Card terms
-        </Text>
-        <View className="mt-3">
-          {terms.map(([term, detail], index) => (
-            <Term key={term} term={term} detail={detail} first={index === 0} />
-          ))}
-        </View>
-        {!card.rules ? (
-          <Text className="mt-3 font-sans text-[11px] leading-[17px] text-muted">
-            Cooldown, minimum spend and expiry appear here once the shop&apos;s
-            settings arrive with the card. Rewards have no cash value.
+      {terms.length > 0 || termsPending ? (
+        <Panel className="mt-4">
+          <Text className="font-sans-extrabold text-[14px] text-ink">
+            Card terms
           </Text>
-        ) : null}
-      </Panel>
+          <View className="mt-3">
+            {terms.map(([term, detail], index) => (
+              <Term key={term} term={term} detail={detail} first={index === 0} />
+            ))}
+          </View>
+          {termsPending ? (
+            <Text className="mt-3 font-sans text-[11px] leading-[17px] text-muted">
+              Cooldown, minimum spend and expiry appear here once the
+              shop&apos;s settings arrive with the card. Rewards have no cash
+              value.
+            </Text>
+          ) : null}
+        </Panel>
+      ) : null}
 
       <PromoCodeEntry businessId={card.businessId} business={card.business} />
 
@@ -351,11 +357,18 @@ function PromoCodeEntry({
           Code applied. Your card is updated.
         </Text>
       ) : redeem.error ? (
-        <Text className="mt-2 font-sans-bold text-[11px] text-danger">
-          {redeem.error instanceof ApiError
-            ? redeem.error.message
-            : "That code did not work."}
-        </Text>
+        <View className="mt-2">
+          <Text className="font-sans-bold text-[11px] text-danger">
+            {redeem.error instanceof ApiError
+              ? redeem.error.message
+              : "That code did not work."}
+          </Text>
+          {redeem.error instanceof ApiError && redeem.error.requestId ? (
+            <Text selectable className="mt-1 font-mono text-[10px] text-muted">
+              Ref {redeem.error.requestId}
+            </Text>
+          ) : null}
+        </View>
       ) : null}
     </Panel>
   );

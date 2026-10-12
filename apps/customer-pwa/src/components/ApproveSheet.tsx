@@ -68,7 +68,7 @@ export function ApproveSheet({ close }: { close: () => void }) {
 
 function ApprovalRow({ row }: { row: PendingApproval }) {
   const preview = isPreview(row);
-  const invalidates = [keys.wallet.approvals(), keys.customer.wallet(), keys.customer.activity()];
+  const invalidates = keys.customer.afterApproval();
   const approve = useApiMutation(approveRedemption, { invalidates });
   const decline = useApiMutation(declineRedemption, { invalidates });
   const busy = approve.isPending || decline.isPending;

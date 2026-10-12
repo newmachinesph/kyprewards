@@ -3,6 +3,11 @@
 import { useEffect, useState } from "react";
 import type { Coordinates } from "@kyprewards/api";
 
+/** The last position the browser gave, so a screen opened after the Discover
+ *  tab starts from it - the same request key, answered from the cache -
+ *  rather than asking the API once without it and again with it. */
+let lastKnown: Coordinates | undefined;
+
 /**
  * Where the customer is, once they allow it.
  *
@@ -12,7 +17,7 @@ import type { Coordinates } from "@kyprewards/api";
  * stay unknown.
  */
 export function useCoordinates(enabled: boolean): Coordinates | undefined {
-  const [where, setWhere] = useState<Coordinates>();
+  const [where, setWhere] = useState<Coordinates | undefined>(() => (enabled ? lastKnown : undefined));
 
   useEffect(() => {
     if (!enabled || where || typeof navigator === "undefined" || !navigator.geolocation) {
@@ -20,12 +25,10 @@ export function useCoordinates(enabled: boolean): Coordinates | undefined {
     }
     let live = true;
     navigator.geolocation.getCurrentPosition(
-      (position) =>
-        live &&
-        setWhere({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        }),
+      (position) => {
+        lastKnown = { lat: position.coords.latitude, lng: position.coords.longitude };
+        if (live) setWhere(lastKnown);
+      },
       // Swallowed on purpose. Denied, unavailable and timed out all mean the
       // same thing here, and none of them is worth interrupting anyone over.
       () => {},

@@ -5,11 +5,12 @@ import {
   chooseCatalogItem,
   keys,
   useApiMutation,
+  useHeld,
   type HeldCatalogItem,
   type HeldShop,
   type WalletCard,
 } from "@kyprewards/api";
-import { longDate, pesoFromCentavos } from "@kyprewards/ui/format";
+import { longDate, pesoShortFromCentavos } from "@kyprewards/ui/format";
 import { Button, Notice, Panel } from "@/components/ui";
 import {
   benefitsLine,
@@ -115,7 +116,7 @@ export function HeldAtShop({
                   {card.code}
                 </Text>
                 <Text className="font-sans-extrabold text-[14px] text-ink">
-                  {pesoFromCentavos(card.balanceCentavos)}
+                  {pesoShortFromCentavos(card.balanceCentavos)}
                 </Text>
               </View>
               <Text className={line}>
@@ -123,7 +124,7 @@ export function HeldAtShop({
                   ? card.status.charAt(0).toUpperCase() + card.status.slice(1)
                   : `${card.expiresOn ? `Expires ${longDate(card.expiresOn)}` : "Never expires"}${
                       card.paidCentavos > 0
-                        ? ` · bought for ${pesoFromCentavos(card.paidCentavos)}`
+                        ? ` · bought for ${pesoShortFromCentavos(card.paidCentavos)}`
                         : ""
                     }`}
               </Text>
@@ -185,7 +186,7 @@ export function HeldAtShop({
           <View className="flex-row items-baseline justify-between gap-3">
             <Text className={heading}>Cashback</Text>
             <Text className="font-sans-extrabold text-[14px] text-ink">
-              {pesoFromCentavos(shop.cashbackCentavos)}
+              {pesoShortFromCentavos(shop.cashbackCentavos)}
             </Text>
           </View>
           <Text className={line}>Spend it at the counter, all or part.</Text>
@@ -203,6 +204,8 @@ export function HeldAtShop({
   );
 }
 
+const points = (n: number) => `${n} ${n === 1 ? "point" : "points"}`;
+
 /** Points spent on an item from the wallet. The reward is then held and
  *  handed over at the counter through the usual approval. */
 function Catalog({
@@ -214,14 +217,18 @@ function Catalog({
   items: HeldCatalogItem[];
   cards: WalletCard[];
 }) {
+  // After a choice the held list refetches; until it lands, `affordable` is stale.
+  const { isFetching: refreshing } = useHeld();
   const choose = useApiMutation(
     // Keyed by the balance it spends from: a retried tap replays the first
     // choice, while a second choice comes from a lower balance and is new.
+    // By program: a shop with stamps beside points has two cards on one
+    // membership id, and the stamp card's progress does not move.
     (item: HeldCatalogItem) =>
       chooseCatalogItem(
         membershipId,
         item.id,
-        `choose_${membershipId}_${item.id}_${cards.find((card) => card.id === membershipId)?.progress ?? 0}`,
+        `choose_${membershipId}_${item.id}_${cards.find((card) => card.programId === item.programId)?.progress ?? 0}`,
       ),
     { invalidates: keys.customer.afterCatalogChoice() },
   );
@@ -236,7 +243,7 @@ function Catalog({
     asking.current = true;
     Alert.alert(
       `Choose ${item.name}?`,
-      `${item.cost} points leave your card now and ${item.name} is held for you. Show your code at the counter and approve it here when staff reserve it.`,
+      `Spend ${points(item.cost)} on ${item.name}? The points leave your card now and it is held for you. Show your code at the counter and approve it here when staff reserve it.`,
       [
         { text: "Not now", style: "cancel", onPress: release },
         {
@@ -268,9 +275,9 @@ function Catalog({
                 {item.name}
               </Text>
               <Text className="mt-1 font-sans text-[11px] text-muted">
-                {item.cost} points
+                {points(item.cost)}
                 {item.kind === "discount" && item.valueCentavos > 0
-                  ? ` · ${pesoFromCentavos(item.valueCentavos)} off your bill`
+                  ? ` · ${pesoShortFromCentavos(item.valueCentavos)} off your bill`
                   : ""}
               </Text>
               {!item.affordable ? (
@@ -286,8 +293,8 @@ function Catalog({
                 full={false}
                 tone="accent"
                 busy={choose.isPending && choose.variables?.id === item.id}
-                disabled={choose.isPending}
-                accessibilityLabel={`Choose ${item.name} for ${item.cost} points`}
+                disabled={choose.isPending || refreshing}
+                accessibilityLabel={`Choose ${item.name} for ${points(item.cost)}`}
                 onPress={() => confirm(item)}
               >
                 Choose
@@ -304,11 +311,18 @@ function Catalog({
           </Notice>
         </View>
       ) : choose.error ? (
-        <Text className="mt-3 font-sans-bold text-[11px] text-danger">
-          {choose.error instanceof ApiError
-            ? choose.error.message
-            : "That could not be chosen. Try again."}
-        </Text>
+        <View className="mt-3">
+          <Text className="font-sans-bold text-[11px] text-danger">
+            {choose.error instanceof ApiError
+              ? choose.error.message
+              : "That could not be chosen. Try again."}
+          </Text>
+          {choose.error instanceof ApiError && choose.error.requestId ? (
+            <Text selectable className="mt-1 font-mono text-[10px] text-muted">
+              Ref {choose.error.requestId}
+            </Text>
+          ) : null}
+        </View>
       ) : null}
     </Panel>
   );

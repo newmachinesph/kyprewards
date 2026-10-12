@@ -112,6 +112,14 @@ export const keys = {
     /** What choosing a catalog item changes: the held catalog, the card's
      *  balance and the activity line. Pass as `invalidates`. */
     afterCatalogChoice: () => [keys.customer.held(), keys.customer.wallet(), keys.customer.activity()],
+    /** What approving or declining a reserved reward changes: the queue, the
+     *  card, what is held (a catalog reward leaves it) and the activity line. */
+    afterApproval: () => [
+      keys.wallet.approvals(),
+      keys.customer.wallet(),
+      keys.customer.held(),
+      keys.customer.activity(),
+    ],
   },
 
   counter: {

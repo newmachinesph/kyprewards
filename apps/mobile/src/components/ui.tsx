@@ -95,9 +95,17 @@ export function Button({
     danger: "text-white",
   };
   const off = disabled || busy;
+  // Android builds the content description from the label plus "busy", and
+  // with no label it never rebuilds it: "busy" stayed after the work ended.
+  // The text is the label; busy stays a state.
+  const words = [children].flat();
+  const label = words.every((w) => typeof w === "string" || typeof w === "number")
+    ? words.join("")
+    : undefined;
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label}
       accessibilityState={{ disabled: Boolean(off), busy }}
       disabled={off}
       className={`min-h-[48px] flex-row items-center justify-center gap-2 rounded-2xl px-5 active:opacity-80 ${tones[tone]} ${full ? "w-full" : ""} ${off ? "opacity-50" : ""} ${className ?? ""}`}

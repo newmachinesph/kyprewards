@@ -100,7 +100,7 @@ function GiftList({ title, rows }: { title: string; rows: GiftTransfer[] }) {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-extrabold">
-                    {gift.kind === "reward" ? gift.reward : `${gift.units} points`}
+                    {gift.kind === "reward" ? gift.reward : `${gift.units} ${gift.units === 1 ? "point" : "points"}`}
                   </p>
                   <p className="mt-0.5 text-[11px] text-[var(--muted-strong)]">
                     {gift.direction === "received" ? `From ${gift.fromName}` : `To ${gift.toName}`} · {gift.business}

@@ -40,7 +40,9 @@ export default function Gifts() {
     <Screen title="Gifts" back bottom={48}>
       <Eyebrow>Pasalubong</Eyebrow>
       <Title>Gifts</Title>
-      <Lede>Send a held reward to another member of the same shop.</Lede>
+      <Lede>
+        Send a held reward or points to another member of the same shop.
+      </Lede>
       <Button
         className="mt-5"
         icon={<Gift size={16} color={colors.paper} />}
@@ -101,7 +103,7 @@ function GiftList({ title, rows }: { title: string; rows: GiftTransfer[] }) {
                   <Text className="font-sans-extrabold text-[14px] text-ink">
                     {gift.kind === "reward"
                       ? gift.reward
-                      : `${gift.units} points`}
+                      : `${gift.units} ${gift.units === 1 ? "point" : "points"}`}
                   </Text>
                   <Text className="mt-0.5 font-sans text-[11px] text-muted-strong">
                     {gift.direction === "received"
@@ -140,9 +142,13 @@ function SendGiftForm({ onSent }: { onSent: () => void }) {
   const [toMemberCode, setToMemberCode] = useState("");
   const [units, setUnits] = useState("");
   const [message, setMessage] = useState("");
+  const [choice, setChoice] = useState<"reward" | "points">("reward");
   const canReward = Boolean(card && card.rewardsAvailable > 0);
   const canPoints = Boolean(card && card.kind === "Points");
-  const kind: "reward" | "points" = canReward ? "reward" : "points";
+  // What was chosen, if this card allows it; a card with only one of the two
+  // sends that one.
+  const kind: "reward" | "points" =
+    choice === "reward" && canReward ? "reward" : canPoints ? "points" : "reward";
   const unitsNumber = Number(units);
   const ready =
     Boolean(card) &&
@@ -196,6 +202,25 @@ function SendGiftForm({ onSent }: { onSent: () => void }) {
           />
         ))}
       </View>
+      {canReward && canPoints ? (
+        <>
+          <Text className="mt-4 font-sans-extrabold text-[12px] text-ink">
+            What to send
+          </Text>
+          <View className="mt-2 flex-row gap-2">
+            <Chip
+              label="A held reward"
+              selected={kind === "reward"}
+              onPress={() => setChoice("reward")}
+            />
+            <Chip
+              label="Points"
+              selected={kind === "points"}
+              onPress={() => setChoice("points")}
+            />
+          </View>
+        </>
+      ) : null}
       <Text className="mt-4 font-sans-extrabold text-[12px] text-ink">
         Their member code
       </Text>
@@ -232,6 +257,7 @@ function SendGiftForm({ onSent }: { onSent: () => void }) {
       <TextInput
         value={message}
         onChangeText={setMessage}
+        maxLength={200}
         placeholder="Pasalubong from Kapitolyo!"
         placeholderTextColor={colors.muted}
         multiline
