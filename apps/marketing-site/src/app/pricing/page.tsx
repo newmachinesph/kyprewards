@@ -107,7 +107,7 @@ export default function PricingPage() {
           },
           {
             label: "Messaging is billed apart:",
-            text: "in-app and push free on every plan, campaign email with the paid tiers, SMS as credits at ₱0.95 a segment, never bundled into a price.",
+            text: "in-app free on every plan, push with a monthly allowance on every plan, campaign email with the paid tiers, SMS as credits at ₱0.95 a segment, never bundled into a price.",
           },
         ]}
         facts={[

@@ -174,14 +174,14 @@ const outcomes = [
         icon: Megaphone,
         title: "Quiet-hour campaigns",
         detail:
-          "Pick the audience, name the window, see the predicted visits and the cost, set a spend ceiling, send. Then measure the return visits against a normal day.",
-        tier: "Free",
+          "Pick the audience, name the window, see the predicted visits and the cost, set a spend ceiling, send. On Grow, measure the return visits against a normal day.",
+        tier: "Core",
       },
       {
         icon: Smartphone,
         title: "Five channels, priced in the open",
         detail:
-          "In-app and push free on every plan. Email with the paid tiers. Viber and WhatsApp from ₱0.42, being connected and not live yet. SMS as credits at ₱0.95, cost shown first.",
+          "In-app free on every plan, and push with a monthly allowance on every plan. Email with the paid tiers. Viber and WhatsApp from ₱0.42, being connected and not live yet. SMS as credits at ₱0.95, cost shown first.",
         tier: "Free",
       },
       {
