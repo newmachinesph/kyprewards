@@ -276,7 +276,9 @@ export function CatalogSection({ card, shop }: { card: WalletCard; shop: HeldSho
                       ? ` · ${money(item.valueCentavos)} off at the counter`
                       : ""}
                   </p>
-                  {!item.affordable && (
+                  {/* How far off, once some points are in: at zero it only
+                      repeats the price above. */}
+                  {!item.affordable && short < item.cost && (
                     <p className="mt-0.5 text-[11px] font-semibold text-[var(--muted)]">
                       {plural(short || 1, "more point")}
                     </p>

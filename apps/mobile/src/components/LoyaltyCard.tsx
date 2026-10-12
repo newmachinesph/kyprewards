@@ -154,12 +154,16 @@ export function LoyaltyCard({
           >
             {footnote}
           </Text>
-          <Text
-            className="font-sans-semibold text-[11px]"
-            style={{ color: brand.foreground }}
-          >
-            {card.reward}
-          </Text>
+          {/* A points or rewards card's "reward" is its program name, already
+              under the shop name; the web hides the repeat too. */}
+          {card.reward && card.reward !== card.program ? (
+            <Text
+              className="font-sans-semibold text-[11px]"
+              style={{ color: brand.foreground }}
+            >
+              {card.reward}
+            </Text>
+          ) : null}
         </View>
         {earns ? (
           <Text
@@ -199,6 +203,7 @@ export function LoyaltyCard({
           </View>
         ) : null}
         {card.tier ? (
+          <>
           <View className="mt-2 flex-row items-center gap-1.5">
             <Text
               className="rounded-full px-2 py-0.5 font-sans-extrabold text-[9px] uppercase tracking-[1px]"
@@ -209,8 +214,6 @@ export function LoyaltyCard({
             >
               {card.tier.name}
             </Text>
-            {/* One line: the perk is what the tier is for, the rung count is
-                what is left, and the card has no room for a second row. */}
             <Text
               numberOfLines={1}
               className="min-w-0 shrink font-sans-semibold text-[11px]"
@@ -219,9 +222,20 @@ export function LoyaltyCard({
               {card.tier.nextName && card.tier.nextIn !== null
                 ? `${card.tier.basis === "visits" ? `${card.tier.nextIn} visits` : peso(card.tier.nextIn)} to ${card.tier.nextName}`
                 : "Top suki tier"}
-              {card.tier.benefit?.trim() ? ` · ${card.tier.benefit.trim()}` : ""}
             </Text>
           </View>
+          {/* The perk on its own line: on one line with the rung count it was
+              cut off mid-word ("A reserved pastry on your bir..."). */}
+          {card.tier.benefit?.trim() ? (
+            <Text
+              numberOfLines={2}
+              className="mt-1 font-sans-semibold text-[11px]"
+              style={{ color: ink(0.72) }}
+            >
+              {card.tier.benefit.trim()}
+            </Text>
+          ) : null}
+          </>
         ) : null}
         {card.badge ? (
           <Text

@@ -137,7 +137,7 @@ export function TierChip({ card, onCard = false }: { card: WalletCard; onCard?: 
       {/* What the rung is worth, on one line: the shop writes it. */}
       {tier.benefit && (
         <span
-          className={`basis-full truncate ${onCard ? "" : "text-[var(--muted-strong)]"}`}
+          className={`basis-full line-clamp-2 ${onCard ? "" : "text-[var(--muted-strong)]"}`}
           style={onCard ? { color: "color-mix(in oklab, var(--card-ink) var(--card-soft, 72%), transparent)" } : undefined}
         >
           {tier.benefit}

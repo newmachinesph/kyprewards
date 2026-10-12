@@ -166,6 +166,7 @@ export default function CardScreen() {
         <HeldAtShop
           shop={shop}
           cards={wallet.filter((item) => item.businessId === card.businessId)}
+          programId={card.programId}
         />
       ) : (
         heldError

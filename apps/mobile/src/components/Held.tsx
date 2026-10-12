@@ -29,11 +29,18 @@ import {
 export function HeldAtShop({
   shop,
   cards,
+  programId,
 }: {
   shop: HeldShop;
   /** This shop's wallet cards, for the balance a catalog item is short of. */
   cards: WalletCard[];
+  /** The card being read: its catalog only, as the web shows it. Absent on a
+   *  shop with no card, which lists the whole catalog. */
+  programId?: string;
 }) {
+  const catalog = programId
+    ? shop.catalog.filter((item) => item.programId === programId)
+    : shop.catalog;
   const heading = "font-sans-extrabold text-[14px] text-ink";
   const line = "mt-1 font-sans text-[11px] leading-[17px] text-muted";
   return (
@@ -193,10 +200,10 @@ export function HeldAtShop({
         </Panel>
       ) : null}
 
-      {shop.catalog.length > 0 && shop.membershipId ? (
+      {catalog.length > 0 && shop.membershipId ? (
         <Catalog
           membershipId={shop.membershipId}
-          items={shop.catalog}
+          items={catalog}
           cards={cards}
         />
       ) : null}
@@ -280,7 +287,9 @@ function Catalog({
                   ? ` · ${pesoShortFromCentavos(item.valueCentavos)} off your bill`
                   : ""}
               </Text>
-              {!item.affordable ? (
+              {/* How far off, once some points are in: at zero it only
+                  repeats the price above. */}
+              {!item.affordable && short !== item.cost ? (
                 <Text className="mt-1 font-sans-bold text-[11px] text-muted-strong">
                   {short
                     ? `${short} more ${short === 1 ? "point" : "points"}`
