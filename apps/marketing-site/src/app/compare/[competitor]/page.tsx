@@ -27,8 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const comparison = getComparison(competitor);
   if (!comparison) return {};
   return {
-    title: `KYP Rewards vs ${comparison.competitor}`,
-    description: `${comparison.publicPricing}. An honest side-by-side on price, program formats, campaigns and customer control — with ${comparison.competitor}'s own sources linked, and a straight answer on where it is the better fit.`,
+    title: { absolute: `KYP Rewards vs ${comparison.competitor}: Peso Pricing Compared` },
+    description: `${comparison.competitor} (${comparison.publicPricing}) vs KYP Rewards on price, program types, messaging and data. Sources linked.`,
     alternates: { canonical: `/compare/${comparison.slug}` },
     openGraph: {
       title: `KYP Rewards vs ${comparison.competitor}`,
@@ -53,8 +53,11 @@ export default async function ComparisonPage({ params }: Props) {
             "@type": "Article",
             headline: `KYP Rewards vs ${comparison.competitor}`,
             description: comparison.summary,
-            datePublished: "2026-08-25",
-            dateModified: "2026-09-03",
+            datePublished: comparison.published,
+            // Same parse as sitemap.ts, so the two dates never disagree.
+            dateModified: new Date(`${comparison.observed} UTC`)
+              .toISOString()
+              .slice(0, 10),
             inLanguage: "en-PH",
             author: { "@id": organizationId },
             publisher: { "@id": organizationId },
@@ -111,9 +114,10 @@ export default async function ComparisonPage({ params }: Props) {
             <p className="text-sm leading-relaxed text-[var(--muted-strong)]">
               {comparison.competitor} facts come from its own public pages, read
               on {comparison.observed}, and every source is linked at the foot of
-              this page. Offers change — verify current terms with the provider
-              before you decide. Where a KYP Rewards capability arrives with a
-              paid tier, the row says which tier.
+              this page. Offers change, so check current terms with the provider
+              before you decide. KYP Rewards&apos; paid tiers are published but
+              open after the beta; where a capability needs one, the row names
+              the tier.
             </p>
           </div>
           <div className="mt-10 overflow-x-auto rounded-2xl border border-[var(--line)]">

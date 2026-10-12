@@ -58,7 +58,7 @@ export default function ResourcesPage() {
         image="/images/hero-resources.webp"
         eyebrow="The return-visit library"
         title="Practical ideas for becoming someone’s regular place."
-        description="Clear guidance for designing rewards, reaching customers, and earning the kind of trust that lasts longer than a discount."
+        description="How to design rewards people finish, reach customers without spamming them, and earn trust that outlasts a discount."
       >
         <SiteButton href="#guides">Browse the guides</SiteButton>
         <SiteButton href="/partners" tone="outline">
@@ -75,7 +75,7 @@ export default function ResourcesPage() {
             <div>
               <SiteEyebrow>Featured field notes</SiteEyebrow>
               <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
-                Useful before your first campaign.
+                Read these before your first campaign.
               </h2>
               <p className="mt-5 max-w-[38ch] text-sm leading-relaxed text-[var(--muted-strong)]">
                 Written for owners doing the work, not loyalty-program
@@ -133,21 +133,21 @@ export default function ResourcesPage() {
               <BookOpen />
             </span>
             <h2 className="mt-8 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
-              A practical loyalty playbook is coming.
+              A launch playbook is on its way.
             </h2>
           </div>
           <div>
             <p className="max-w-[54ch] text-base leading-relaxed text-[var(--muted-strong)]">
-              We’re assembling the field-tested launch checklist we use with new
-              businesses: reward math, counter setup, staff briefing, customer
-              welcome, and the first thirty days.
+              We’re writing up the launch checklist we already use with new
+              businesses: reward math, counter setup, briefing staff, welcoming
+              customers and the first thirty days.
             </p>
             {/* Was a signup that mailed a playbook nobody has written yet.
                 Asking to be told when it exists is a question, and questions
                 have a page. */}
             <p className="mt-5 max-w-[54ch] text-base leading-relaxed text-[var(--muted-strong)]">
-              Want a copy when it is ready, or the short version now? Ask us and
-              we will walk you through it.
+              Want a copy when it’s ready, or the short version now? Ask, and
+              we’ll walk you through it.
             </p>
             <div className="mt-7">
               <SiteButton href="/contact">Ask for the playbook</SiteButton>
@@ -158,7 +158,7 @@ export default function ResourcesPage() {
 
       <MarketingCta
         title="Put the ideas into practice."
-        description="Start with the core visit-and-reward loop, then add campaigns only when you have something useful to say."
+        description="Start with visits and a reward, and add campaigns only when you have something worth saying."
       />
     </main>
   );

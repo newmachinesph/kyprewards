@@ -129,11 +129,11 @@ export function PricingCards() {
       </div>
       <p className="mx-auto mt-8 max-w-[86ch] text-center text-xs leading-relaxed text-[var(--muted)]">
         Yearly prices are shown per month and billed annually. Prices exclude
-        applicable taxes. Customers are unlimited on every plan including the
-        free one, and branches are unlimited on every plan too — we do not charge
-        you for growing, and we do not charge you for opening shops. Launch is
-        the plan you can join today; the paid tiers are published so you can see
-        where this goes, and they open after beta.
+        applicable taxes. Customers and branches are unlimited on every plan,
+        the free one included. We don&apos;t charge you for growing, and we
+        don&apos;t charge you for opening shops. Launch is the plan you can join
+        today; we publish the paid tiers so you can see where this goes, and
+        they open after beta.
       </p>
       <p className="mx-auto mt-4 max-w-[86ch] rounded-2xl border border-[var(--accent)]/40 bg-[rgb(232_163_61/10%)] px-5 py-4 text-center text-sm leading-relaxed text-[var(--ink)]">
         <strong className="font-extrabold">{foundingOffer.headline}</strong>{" "}

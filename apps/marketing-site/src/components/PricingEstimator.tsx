@@ -215,7 +215,7 @@ export function PricingEstimator() {
               "Viber and WhatsApp budget",
               `₱${estimate.connectedBudget.toLocaleString()}`,
             ],
-            ["Break-even returning visits", estimate.breakEven > 0 ? `${estimate.breakEven} / month` : "—"],
+            ["Break-even returning visits", estimate.breakEven > 0 ? `${estimate.breakEven} / month` : "n/a"],
           ].map(([label, value]) => (
             <div
               key={label}
@@ -234,21 +234,22 @@ export function PricingEstimator() {
               {estimate.plan.name} is not open yet.
             </strong>{" "}
             Start on the free Launch plan today and move up when this tier
-            opens — your programs and customer list come with you.
+            opens. Your programs and customer list come with you.
           </p>
         )}
         {estimate.beyondPublishedPlans && (
           <p className="mt-3 rounded-2xl bg-white/6 p-4 text-xs leading-relaxed text-white/65">
-            You are past the top published plan. This quotes {topPlan.name};
-            talk to us and we will price the rest properly rather than guess.
+            You&apos;re past the top published plan. This quotes{" "}
+            {topPlan.name}; talk to us and we&apos;ll price the rest properly
+            instead of guessing.
           </p>
         )}
         <div className="mt-6 flex items-start gap-3 rounded-2xl bg-white/6 p-4">
           <Phone size={17} className="mt-0.5 shrink-0 text-[var(--accent)]" />
           <p className="text-xs leading-relaxed text-white/65">
-            SMS is ₱0.95 per 160-character segment pay as you go, less if you
-            prepay, on every plan and never part of a subscription. Longer
-            messages use more than one segment.
+            SMS costs ₱0.95 per 160-character segment pay as you go, less if
+            you prepay. It&apos;s the same on every plan and never part of a
+            subscription. Longer messages use more than one segment.
           </p>
         </div>
         <div className="mt-5 space-y-2">

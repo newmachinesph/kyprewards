@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Privacy",
+  title: "Privacy notice",
   description:
     "How KYP Rewards handles customer, business, staff, and website visitor information.",
   alternates: { canonical: "/privacy" },
@@ -35,12 +35,12 @@ const sections = [
   {
     title: "Sharing and service providers",
     paragraphs: [
-      "KYP Rewards does not sell personal information. We may use contracted service providers for hosting, storage, authentication, communications, security, analytics, and payment processing. They may process information only to provide their contracted service.",
+      "KYP Rewards does not sell personal information. We may use contracted service providers for hosting, storage, communications (including delivering sign-in codes), security, analytics, and payment processing. If you choose to sign in with Google or Apple, that company confirms who you are and shares your name and email address with us. They may process information only to provide their contracted service.",
     ],
     bullets: [
       "We may disclose information when legally required or necessary to protect customers, businesses, KYP Rewards, or the public.",
       "A business may receive information a customer intentionally shares after joining its program.",
-      "On the public website only, Google Analytics counts visits — and only after a visitor allows it. Nothing loads before that choice, and the cookies page explains and controls it.",
+      "On the public website only, Google Analytics counts visits, and only after a visitor allows it. Nothing loads before that choice, and the cookies page explains and controls it.",
     ],
   },
   {
@@ -63,7 +63,7 @@ const sections = [
   {
     title: "Your rights under Philippine law",
     paragraphs: [
-      "KYP Rewards operates in the Philippines, and personal information here is protected by the Data Privacy Act of 2012 (Republic Act No. 10173). The Act gives every data subject a specific set of rights, and naming them is more use than a general promise to respect your privacy.",
+      "KYP Rewards operates in the Philippines, and personal information here is protected by the Data Privacy Act of 2012 (Republic Act No. 10173). The Act gives every data subject a specific set of rights, and naming them is more useful than a general promise to respect your privacy.",
     ],
     bullets: [
       "To be informed that your personal data is being collected and processed, and why.",
@@ -79,14 +79,14 @@ const sections = [
     title: "Data Protection Officer",
     paragraphs: [
       "The Act requires a Personal Information Controller to appoint a Data Protection Officer accountable for compliance. Ours is being appointed alongside our incorporation and registration with the National Privacy Commission, and this section will carry their name and a direct address before anything is charged. We would rather name a real person here than a role nobody answers.",
-      "In the meantime privacy questions, access requests, corrections, objections and deletion requests reach the team at support@kyprewards.com, and are handled on the timescales set out on this page — the process is running now, whatever the title on the door.",
+      "In the meantime privacy questions, access requests, corrections, objections and deletion requests reach the team at support@kyprewards.com, and are handled on the timescales set out on this page. The process is running now, whatever the title on the door.",
     ],
   },
   {
     title: "If something goes wrong",
     paragraphs: [
       "Where a security incident affects personal data and is likely to put the people involved at real risk, the Act requires notification within seventy-two hours of us knowing about it. That notice goes to the National Privacy Commission and to those affected. We commit to that timescale.",
-      "A notification will say what happened, what data was involved, what we are doing about it, and what you can do — not merely that an incident occurred.",
+      "A notification will say what happened, what data was involved, what we are doing about it, and what you can do, not merely that an incident occurred.",
     ],
   },
   {
@@ -120,7 +120,7 @@ export default function PrivacyPage() {
       eyebrow="Your information"
       title="Privacy notice"
       summary="KYP Rewards is designed so customers control their personal profile and businesses receive only the information needed to operate a joined loyalty program."
-      effective="4 September 2026"
+      effective="12 October 2026"
       sections={sections}
     />
   );

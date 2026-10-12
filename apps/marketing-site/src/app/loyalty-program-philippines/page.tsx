@@ -24,27 +24,27 @@ import { breadcrumb } from "@/lib/schema";
 const questions = [
   [
     "What is a digital loyalty program?",
-    "A digital loyalty program records eligible visits or purchases and gives customers progress toward a clearly described benefit without relying on a disposable paper card.",
+    "A digital loyalty program records qualifying visits or purchases and shows customers how close they are to a clearly stated reward, with no paper card to lose.",
   ],
   [
     "What should a Philippine small business budget?",
-    "A useful entry point is ₱0–₱499 per month for a single location, and a free tier should not cap how many customers join — a loyalty program exists to accumulate members, so paying per member is paying for your own success. Budget SMS separately because each segment has a real delivery cost; use in-app, push and email first when they fit the message.",
+    "Budget ₱0 to ₱499 a month for a single location, and pick a free tier that doesn't cap how many customers join. A loyalty program exists to collect members, so paying per member means paying for your own success. Budget SMS separately, because each segment has a real delivery cost, and use in-app, push and email first when they fit the message.",
   ],
   [
     "Which program type is best?",
-    "Frequent, predictable visits suit stamps or points. Higher-value services may suit membership, cashback, multipass, or a carefully timed coupon. Gift cards work when customers buy value for someone else.",
+    "It depends on how often people buy: frequent, predictable visits suit stamps or points. Higher-value services may suit a membership, cashback, a multipass or a well-timed coupon, and gift cards work when customers buy value for someone else.",
   ],
   [
     "How quickly can a business launch?",
-    "A QR-based program can be configured in an afternoon. Going live properly also means staff training, final reward terms, a privacy notice, channel consent, and a look at whether the reward margin holds.",
+    "You can set up a QR-based program in an afternoon. Going live properly also takes staff training, final reward terms, a privacy notice, channel consent, and a check that the reward margin holds.",
   ],
   [
     "Can loyalty points expire in the Philippines?",
-    "Generally yes. The Gift Check Act of 2017 (RA 10962) bans expiry on gift checks but carves out checks issued under loyalty, rewards and promotional programs, so a free-earned stamp or point is treated differently from a gift certificate a customer paid for. Set a term you can explain in one sentence, show it on the card before the first stamp, and confirm your own wording with counsel.",
+    "Generally yes. The Gift Check Act of 2017 (RA 10962) bans expiry on gift checks but carves out checks issued under loyalty, rewards and promotional programs, so a stamp or point earned for free is treated differently from a gift certificate a customer paid for. Set a term you can explain in one sentence, show it on the card before the first stamp, and confirm your own wording with your lawyer.",
   ],
   [
     "Does a loyalty signup count as consent to send marketing?",
-    "No. NPC Circular 2023-04 requires consent to be specific and informed, and data collected for one purpose cannot be reused for another without asking again. Joining the program and agreeing to promotions are two questions. Ask them separately, record them separately, and let the customer withdraw either one per channel.",
+    "No. NPC Circular 2023-04 requires consent to be specific and informed, and data collected for one purpose can't be reused for another without asking again. Joining the program and agreeing to promotions are two separate questions, so ask them separately, record them separately, and let the customer withdraw either one per channel.",
   ],
 ];
 
@@ -54,9 +54,9 @@ export const metadata: Metadata = {
     "What a loyalty program costs in the Philippines, which mechanic fits your shop, what the Data Privacy Act and DTI require, and whether points can expire.",
   alternates: { canonical: "/loyalty-program-philippines" },
   openGraph: {
-    title: "Digital Loyalty Programs in the Philippines — the practical guide",
+    title: "Digital Loyalty Programs in the Philippines: a practical guide",
     description:
-      "What it costs, which mechanic fits your shop, and what the Data Privacy Act and DTI actually require.",
+      "What it costs, which mechanic fits your shop, and what the Data Privacy Act and the DTI actually require.",
     url: "/loyalty-program-philippines",
     locale: "en_PH",
     type: "article",
@@ -106,8 +106,8 @@ export default function LoyaltyPhilippinesPage() {
         seam
         image="/images/hero-about.webp"
         eyebrow="Digital loyalty program Philippines"
-        title="A loyalty program people can use — and a business can afford."
-        description="For Philippine cafés, salons, restaurants, and retailers: start with a simple return-visit loop, choose channels by value, and keep every reward and message economically visible."
+        title="A loyalty program people will use and a shop can afford."
+        description="For Philippine cafés, salons, restaurants and retailers: start with a simple reason to come back, pick channels by what they cost, and see the price of every reward and message."
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="/pricing" tone="outline">
@@ -117,10 +117,10 @@ export default function LoyaltyPhilippinesPage() {
       <AnswerBlock
         image="/images/answer-guide.webp"
         question="What is a digital loyalty program, and do Philippine businesses need an app for one?"
-        answer="A digital loyalty program replaces the paper punch card with a record the customer carries on their phone. In the Philippines it usually works through a QR code and a web app, so neither the shop nor the customer installs anything from an app store. The business keeps its existing register; the loyalty record simply sits alongside it."
+        answer="A digital loyalty program replaces the paper punch card with a record the customer carries on their phone, and no, it doesn't need an app. In the Philippines it usually runs on a QR code and a web app, so neither the shop nor the customer installs anything from an app store. The business keeps its existing register, and the loyalty record sits next to it."
         facts={[
           { label: "App store install", value: "Not required" },
-          { label: "Typical entry cost", value: "₱0 – ₱499 / month" },
+          { label: "Typical entry cost", value: "₱0 to ₱499 / month" },
           { label: "Per-customer fee", value: "None, on any plan" },
           { label: "Common formats", value: "Stamps, points, discounts" },
           { label: "Privacy law", value: "Data Privacy Act of 2012" },
@@ -135,15 +135,13 @@ export default function LoyaltyPhilippinesPage() {
           <div>
             <h2 className="text-xl font-extrabold">The short answer</h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
-              The best digital loyalty program is easy to explain in one
-              sentence and takes seconds at checkout. It gives customers control
-              of their contact choices, and it costs less than the profit from
-              the return visits it brings in. KYP Rewards starts at ₱0 with no
-              limit on customers. It rises to ₱499 a month for an established
-              shop, within a hundred pesos of the cheapest paid tool with
-              published peso pricing in this market. SMS is metered separately,
-              because it is the one channel that costs real money every time it
-              is used.
+              The best digital loyalty program takes one sentence to explain
+              and seconds at checkout. Customers control their own contact
+              choices, and it costs less than the profit from the return visits
+              it brings in. KYP Rewards starts at ₱0 with no limit on customers
+              and rises to ₱499 a month for an established shop, with no
+              member count on any plan. SMS is metered separately because it’s
+              the one channel that costs real money every time you use it.
             </p>
           </div>
         </div>
@@ -155,39 +153,39 @@ export default function LoyaltyPhilippinesPage() {
             <div>
               <SiteEyebrow>Choose the mechanic</SiteEyebrow>
               <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-none tracking-[-0.03em]">
-                Match the reward to the natural buying rhythm.
+                Match the reward to how often people buy.
               </h2>
             </div>
             <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
               {[
                 [
                   "Stamp cards",
-                  "Simple, frequent visits such as coffee, milk tea or bakery purchases. Free on every plan.",
+                  "Quick, frequent visits like coffee, milk tea or a bakery run. Free on every plan.",
                 ],
                 [
                   "Points and cashback",
-                  "Mixed baskets where spend varies; earn by visit, item or peso, with future credit",
+                  "Mixed baskets where spend varies; earn by visit, item or peso, then spend the credit later",
                 ],
                 [
                   "Discounts and tiered pricing",
-                  "Regulars who value an always-on benefit, or a better rate as they climb",
+                  "Regulars who like a benefit that's always on, or a better rate as they climb",
                 ],
-                ["Coupons", "Specific actions, products, or time windows"],
+                ["Coupons", "A specific action, product or time window"],
                 [
                   "Memberships",
-                  "Recurring benefits and VIP access, renewed monthly and paid at your counter",
+                  "Recurring perks and VIP access, renewed monthly and paid at your counter",
                 ],
                 [
                   "Reward catalog",
-                  "Let customers choose from milestones, perks, products or services",
+                  "Customers pick from milestones, perks, products or services",
                 ],
                 [
                   "Prepaid multipass",
-                  "Prepaid classes, treatments, meals, or services",
+                  "Classes, treatments, meals or services paid for upfront",
                 ],
                 [
                   "Gift cards",
-                  "One customer purchasing value for another — kept apart from free reward vouchers",
+                  "One customer buying value for another, kept apart from free reward vouchers",
                 ],
               ].map(([title, detail]) => (
                 <article key={title} className="bg-[var(--surface)] p-6">
@@ -211,7 +209,7 @@ export default function LoyaltyPhilippinesPage() {
           <SiteEyebrow inverse>Channel strategy</SiteEyebrow>
           <div className="mt-5 grid gap-12 lg:grid-cols-[0.7fr_1.3fr]">
             <h2 className="max-w-[12ch] text-4xl font-extrabold leading-none tracking-[-0.03em] sm:text-5xl">
-              Use the least expensive channel that still serves the moment.
+              Use the cheapest channel that still does the job.
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {[
@@ -219,31 +217,31 @@ export default function LoyaltyPhilippinesPage() {
                   icon: MessageSquareText,
                   title: "In-app inbox",
                   detail:
-                    "Lands in the wallet where their card already is. Unlimited on every plan, including the free one, at no charge.",
+                    "Lands in the wallet, right next to their card. Unlimited and free on every plan, the free one included.",
                 },
                 {
                   icon: Smartphone,
                   title: "Web push",
                   detail:
-                    "Reaches someone who has closed the wallet. 1,000 a month free, then ₱8 per 1,000.",
+                    "Reaches someone who already closed the wallet. 1,000 a month free, then ₱8 per 1,000.",
                 },
                 {
                   icon: BarChart3,
                   title: "Email",
                   detail:
-                    "Longer stories and summaries. Campaign allowance on the paid tiers, then ₱25 per 1,000.",
+                    "For longer stories and summaries. A campaign allowance on the paid tiers, then ₱25 per 1,000.",
                 },
                 {
                   icon: QrCode,
                   title: "SMS",
                   detail:
-                    "High-attention moments. Add-on credits at ₱0.95 per segment, priced before you send.",
+                    "For moments that need attention now. Add-on credits at ₱0.95 per segment, priced before you send.",
                 },
                 {
                   icon: MessageCircle,
                   title: "Messaging apps",
                   detail:
-                    "Viber and WhatsApp, chosen per customer. From ₱0.42 a message. Being connected and not live yet.",
+                    "Viber or WhatsApp, chosen per customer, from ₱0.42 a message. We're connecting them now; not live yet.",
                 },
               ].map((item) => {
                 const Icon = item.icon;
@@ -270,12 +268,12 @@ export default function LoyaltyPhilippinesPage() {
           <div>
             <SiteEyebrow>Selection checklist</SiteEyebrow>
             <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.03em]">
-              Evaluate the whole operating system.
+              Judge the whole system, not the card.
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-[var(--muted-strong)]">
-              A polished customer card is only one surface. Staff speed,
-              customer rights, delivery economics, and platform controls decide
-              whether the program stays healthy.
+              A good-looking customer card is one piece of it. Whether the
+              program lasts comes down to staff speed, customer rights, what
+              each message costs to deliver, and the controls behind it.
             </p>
           </div>
           <div className="space-y-3">
@@ -284,25 +282,25 @@ export default function LoyaltyPhilippinesPage() {
                 icon: Store,
                 title: "Counter fit",
                 detail:
-                  "Can staff join, earn, redeem, reverse, and recover from poor connectivity without confusion?",
+                  "Can staff join, earn, redeem, reverse and ride out a bad connection without getting confused?",
               },
               {
                 icon: ShieldCheck,
                 title: "Customer control",
                 detail:
-                  "Can a person see what is shared, change each channel, leave one program, export data, or request deletion?",
+                  "Can a customer see what's shared, change each channel, leave one program, export their data or ask for deletion?",
               },
               {
                 icon: BarChart3,
-                title: "Incremental measurement",
+                title: "Real measurement",
                 detail:
-                  "Can the owner compare campaign cost with attributable visits, gross profit, and retention?",
+                  "Can the owner compare what a campaign cost against the visits, gross profit and retention it brought?",
               },
               {
                 icon: Smartphone,
                 title: "No-download access",
                 detail:
-                  "Can a customer participate immediately and save the experience to a home screen later?",
+                  "Can a customer join on the spot and save the card to their home screen later?",
               },
             ].map((item) => {
               const Icon = item.icon;
@@ -335,8 +333,8 @@ export default function LoyaltyPhilippinesPage() {
               Three Philippine rules worth knowing before you launch.
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-[var(--muted-strong)]">
-              None of this is legal advice, and we are not your counsel. It is
-              the short version of what a careful owner asks about — set out
+              None of this is legal advice, and we’re not your lawyer. It’s the
+              short version of what a careful owner asks about, written down
               here because most loyalty vendors say nothing at all.
             </p>
           </div>
@@ -346,20 +344,20 @@ export default function LoyaltyPhilippinesPage() {
               {
                 tag: "RA 10173",
                 title: "Consent is per purpose, not per signup",
-                body: "The Data Privacy Act governs every customer name, number and birthday you collect. NPC Circular 2023-04 requires consent to be freely given, specific, informed and unambiguous — and data gathered for one purpose cannot be reused for another without asking again. Joining a stamp card is consent to run the stamp card. Marketing is a separate question, asked separately, withdrawable per channel.",
-                foot: "In KYP Rewards this is not a setting you can switch off: service and promotional consent are recorded apart on every plan, and campaign audiences are filtered against that record before a send.",
+                body: "The Data Privacy Act covers every customer name, number and birthday you collect. NPC Circular 2023-04 requires consent to be freely given, specific, informed and unambiguous, and data gathered for one purpose can't be reused for another without asking again. Joining a stamp card is consent to run the stamp card. Marketing is a separate question, asked separately, and the customer can withdraw it per channel.",
+                foot: "In KYP Rewards you can't switch this off: service and promotional consent are recorded apart on every plan, and campaign audiences are filtered against that record before a send.",
               },
               {
                 tag: "DAO 02 s.2002",
                 title: "A reward scheme can count as a sales promotion",
-                body: "DTI defines a sales promotion broadly, and reward and loyalty schemes sit inside that definition alongside raffles and premiums — which on a plain reading can reach a collect-ten-get-one card. We are aware of no enforcement action against a small shop running a stamp card, and the requirement is widely unobserved at that scale.",
-                foot: "Worth one question to your counsel before launch rather than after. We flag it because staying quiet about it is the easier thing to do, not the more useful one.",
+                body: "DTI defines a sales promotion broadly, and reward and loyalty schemes sit inside that definition next to raffles and premiums, so a plain reading can reach a collect-ten-get-one card. We know of no enforcement action against a small shop running a stamp card, and at that scale the requirement is widely ignored.",
+                foot: "Worth one question to your lawyer before launch instead of after. We flag it because staying quiet would be easier for us and less useful to you.",
               },
               {
                 tag: "RA 10962",
                 title: "Points can expire. Gift checks cannot",
-                body: "The Gift Check Act bans expiry dates on gift checks and requires unused balances to be honored — then carves out checks issued under loyalty, rewards and promotional programs. So a stamp earned free in your program may carry an expiry, while a gift certificate a customer paid pesos for is a different instrument under different rules.",
-                foot: "The two are kept apart in the product, and whatever expiry you set is shown on the customer's card before they collect their first stamp.",
+                body: "The Gift Check Act bans expiry dates on gift checks and requires unused balances to be honored, then carves out checks issued under loyalty, rewards and promotional programs. So a stamp earned free in your program may carry an expiry, while a gift certificate a customer paid pesos for is a different instrument under different rules.",
+                foot: "The product keeps the two apart, and whatever expiry you set shows on the customer's card before they collect their first stamp.",
               },
             ].map((item) => (
               <article
@@ -395,7 +393,7 @@ export default function LoyaltyPhilippinesPage() {
               ],
               [
                 "98.6%",
-                "of Filipino internet users own a smartphone — the card is already in their pocket",
+                "of Filipino internet users own a smartphone, so the card is already in their pocket",
               ],
               [
                 "8h 52m",
@@ -403,7 +401,7 @@ export default function LoyaltyPhilippinesPage() {
               ],
               [
                 "~94M",
-                "GCash accounts — Filipinos already trust a phone with money",
+                "GCash accounts: Filipinos already trust a phone with money",
               ],
             ].map(([stat, label]) => (
               <div key={label} className="bg-[var(--ink)] p-6">
@@ -418,8 +416,7 @@ export default function LoyaltyPhilippinesPage() {
           </div>
           <p className="mt-6 text-[11px] leading-relaxed text-white/55">
             Sources: DTI MSME statistics; DataReportal, Digital Philippines. A
-            paper punch card asks a customer to carry something extra. A phone
-            does not.
+            paper punch card is one more thing to carry, and a phone isn’t.
           </p>
         </div>
       </section>
@@ -455,8 +452,8 @@ export default function LoyaltyPhilippinesPage() {
         </div>
       </section>
       <MarketingCta
-        title="Build loyalty around profitable returns."
-        description="Start on the free plan with unlimited customers, then choose a tier and channel mix that your returning visits can comfortably pay back."
+        title="Build loyalty around return visits that pay."
+        description="Start on the free plan with unlimited customers, then pick the tier and channels your return visits can easily pay for."
       />
     </main>
   );

@@ -35,13 +35,13 @@ const STEPS = [
   {
     title: "Scan the code on the counter",
     detail:
-      "A poster or a card by the till. It opens in the browser they already have — no app store, no download, nothing to install.",
+      "A poster or a card by the till. It opens in the browser they already have: no app store, no download, nothing to install.",
     icon: ScanLine,
   },
   {
     title: "Join, and a welcome stamp is waiting",
     detail:
-      "One mobile number. A pending stamp lands on the card straight away — they can see it before they have bought anything. It becomes real when staff confirm their first visit, so a photo of the poster earns nobody a thing.",
+      "One mobile number, and a pending stamp lands on the card straight away, so they see it before they've bought anything. It becomes real when staff confirm their first visit, which means a photo of the poster earns nobody a thing.",
     icon: Stamp,
   },
   {
@@ -53,7 +53,7 @@ const STEPS = [
   {
     title: "Show the code, collect the reward",
     detail:
-      "Turn the card over for a scannable member code. The same code works at every business they have joined, and the card says when a reward is ready — and asks them to approve it before staff release it.",
+      "Turn the card over for a scannable member code. The same code works at every business they've joined. When a reward is ready, the card says so and asks them to approve it before staff release it.",
     icon: QrCode,
   },
 ] as const;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandMark } from "@kyprewards/ui";
 import { ArrowUpRight } from "lucide-react";
+import { comparisons } from "@/lib/comparisons";
 import { businessAppUrl } from "@/lib/site";
 
 const groups = [
@@ -31,11 +32,9 @@ const groups = [
     title: "Compare",
     links: [
       ["All comparisons", "/compare"],
-      ["vs ZAP", "/compare/zap"],
-      ["vs Qashier Treats", "/compare/qashier"],
-      ["vs StoreHub", "/compare/storehub"],
-      ["vs Suki Cards", "/compare/suki-cards"],
-      ["vs GoBalik", "/compare/gobalik"],
+      // From the comparison data, so a competitor dropped there is never a
+      // dead link here.
+      ...comparisons.map((entry) => [`vs ${entry.competitor}`, `/compare/${entry.slug}`]),
       ["Complete FAQ", "/faq"],
     ],
   },
@@ -79,7 +78,7 @@ export function MarketingFooter() {
         <div>
           <BrandMark />
           <p className="mt-5 max-w-[31ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-            The simple loyalty layer for businesses people love returning to.
+            A simple loyalty program for the shops people keep coming back to.
           </p>
           {/* Two facts the site already states, as pills: what it costs and
               what it needs. */}

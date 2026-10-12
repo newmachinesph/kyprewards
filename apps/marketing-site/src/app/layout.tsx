@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import { AnalyticsConsent } from "@kyprewards/ui/analytics";
+import { plans } from "@kyprewards/ui/plans";
 import { MarketingFooter } from "@/components/MarketingFooter";
 import { MarketingHeader } from "@/components/MarketingHeader";
 import { StructuredData } from "@/components/StructuredData";
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: "KYP Rewards",
   title: {
-    default: "KYP Rewards — Digital Loyalty for Philippine Shops",
+    default: "KYP Rewards: Digital Loyalty for Philippine Shops",
     template: "%s | KYP Rewards",
   },
   description:
@@ -53,7 +54,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "KYP Rewards — Loyalty, made local",
+    title: "KYP Rewards: Loyalty, made local",
     description:
       "Turn one visit into the next. A digital loyalty program Philippine shops can start free, with unlimited customers and nothing to install.",
     url: siteUrl,
@@ -71,7 +72,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "KYP Rewards — Loyalty, made local",
+    title: "KYP Rewards: Loyalty, made local",
     description:
       "Turn one visit into the next. Free to start, unlimited customers, nothing to install.",
     images: ["/opengraph-image"],
@@ -102,7 +103,7 @@ export default function RootLayout({
               // The unspaced spelling stays only as an alternate: people do
               // search it, and an alternateName is what that field is for.
               // Everything a reader sees says "KYP Rewards".
-              alternateName: ["KYP Rewards", "KYP Rewards", "KYP"],
+              alternateName: ["KYPRewards", "KYP"],
               url: siteUrl,
               description:
                 "A digital loyalty platform designed for Philippine local businesses.",
@@ -166,14 +167,27 @@ export default function RootLayout({
               operatingSystem: "Web",
               description:
                 "Digital loyalty software for Philippine shops: a customer wallet that runs in the browser, a staff counter, campaigns, analytics and privacy controls.",
-              offers: {
+              // Every tier from the pricing data, so search and answer
+              // engines quote the same four prices the pricing page shows.
+              // Tiers announced but not yet sellable are pre-orders.
+              offers: plans.map((plan) => ({
                 "@type": "Offer",
-                name: "Launch",
-                price: 0,
+                name: plan.name,
+                price: plan.monthly,
                 priceCurrency: "PHP",
-                availability: "https://schema.org/InStock",
+                ...(plan.monthly > 0 && {
+                  priceSpecification: {
+                    "@type": "UnitPriceSpecification",
+                    price: plan.monthly,
+                    priceCurrency: "PHP",
+                    unitCode: "MON",
+                  },
+                }),
+                availability: plan.available
+                  ? "https://schema.org/InStock"
+                  : "https://schema.org/PreOrder",
                 url: `${siteUrl}/pricing`,
-              },
+              })),
               provider: { "@id": `${siteUrl}/#organization` },
             },
           ]}

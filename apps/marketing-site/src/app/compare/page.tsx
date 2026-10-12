@@ -14,8 +14,9 @@ import { breadcrumb, itemList, webPage } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "Compare Loyalty Platforms in the Philippines",
-  description:
-    "Honest side-by-side comparisons against every Philippine loyalty platform with peso pricing — ZAP, Qashier, StoreHub, Suki Cards, GoBalik. Sources linked.",
+  description: `Peso-priced loyalty platforms in the Philippines, side by side: ${comparisons
+    .map((comparison) => comparison.competitor)
+    .join(", ")}. Sources linked.`,
   alternates: { canonical: "/compare" },
 };
 
@@ -56,7 +57,7 @@ export default function ComparePage() {
       <AnswerBlock
         image="/images/answer-compare.webp"
         question="Which loyalty platforms do Philippine businesses compare?"
-        answer="The realistic shortlist is the platforms that quote in pesos: ZAP, the established local incumbent at ₱4,800 a month above a free tier; Qashier Treats at ₱590 a month but only on top of a Qashier POS subscription; StoreHub from ₱2,249 a month with loyalty bundled into a full POS; Suki Cards on annual peso pricing with Apple and Google Wallet passes; and GoBalik at ₱399 for a stamp card and little else. KYP Rewards is the one that costs nothing to start, replaces no part of your checkout, and publishes what each message costs to send."
+        answer="The ones that quote in pesos. GoBalik has a free Starter plan and paid plans at ₱279 and ₱499 a month, and ScalePlus Rewards is free up to 50 members before it starts at ₱1,490. ZAP’s Loyalty Express is free for a limited time, with Premium at ₱4,800 a month. Qashier Treats costs ₱590 a month, but only on top of a Qashier POS plan from ₱1,790, while StoreHub folds loyalty into a POS from ₱2,249. KYP Rewards has a free plan with no member cap and no end date, runs beside the register you already have, and publishes what each message costs before you send it."
         facts={comparisons.map((comparison) => ({
           label: comparison.competitor,
           value: comparison.publicPricing,
@@ -112,7 +113,7 @@ export default function ComparePage() {
             date they were read and a link to the source on each page. We compare
             against platforms that publish Philippine peso pricing: a monthly
             figure in dollars is not a like-for-like number for a shop that earns
-            and banks in pesos. Offers change — verify current terms with the
+            and banks in pesos. Offers change, so check current terms with the
             provider before deciding.
           </p>
         </div>

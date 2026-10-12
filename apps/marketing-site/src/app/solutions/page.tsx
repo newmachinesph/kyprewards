@@ -22,12 +22,12 @@ import { breadcrumb, itemList } from "@/lib/schema";
 export const metadata: Metadata = {
   title: "Loyalty Programs by Industry",
   description:
-    "Loyalty shaped to how customers come back — daily for cafés, milk tea and sari-sari stores, every six weeks for salons, in between for restaurants and retail.",
+    "Loyalty shaped to how customers come back: daily for cafés, milk tea and sari-sari stores, every six weeks for salons, in between for restaurants and retail.",
   alternates: { canonical: "/solutions" },
   openGraph: {
-    title: "Loyalty should feel native to the visit",
+    title: "Loyalty that fits how your customers visit",
     description:
-      "Cafés, salons, restaurants and independent retail do not share a rhythm. The reward should not either.",
+      "Cafés, salons, restaurants and independent retail don't share a rhythm, so the reward shouldn't either.",
     url: "/solutions",
     locale: "en_PH",
     type: "article",
@@ -54,9 +54,9 @@ export default function SolutionsPage() {
       />
       <PageHero
         image="/images/hero-solutions.webp"
-        eyebrow="Solutions by business rhythm"
-        title="Loyalty should feel native to the visit."
-        description="A morning coffee, an afternoon milk tea, a six-week appointment, a dinner reservation, a sari-sari run and a considered purchase do not follow the same cadence. KYP Rewards adapts to each one."
+        eyebrow="By how often customers return"
+        title="Loyalty that fits the way people visit."
+        description="A morning coffee, an afternoon milk tea, a six-week appointment, a dinner reservation, a sari-sari run and a purchase someone plans for weeks don't follow the same schedule. KYP Rewards fits each one."
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="/pricing" tone="outline">
@@ -73,8 +73,8 @@ export default function SolutionsPage() {
                 Start with how people already come back.
               </h2>
               <p className="mt-5 max-w-[40ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                Then use a reward to make that natural return more visible,
-                memorable, and consistent.
+                Then use a reward so that return visit gets noticed,
+                remembered and repeated.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -126,7 +126,7 @@ export default function SolutionsPage() {
           <div>
             <SiteEyebrow>One platform underneath</SiteEyebrow>
             <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
-              The shape changes. The fundamentals do not.
+              The shape changes. The basics don’t.
             </h2>
           </div>
           <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
@@ -151,8 +151,8 @@ export default function SolutionsPage() {
       </section>
 
       <MarketingCta
-        title="Build around your real customer rhythm."
-        description="We’ll help you choose a visit target, reward, and launch plan that fit the way your business already works."
+        title="Build around how your customers actually visit."
+        description="We’ll help you pick a visit target, a reward and a launch plan that fit how your business already works."
       />
     </main>
   );

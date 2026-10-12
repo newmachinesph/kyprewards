@@ -26,11 +26,10 @@ export default function ErrorPage({
           The page lost its place
         </p>
         <h1 className="mt-3 text-4xl font-extrabold tracking-[-0.03em]">
-          This view did not load.
+          This page didn’t load.
         </h1>
         <p className="mx-auto mt-4 max-w-[42ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-          The rest of KYP Rewards is still available. Try loading this page
-          again.
+          The rest of the site still works. Try loading this page again.
         </p>
         <button
           type="button"

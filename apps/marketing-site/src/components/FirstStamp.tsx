@@ -27,12 +27,12 @@ const STEPS = [
   {
     icon: QrCode,
     label: "Scan the shop code",
-    body: "On the counter, on the receipt, on a sticker by the till, in your Instagram bio. No app to download — it opens in the browser they already have.",
+    body: "On the counter, on the receipt, on a sticker by the till, in your Instagram bio. No app to download; it opens in the browser they already have.",
   },
   {
     icon: Smartphone,
     label: "Join with a number",
-    body: "One mobile number, once. A welcome stamp lands on their card straight away, marked pending — they can see it waiting before they have bought a thing.",
+    body: "One mobile number, once. A welcome stamp lands on their card straight away, marked pending, so they can see it waiting before they've bought a thing.",
   },
   {
     icon: ScanLine,
@@ -60,9 +60,9 @@ export function FirstStamp() {
           <p className="max-w-[62ch] text-base leading-relaxed text-[var(--muted-strong)] lg:text-lg">
             Most loyalty programs open with a form. A queue builds, the offer
             stops being worth it, and the customer says no thanks. KYP Rewards
-            turns that around: a welcome stamp is already waiting on their card
-            the moment they join, and the first visit turns it into a real one
-            — with your staff, in your shop, in seconds.
+            flips that: a welcome stamp is already waiting on their card the
+            moment they join, and the first visit makes it real, with your
+            staff, in your shop, in seconds.
           </p>
         </div>
 
@@ -94,7 +94,7 @@ export function FirstStamp() {
                   The shop code brings people in
                 </dt>
                 <dd className="mt-2 text-sm leading-relaxed text-[var(--muted-strong)]">
-                  It is public, and it grants nothing of value — only a
+                  It&apos;s public, and it grants nothing of value: just a
                   membership and a <em>pending</em> welcome stamp. Photograph
                   it, share it, scan it on ten phones: every one of those
                   stamps is worth nothing until a person walks into your shop

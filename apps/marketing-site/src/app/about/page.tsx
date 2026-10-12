@@ -19,10 +19,10 @@ import { breadcrumb, organizationId } from "@/lib/schema";
 export const metadata: Metadata = {
   title: "About KYP Rewards",
   description:
-    "Why we are building a loyalty platform for Philippine shops, what guides it, and exactly where we are today: open beta, free, onboarding by application.",
+    "Why we're building a loyalty platform for Philippine shops, what guides it, and exactly where we are today: open beta, free, onboarding by application.",
   alternates: { canonical: "/about" },
   openGraph: {
-    title: "About KYP Rewards — local loyalty, built in Manila",
+    title: "About KYP Rewards: local loyalty, built in Manila",
     description:
       "Why this exists, what guides it, and exactly where we are today.",
     url: "/about",
@@ -52,7 +52,7 @@ export default function AboutPage() {
         image="/images/hero-about.webp"
         eyebrow="Why KYP Rewards exists"
         title="Local loyalty deserves better than another discount engine."
-        description="Independent businesses already create real relationships. KYP Rewards gives those relationships a simple digital memory without making them feel transactional."
+        description="Independent shops already have real relationships with their customers. KYP Rewards gives those relationships a simple digital memory without turning them into transactions."
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="/product" tone="outline">
@@ -70,18 +70,18 @@ export default function AboutPage() {
           </div>
           <div className="space-y-8 text-lg leading-8 text-[var(--muted-strong)]">
             <p>
-              A regular does not return because a database calls them active.
-              They return because the coffee is right, the service feels
-              familiar, and someone remembers what they like.
+              A regular doesn’t come back because a database calls them active.
+              They come back because the coffee is right, the service feels
+              familiar and someone remembers what they like.
             </p>
             <p>
-              Technology should protect that feeling, not crowd it out. That is
-              why KYP Rewards begins with one fast QR moment and keeps the rest
-              quiet: visible progress for the customer, useful context for
-              staff, and clear decisions for the owner.
+              Software should protect that feeling, not crowd it out. So KYP
+              Rewards starts with one quick QR scan and keeps everything else in
+              the background: progress the customer can see, useful context for
+              staff, and clear numbers the owner can decide with.
             </p>
             <p>
-              We are building for the shop on the corner, the studio upstairs,
+              We’re building for the shop on the corner, the studio upstairs,
               the restaurant worth crossing town for, and every team that earns
               its repeat business one visit at a time.
             </p>
@@ -97,22 +97,22 @@ export default function AboutPage() {
               {
                 icon: Store,
                 title: "Local first",
-                text: "A feature earns its place when it helps a real owner, staff member, or returning customer.",
+                text: "A feature earns its place when it helps a real owner, staff member or returning customer.",
               },
               {
                 icon: HeartHandshake,
                 title: "Useful over loud",
-                text: "Good loyalty feels like recognition. Campaign volume is never the measure of success.",
+                text: "Good loyalty feels like recognition. We never measure success by how many campaigns go out.",
               },
               {
                 icon: ShieldCheck,
                 title: "Trust is product work",
-                text: "Consent, clear roles, and minimal data sharing belong in the workflow — not a policy footer.",
+                text: "Consent, clear roles and minimal data sharing belong in the workflow, not in a policy footer.",
               },
               {
                 icon: Users,
                 title: "Simple enough for the rush",
-                text: "If a counter action needs a manual, the interaction is not finished.",
+                text: "If a counter action needs a manual, we haven't finished designing it.",
               },
             ].map((item, index) => {
               const Icon = item.icon;
@@ -167,8 +167,8 @@ export default function AboutPage() {
             </div>
             <div className="mt-10 border-t border-[var(--line)] pt-7">
               <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                We are beginning with the businesses where loyalty is already
-                visible: cafés, bakeries, salons, wellness studios, restaurants,
+                We’re starting with the businesses where loyalty is already easy
+                to see: cafés, bakeries, salons, wellness studios, restaurants
                 and independent retail. The platform will grow by staying close
                 to how those teams actually work.
               </p>
@@ -186,34 +186,34 @@ export default function AboutPage() {
                 Early, and saying so.
               </h2>
               <p className="mt-5 max-w-[40ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                You are going to ask, so here it is before you have to.
+                You’re going to ask, so here it is before you have to.
               </p>
             </div>
             <div className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
               {[
                 {
                   q: "Is it built?",
-                  a: "Yes. The counter flow, the customer wallet, campaigns, analytics and the privacy controls all run end to end. This is not a landing page in front of a waitlist.",
+                  a: "Yes. The counter flow, the customer wallet, campaigns, analytics and the privacy controls all run end to end. This isn't a landing page in front of a waitlist.",
                 },
                 {
                   q: "Do you have customers?",
-                  a: "Not yet. We are in open beta and onboarding founding merchants by application, which is why there are no logos or testimonials on this site. When we have a shop worth writing about, we will write about that shop — not a stock photo.",
+                  a: "Not yet. We're in open beta, taking founding merchants by application, which is why this site has no logos or testimonials. When we have a shop worth writing about, we'll write about that shop, not a stock photo.",
                 },
                 {
                   q: "What does it cost during beta?",
-                  a: "Nothing. Everyone is on the free Launch plan: no card, no trial clock, unlimited customers and unlimited branches. The paid tiers are published so you can see where this goes, and they open after beta.",
+                  a: "Nothing. Everyone is on the free Launch plan: no card, no trial clock, unlimited customers and unlimited branches. The paid tiers are published so you can see where this is going, and they open after the beta.",
                 },
                 {
                   q: "Who runs it?",
-                  a: "A small team in Manila. We read every application ourselves and set up your first program with you, which is the honest advantage of being this early — you will not be talking to a queue.",
+                  a: "A small team in Manila. We read every application ourselves and set up your first program with you. That's the honest upside of being this early: you won't be talking to a queue.",
                 },
                 {
                   q: "Where is the roadmap?",
-                  a: "At /roadmap, generated from the same data as the pricing table so it cannot drift: what runs today on the free plan, what opens with each paid tier, and what waits until a merchant asks. No dates — a date we miss costs you trust.",
+                  a: "At /roadmap. It's built from the same data as the pricing table, so it can't drift, and it shows what runs today on the free plan, what opens with each paid tier, and what waits until a merchant asks. It has no dates, because a missed date costs us your trust.",
                 },
                 {
                   q: "What happens to my customer list?",
-                  a: "It stays yours. Export it on any plan, including the free one, on any day, for any reason. There is no version of this where your member list is what keeps you subscribed.",
+                  a: "It stays yours. Export it on any plan, including the free one, on any day, for any reason. There's no version of this where your member list is what keeps you subscribed.",
                 },
               ].map((item) => (
                 <article key={item.q} className="py-6">
@@ -232,7 +232,7 @@ export default function AboutPage() {
 
       <MarketingCta
         title="Help shape a better loyalty tool."
-        description="If you run a local business, we want to understand the moments your current tools miss. Founding merchants get a say in what gets built next."
+        description="If you run a local business, tell us where your current tools fall short. Founding merchants get a say in what gets built next."
       />
     </main>
   );

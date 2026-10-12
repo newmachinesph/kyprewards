@@ -65,7 +65,7 @@ export default function OpenGraphImage() {
           <img src={SEAL_DATA_URI} width={56} height={56} alt="" />
           <div style={{ display: "flex", gap: 8 }}>
             <span style={{ color: "#8f5510" }}>KYP</span>
-            <span>Stamping</span>
+            <span>Rewards</span>
           </div>
         </div>
         <div

@@ -70,19 +70,20 @@ const sections = [
     ],
     bullets: [
       "Consent is per channel and per person. A customer who accepts email has not accepted SMS.",
-      "Transactional messages — a code, a receipt, a reward notice — are not marketing and are not suppressed by a marketing opt-out.",
+      "Transactional messages (a code, a receipt, a reward notice) are not marketing and are not suppressed by a marketing opt-out.",
       "You are responsible for the content you send and for complying with the rules on unsolicited commercial messages.",
-      "SMS is charged per segment from credits you buy; no plan includes SMS. Sending stops at your credit balance and at any spend ceiling you set.",
+      "Once billing opens, SMS is charged per segment from credits you buy; no plan includes SMS. Sending stops at your credit balance and at any spend ceiling you set.",
     ],
   },
   {
     title: "Fees, plans and the free tier",
     paragraphs: [
+      "During the open beta nothing is charged. Paid plans, SMS credits and paid add-ons can't be bought yet, and we will give notice before any of them opens. The rest of this section describes how fees work from then on.",
       "Plan prices, allowances and inclusions are published on the pricing page and may change with reasonable advance notice. Paid plans are billed for the selected period plus applicable taxes.",
-      "The free plan is offered without charge and without a customer limit. It is not a perpetual commitment: we may change what it includes, and if we do we will give notice and a reasonable path to continue — including exporting your data if you decide not to stay.",
+      "The free plan is offered without charge and without a customer limit. It is not a perpetual commitment: we may change what it includes, and if we do we will give notice and a reasonable path to continue, including exporting your data if you decide not to stay.",
     ],
     bullets: [
-      "Metered channels carry a real per-message cost. Campaign email beyond your plan's allowance is billed as used; SMS is billed per segment from credits you buy, on every plan.",
+      "Metered channels carry a real per-message cost. Once billing opens, campaign email beyond your plan's allowance is billed as used, and SMS is billed per segment from credits you buy, on every plan.",
       "Fees already paid are non-refundable except where the law requires otherwise or we have said otherwise in writing.",
       "Cancelling stops future renewal. It does not delete your data immediately; see the section below.",
     ],
@@ -103,7 +104,7 @@ const sections = [
     title: "Liability, and what is still being settled",
     paragraphs: [
       "To the fullest extent permitted by law, the platform is provided without guarantees beyond those expressly stated here. We are not liable for the reward decisions you make, for losses arising from a third-party service you connect, or for indirect or consequential loss.",
-      "These terms govern the free beta and are complete for it. Four clauses are deliberately still open: governing law, dispute resolution, limitation amounts and the contracting entity. They are being settled with qualified Philippine counsel alongside our incorporation, and we would rather leave them blank than state something we would have to change. Nothing is being charged during the beta, and we will give notice before these become paid terms.",
+      "These terms govern the free beta and are complete for it. Four clauses are deliberately still open: governing law and jurisdiction, dispute resolution, liability limits and the contracting entity. They are being settled with qualified Philippine counsel alongside our incorporation, and we would rather leave them blank than state something we would have to change. Nothing is being charged during the beta, and we will give notice before these become paid terms.",
       "Questions about this agreement can be sent to support@kyprewards.com.",
     ],
   },
@@ -116,7 +117,7 @@ export default function MerchantTermsPage() {
       eyebrow="For businesses"
       title="Merchant agreement"
       summary="The terms for a business running a loyalty program on KYP Rewards: what you may do with member data, what your reward promise obliges, and what happens to both when the arrangement ends."
-      effective="2 September 2026"
+      effective="12 October 2026"
       sections={sections}
     />
   );

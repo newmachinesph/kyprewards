@@ -31,11 +31,11 @@ export default function GlobalError({
           <div style={{ maxWidth: 440 }}>
             <div style={{ fontSize: 42 }}>✦</div>
             <h1 style={{ margin: "20px 0 8px", fontSize: 30 }}>
-              KYP Rewards needs a fresh start.
+              KYP Rewards needs a reload.
             </h1>
             <p style={{ margin: 0, color: "#5f534b", lineHeight: 1.6 }}>
-              Nothing was changed. Reload the experience and continue where you
-              left off.
+              Nothing changed. Reload the page and pick up where you left
+              off.
             </p>
             <button
               type="button"

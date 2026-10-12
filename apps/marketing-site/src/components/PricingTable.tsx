@@ -299,7 +299,7 @@ export function AddOns() {
         <div className="relative -mx-px overflow-x-auto">
           <table className="w-full min-w-[720px] border-collapse text-left">
             <caption className="sr-only">
-              Add-ons available on top of any plan
+              Add-ons you can buy on top of a plan
             </caption>
             <thead>
               <tr className="border-b border-[var(--line)]">

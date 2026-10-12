@@ -84,16 +84,16 @@ function validate(step: number, draft: PartnerDraft): Errors {
       errors.businessName = "What do customers call your place?";
     if (!draft.category) errors.category = "Pick the closest one.";
     if (draft.address.trim().length < 8)
-      errors.address = "Street, barangay, city — enough for us to find you.";
+      errors.address = "Street, barangay and city, enough for us to find you.";
     if (!draft.notOnMaps && !draft.mapsLink.trim())
-      errors.mapsLink = "Paste the link, or tick the box below if you are not listed.";
+      errors.mapsLink = "Paste the link, or tick the box below if you're not listed.";
     else if (!draft.notOnMaps && !isMapsLink(draft.mapsLink))
-      errors.mapsLink = "That does not look like a Google Maps link.";
+      errors.mapsLink = "That doesn't look like a Google Maps link.";
   }
   if (step === 1) {
     if (draft.ownerName.trim().length < 2) errors.ownerName = "Who should we ask for?";
     if (!isCompleteMobile(draft.mobile))
-      errors.mobile = "Ten digits starting with 9, the way you would text it.";
+      errors.mobile = "Ten digits starting with 9, the way you'd text it.";
     if (!isEmail(draft.email)) errors.email = "We send the approval here, so it has to work.";
   }
   if (step === 2) {
@@ -198,7 +198,7 @@ export function PartnerIntake() {
         failure instanceof ApiError
           ? // 409 is "you already have one waiting", which is worth reading.
             failure.message
-          : "That did not send. Check your connection and try again.",
+          : "That didn't send. Check your connection and try again.",
       );
     } finally {
       setSending(false);
@@ -267,8 +267,8 @@ export function PartnerIntake() {
             </button>
           ) : (
             <p className="max-w-[30ch] text-xs leading-relaxed text-[var(--muted-strong)]">
-              Your answers are kept on this device as you type. A refresh will
-              not lose them.
+              We save your answers on this device as you type, so a refresh
+              won’t lose them.
             </p>
           )}
 
@@ -293,7 +293,7 @@ export function PartnerIntake() {
       <p className="mt-5 text-center text-xs text-[var(--muted-strong)]">
         {left === 0
           ? "Everything we need is filled in."
-          : `${left} question${left === 1 ? "" : "s"} left — about ${Math.max(1, Math.ceil(left / 3))} minute${left > 3 ? "s" : ""}.`}
+          : `${left} question${left === 1 ? "" : "s"} left, about ${Math.max(1, Math.ceil(left / 3))} minute${left > 3 ? "s" : ""}.`}
       </p>
     </div>
   );
@@ -453,9 +453,9 @@ function ShopStep({ draft, patch, errors }: StepProps) {
             className="focus-ring mt-0.5 size-4 rounded border-[var(--line-strong)] accent-[var(--ink)]"
           />
           <span className="text-[var(--muted-strong)]">
-            We are not on Google Maps yet.
+            We’re not on Google Maps yet.
             <span className="block text-xs">
-              Fine — we will help you get listed, it brings in walk-ins on its own.
+              That’s fine. We’ll help you get listed, since a listing brings in walk-ins on its own.
             </span>
           </span>
         </label>
@@ -480,7 +480,7 @@ function YouStep({ draft, patch, errors }: StepProps) {
 
       <Field
         label="Mobile number"
-        hint="However you normally write it — 0917, +63, spaces, we will sort it out."
+        hint="Write it however you normally do: 0917, +63, with spaces. We'll sort it out."
         htmlFor="mobile"
         error={errors.mobile}
       >
@@ -525,7 +525,7 @@ function YouStep({ draft, patch, errors }: StepProps) {
 
       <Field
         label="Facebook page"
-        hint="Speeds up verification — most Filipino shops are easiest to confirm here."
+        hint="Speeds up verification, since most Filipino shops are easiest to confirm here."
         htmlFor="facebook"
         optional
       >
@@ -553,9 +553,9 @@ function CounterStep({ draft, patch, errors }: StepProps) {
         error={errors.volume}
         options={[
           { value: "1-9", label: "Under 10" },
-          { value: "10-19", label: "10 – 19" },
-          { value: "20-49", label: "20 – 49" },
-          { value: "50-149", label: "50 – 149" },
+          { value: "10-19", label: "10 to 19" },
+          { value: "20-49", label: "20 to 49" },
+          { value: "50-149", label: "50 to 149" },
           { value: "150+", label: "150 or more" },
         ]}
       />
@@ -592,7 +592,7 @@ function CounterStep({ draft, patch, errors }: StepProps) {
 
       <ChipGroup
         legend="Which fits your counter better?"
-        hint="You can change this later, and we will talk it through before you launch."
+        hint="You can change this later, and we'll talk it through before you launch."
         value={draft.mechanic}
         onChange={(mechanic) => patch({ mechanic })}
         columns="two"
@@ -610,7 +610,7 @@ function CounterStep({ draft, patch, errors }: StepProps) {
           {
             value: "unsure",
             label: "Not sure yet",
-            detail: "Tell us about the shop and we will recommend one.",
+            detail: "Tell us about the shop and we'll recommend one.",
           },
         ]}
       />
@@ -643,7 +643,7 @@ function ReviewStep({
     { label: "Address", value: draft.address, step: 0 },
     {
       label: "Google Maps",
-      value: draft.notOnMaps ? "Not listed yet — we will help" : draft.mapsLink,
+      value: draft.notOnMaps ? "Not listed yet (we'll help)" : draft.mapsLink,
       step: 0,
     },
     { label: "Owner", value: draft.ownerName, step: 1 },
@@ -681,8 +681,8 @@ function ReviewStep({
         {
           stamps: "A stamp per visit",
           points: "Points per peso",
-          unsure: "Undecided — we will advise",
-        }[draft.mechanic] ?? "Undecided — we will advise",
+          unsure: "Undecided (we'll advise)",
+        }[draft.mechanic] ?? "Undecided (we'll advise)",
       step: 2,
     },
   ];
@@ -729,7 +729,7 @@ function ReviewStep({
             ["We read it", "A person, usually the same working day."],
             [
               "We confirm the shop is yours",
-              "Google Maps or your Facebook page — no documents to chase.",
+              "Google Maps or your Facebook page, with no documents to chase.",
             ],
             [
               "You get your sign-in",
@@ -750,7 +750,7 @@ function ReviewStep({
       </div>
 
       <p className="text-xs leading-relaxed text-[var(--muted-strong)]">
-        Sending this does not commit you to anything, and there is no card to
+        Sending this doesn’t commit you to anything, and there’s no card to
         enter. By continuing you agree to our{" "}
         <a href="/terms" className="font-bold text-[var(--accent-strong)] underline">
           Terms of Service
@@ -829,11 +829,11 @@ function Submitted({
       {!thanked ? (
         <div className="mt-6 rounded-[var(--radius-card)] border border-dashed border-[var(--line-strong)] p-6">
           <p className="text-sm font-extrabold">
-            One last thing, and it is for us rather than you.
+            One last thing, and it’s for us, not you.
           </p>
           <p className="mt-1 text-xs leading-relaxed text-[var(--muted-strong)]">
-            How did you come across KYP Rewards? It tells us where to keep
-            showing up. Skip it freely.
+            How did you find KYP Rewards? It tells us where to keep showing
+            up. Feel free to skip it.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {[
@@ -874,7 +874,7 @@ function Submitted({
           aria-live="polite"
           className="mt-6 rounded-[var(--radius-card)] border border-dashed border-[var(--line-strong)] p-6 text-sm font-bold"
         >
-          Noted — thank you. That genuinely helps.
+          Noted, thank you. That really helps.
         </p>
       )}
 

@@ -43,12 +43,12 @@ import { breadcrumb, webPage } from "@/lib/schema";
 export const metadata: Metadata = {
   title: "Loyalty Program Features",
   description:
-    "Stamp cards, suki tiers, missions, bonus windows, store credit, referrals and win-back — eight program types on one engine, built for Philippine shops.",
+    "Stamp cards, points, discounts, memberships, coupons, a reward catalog, multipass and gift cards: eight program types on one engine for Philippine shops.",
   alternates: { canonical: "/features" },
   openGraph: {
     title: "Every way to keep a customer. One card in their pocket.",
     description:
-      "Acquire, keep, bring back, grow. Stamp cards to suki tiers, on one engine, built for Philippine shops.",
+      "Bring customers in, keep them, win them back, grow what they spend. Stamp cards to suki tiers on one engine, built for Philippine shops.",
     url: "/features",
     locale: "en_PH",
     type: "article",
@@ -73,7 +73,7 @@ const outcomes = [
         icon: QrCode,
         title: "One public join code, everywhere",
         detail:
-          "Poster, sticker, receipt, table tent, Facebook page, Instagram bio. It grants a membership and a pending welcome stamp — nothing of value — so it does not matter how far it spreads.",
+          "Poster, sticker, receipt, table tent, Facebook page, Instagram bio. It grants a membership and a pending welcome stamp, nothing of value, so it doesn't matter how far it spreads.",
         tier: "Free",
       },
       {
@@ -87,21 +87,21 @@ const outcomes = [
         icon: TicketPercent,
         title: "Promo codes",
         detail:
-          "WELCOME, FIESTA, the name of the barangay. A public code that grants a stamp, points or a coupon once per member — for a tarp, a flyer, a Facebook post.",
+          "WELCOME, FIESTA, the name of the barangay. A public code that grants a stamp, points or a coupon once per member. Put it on a tarp, a flyer, a Facebook post.",
         tier: "Core",
       },
       {
         icon: Users,
         title: "Two-sided referrals",
         detail:
-          "The regular and the friend both get something — after the friend's first confirmed visit, not before, so nobody farms it.",
+          "The regular and the friend both get something, but only after the friend's first confirmed visit, so nobody can farm it.",
         tier: "Grow",
       },
       {
         icon: Store,
         title: "Listed in Discover",
         detail:
-          "Every shop with a live program and a complete profile (photo, description, address and hours) is findable in the customer app by category and neighborhood, on every plan. Featured placement above the distance ordering on Grow, or as an add-on.",
+          "Every shop with a live program and a complete profile (photo, description, address and hours) shows up in the customer app by category and neighborhood, on every plan. Featured placement above the distance ordering on Grow, or as an add-on.",
         tier: "Free",
       },
     ],
@@ -130,7 +130,7 @@ const outcomes = [
         icon: Crown,
         title: "Suki tiers",
         detail:
-          "Levels a customer climbs by visits or spend. You name them — three is plenty — and each carries a benefit that feels like recognition: a better earn rate, a reserved reward, first pick of a bonus window. Automatic up, gentle down.",
+          "Levels a customer climbs by visits or spend. You name them (three is plenty), and each carries a benefit that feels like recognition: a better earn rate, a reserved reward, first pick of a bonus window. Automatic up, gentle down.",
         tier: "Grow",
       },
       {
@@ -160,14 +160,14 @@ const outcomes = [
         icon: Users,
         title: "Segments that update themselves",
         detail:
-          "New, regular, VIP, lapsed, reward-ready, one visit from a mission. Basic segments on Core; on Grow, RFM scoring — how recently, how often and how much each customer buys.",
+          "New, regular, VIP, lapsed, reward-ready, one visit from a mission. Basic segments on Core; on Grow, RFM scoring: how recently, how often and how much each customer buys.",
         tier: "Core",
       },
       {
         icon: Timer,
         title: "Automated win-back",
         detail:
-          "Someone passes their usual return window — 30, 60, 90 days, or the shop's own rhythm — and an offer goes out by itself. Includes the message we would send first: “one more visit keeps your suki status.”",
+          "When someone passes their usual return window (30, 60 or 90 days, or the shop's own rhythm), an offer goes out by itself. That includes the message we'd send first: “one more visit keeps your suki status.”",
         tier: "Grow",
       },
       {
@@ -231,7 +231,7 @@ const outcomes = [
         icon: CreditCard,
         title: "Memberships, multipass, gift cards",
         detail:
-          "Recurring benefits, prepaid visit bundles, and stored-value gift cards — kept apart from free reward vouchers, because RA 10962 treats them differently.",
+          "Recurring benefits, prepaid visit bundles, and stored-value gift cards, kept apart from free reward vouchers because RA 10962 treats them differently.",
         tier: "Core",
       },
     ],
@@ -292,26 +292,26 @@ const philippines = [
   {
     icon: Wallet,
     title: "Pesos, paid the way you already pay",
-    detail: `Priced in pesos, billed in pesos, settled by ${paymentMethodsText}. Dollar-billed tools cannot say that.`,
+    detail: `Priced in pesos, billed in pesos, settled by ${paymentMethodsText}. Dollar-billed tools can't say that.`,
   },
   {
     icon: Languages,
     title: "English or Filipino at the counter",
     detail:
-      "The counter and owner screens in Filipino as well as English. The single biggest thing between this and a carinderia — on the roadmap, done properly, not machine-translated.",
+      "The counter and owner screens in Filipino as well as English. It's the biggest thing standing between this and a carinderia, and it's on the roadmap, done properly, not machine-translated.",
     roadmap: true,
   },
   {
     icon: Smartphone,
-    title: "Viber and Facebook, not just email",
+    title: "Viber and Facebook, as well as email",
     detail:
-      "Your join link lives happily in a Facebook page bio, and Viber and WhatsApp are being connected as campaign channels next, because that is where Filipino customers actually read.",
+      "Your join link fits right in a Facebook page bio, and we're connecting Viber and WhatsApp as campaign channels next, because that's where Filipino customers actually read.",
   },
   {
     icon: Crown,
     title: "Suki is the model",
     detail:
-      "Filipino shops invented tiered loyalty long before software did. The tiers, the win-back message, the recognition — they are named for the culture, not translated into it.",
+      "Filipino shops invented tiered loyalty long before software did. We named the tiers, the win-back message and the recognition for that culture instead of translating them into it.",
   },
   {
     icon: Globe2,
@@ -346,7 +346,7 @@ export default function FeaturesPage() {
         image="/images/hero-features.webp"
         eyebrow="The full loyalty system"
         title="Every way to keep a customer. One card in their pocket."
-        description="Start with the stamp card — it is free, and most shops never need more. When you do: suki tiers, missions, bonus windows, store credit, referrals, win-back and seven more program types, all on the same engine and the same card."
+        description="Start with the stamp card. It's free, and most shops never need more. If you do, there are suki tiers, missions, bonus windows, store credit, referrals, win-back and seven more program types, all on the same engine and the same card."
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="/pricing" tone="outline">
@@ -380,7 +380,7 @@ export default function FeaturesPage() {
           { label: "Levers on the free plan", value: "The whole stamp card" },
           {
             label: "Channels",
-            value: "In-app, push, email, SMS — Viber and WhatsApp connecting",
+            value: "In-app, push, email, SMS; Viber and WhatsApp being connected",
           },
           { label: "Built for", value: "The Philippines" },
         ]}
@@ -455,9 +455,9 @@ export default function FeaturesPage() {
             </div>
             <p className="max-w-[56ch] text-base leading-relaxed text-white/70">
               Same card, same counter, same customer record. A shop runs one on
-              Launch, three at once on Core, as many as it likes on Grow — a
-              stamp card for regulars and a birthday coupon for everyone else,
-              without a second tool.
+              Launch, three at once on Core and as many as it likes on Grow:
+              say, a stamp card for regulars and a birthday coupon for everyone
+              else, without a second tool.
             </p>
           </div>
           <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-white/12 bg-white/12 sm:grid-cols-4">
@@ -515,13 +515,13 @@ export default function FeaturesPage() {
             <div>
               <SiteEyebrow>Built for the Philippines</SiteEyebrow>
               <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
-                Not translated for the market. Built in it.
+                Built in Manila, for shops like yours.
               </h2>
             </div>
             <p className="max-w-[56ch] text-base leading-relaxed text-[var(--muted-strong)]">
-              Every global loyalty tool bills in dollars, emails in English and
-              assumes a card reader. Here is what changes when the product is
-              made in Manila for shops anywhere in the Philippines.
+              Global loyalty tools bill in dollars, email in English and assume
+              a card reader. Here&apos;s what changes when the product is made
+              in Manila for shops anywhere in the Philippines.
             </p>
           </div>
           <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -555,8 +555,8 @@ export default function FeaturesPage() {
           <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="flex items-center gap-2 text-sm font-extrabold">
               <Check size={16} className="text-[var(--accent-strong)]" />
-              What is live and what is next, from the same data as the pricing
-              table.
+              What&apos;s live and what&apos;s next, from the same data as the
+              pricing table.
             </p>
             <Link
               href="/roadmap"
@@ -584,8 +584,8 @@ export default function FeaturesPage() {
       </section>
 
       <MarketingCta
-        title="Start simple. Keep every path open."
-        description="Launch a stamp card in one shop, free, then grow into the tiers, missions, automation and analytics your business actually needs — never sooner."
+        title="Start simple. Grow into the rest."
+        description="Launch a stamp card in one shop for free. Add tiers, missions, automation and analytics when your business actually needs them, and not before."
       />
     </main>
   );

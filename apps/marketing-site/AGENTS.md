@@ -42,7 +42,7 @@ gap lists in the other apps' `AGENTS.md` in the same change.
 |---|---|
 | `packages/ui/src/plans.ts`, imported as `@kyprewards/ui/plans` | plans, prices, `featureMatrix`, `planLimits`, `overageRates`, add-ons, channel rates, payment methods, founding offer. The pricing page, estimator, table, `/roadmap` and `llms.txt` all render from it. Never hand-type a price or allowance anywhere else. |
 | `src/lib/content.ts` | six industries, five resources, the business-category list shared by the partner form and the contact form, the short FAQ |
-| `src/lib/comparisons.ts` | peso-priced competitors only (ZAP, Qashier, StoreHub, Suki Cards, GoBalik), each with a source URL and the date read |
+| `src/lib/comparisons.ts` | peso-priced competitors only (ZAP, Qashier Treats, StoreHub, GoBalik, ScalePlus Rewards; Suki Cards left in October 2026 when it moved to dollar pricing), each with a source URL and the date read. The footer, sitemap, `/compare` and `llms.txt` all read from it |
 | `src/lib/site.ts` | `businessAppUrl`, `adminAppUrl`, `siteUrl`. There is no `customerAppUrl`: this site never links to the wallet. |
 | `src/lib/schema.ts`, `src/app/layout.tsx` | Organization schema, `support@kyprewards.com`, the Facebook page. No entity name, address, registration or DPO. |
 | `design.md` | the visual system: bands and seams, centred section heads, panels, buttons, the generated `obj-*` and `photo-*` images and how they are used. Read it before changing layout; copy is never changed for design reasons. |

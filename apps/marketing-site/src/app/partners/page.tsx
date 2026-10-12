@@ -7,12 +7,12 @@ import { StructuredData } from "@/components/StructuredData";
 import { breadcrumb, organizationId } from "@/lib/schema";
 
 export const metadata: Metadata = {
-  title: "Apply to Join — Free for Founding Merchants",
+  title: "Apply to Join: Free for Founding Merchants",
   description:
     "Start a loyalty program for your shop. Three minutes, no documents, no card. We read every application and set your first program up before you sign in.",
   alternates: { canonical: "/partners" },
   openGraph: {
-    title: "Apply to join KYP Rewards — free during beta",
+    title: "Apply to join KYP Rewards, free during the beta",
     description:
       "Three minutes, no documents, no card. A person sets your first program up with you.",
     url: "/partners",
@@ -26,13 +26,13 @@ const REASSURANCE = [
     icon: Rocket,
     title: "Free now, and Core free for three months later",
     detail:
-      "The paid plans are not open yet, so everyone is on the free one: no card, no trial clock, unlimited customers and unlimited branches. When they open, founding merchants get Core free for three months. You keep your program and your customer list whatever you decide afterwards.",
+      "The paid plans aren't open yet, so everyone is on the free one, with no card, no trial clock, unlimited customers and unlimited branches. When they open, founding merchants get Core free for three months. You keep your program and your customer list whatever you decide after that.",
   },
   {
     icon: HeartHandshake,
-    title: "We set the first program up",
+    title: "We set up your first program",
     detail:
-      "A person reads this and configures your first program from these answers before you sign in. Approval usually comes the same working day, so the wait is short.",
+      "A real person reads your answers and sets up your first program from them before you sign in. Approval usually comes the same working day.",
   },
   {
     icon: HandCoins,
@@ -82,7 +82,7 @@ export default function PartnersPage() {
           </h1>
           <p className="mx-auto mt-5 max-w-[46ch] text-[17px] leading-relaxed text-[var(--muted-strong)]">
             Twelve questions, about three minutes. No documents to upload and
-            no card to enter — we verify your business the same way your
+            no card to enter: we verify your business the same way your
             customers find it.
           </p>
         </div>

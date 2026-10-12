@@ -34,10 +34,10 @@ import { businessAppUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "The Digital Stamp Card",
   description:
-    "A digital stamp card Philippine shops run free: a welcome stamp waits when they join from your poster, staff confirm visits in seconds, no app or POS change.",
+    "A free digital stamp card for Philippine shops. Customers join from a poster, a welcome stamp waits, staff confirm visits in seconds. No app, no new POS.",
   alternates: { canonical: "/product" },
   openGraph: {
-    title: "The digital stamp card — one stamp, then the next",
+    title: "The digital stamp card: one stamp, then the next",
     description:
       "How a stranger becomes a regular: join from a poster, a welcome stamp waits, the first visit makes it real, every visit after takes three seconds.",
     url: "/product",
@@ -50,12 +50,12 @@ const workflow = [
   {
     title: "Customer shows one QR",
     detail:
-      "Their secure identity works across every business they choose to join.",
+      "Their own private code works at every business they choose to join.",
     icon: QrCode,
   },
   {
     title: "Staff confirms the visit",
-    detail: "The counter flow is fast, permissioned, and easy to teach.",
+    detail: "Quick at the counter, open only to staff you allow, and easy to teach.",
     icon: ScanLine,
   },
   {
@@ -65,9 +65,9 @@ const workflow = [
     icon: Stamp,
   },
   {
-    title: "The relationship gets smarter",
+    title: "You learn who comes back",
     detail:
-      "Owners see patterns and reach the right segment when there is something useful to say.",
+      "Owners spot patterns, and message the right group when there's something worth saying.",
     icon: BarChart3,
   },
 ];
@@ -76,7 +76,7 @@ const modules = [
   {
     title: "Customer directory",
     description:
-      "See new, regular, VIP, inactive, birthday, and reward-ready customers as living segments.",
+      "New, regular, VIP, inactive, birthday and reward-ready customers, in groups that update themselves.",
     icon: Users,
   },
   {
@@ -88,25 +88,25 @@ const modules = [
   {
     title: "Campaign studio",
     description:
-      "Send one clear message to the customers it actually applies to, with consent enforced automatically.",
+      "Send one clear message to the customers it actually applies to. The product checks consent for you.",
     icon: Megaphone,
   },
   {
     title: "Birthday moments",
     description:
-      "Turn a birthday into a personal visit with a relevant reward and favorite-order context.",
+      "Turn a birthday into a visit, with a reward that fits and their favorite order on file.",
     icon: CakeSlice,
   },
   {
     title: "Favorite orders",
     description:
-      "Remember the small details that make regulars feel recognized when they return.",
+      "Remember the small things, so a regular feels known when they walk back in.",
     icon: Heart,
   },
   {
     title: "Rules and access",
     description:
-      "Give staff the tools to serve while owners retain control of programs, settings, and data.",
+      "Staff get what they need to serve; owners keep control of programs, settings and data.",
     icon: Settings2,
   },
 ];
@@ -131,7 +131,7 @@ export default function ProductPage() {
               },
               {
                 name: "Every visit after takes three seconds",
-                text: "Staff scan the customer's code or find them by mobile number. The stamp appears in the customer's wallet immediately. A cooldown the shop sets stops the same customer earning twice in a day.",
+                text: "Staff scan the customer's code or find them by mobile number. The stamp appears in the customer's wallet immediately. A cooldown the shop sets (once a day by default) stops the same customer earning twice inside it.",
               },
               {
                 name: "The reward is held until it is redeemed",
@@ -175,7 +175,7 @@ export default function ProductPage() {
           },
           {
             label: "Every visit after:",
-            text: "one scan, about three seconds. A cooldown you set stops the same customer earning twice in a day.",
+            text: "one scan, about three seconds. A cooldown you set (once a day by default) stops the same customer earning twice inside it.",
           },
           {
             label: "Card full:",
@@ -183,7 +183,7 @@ export default function ProductPage() {
           },
         ]}
         facts={[
-          { label: "Customer installs", value: "Nothing — it is a web app" },
+          { label: "Customer installs", value: "Nothing: it's a web app" },
           { label: "Counter hardware", value: "Any phone, tablet, or browser" },
           { label: "Time per visit", value: "About 3 seconds" },
           { label: "Welcome stamp", value: "Pending until the first visit" },
@@ -201,8 +201,8 @@ export default function ProductPage() {
                 Eleven settings. Every one on the free plan.
               </h2>
               <p className="mt-5 max-w-[44ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                A stamp card is a promise, and the promise should be yours to
-                shape. These are the rules of the card, not upsells — they are
+                A stamp card is a promise, and you should get to shape it.
+                These are the card&apos;s rules, not upsells, and they&apos;re
                 the same on Launch as on Scale.
               </p>
             </div>
@@ -221,7 +221,7 @@ export default function ProductPage() {
                 {
                   title: "Cooldown between stamps",
                   detail:
-                    "How soon the same customer can earn again. Default once a day, so a card cannot be filled in an afternoon. A restaurant with two services can set two.",
+                    "How soon the same customer can earn again. The default is once a day, so nobody fills a card in an afternoon. A restaurant with two services can set two.",
                 },
                 {
                   title: "Minimum spend per stamp",
@@ -231,7 +231,7 @@ export default function ProductPage() {
                 {
                   title: "Stamp expiry, if you want one",
                   detail:
-                    "Off unless you set it. Stamps earned free under a loyalty program may expire under RA 10962; a gift check a customer paid for may not. Whatever term you set is on the card before the first stamp.",
+                    "Off unless you set it. Stamps earned free under a loyalty program may expire under RA 10962; a gift check a customer paid for may not. Whatever term you set shows on the card before the first stamp.",
                 },
                 {
                   title: "The reward, in plain words",
@@ -246,17 +246,17 @@ export default function ProductPage() {
                 {
                   title: "Reversals, with a name on them",
                   detail:
-                    "Wrong customer, double tap, a stamp that should not have happened — one tap undoes it, and the ledger keeps both the stamp and the reversal.",
+                    "Wrong customer, a double tap, a stamp that shouldn't have happened: one tap undoes it, and the ledger keeps both the stamp and the reversal.",
                 },
                 {
                   title: "A season, or forever",
                   detail:
-                    "A card can run from a start date to an end date — the Ber months, a fiesta week — or with no end at all. Nothing is earned outside the window, the card closes by itself, and the dates are on the card before the first stamp.",
+                    "A card can run between two dates (the Ber months, a fiesta week) or with no end at all. Nobody earns outside the window, the card closes by itself, and the dates show on the card before the first stamp.",
                 },
                 {
                   title: "When a card closes",
                   detail:
-                    "Unfinished stamps expire, or carry over to a successor card you name — your choice. A reward already earned is always honoured, for a grace period you set, 30 days unless you change it. Cancelling an earned reward is not on the menu.",
+                    "Unfinished stamps expire or carry over to a successor card you name; you choose. A reward already earned is always honoured for a grace period you set, 30 days unless you change it. Cancelling an earned reward isn't an option.",
                 },
                 {
                   title: "Once, or again and again",
@@ -289,7 +289,7 @@ export default function ProductPage() {
             <div className="lg:sticky lg:top-28 lg:self-start">
               <SiteEyebrow>How every visit moves</SiteEyebrow>
               <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
-                A loop people understand immediately.
+                A loop people get right away.
               </h2>
               <p className="mt-5 max-w-[44ch] text-sm leading-relaxed text-[var(--muted-strong)]">
                 No plastic, no account lookup at the counter, and no training
@@ -337,21 +337,20 @@ export default function ProductPage() {
             <div>
               <SiteEyebrow inverse>For owners and staff</SiteEyebrow>
               <h2 className="mt-5 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
-                A business workspace that stays calm as you grow.
+                A workspace that stays simple as you grow.
               </h2>
               <p className="mt-5 max-w-[50ch] text-base leading-relaxed text-white/70">
-                The dashboard puts today&apos;s operations first, then lets you
-                go deeper when you need a customer list, campaign, or program
-                change.
+                The dashboard opens on today. Dig deeper when you need a
+                customer list, a campaign or a change to your program.
               </p>
               <div className="mt-8">
                 <CheckList
                   inverse
                   items={[
-                    "Role-based access for owners, managers, and staff",
-                    "Live visit, stamp, and reward metrics",
-                    "Actionable segments instead of raw customer exports",
-                    "A complete communication and redemption ledger",
+                    "Separate access for owners, managers and staff",
+                    "Live counts of visits, stamps and rewards",
+                    "Customer groups you can act on, not raw exports",
+                    "A full record of every message and redemption",
                   ]}
                 />
               </div>
@@ -371,16 +370,17 @@ export default function ProductPage() {
                 Every local reward in one pocket.
               </h2>
               <p className="mt-5 max-w-[48ch] text-base leading-relaxed text-[var(--muted-strong)]">
-                Customers see cards, rewards, messages, and nearby programs from
-                a mobile-first app that works without an app-store download.
+                Customers see their cards, rewards, messages and nearby
+                programs in a phone app they never have to download from an app
+                store.
               </p>
               <div className="mt-8">
                 <CheckList
                   items={[
-                    "One personal QR across every joined business",
-                    "A clear wallet with visible progress and reward terms",
-                    "Business discovery by category and neighborhood",
-                    "Notification and marketing controls in the customer’s hands",
+                    "One personal QR code for every shop they've joined",
+                    "A wallet that shows progress and reward terms plainly",
+                    "Find shops by category and neighborhood",
+                    "The customer decides which notifications and promos they get",
                   ]}
                 />
               </div>
@@ -401,7 +401,7 @@ export default function ProductPage() {
             <div>
               <SiteEyebrow>Everything connected</SiteEyebrow>
               <h2 className="mt-4 text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
-                The practical tools behind every return.
+                The tools behind every return visit.
               </h2>
             </div>
             <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
@@ -437,12 +437,12 @@ export default function ProductPage() {
             <div>
               <SiteEyebrow inverse>Beyond the stamp card</SiteEyebrow>
               <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
-                Start with stamps. Keep every path open.
+                Start with stamps. Add more when you need it.
               </h2>
             </div>
             <p className="max-w-[56ch] text-base leading-relaxed text-white/70">
               The stamp card is where most shops should begin, and plenty never
-              need more. When you do, the same engine runs seven other program
+              need more. If you do, the same engine runs seven other program
               types, and the campaigns and analytics that make a customer list
               worth having.
             </p>
@@ -451,7 +451,7 @@ export default function ProductPage() {
             {[
               {
                 title: "Seven more program types",
-                detail: "Points and cashback, discounts, coupons, memberships, a reward catalog, prepaid multipass and gift cards — from Core.",
+                detail: "Points and cashback, discounts, coupons, memberships, a reward catalog, prepaid multipass and gift cards. From Core.",
               },
               {
                 title: "Campaigns that pay for themselves",
@@ -498,12 +498,12 @@ export default function ProductPage() {
             {[
               {
                 icon: ShieldCheck,
-                title: "Consent-aware by default",
+                title: "Consent checked by default",
                 text: "Campaign audiences include only customers who have opted into marketing.",
               },
               {
                 icon: BellRing,
-                title: "Clear communication controls",
+                title: "Separate message controls",
                 text: "Customers manage service updates, reward reminders, and promotions separately.",
               },
               {
@@ -513,8 +513,8 @@ export default function ProductPage() {
               },
               {
                 icon: Check,
-                title: "Auditable business actions",
-                text: "Important staff, reward, and campaign activity is recorded for accountability.",
+                title: "A record of who did what",
+                text: "Key staff, reward and campaign actions go on the record, so you can check who did what.",
               },
             ].map((item) => {
               const Icon = item.icon;
@@ -539,14 +539,14 @@ export default function ProductPage() {
         <div className="mx-auto max-w-[1400px]">
           <div className="grid gap-8 lg:grid-cols-[0.62fr_1.38fr]">
             <div>
-              <SiteEyebrow>Three places one visit shows up</SiteEyebrow>
+              <SiteEyebrow>Four places your shop shows up</SiteEyebrow>
               <h2 className="mt-4 max-w-[13ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
                 Everyone sees the same visit.
               </h2>
               <p className="mt-5 max-w-[46ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                One scan writes one record. The customer sees progress, the
-                staff member sees a confirmation, and the owner sees a pattern —
-                from the same event, not three systems trying to agree.
+                One scan writes one record. The customer sees progress, staff
+                see a confirmation and the owner sees a pattern, all from that
+                one event instead of three systems trying to agree.
               </p>
             </div>
             <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
@@ -561,7 +561,7 @@ export default function ProductPage() {
                   name: "The counter",
                   audience: "For whoever is on shift",
                   detail:
-                    "Scan, confirm, done — about three seconds, from a phone, tablet or browser beside the register you already own. Reversals are one tap and every action carries a name.",
+                    "Scan, confirm, done. About three seconds, from a phone, tablet or browser beside the register you already own. Reversals take one tap and every action carries a name.",
                 },
                 {
                   name: "The owner's workspace",
@@ -573,7 +573,7 @@ export default function ProductPage() {
                   name: "Your shop in Discover",
                   audience: "For customers who have not found you yet",
                   detail:
-                    "Your category, neighborhood, hours and live program, listed in the customer app on every plan — including the free one.",
+                    "Your category, neighborhood, hours and live program, listed in the customer app on every plan, the free one included.",
                 },
               ].map((app) => (
                 <article key={app.name} className="bg-[var(--surface)] p-6 sm:p-8">

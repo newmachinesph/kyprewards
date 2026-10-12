@@ -31,7 +31,7 @@ const sections = [
   {
     title: "The sign-in cookie",
     paragraphs: [
-      "Signing in sets a cookie named kyp_session. It holds a random session identifier — not your name, your email, or anything readable about you — and it is what keeps you signed in as you move between pages.",
+      "Signing in sets a cookie named kyp_session. It holds a random session identifier (not your name, your email, or anything readable about you), and it is what keeps you signed in as you move between pages.",
     ],
     bullets: [
       "It is HttpOnly, so page scripts cannot read it, which is what stops a cross-site scripting flaw from stealing a session.",
@@ -43,7 +43,7 @@ const sections = [
   {
     title: "Google Analytics, only if you allow it",
     paragraphs: [
-      "On kyprewards.com — not in the signed-in apps — we ask once whether we may use Google Analytics 4 to see which pages help people and which do not. Until you choose Allow, no script is fetched from Google and no analytics cookie exists. If you choose No thanks, nothing is loaded and you are not asked again in this browser.",
+      "On kyprewards.com (not in the signed-in apps), we ask once whether we may use Google Analytics 4 to see which pages help people and which do not. Until you choose Allow, no script is fetched from Google and no analytics cookie exists. If you choose No thanks, nothing is loaded and you are not asked again in this browser.",
       "kyp.ph, the site for shoppers, uses the same consent gate and has its own cookies page; an answer given on one site does not carry over to the other. The shopper wallet never loads analytics.",
     ],
     bullets: [
@@ -69,7 +69,7 @@ const sections = [
   {
     title: "Managing it",
     paragraphs: [
-      "Your browser can block or clear cookies and site data at any time. Blocking the session cookie will stop you being able to sign in, because it is the mechanism that keeps you signed in — the signed-out marketing pages will still work normally. The analytics choice is changed with the control at the foot of this page.",
+      "Your browser can block or clear cookies and site data at any time. Blocking the session cookie will stop you being able to sign in, because it is the mechanism that keeps you signed in. The signed-out marketing pages will still work normally. The analytics choice is changed with the control at the foot of this page.",
       "Questions can be sent to support@kyprewards.com.",
     ],
   },
@@ -88,7 +88,7 @@ export default function CookiesPage() {
         path="/cookies"
         eyebrow="What we store on your device"
         title="Cookies"
-        summary="One sign-in cookie, a few drafts saved in your own browser, and Google Analytics only after you say yes — which is why the only banner you see asks one question."
+        summary="One sign-in cookie, a few drafts saved in your own browser, and Google Analytics only after you say yes. That is why the only banner you see asks one question."
         effective="4 September 2026"
         sections={sections}
       />

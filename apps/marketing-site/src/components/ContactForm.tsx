@@ -20,7 +20,7 @@ export function ContactForm() {
     const businessName = String(data.get("business") ?? "").trim();
     if (!name || !email || !businessName) {
       setError(
-        "Add your name, email, and business name so we know how to reach you.",
+        "Add your name, email and business name so we know how to reach you.",
       );
       return;
     }
@@ -49,7 +49,7 @@ export function ContactForm() {
       setError(
         failure instanceof ApiError
           ? failure.message
-          : "That did not send. Check your connection and try again.",
+          : "That didn't send. Check your connection and try again.",
       );
       setState("idle");
     }
@@ -147,7 +147,7 @@ Send another
             aria-describedby={error ? "contact-error" : undefined}
             aria-invalid={error ? true : undefined}
             className="focus-ring resize-y rounded-2xl border border-[var(--line-strong)] bg-[var(--paper)] px-4 py-3 text-base font-normal leading-relaxed outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent-strong)]"
-            placeholder="Tell us how customers return today, what you have tried, and where the experience breaks down."
+            placeholder="How do customers come back today, what have you tried, and where does it fall apart?"
           />
         </label>
       </div>
@@ -162,8 +162,8 @@ Send another
       )}
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-[46ch] text-[11px] leading-relaxed text-[var(--muted)]">
-          By contacting us, you agree that KYP Rewards may respond about your
-          inquiry. We do not add you to marketing lists without permission.
+          By contacting us, you agree that KYP Rewards may reply about your
+          question. We won’t add you to a marketing list without your permission.
         </p>
         <button
           type="submit"
@@ -172,7 +172,7 @@ Send another
         >
           {state === "sending" ? (
             <>
-              <LoaderCircle size={16} className="animate-spin" /> Preparing
+              <LoaderCircle size={16} className="animate-spin" /> Sending
             </>
           ) : (
             <>

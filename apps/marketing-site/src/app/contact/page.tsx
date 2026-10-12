@@ -33,7 +33,7 @@ export default function ContactPage() {
         image="/images/hero-contact.webp"
         eyebrow="Questions"
         title="Ask us anything."
-        description="Support for a shop already running, a question before you apply, press, or something that does not fit a form. If you are ready to start a program, the application asks better questions than this page can."
+        description="Support for a shop that's already running, a question before you apply, press, or anything that doesn't fit a form. If you're ready to start a program, the application asks better questions than this page can."
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
       </PageHero>
@@ -46,12 +46,12 @@ export default function ContactPage() {
                 {
                   icon: Clock3,
                   title: "Same working day, usually",
-                  text: "A teammate reads every note and replies with useful next steps — same working day where we can, and never longer than the next one. You get a copy in your own inbox too.",
+                  text: "Someone on our team reads every note and replies with next steps, the same working day where we can and never later than the next one. You get a copy in your own inbox too.",
                 },
                 {
                   icon: MessagesSquare,
                   title: "A practical conversation",
-                  text: "We ask about visits, rewards, staff, and the customer experience — not your software stack.",
+                  text: "We ask about visits, rewards, staff and what your customers see, not your software stack.",
                 },
                 {
                   icon: MapPin,
@@ -102,8 +102,8 @@ export default function ContactPage() {
               <p className="max-w-[46ch] text-sm leading-relaxed">
                 <strong className="font-extrabold">Want to start a program?</strong>{" "}
                 <span className="text-[var(--muted-strong)]">
-                  The partner application takes about three minutes and gets you
-                  an answer the same working day.
+                  The partner application takes about three minutes, and you
+                  usually get an answer the same working day.
                 </span>
               </p>
               <SiteButton href="/partners">Apply to join</SiteButton>

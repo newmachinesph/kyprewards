@@ -21,7 +21,7 @@ const sections = [
   {
     title: "Why this page exists",
     paragraphs: [
-      "A KYP Rewards account belongs to the customer and works at every business they join — one card, many shops. That design is the point of the product, and it means a customer's details are held by us and, for the shops they choose, seen by those shops too.",
+      "A KYP Rewards account belongs to the customer and works at every business they join: one card, many shops. That design is the point of the product, and it means a customer's details are held by us and, for the shops they choose, seen by those shops too.",
       "Both sides therefore decide things about the same personal data. The Data Privacy Act of 2012 (Republic Act No. 10173) expects that arrangement to be documented rather than assumed, and this page says publicly what the agreement with each merchant says privately.",
     ],
   },
@@ -32,7 +32,7 @@ const sections = [
     ],
     bullets: [
       "On joining: the customer's name, their member code, and the profile details they chose to make visible.",
-      "While a member: their activity with that business only — visits, stamps, points, rewards earned and redeemed, gift card and pass balances, and the channels they consented to.",
+      "While a member: their activity with that business only (visits, stamps, points, rewards earned and redeemed, gift card and pass balances, and the channels they consented to).",
       "Contact details only where the customer consented to that channel for that business.",
       "Never: their activity at any other business, their password or credentials, their full account history, or the fact that they are a member anywhere else.",
     ],
@@ -65,7 +65,7 @@ const sections = [
   {
     title: "Security, incidents and breach notification",
     paragraphs: [
-      "Both sides are expected to protect what they hold with measures appropriate to the risk. On our side that means encrypted transport, access scoped to a single workspace, an audit record of privileged actions, and staff access that can be revoked.",
+      "Both sides are expected to protect what they hold with measures appropriate to the risk. On our side that means encryption in transit and at rest, access scoped to a single workspace, an audit record of privileged actions, and staff access that can be revoked.",
       "Where a security incident affects personal data and is likely to put the people involved at real risk, the Act requires notification within seventy-two hours of knowledge. That notice goes to the National Privacy Commission and to the people affected. We commit to that, and we expect a merchant to tell us without delay about an incident affecting data they received from us.",
     ],
   },
@@ -92,7 +92,7 @@ export default function DataSharingPage() {
       eyebrow="Between us and your shop"
       title="Data sharing"
       summary="One card works at every business a customer joins, so their details are held by us and seen by the shops they choose. This is what moves, when it moves, and who answers for it."
-      effective="2 September 2026"
+      effective="12 October 2026"
       sections={sections}
     />
   );

@@ -53,8 +53,8 @@ export default async function ResourcePage({ params }: Props) {
             description: resource.summary,
             path: `/resources/${resource.slug}`,
             section: resource.category,
-            published: "2026-08-25",
-            modified: "2026-08-26",
+            published: resource.published,
+            modified: resource.modified,
           }),
           breadcrumb([
             { name: "Resources", path: "/resources" },
@@ -112,8 +112,8 @@ export default async function ResourcePage({ params }: Props) {
               <Stamp />
             </span>
             <p className="mt-5 max-w-[24ch] text-xs leading-relaxed text-[var(--muted)]">
-              Field notes from the KYP Rewards team for owners building thoughtful
-              repeat business.
+              Field notes from the KYP Rewards team for owners who want more
+              regulars.
             </p>
           </aside>
           <div>
@@ -159,8 +159,8 @@ export default async function ResourcePage({ params }: Props) {
       </article>
 
       <MarketingCta
-        title="Turn the field note into a live program."
-        description="KYP Rewards gives you the tools to launch, measure, and refine the return-visit loop without replacing the way your business already works."
+        title="Turn this into a live program."
+        description="KYP Rewards lets you launch, measure and adjust your program without changing how your business already works."
       />
     </main>
     </>

@@ -3,10 +3,16 @@ import { industries, resources } from "@/lib/content";
 import { comparisons } from "@/lib/comparisons";
 import { siteUrl } from "@/lib/site";
 
+/** A date the content states, or none when it does not parse. */
+function knownDate(text: string): Date | undefined {
+  const date = new Date(`${text} UTC`);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  // Stamped at build time so a redeploy refreshes it, instead of a literal
-  // date that silently ages every time the site ships.
-  const lastModified = new Date();
+  // Only real dates. A lastmod stamped at build time says "changed today" on
+  // every page at every deploy, and Google stops trusting the field for the
+  // whole site. Pages without a known edit date leave it out.
   const core = [
     "",
     "/product",
@@ -32,25 +38,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...core.map((path) => ({
       url: `${siteUrl}${path}`,
-      lastModified,
       changeFrequency: path === "" ? ("weekly" as const) : ("monthly" as const),
       priority: path === "" ? 1 : path === "/contact" ? 0.9 : 0.8,
     })),
     ...industries.map((industry) => ({
       url: `${siteUrl}/solutions/${industry.slug}`,
-      lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
     ...resources.map((resource) => ({
       url: `${siteUrl}/resources/${resource.slug}`,
-      lastModified,
+      lastModified: knownDate(resource.modified),
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),
     ...comparisons.map((comparison) => ({
       url: `${siteUrl}/compare/${comparison.slug}`,
-      lastModified,
+      // The day the competitor's pages were last read: "3 September 2026".
+      lastModified: knownDate(comparison.observed),
       changeFrequency: "monthly" as const,
       priority: 0.75,
     })),

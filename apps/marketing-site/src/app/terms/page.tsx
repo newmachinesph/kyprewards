@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Terms",
+  title: "Terms of service",
   description:
     "The terms governing customer, business, and staff access to KYP Rewards.",
   alternates: { canonical: "/terms" },
@@ -77,7 +77,7 @@ const sections = [
     title: "Liability and governing terms",
     paragraphs: [
       "To the fullest extent permitted by law, KYP Rewards is provided without guarantees beyond those expressly stated. We are not responsible for indirect or consequential losses arising from service use, business reward decisions, or third-party services.",
-      "Final governing-law, dispute-resolution, entity, and jurisdiction provisions will be added before commercial launch following legal review.",
+      "Final provisions on governing law and jurisdiction, dispute resolution, liability limits and the contracting entity will be added before commercial launch following legal review.",
     ],
   },
   {
@@ -95,7 +95,7 @@ export default function TermsPage() {
       eyebrow="Using the platform"
       title="Terms of service"
       summary="These terms explain the responsibilities of customers, businesses, staff, and KYP Rewards while using the loyalty platform."
-      effective="25 August 2026"
+      effective="12 October 2026"
       sections={sections}
     />
   );

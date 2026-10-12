@@ -122,7 +122,7 @@ export function PageHero({
 
 export function MarketingCta({
   title = "Make the next visit more likely.",
-  description = "Set up a clear, useful loyalty program in one afternoon.",
+  description = "Set up a loyalty program people actually understand, in one afternoon.",
 }: {
   title?: string;
   description?: string;

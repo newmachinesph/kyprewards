@@ -18,10 +18,10 @@ import { breadcrumb, webPage } from "@/lib/schema";
 export const metadata: Metadata = {
   title: "Pricing in Philippine Pesos",
   description:
-    "Free for one program with unlimited customers and branches. Paid tiers from ₱499 a month. Every message rate published — ₱0.95 per SMS, never bundled.",
+    "Free for one program with unlimited customers and branches. Paid tiers from ₱499 a month. Every message rate published: ₱0.95 per SMS, never bundled.",
   alternates: { canonical: "/pricing" },
   openGraph: {
-    title: "KYP Rewards pricing — from ₱0, in pesos",
+    title: "KYP Rewards pricing: from ₱0, in pesos",
     description:
       "Unlimited customers on every plan. Published per-message rates. No per-member fee, ever.",
     url: "/pricing",
@@ -81,7 +81,7 @@ export default function PricingPage() {
         image="/images/hero-pricing.webp"
         eyebrow="Simple plans, useful limits"
         title="Start small. Pay when loyalty starts working."
-        description="Launch the core visit-and-reward loop for free. Upgrade when you are ready to segment, automate, and see each branch on its own."
+        description="Run the visit-and-reward loop free on Launch. Upgrade when you're ready to segment customers, automate, and see each branch on its own."
       >
         <SiteButton href="/partners">Apply to join</SiteButton>
         <SiteButton href="#compare" tone="outline">
@@ -91,7 +91,7 @@ export default function PricingPage() {
       <AnswerBlock
         image="/images/answer-pricing.webp"
         question="How much does a loyalty program cost in the Philippines?"
-        answer="Free for one stamp card, any number of branches and unlimited customers — we never charge per member or per shop. Paid tiers open after beta at ₱499, ₱1,290 and ₱3,490 a month. The free plan starts below every paid loyalty tool with published peso pricing in the Philippines, and Core sits within a hundred pesos of the cheapest of them."
+        answer="Free for one stamp card, any number of branches and unlimited customers; we never charge per member or per shop. Paid tiers open after beta at ₱499, ₱1,290 and ₱3,490 a month. Other peso-priced loyalty tools also start free, but the ones we compared cap members at 50, allow one branch, or are free only for a limited time."
         points={[
           {
             label: "Launch, free:",
@@ -99,7 +99,7 @@ export default function PricingPage() {
           },
           {
             label: "Core, ₱499:",
-            text: "for the shop whose card is working — five staff, your own branding, three programs at once, birthday campaigns, three branches reported separately.",
+            text: "for the shop whose card is working: five staff, your own branding, three programs at once, birthday campaigns, three branches reported separately.",
           },
           {
             label: "Grow ₱1,290 and Scale ₱3,490:",
@@ -107,7 +107,7 @@ export default function PricingPage() {
           },
           {
             label: "Messaging is billed apart:",
-            text: "in-app and push free on every plan, campaign email with the paid tiers, SMS as credits at ₱0.95 a segment — never bundled into a price.",
+            text: "in-app and push free on every plan, campaign email with the paid tiers, SMS as credits at ₱0.95 a segment, never bundled into a price.",
           },
         ]}
         facts={[
@@ -141,9 +141,9 @@ export default function PricingPage() {
             </div>
             <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
               The whole product, row by row. Consent controls, reversals, the
-              staff ledger, and the spend preview are on every plan including
-              the free one — the paid tiers add scale, automation, and depth,
-              not the fundamentals.
+              staff ledger and the spend preview are on every plan, the free
+              one included. The paid tiers add scale, automation and depth,
+              not the basics.
             </p>
           </div>
           <div className="mt-12">
@@ -164,10 +164,10 @@ export default function PricingPage() {
             <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
               The in-app inbox and push are included on every plan. Campaign
               email carries a monthly allowance on the paid tiers, and past it
-              you buy more at the rate below — no forced upgrade, no surprise
-              invoice. SMS is the deliberate exception: carriers charge us for
-              every single send, so it is credit-based on every plan and you see
-              the cost before the message goes.
+              you buy more at the rate below. No forced upgrade, no surprise
+              invoice. SMS is the exception, on purpose: carriers charge us for
+              every send, so it runs on credits on every plan and you see the
+              cost before the message goes.
             </p>
           </div>
           <div className="mt-12">
@@ -176,7 +176,7 @@ export default function PricingPage() {
           <p className="mt-6 max-w-[80ch] text-xs leading-relaxed text-[var(--muted)]">
             Add-on rates are billed monthly in arrears and exclude applicable
             taxes. You can set a hard spend ceiling per campaign and per month;
-            sends stop at the ceiling rather than overspending silently.
+            sending stops at the ceiling instead of quietly going over.
           </p>
         </div>
       </section>
@@ -191,14 +191,14 @@ export default function PricingPage() {
               </h2>
             </div>
             <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-              The subscription never charges you for growing — more customers,
-              more branches, more stamps cost nothing extra. These are the
-              things a shop that is doing well chooses to buy: visibility, a
-              person&apos;s time, and message volume.{" "}
+              The subscription never charges you for growing. More customers,
+              more branches and more stamps cost nothing extra. These are what
+              a shop that&apos;s doing well chooses to buy: visibility, a
+              person&apos;s time and message volume.{" "}
               {/* Said "all open with the paid tiers", directly above a table
                   listing three of the five as available on Launch. */}
-              Each row says which plans it is on; setup is free for every
-              founding merchant now.
+              Each row says which plans it&apos;s on, and setup is free for
+              every founding merchant right now.
             </p>
           </div>
           <div className="mt-12">
@@ -213,13 +213,13 @@ export default function PricingPage() {
             <div>
               <SiteEyebrow>Costs before checkout</SiteEyebrow>
               <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
-                Price the relationship, including delivery.
+                Your real monthly cost, messages included.
               </h2>
             </div>
             <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-              Software should be predictable; paid delivery should be
-              transparent. Estimate the right plan, channel overage, and number
-              of profitable return visits needed to cover it.
+              The subscription should be predictable and message costs should
+              be out in the open. Estimate your plan, your channel overage, and
+              how many profitable return visits it takes to cover both.
             </p>
           </div>
           <div className="mt-12">
@@ -234,7 +234,7 @@ export default function PricingPage() {
             <div>
               <SiteEyebrow>Included in every plan</SiteEyebrow>
               <h2 className="mt-4 max-w-[11ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
-                The fundamentals are never add-ons.
+                The basics are never add-ons.
               </h2>
             </div>
             <div className="grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2">
@@ -243,25 +243,25 @@ export default function PricingPage() {
                   icon: ShieldCheck,
                   title: "Customer privacy controls",
                   detail:
-                    "Consent, joined-business visibility, profile sharing, export, and deletion requests are built in.",
+                    "Consent, joined-shop visibility, profile sharing, export and deletion requests: all built in.",
                 },
                 {
                   icon: MessagesSquare,
                   title: "In-app communication",
                   detail:
-                    "Reach customers in their KYP Rewards inbox without an external provider.",
+                    "Reach customers in their KYP inbox without an outside provider.",
                 },
                 {
                   icon: Building2,
                   title: "Business profile and discovery",
                   detail:
-                    "Publish your category, location, hours, and program in Discover.",
+                    "Put your category, location, hours and program in Discover.",
                 },
                 {
                   icon: Check,
                   title: "The whole stamp card",
                   detail:
-                    "Welcome stamp, cooldown, held rewards, customer-approved redemption, reversals and a full staff ledger — on the free plan too.",
+                    "Welcome stamp, cooldown, held rewards, customer-approved redemption, reversals and a full staff ledger, on the free plan too.",
                 },
               ].map((item) => {
                 const Icon = item.icon;

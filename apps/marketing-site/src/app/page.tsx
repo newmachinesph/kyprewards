@@ -34,15 +34,15 @@ export const metadata: Metadata = {
   // append the brand a second time — it is already the first word here.
   title: {
     absolute:
-      "KYP Rewards — Free Digital Stamp Cards for Philippine Shops",
+      "KYP Rewards: Free Digital Stamp Cards for Philippine Shops",
   },
   description:
     "Free digital stamp cards for Philippine cafés, salons, restaurants and shops. Unlimited customers, nothing to install, no POS to replace. From ₱0.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "KYP Rewards — Loyalty, made local",
+    title: "KYP Rewards: Loyalty, made local",
     description:
-      "Turn one visit into the next. A loyalty program your customers understand, your staff can run in seconds, and you can actually learn from. Free to start, unlimited customers.",
+      "Turn one visit into the next. A stamp card customers get at a glance, staff run in seconds, and you learn from. Free to start, unlimited customers.",
     url: "/",
     siteName: "KYP Rewards",
     locale: "en_PH",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "KYP Rewards — Loyalty, made local",
+    title: "KYP Rewards: Loyalty, made local",
     description:
       "Free digital stamp cards for Philippine shops. Unlimited customers, nothing to install, no POS to replace.",
   },
@@ -97,7 +97,7 @@ export default function HomePage() {
       <section className="site-canvas pad-seam relative">
         <div className="relative px-4 sm:px-6 lg:px-8">
           <div className="mx-auto flex max-w-[1400px] flex-col items-center pt-14 text-center lg:pt-20">
-            <SiteEyebrow>Built for the businesses people remember</SiteEyebrow>
+            <SiteEyebrow>For the shops people come back to</SiteEyebrow>
             <h1 className="mt-7 max-w-[13ch] text-6xl font-extrabold leading-[0.92] tracking-[-0.035em] sm:text-7xl lg:text-[96px]">
               Turn one visit into the{" "}
               <span className="text-[var(--accent-strong)]">next.</span>
@@ -149,7 +149,7 @@ export default function HomePage() {
           <SectionHead
             eyebrow="One customer loop"
             title="Simple at the counter. Useful everywhere else."
-            lede="A stranger scans your poster and a welcome stamp is waiting for them. On their first visit your staff make it real. Every visit after is one scan of their own code — and nobody stamps themselves."
+            lede="A stranger scans your poster and finds a welcome stamp waiting. On their first visit, your staff make it real. After that, every visit is one scan of their own code, and nobody stamps themselves."
           />
 
           <div className="mt-14 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
@@ -180,8 +180,8 @@ export default function HomePage() {
                   </h3>
                   <p className="mt-3 text-sm leading-relaxed text-white sm:text-base">
                     Scan the customer&apos;s own code, confirm the visit, move on.
-                    No plastic, no form at the till, no checkout slowdown — and a
-                    cooldown you set means a card cannot be filled in an
+                    No plastic, no form at the till, no slower checkout. A
+                    cooldown you set means nobody fills a card in one
                     afternoon.
                   </p>
                 </div>
@@ -224,14 +224,14 @@ export default function HomePage() {
           <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
             <div>
               <SiteEyebrow inverse>
-                Everything in one calm workspace
+                One screen for the owner
               </SiteEyebrow>
               <h2 className="mt-5 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em] sm:text-5xl">
                 Know your regulars without guessing.
               </h2>
               <p className="mt-5 max-w-[46ch] text-base leading-relaxed text-white/70">
-                See the whole loyalty cycle — from first scan to earned
-                reward — then act on the moments that matter.
+                Follow each customer from their first scan to the reward
+                they earn, and know when it&apos;s worth stepping in.
               </p>
               <div className="mt-8 space-y-4">
                 {[
@@ -278,7 +278,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1400px]">
           <SectionHead
             eyebrow="Made to fit the visit"
-            title="Different businesses. Same human habit."
+            title="Different shops, same habit: people come back."
           />
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {industries.map((industry, index) => (
@@ -305,7 +305,7 @@ export default function HomePage() {
             ))}
           </div>
           <div className="mt-10 flex justify-center">
-            <TextLink href="/solutions">Explore every solution</TextLink>
+            <TextLink href="/solutions">See every industry</TextLink>
           </div>
         </div>
       </section>
@@ -317,8 +317,8 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1400px]">
           <SectionHead
             eyebrow="Built for the Philippines"
-            title="Not translated for the market. Built in it."
-            lede="Every global loyalty tool bills in dollars, emails in English and assumes a card reader. This one is priced in pesos, paid by GCash, reads on a ₱5,000 Android with patchy data, and calls a regular what you already call them."
+            title="Built in Manila, for shops like yours."
+            lede="Global loyalty tools bill in dollars, email in English and assume a card reader. This one is priced in pesos, paid by GCash, works on a ₱5,000 Android with patchy data, and calls a regular what you already call them."
             titleWidth="22ch"
           />
           <div className="panel shadow-lift mt-12 grid gap-px overflow-hidden border border-white/12 bg-white/12 sm:grid-cols-2 lg:grid-cols-3">
@@ -326,22 +326,22 @@ export default function HomePage() {
               {
                 icon: Wallet,
                 title: "Pesos, paid by GCash or Maya",
-                text: `Priced, billed and settled in pesos — ${paymentMethodsText}. The free plan starts below every paid tool with published peso pricing, and Core at ₱499 stays within a hundred pesos of the cheapest of them.`,
+                text: `Priced, billed and settled in pesos through ${paymentMethodsText}. Launch is free for unlimited customers and any number of branches; the other free tiers we compared stop at 50 members, allow one branch, or are free for a limited time.`,
               },
               {
                 icon: Crown,
                 title: "Suki is the model",
-                text: "Tiers a customer climbs, named the way you would say them. The win-back message we would send first is “one more visit keeps your suki status” — because it is true.",
+                text: "Tiers a customer climbs, named the way you'd say them. The first win-back message we'd send is “one more visit keeps your suki status,” because it's true.",
               },
               {
                 icon: Smartphone,
-                title: "Viber and Facebook, not just email",
-                text: "The join link lives in a Facebook page bio, and Viber and WhatsApp are being connected as campaign channels next — because that is where your customers actually read.",
+                title: "Viber and Facebook, as well as email",
+                text: "Your join link sits in your Facebook page bio, and we're connecting Viber and WhatsApp as campaign channels next, since that's where your customers actually read.",
               },
               {
                 icon: Languages,
-                title: "English or Filipino at the counter",
-                text: "Owner and counter screens in Filipino as well as English — on the roadmap, done properly. The one thing between this and a carinderia.",
+                title: "English now, Filipino on the roadmap",
+                text: "Owner and counter screens in Filipino as well as English. It's on the roadmap and we'll do it properly, because it's the one thing standing between this and a carinderia.",
               },
               {
                 icon: Fingerprint,
@@ -394,10 +394,10 @@ export default function HomePage() {
             <div>
               <SiteEyebrow>Field notes</SiteEyebrow>
               <h2 className="mt-5 text-4xl font-extrabold tracking-[-0.03em]">
-                Build loyalty with intention.
+                Notes from the counter.
               </h2>
               <p className="mt-4 max-w-[40ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                Practical guidance for rewards, campaigns, and customer trust.
+                Plain advice on rewards, campaigns and keeping your customers&apos; trust.
               </p>
             </div>
             <div className="grid gap-3">

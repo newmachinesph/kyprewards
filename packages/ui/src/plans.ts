@@ -8,10 +8,11 @@
  * revenue view.
  *
  * Customers are unlimited on every tier, including the free one. That used to
- * be the axis — 250 / 1,500 / 10,000 / 50,000 — and nothing else in this market
- * prices that way: GoBalik and ZAP both give an unlimited free tier, and Suki
- * says outright that it charges no per-customer fee. A 250-customer free plan
- * was the worst number on this page.
+ * be the axis (250 / 1,500 / 10,000 / 50,000). When that changed in August
+ * 2026, GoBalik and ZAP both gave an unlimited free tier and Suki said it
+ * charged no per-customer fee, so a 250-customer free plan was the worst number
+ * on this page. ScalePlus Rewards does price by members (src/lib/comparisons.ts
+ * in the marketing site), which is the comparison this choice wins.
  *
  * It also measured the wrong thing. A loyalty program exists to accumulate
  * members and they never leave the count, so a member-based bill only ratchets
@@ -151,7 +152,7 @@ export const featureMatrix: FeatureGroup[] = [
     rows: [
       {
         label: "Branches",
-        hint: "A chain is one company and the loyalty card is centralized across it, so we do not charge for having shops. What a paid plan buys is seeing each of them separately — see Branch analytics below.",
+        hint: "A chain is one company and the loyalty card is centralized across it, so we do not charge for having shops. What a paid plan buys is seeing each of them separately (see Branch analytics below).",
         cells: ["Unlimited", "Unlimited", "Unlimited", "Unlimited"],
       },
       {
@@ -240,7 +241,7 @@ export const featureMatrix: FeatureGroup[] = [
       },
       {
         label: "What happens when a card closes",
-        hint: "Unfinished stamps either expire or carry over to a successor card you name. A reward already earned is always honoured, for a grace period you set — default 30 days. Invalidating an earned reward is not something we offer.",
+        hint: "Unfinished stamps either expire or carry over to a successor card you name. A reward already earned is always honoured, for a grace period you set, 30 days by default. Invalidating an earned reward is not something we offer.",
         cells: ["You choose", "You choose", "You choose", "You choose"],
       },
       {
@@ -281,12 +282,12 @@ export const featureMatrix: FeatureGroup[] = [
     rows: [
       {
         label: "Bonus windows",
-        hint: "Double stamps from 2 to 4 on a Tuesday, triple on the Ber months, extra on a slow branch. A schedule, a multiplier, and an end date — the composer shows what it will cost before you switch it on.",
+        hint: "Double stamps from 2 to 4 on a Tuesday, triple on the Ber months, extra on a slow branch. Set a schedule, a multiplier and an end date, and the composer shows what it will cost before you switch it on.",
         cells: [false, true, true, true],
       },
       {
         label: "Promo codes",
-        hint: "A public code — WELCOME, FIESTA, the name of the barangay — that grants a stamp, points or a coupon once per member. Put it on a flyer, a tarp, a Facebook post.",
+        hint: "A public code (WELCOME, FIESTA, the name of the barangay) that grants a stamp, points or a coupon once per member. Put it on a flyer, a tarp, a Facebook post.",
         cells: [false, true, true, true],
       },
       {
@@ -296,7 +297,7 @@ export const featureMatrix: FeatureGroup[] = [
       },
       {
         label: "Suki tiers",
-        hint: "Levels a customer climbs by visits or spend — you name them, three or four is plenty — with a benefit at each: a better earn rate, a reserved reward, first pick of a bonus window. Automatic up, gentle down.",
+        hint: "Levels a customer climbs by visits or spend, with a benefit at each (you name them; three or four is plenty): a better earn rate, a reserved reward, first pick of a bonus window. Automatic up, gentle down.",
         cells: [false, false, true, true],
       },
       {
@@ -358,7 +359,7 @@ export const featureMatrix: FeatureGroup[] = [
       { label: "Custom fields", cells: [false, true, true, true] },
       {
         label: "Favorite orders",
-        hint: "The regular's usual, noted once and shown to staff at the counter — and the context a birthday offer is built on.",
+        hint: "The regular's usual, noted once and shown to staff at the counter, and the context a birthday offer is built on.",
         cells: [true, true, true, true],
       },
       {
@@ -376,7 +377,7 @@ export const featureMatrix: FeatureGroup[] = [
       { label: "Customer import", cells: [false, true, true, true] },
       {
         label: "Consent ledger and privacy rights",
-        hint: "Consent, export, and deletion requests are built in on every plan — they are not an upsell.",
+        hint: "Consent, export, and deletion requests are built in on every plan. They aren't an upsell.",
         cells: [true, true, true, true],
       },
     ],
@@ -432,8 +433,8 @@ export const featureMatrix: FeatureGroup[] = [
       },
       {
         label: "Email campaigns",
-        hint: "A monthly campaign allowance on the paid tiers. Past it, buy more — you are never cut off mid-send or pushed up a tier to finish a month. Sign-in codes, reward notices, staff invitations and data-export links are separate: they always send, on every plan including the free one, and never count against this.",
-        cells: ["—", "1,000", "3,000", "10,000"],
+        hint: "A monthly campaign allowance on the paid tiers. Past it, buy more; you're never cut off mid-send or pushed up a tier to finish a month. Sign-in codes, reward notices, staff invitations and data-export links are separate: they always send, on every plan including the free one, and never count against this.",
+        cells: ["None", "1,000", "3,000", "10,000"],
       },
       {
         label: "SMS credits",
@@ -442,7 +443,7 @@ export const featureMatrix: FeatureGroup[] = [
       },
       {
         label: "Viber and WhatsApp campaigns",
-        hint: "Chosen automatically per customer, from ₱0.42 a message — cheaper than SMS and read sooner. Being connected and not live yet; when it opens the campaign composer will try them before falling back to SMS.",
+        hint: "Chosen automatically per customer, from ₱0.42 a message, which is cheaper than SMS and read sooner. Being connected and not live yet; when it opens the campaign composer will try them before falling back to SMS.",
         cells: [false, "Coming", "Coming", "Coming"],
       },
     ],
@@ -506,7 +507,7 @@ export const featureMatrix: FeatureGroup[] = [
       },
       {
         label: "KYP Rewards badge on customer cards",
-        hint: "The free plan carries our badge. Every paid plan removes it — your customers should be looking at your shop, not at us.",
+        hint: "The free plan carries our badge. Every paid plan removes it, because your customers should be looking at your shop, not at us.",
         cells: ["Shown", "Hidden", "Hidden", "Hidden"],
       },
       { label: "API access", cells: [false, false, true, true] },
@@ -545,7 +546,7 @@ export const paymentMethodsText = `${paymentMethods.slice(0, -1).join(", ")} and
 export const foundingOffer = {
   headline: "Founding merchants get Core free for three months when it opens.",
   detail:
-    "Join during the beta and, when the paid tiers open, your shop moves to Core at no charge for its first three months — five staff, your own branding, three programs, birthday campaigns — then ₱499 a month, or ₱399 billed yearly. Stay on Launch instead if you prefer; nothing changes for you.",
+    "Join during the beta and, when the paid tiers open, your shop moves to Core at no charge for its first three months (five staff, your own branding, three programs, birthday campaigns), then ₱499 a month, or ₱399 billed yearly. Stay on Launch instead if you prefer; nothing changes for you.",
 };
 
 /**
@@ -612,7 +613,7 @@ export const channelRates = [
   },
   {
     channel: "Messaging apps",
-    included: "Not live yet — pay as you send when it opens",
+    included: "Not live yet. Pay as you send when it opens",
     overage: "From ₱0.42 per message",
     detail:
       "Viber and WhatsApp, chosen automatically per customer. Cheaper than SMS and better looking, and most people read them sooner. Being connected and not live yet; when it opens the composer will try them before SMS.",

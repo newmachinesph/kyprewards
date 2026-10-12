@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: `${industry.headline} Free digital stamp cards for ${industry.name.toLowerCase()}, built for the Philippines.`,
     alternates: { canonical: `/solutions/${industry.slug}` },
     openGraph: {
-      title: `${industry.headline} — KYP Rewards for ${industry.name}`,
+      title: `${industry.headline} | KYP Rewards for ${industry.name}`,
       description: industry.description,
       url: `/solutions/${industry.slug}`,
       locale: "en_PH",
@@ -117,7 +117,7 @@ export default async function IndustryPage({ params }: Props) {
           <div>
             <SiteEyebrow>The real challenge</SiteEyebrow>
             <h2 className="mt-4 max-w-[12ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
-              Recognition gets harder when business gets busy.
+              Remembering regulars gets harder when it gets busy.
             </h2>
           </div>
           <div className="self-end">
@@ -150,10 +150,10 @@ export default async function IndustryPage({ params }: Props) {
             <div>
               <SiteEyebrow>For {industry.name.toLowerCase()}</SiteEyebrow>
               <h2 className="mt-4 text-4xl font-extrabold tracking-[-0.03em]">
-                The levers that fit.
+                What fits your shop.
               </h2>
               <p className="mt-4 max-w-[38ch] text-sm leading-relaxed text-[var(--muted-strong)]">
-                Each one names the plan it arrives with. The stamp card itself is
+                Each one shows the plan it comes with. The stamp card itself is
                 free.
               </p>
             </div>
@@ -200,7 +200,7 @@ export default async function IndustryPage({ params }: Props) {
         <div className="mx-auto max-w-[1400px]">
           <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr]">
             <div>
-              <SiteEyebrow inverse>Launch sequence</SiteEyebrow>
+              <SiteEyebrow inverse>Getting started</SiteEyebrow>
               <h2 className="mt-4 max-w-[10ch] text-4xl font-extrabold leading-[1] tracking-[-0.03em]">
                 Live before the next busy day.
               </h2>
@@ -214,7 +214,7 @@ export default async function IndustryPage({ params }: Props) {
                 },
                 {
                   title: "Put the join code out",
-                  detail: "Poster, sticker, receipt, Instagram bio. A welcome stamp waits for everyone who scans it.",
+                  detail: "On a poster, a sticker, a receipt or your Instagram bio. Everyone who scans it gets a welcome stamp.",
                   icon: QrCode,
                 },
                 {
@@ -224,7 +224,7 @@ export default async function IndustryPage({ params }: Props) {
                 },
                 {
                   title: "Confirm the first visit",
-                  detail: "One scan makes their welcome stamp real and earns the visit. The card reads two.",
+                  detail: "One scan makes their welcome stamp real and adds a stamp for the visit, so the card reads two.",
                   icon: Stamp,
                 },
               ].map((step, index) => {
@@ -258,7 +258,7 @@ export default async function IndustryPage({ params }: Props) {
 
       <MarketingCta
         title={`A loyalty program shaped for ${industry.name.toLowerCase()}.`}
-        description="Tell us how often your best customers return and what they value. We’ll help you turn that rhythm into a clear program."
+        description="Tell us how often your best customers come back and what they care about. We’ll help you turn that into a clear program."
       />
     </main>
     </>
