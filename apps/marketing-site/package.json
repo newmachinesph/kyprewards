@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3003",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start --port 3003",
     "typecheck": "tsc --noEmit",
     "indexnow": "node scripts/indexnow.mjs"
@@ -17,7 +17,7 @@
     "@tanstack/react-query": "^5.102.8",
     "geist": "latest",
     "lucide-react": "latest",
-    "next": "16.3.2",
+    "next": "16.4.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-hook-form": "^7.86.0",
