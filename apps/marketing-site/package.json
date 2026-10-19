@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --port 3003",
     "build": "next build --webpack",
+    "postbuild": "node ../../scripts/hostinger-standalone.mjs",
     "start": "next start --port 3003",
     "typecheck": "tsc --noEmit",
     "indexnow": "node scripts/indexnow.mjs"
